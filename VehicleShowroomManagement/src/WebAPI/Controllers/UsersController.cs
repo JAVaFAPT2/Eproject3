@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -47,11 +48,24 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpGet("{id}")]
         [Authorize(Roles = "HR,Admin")] // Only HR and Admin can view specific users
-        public Task<ActionResult<UserDto>> GetUser(int id)
+        public async Task<ActionResult<UserDto>> GetUser(string id)
         {
-            // This would typically be implemented with a GetUserByIdQuery
-            // For now, returning NotImplemented
-            return Task.FromResult<ActionResult<UserDto>>(NotFound());
+            try
+            {
+                var query = new GetUserByIdQuery(id);
+                var user = await _mediator.Send(query);
+
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         /// <summary>
@@ -78,11 +92,24 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpPut("{id}")]
         [Authorize(Roles = "HR,Admin")] // Only HR and Admin can update users
-        public Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserRequest request)
         {
-            // This would typically be implemented with an UpdateUserCommand
-            // For now, returning NotImplemented
-            return Task.FromResult<IActionResult>(StatusCode(501, "Not Implemented"));
+            try
+            {
+                var command = new UpdateUserCommand(
+                    id,
+                    request.FirstName,
+                    request.LastName,
+                    request.Email,
+                    request.RoleId.ToString());
+
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         /// <summary>
@@ -90,11 +117,19 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")] // Only Admin can delete users
-        public Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(string id)
         {
-            // This would typically be implemented with a DeleteUserCommand
-            // For now, returning NotImplemented
-            return Task.FromResult<IActionResult>(StatusCode(501, "Not Implemented"));
+            try
+            {
+                var command = new DeleteUserCommand(id);
+                await _mediator.Send(command);
+
+                return Ok(new { message = "User deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         /// <summary>
@@ -102,11 +137,26 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpGet("profile")]
         [Authorize] // Any authenticated user can view their own profile
-        public Task<ActionResult<UserDto>> GetProfile()
+        public async Task<IActionResult> GetProfile()
         {
-            // This would typically get the current user from the authentication context
-            // For now, returning NotImplemented
-            return Task.FromResult<ActionResult<UserDto>>(StatusCode(501, "Not Implemented"));
+            try
+            {
+                // Get current user ID from JWT token claims
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "Invalid token" });
+                }
+
+                var query = new GetUserProfileQuery(userId);
+                var profile = await _mediator.Send(query);
+
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 
@@ -128,10 +178,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     /// </summary>
     public class UpdateUserRequest
     {
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
         public int RoleId { get; set; }
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
     }
 }

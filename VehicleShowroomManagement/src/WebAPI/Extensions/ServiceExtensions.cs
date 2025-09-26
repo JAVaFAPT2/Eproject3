@@ -70,6 +70,7 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
             services.AddScoped<IRepository<Invoice>>(sp => new MongoRepository<Invoice>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Invoices"));
             services.AddScoped<IRepository<Payment>>(sp => new MongoRepository<Payment>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Payments"));
             services.AddScoped<IRepository<ServiceOrder>>(sp => new MongoRepository<ServiceOrder>(sp.GetRequiredService<VehicleShowroomDbContext>(), "ServiceOrders"));
+            services.AddScoped<IRepository<ReturnRequest>>(sp => new MongoRepository<ReturnRequest>(sp.GetRequiredService<VehicleShowroomDbContext>(), "ReturnRequests"));
 
             // Register domain services
             services.AddScoped<IPricingService, PricingService>();

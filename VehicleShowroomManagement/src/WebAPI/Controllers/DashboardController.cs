@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using VehicleShowroomManagement.Application.Queries;
-using System.Threading.Tasks;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -12,15 +11,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/dashboard")]
     [Authorize]
-    public class DashboardController : ControllerBase
+    public class DashboardController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public DashboardController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Get revenue comparison by time period (month, year)
         /// </summary>
@@ -31,7 +23,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var query = new GetRevenueComparisonQuery(period);
-                var result = await _mediator.Send(query);
+                var result = await mediator.Send(query);
 
                 return Ok(result);
             }
@@ -51,7 +43,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var query = new GetCustomerGrowthQuery(period);
-                var result = await _mediator.Send(query);
+                var result = await mediator.Send(query);
 
                 return Ok(result);
             }
@@ -70,7 +62,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var query = new GetTopVehiclesQuery();
-                var result = await _mediator.Send(query);
+                var result = await mediator.Send(query);
 
                 return Ok(result);
             }
@@ -89,7 +81,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var query = new GetRecentOrdersQuery();
-                var result = await _mediator.Send(query);
+                var result = await mediator.Send(query);
 
                 return Ok(result);
             }

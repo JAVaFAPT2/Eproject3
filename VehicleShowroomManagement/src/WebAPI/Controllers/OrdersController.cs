@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Commands;
 using VehicleShowroomManagement.Application.Queries;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 using CustomerInfo = VehicleShowroomManagement.Application.DTOs.CustomerInfo;
 
@@ -17,15 +14,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class OrdersController : ControllerBase
+    public class OrdersController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public OrdersController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Get all orders
         /// </summary>
@@ -37,7 +27,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var query = new GetOrdersQuery(pageNumber, pageSize);
-                var result = await _mediator.Send(query);
+                var result = await mediator.Send(query);
 
                 return Ok(result);
             }
@@ -56,7 +46,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var query = new GetOrderByIdQuery(id);
-                var result = await _mediator.Send(query);
+                var result = await mediator.Send(query);
 
                 if (result == null)
                 {
@@ -86,7 +76,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                     request.TotalAmount,
                     request.PaymentMethod);
 
-                var result = await _mediator.Send(command);
+                var result = await mediator.Send(command);
 
                 return CreatedAtAction(nameof(GetOrder), new { id = result.Id }, result);
             }
@@ -106,7 +96,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var command = new PrintOrderCommand(id);
-                var result = await _mediator.Send(command);
+                var result = await mediator.Send(command);
 
                 return Ok(new { message = "Order printed successfully", printData = result });
             }

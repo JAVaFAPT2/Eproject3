@@ -16,17 +16,20 @@ namespace VehicleShowroomManagement.Application.Handlers
     public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, OrderDto>
     {
         private readonly IRepository<SalesOrder> _orderRepository;
+        private readonly IRepository<SalesOrderItem> _orderItemRepository;
         private readonly IRepository<Customer> _customerRepository;
         private readonly IRepository<Vehicle> _vehicleRepository;
         private readonly IRepository<User> _userRepository;
 
         public CreateOrderCommandHandler(
             IRepository<SalesOrder> orderRepository,
+            IRepository<SalesOrderItem> orderItemRepository,
             IRepository<Customer> customerRepository,
             IRepository<Vehicle> vehicleRepository,
             IRepository<User> userRepository)
         {
             _orderRepository = orderRepository;
+            _orderItemRepository = orderItemRepository;
             _customerRepository = customerRepository;
             _vehicleRepository = vehicleRepository;
             _userRepository = userRepository;
@@ -97,6 +100,9 @@ namespace VehicleShowroomManagement.Application.Handlers
                 }
             };
 
+            // Remove the embedded SalesOrderItems from the order since we're using separate collection
+            order.SalesOrderItems = new List<SalesOrderItem>();
+
             await _orderRepository.AddAsync(order);
             await _orderRepository.SaveChangesAsync();
 
@@ -106,6 +112,7 @@ namespace VehicleShowroomManagement.Application.Handlers
                 Id = ObjectId.GenerateNewId().ToString(),
                 SalesOrderId = order.Id,
                 VehicleId = request.VehicleId,
+                Quantity = 1,
                 UnitPrice = request.TotalAmount,
                 Discount = 0,
                 LineTotal = request.TotalAmount,
@@ -114,8 +121,8 @@ namespace VehicleShowroomManagement.Application.Handlers
                 IsDeleted = false
             };
 
-            // Save the SalesOrderItem (would need IRepository<SalesOrderItem> injected)
-            // For now, we'll just return the order without the item
+            await _orderItemRepository.AddAsync(salesOrderItem);
+            await _orderItemRepository.SaveChangesAsync();
 
             return MapToDto(order);
         }

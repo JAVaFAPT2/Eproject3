@@ -115,4 +115,47 @@ namespace VehicleShowroomManagement.Application.Handlers
             };
         }
     }
+
+    /// <summary>
+    /// Handler for getting a single user by ID
+    /// </summary>
+    public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto?>
+    {
+        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Role> _roleRepository;
+
+        public GetUserByIdQueryHandler(
+            IRepository<User> userRepository,
+            IRepository<Role> roleRepository)
+        {
+            _userRepository = userRepository;
+            _roleRepository = roleRepository;
+        }
+
+        public async Task<UserDto?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+        {
+            var user = await _userRepository.GetByIdAsync(request.UserId);
+
+            if (user == null || user.IsDeleted)
+            {
+                return null;
+            }
+
+            var role = await _roleRepository.GetByIdAsync(user.RoleId);
+
+            return new UserDto
+            {
+                UserId = int.Parse(user.Id),
+                Username = user.Username,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                RoleId = int.Parse(user.RoleId),
+                RoleName = role?.RoleName ?? "Unknown",
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
+            };
+        }
+    }
 }

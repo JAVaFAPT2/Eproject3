@@ -24,4 +24,17 @@ namespace VehicleShowroomManagement.Application.Queries
             PageSize = pageSize;
         }
     }
+
+    /// <summary>
+    /// Query for retrieving a single user by ID
+    /// </summary>
+    public class GetUserByIdQuery : IRequest<UserDto?>
+    {
+        public string UserId { get; set; }
+
+        public GetUserByIdQuery(string userId)
+        {
+            UserId = userId;
+        }
+    }
 }

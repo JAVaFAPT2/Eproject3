@@ -39,4 +39,52 @@ namespace VehicleShowroomManagement.Application.Commands
             NewPassword = newPassword;
         }
     }
+
+    /// <summary>
+    /// Command for updating a user (admin function)
+    /// </summary>
+    public class UpdateUserCommand : IRequest<UserDto>
+    {
+        public string UserId { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
+        public string? Phone { get; set; }
+        public decimal? Salary { get; set; }
+        public string? RoleId { get; set; }
+        public bool? IsActive { get; set; }
+
+        public UpdateUserCommand(
+            string userId,
+            string? firstName = null,
+            string? lastName = null,
+            string? email = null,
+            string? phone = null,
+            decimal? salary = null,
+            string? roleId = null,
+            bool? isActive = null)
+        {
+            UserId = userId;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Phone = phone;
+            Salary = salary;
+            RoleId = roleId;
+            IsActive = isActive;
+        }
+    }
+
+    /// <summary>
+    /// Command for deleting a user (admin function)
+    /// </summary>
+    public class DeleteUserCommand : IRequest<Unit>
+    {
+        public string UserId { get; set; }
+
+        public DeleteUserCommand(string userId)
+        {
+            UserId = userId;
+        }
+    }
 }

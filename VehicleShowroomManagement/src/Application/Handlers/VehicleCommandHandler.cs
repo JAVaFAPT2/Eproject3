@@ -5,8 +5,12 @@ using MediatR;
 using MongoDB.Bson;
 using VehicleShowroomManagement.Application.Commands;
 using VehicleShowroomManagement.Application.DTOs;
-using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Interfaces;
+using VehicleShowroomManagement.Domain.Entities;
+using VehicleEntity = VehicleShowroomManagement.Domain.Entities.Vehicle;
+using BrandEntity = VehicleShowroomManagement.Domain.Entities.Brand;
+using ModelEntity = VehicleShowroomManagement.Domain.Entities.Model;
+
 
 namespace VehicleShowroomManagement.Application.Handlers
 {
@@ -15,12 +19,12 @@ namespace VehicleShowroomManagement.Application.Handlers
     /// </summary>
     public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand, VehicleDto>
     {
-        private readonly IRepository<Vehicle> _vehicleRepository;
+        private readonly IRepository<VehicleEntity> _vehicleRepository;
         private readonly IRepository<Brand> _brandRepository;
         private readonly IRepository<Model> _modelRepository;
 
         public CreateVehicleCommandHandler(
-            IRepository<Vehicle> vehicleRepository,
+            IRepository<VehicleEntity> vehicleRepository,
             IRepository<Brand> brandRepository,
             IRepository<Model> modelRepository)
         {
@@ -74,7 +78,7 @@ namespace VehicleShowroomManagement.Application.Handlers
             }
 
             // Create vehicle
-            var vehicle = new Vehicle
+            var vehicle = new VehicleEntity
             {
                 Id = ObjectId.GenerateNewId().ToString(),
                 VIN = request.ModelNumber, // Using ModelNumber as VIN for now
@@ -86,9 +90,8 @@ namespace VehicleShowroomManagement.Application.Handlers
                 Status = request.Status,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                IsDeleted = false,
-                // Model info would be populated from model data
-                // For now, set basic properties
+                IsDeleted = false
+                // Model info will be populated via reference to ModelId
             };
 
             await _vehicleRepository.AddAsync(vehicle);
@@ -97,7 +100,7 @@ namespace VehicleShowroomManagement.Application.Handlers
             return MapToDto(vehicle);
         }
 
-        private static VehicleDto MapToDto(Vehicle vehicle)
+        private static VehicleDto MapToDto(VehicleEntity vehicle)
         {
             return new VehicleDto
             {
@@ -136,9 +139,9 @@ namespace VehicleShowroomManagement.Application.Handlers
     /// </summary>
     public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand, Unit>
     {
-        private readonly IRepository<Vehicle> _vehicleRepository;
+        private readonly IRepository<VehicleEntity> _vehicleRepository;
 
-        public UpdateVehicleCommandHandler(IRepository<Vehicle> vehicleRepository)
+        public UpdateVehicleCommandHandler(IRepository<VehicleEntity> vehicleRepository)
         {
             _vehicleRepository = vehicleRepository;
         }
@@ -167,9 +170,9 @@ namespace VehicleShowroomManagement.Application.Handlers
     /// </summary>
     public class DeleteVehicleCommandHandler : IRequestHandler<DeleteVehicleCommand, Unit>
     {
-        private readonly IRepository<Vehicle> _vehicleRepository;
+        private readonly IRepository<VehicleEntity> _vehicleRepository;
 
-        public DeleteVehicleCommandHandler(IRepository<Vehicle> vehicleRepository)
+        public DeleteVehicleCommandHandler(IRepository<VehicleEntity> vehicleRepository)
         {
             _vehicleRepository = vehicleRepository;
         }
@@ -195,9 +198,9 @@ namespace VehicleShowroomManagement.Application.Handlers
     /// </summary>
     public class DeleteVehiclesCommandHandler : IRequestHandler<DeleteVehiclesCommand, Unit>
     {
-        private readonly IRepository<Vehicle> _vehicleRepository;
+        private readonly IRepository<VehicleEntity> _vehicleRepository;
 
-        public DeleteVehiclesCommandHandler(IRepository<Vehicle> vehicleRepository)
+        public DeleteVehiclesCommandHandler(IRepository<VehicleEntity> vehicleRepository)
         {
             _vehicleRepository = vehicleRepository;
         }

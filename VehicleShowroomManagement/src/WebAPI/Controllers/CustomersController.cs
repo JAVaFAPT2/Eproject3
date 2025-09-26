@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Queries;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -14,15 +11,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class CustomersController : ControllerBase
+    public class CustomersController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public CustomersController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Get all customers
         /// </summary>
@@ -35,7 +25,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var query = new GetCustomersQuery(searchTerm, pageNumber, pageSize);
-                var result = await _mediator.Send(query);
+                var result = await mediator.Send(query);
 
                 return Ok(result);
             }
@@ -54,7 +44,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var query = new GetCustomerOrdersQuery(customerId);
-                var result = await _mediator.Send(query);
+                var result = await mediator.Send(query);
 
                 return Ok(result);
             }

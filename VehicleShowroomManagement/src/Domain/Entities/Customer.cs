@@ -27,6 +27,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRequired]
         public string Email { get; set; } = string.Empty;
 
+        [BsonElement("cccd")]
+        public string? Cccd { get; set; }
+
         [BsonElement("phone")]
         public string? Phone { get; set; }
 

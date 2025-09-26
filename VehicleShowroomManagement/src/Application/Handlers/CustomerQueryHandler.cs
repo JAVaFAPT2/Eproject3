@@ -61,7 +61,7 @@ namespace VehicleShowroomManagement.Application.Handlers
                 City = customer.City,
                 State = customer.State,
                 ZipCode = customer.ZipCode,
-                Cccd = "CCCD123456789", // Placeholder - would need proper field in Customer entity
+                Cccd = customer.Cccd,
                 CreatedAt = customer.CreatedAt,
                 UpdatedAt = customer.UpdatedAt,
                 Orders = new List<OrderDto>() // Would need to populate from related orders

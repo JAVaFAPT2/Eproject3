@@ -80,8 +80,8 @@ namespace VehicleShowroomManagement.Application.Handlers
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Phone = user.Role?.RoleId, // Using RoleId as phone for now
-                Salary = 1500, // Default salary - would need proper field
+                Phone = user.Phone,
+                Salary = user.Salary,
                 RoleId = user.RoleId,
                 RoleName = role?.RoleName ?? "Unknown",
                 IsActive = user.IsActive,

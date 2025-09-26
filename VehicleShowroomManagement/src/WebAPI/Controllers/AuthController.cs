@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Commands;
-using VehicleShowroomManagement.Application.Queries;
-using System.Threading.Tasks;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -12,15 +9,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public AuthController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// User login with email and password
         /// </summary>
@@ -30,12 +20,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var command = new LoginCommand(request.Email, request.Password);
-                var result = await _mediator.Send(command);
-
-                if (result == null)
-                {
-                    return Unauthorized(new { message = "Invalid credentials" });
-                }
+                var result = await mediator.Send(command);
 
                 return Ok(new
                 {
@@ -58,7 +43,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var command = new ForgotPasswordCommand(request.Email);
-                await _mediator.Send(command);
+                await mediator.Send(command);
 
                 return Ok(new { message = "Password reset token sent to your email" });
             }
@@ -77,7 +62,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var command = new ResetPasswordCommand(request.Token, request.NewPassword);
-                await _mediator.Send(command);
+                await mediator.Send(command);
 
                 return Ok(new { message = "Password reset successfully" });
             }

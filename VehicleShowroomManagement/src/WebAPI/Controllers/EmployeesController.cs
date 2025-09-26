@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Queries;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -14,15 +11,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class EmployeesController : ControllerBase
+    public class EmployeesController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public EmployeesController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Get all employees with search functionality
         /// </summary>
@@ -36,7 +26,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             try
             {
                 var query = new GetEmployeesQuery(searchTerm, pageNumber, pageSize);
-                var result = await _mediator.Send(query);
+                var result = await mediator.Send(query);
 
                 return Ok(result);
             }

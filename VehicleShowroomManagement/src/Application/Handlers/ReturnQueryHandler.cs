@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using MediatR;
 using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Queries;
+using VehicleShowroomManagement.Domain.Entities;
+using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Application.Handlers
 {
@@ -14,22 +16,76 @@ namespace VehicleShowroomManagement.Application.Handlers
     /// </summary>
     public class GetReturnsQueryHandler : IRequestHandler<GetReturnsQuery, IEnumerable<ReturnRequestDto>>
     {
-        public GetReturnsQueryHandler()
+        private readonly IRepository<ReturnRequest> _returnRepository;
+        private readonly IRepository<Customer> _customerRepository;
+        private readonly IRepository<Vehicle> _vehicleRepository;
+
+        public GetReturnsQueryHandler(
+            IRepository<ReturnRequest> returnRepository,
+            IRepository<Customer> customerRepository,
+            IRepository<Vehicle> vehicleRepository)
         {
-            // Repository dependencies would be injected here in a real implementation
+            _returnRepository = returnRepository;
+            _customerRepository = customerRepository;
+            _vehicleRepository = vehicleRepository;
         }
 
-        public Task<IEnumerable<ReturnRequestDto>> Handle(GetReturnsQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ReturnRequestDto>> Handle(GetReturnsQuery request, CancellationToken cancellationToken)
         {
-            // This is a placeholder implementation
-            // In a real implementation, you would query the database for return requests
-            var returns = new List<ReturnRequestDto>();
+            var allReturns = await _returnRepository.GetAllAsync();
+            var returns = allReturns.Where(r => !r.IsDeleted).ToList();
 
             // Apply pagination
             var skip = (request.PageNumber - 1) * request.PageSize;
+            var paginatedReturns = returns.Skip(skip).Take(request.PageSize);
 
-            // Return empty list for now (would be populated from database)
-            return Task.FromResult(returns.Skip(skip).Take(request.PageSize));
+            var returnDtos = new List<ReturnRequestDto>();
+            foreach (var returnRequest in paginatedReturns)
+            {
+                var returnDto = await MapToDto(returnRequest);
+                returnDtos.Add(returnDto);
+            }
+
+            return returnDtos;
+        }
+
+        private async Task<ReturnRequestDto> MapToDto(ReturnRequest returnRequest)
+        {
+            var customer = await _customerRepository.GetByIdAsync(returnRequest.CustomerId);
+            var vehicle = await _vehicleRepository.GetByIdAsync(returnRequest.VehicleId);
+
+            return new ReturnRequestDto
+            {
+                Id = returnRequest.Id,
+                OrderId = returnRequest.OrderId,
+                CustomerId = returnRequest.CustomerId,
+                Customer = customer != null ? new CustomerInfo
+                {
+                    Id = customer.Id,
+                    FirstName = customer.FirstName,
+                    LastName = customer.LastName,
+                    Email = customer.Email,
+                    Phone = customer.Phone
+                } : new CustomerInfo(),
+                VehicleId = returnRequest.VehicleId,
+                Vehicle = vehicle != null ? new VehicleInfo
+                {
+                    VehicleId = vehicle.Id,
+                    VIN = vehicle.VIN,
+                    ModelNumber = vehicle.VIN, // Using VIN as ModelNumber for now
+                    Name = vehicle.Model?.ModelName ?? "Unknown",
+                    Brand = vehicle.Model?.Brand?.BrandName ?? "Unknown",
+                    Price = vehicle.Price
+                } : new VehicleInfo(),
+                Reason = returnRequest.Reason,
+                Status = returnRequest.Status,
+                Description = returnRequest.Description,
+                RefundAmount = returnRequest.RefundAmount,
+                RequestedAt = returnRequest.CreatedAt,
+                ProcessedAt = returnRequest.ProcessedAt,
+                ProcessedBy = returnRequest.ProcessedBy ?? string.Empty,
+                Notes = returnRequest.Notes
+            };
         }
     }
 }

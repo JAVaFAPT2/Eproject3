@@ -40,6 +40,13 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRequired]
         public string RoleId { get; set; } = string.Empty;
 
+        // Employee-specific fields
+        [BsonElement("phone")]
+        public string? Phone { get; set; }
+
+        [BsonElement("salary")]
+        public decimal Salary { get; set; } = 0;
+
         [BsonElement("isActive")]
         public bool IsActive { get; set; } = true;
 
