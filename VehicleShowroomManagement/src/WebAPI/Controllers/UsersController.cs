@@ -47,11 +47,11 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpGet("{id}")]
         [Authorize(Roles = "HR,Admin")] // Only HR and Admin can view specific users
-        public async Task<ActionResult<UserDto>> GetUser(int id)
+        public Task<ActionResult<UserDto>> GetUser(int id)
         {
             // This would typically be implemented with a GetUserByIdQuery
             // For now, returning NotImplemented
-            return NotFound();
+            return Task.FromResult<ActionResult<UserDto>>(NotFound());
         }
 
         /// <summary>
@@ -78,11 +78,11 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpPut("{id}")]
         [Authorize(Roles = "HR,Admin")] // Only HR and Admin can update users
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
+        public Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
         {
             // This would typically be implemented with an UpdateUserCommand
             // For now, returning NotImplemented
-            return StatusCode(501, "Not Implemented");
+            return Task.FromResult<IActionResult>(StatusCode(501, "Not Implemented"));
         }
 
         /// <summary>
@@ -90,11 +90,11 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")] // Only Admin can delete users
-        public async Task<IActionResult> DeleteUser(int id)
+        public Task<IActionResult> DeleteUser(int id)
         {
             // This would typically be implemented with a DeleteUserCommand
             // For now, returning NotImplemented
-            return StatusCode(501, "Not Implemented");
+            return Task.FromResult<IActionResult>(StatusCode(501, "Not Implemented"));
         }
 
         /// <summary>
@@ -102,11 +102,11 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpGet("profile")]
         [Authorize] // Any authenticated user can view their own profile
-        public async Task<ActionResult<UserDto>> GetProfile()
+        public Task<ActionResult<UserDto>> GetProfile()
         {
             // This would typically get the current user from the authentication context
             // For now, returning NotImplemented
-            return StatusCode(501, "Not Implemented");
+            return Task.FromResult<ActionResult<UserDto>>(StatusCode(501, "Not Implemented"));
         }
     }
 

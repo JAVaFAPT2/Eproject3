@@ -18,9 +18,9 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<int> SaveChangesAsync()
+        public int SaveChangesAsync()
         {
-            return await _context.SaveChangesAsync();
+            return _context.SaveChangesAsync();
         }
 
         public async Task BeginTransactionAsync()

@@ -130,7 +130,7 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
         public async Task SaveChangesAsync()
         {
             // MongoDB saves changes immediately, but we need to implement Unit of Work
-            await _context.SaveChangesAsync();
+            _context.SaveChangesAsync();
         }
     }
 }

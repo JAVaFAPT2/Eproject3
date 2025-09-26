@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "wRZX1D/PTyc=",
+  "dgSpecHash": "UjOvJeLm7RU=",
   "success": true,
   "projectFilePath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Admin\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\fluentvalidation\\11.7.1\\fluentvalidation.11.7.1.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\mediatr\\12.1.1\\mediatr.12.1.1.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",

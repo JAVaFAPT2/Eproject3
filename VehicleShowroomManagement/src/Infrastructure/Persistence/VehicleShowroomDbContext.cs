@@ -43,7 +43,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         }
 
         // IUnitOfWork implementation
-        public async Task<int> SaveChangesAsync()
+        public int SaveChangesAsync()
         {
             if (_session == null)
             {

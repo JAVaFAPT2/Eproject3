@@ -19,7 +19,7 @@ namespace VehicleShowroomManagement.Application.Handlers
             // Repository dependencies would be injected here in a real implementation
         }
 
-        public async Task<IEnumerable<ReturnRequestDto>> Handle(GetReturnsQuery request, CancellationToken cancellationToken)
+        public Task<IEnumerable<ReturnRequestDto>> Handle(GetReturnsQuery request, CancellationToken cancellationToken)
         {
             // This is a placeholder implementation
             // In a real implementation, you would query the database for return requests
@@ -29,7 +29,7 @@ namespace VehicleShowroomManagement.Application.Handlers
             var skip = (request.PageNumber - 1) * request.PageSize;
 
             // Return empty list for now (would be populated from database)
-            return returns.Skip(skip).Take(request.PageSize);
+            return Task.FromResult(returns.Skip(skip).Take(request.PageSize));
         }
     }
 }

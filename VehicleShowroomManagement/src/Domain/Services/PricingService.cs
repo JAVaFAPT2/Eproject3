@@ -13,7 +13,7 @@ namespace VehicleShowroomManagement.Domain.Services
         private readonly decimal _defaultTaxRate = 8.5m; // 8.5% default tax rate
         private readonly decimal _minimumProfitMargin = 5.0m; // 5% minimum profit margin
 
-        public async Task<Money> CalculateFinalPrice(Vehicle vehicle, decimal discountPercentage = 0)
+        public Money CalculateFinalPrice(Vehicle vehicle, decimal discountPercentage = 0)
         {
             var basePrice = new Money(vehicle.Price);
 
@@ -30,7 +30,7 @@ namespace VehicleShowroomManagement.Domain.Services
             var finalPrice = basePrice.Add(taxAmount);
 
             // Validate the final price
-            var isValid = await IsPriceValid(vehicle, finalPrice);
+            var isValid = IsPriceValid(vehicle, finalPrice);
             if (!isValid)
             {
                 throw new InvalidOperationException($"Calculated price is not valid for vehicle {vehicle.Id}");
@@ -44,7 +44,7 @@ namespace VehicleShowroomManagement.Domain.Services
             return basePrice.Multiply(taxRate / 100);
         }
 
-        public async Task<bool> IsPriceValid(Vehicle vehicle, Money price)
+        public bool IsPriceValid(Vehicle vehicle, Money price)
         {
             // Get the model base price (this would typically come from a repository)
             var modelBasePrice = new Money(vehicle.Price);
@@ -61,7 +61,7 @@ namespace VehicleShowroomManagement.Domain.Services
             return true;
         }
 
-        public async Task<Money> CalculateOrderTotal(SalesOrder salesOrder)
+        public Money CalculateOrderTotal(SalesOrder salesOrder)
         {
             Money total = new Money(0);
 

@@ -11,7 +11,7 @@ namespace VehicleShowroomManagement.Infrastructure.Interfaces
         /// <summary>
         /// Saves all changes to the database
         /// </summary>
-        Task<int> SaveChangesAsync();
+        int SaveChangesAsync();
 
         /// <summary>
         /// Begins a database transaction

@@ -6,6 +6,7 @@ using VehicleShowroomManagement.Application.Commands;
 using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Interfaces;
+using VehicleShowroomManagement.Domain.Services;
 
 namespace VehicleShowroomManagement.Application.Handlers
 {
@@ -16,11 +17,16 @@ namespace VehicleShowroomManagement.Application.Handlers
     {
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Role> _roleRepository;
+        private readonly IPasswordService _passwordService;
 
-        public CreateUserCommandHandler(IRepository<User> userRepository, IRepository<Role> roleRepository)
+        public CreateUserCommandHandler(
+            IRepository<User> userRepository,
+            IRepository<Role> roleRepository,
+            IPasswordService passwordService)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _passwordService = passwordService;
         }
 
         public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -46,8 +52,8 @@ namespace VehicleShowroomManagement.Application.Handlers
                 throw new ArgumentException($"Email '{request.Email}' already exists");
             }
 
-            // Hash the password (in a real implementation, use proper password hashing)
-            var passwordHash = HashPassword(request.Password);
+            // Hash the password using BCrypt
+            var passwordHash = _passwordService.HashPassword(request.Password);
 
             // Create the user
             var user = new User
@@ -80,10 +86,5 @@ namespace VehicleShowroomManagement.Application.Handlers
             };
         }
 
-        private string HashPassword(string password)
-        {
-            // In a real implementation, use BCrypt or similar
-            return $"hashed_{password}";
-        }
     }
 }

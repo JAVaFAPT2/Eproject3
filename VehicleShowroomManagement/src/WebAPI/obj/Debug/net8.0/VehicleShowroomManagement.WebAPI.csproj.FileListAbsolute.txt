@@ -77,3 +77,4 @@ C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\o
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\obj\Debug\net8.0\VehicleShowroomManagement.WebAPI.pdb
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\obj\Debug\net8.0\VehicleShowroomManagement.WebAPI.genruntimeconfig.cache
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\obj\Debug\net8.0\ref\VehicleShowroomManagement.WebAPI.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\BCrypt.Net-Next.dll

@@ -9,6 +9,8 @@ using VehicleShowroomManagement.Infrastructure.Interfaces;
 using VehicleShowroomManagement.Infrastructure.Persistence;
 using VehicleShowroomManagement.Infrastructure.Repositories;
 
+using IPasswordService = VehicleShowroomManagement.Domain.Services.IPasswordService;
+
 namespace VehicleShowroomManagement.WebAPI.Extensions
 {
     /// <summary>
@@ -71,6 +73,7 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
 
             // Register domain services
             services.AddScoped<IPricingService, PricingService>();
+            services.AddScoped<IPasswordService, PasswordService>();
 
             // Register Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

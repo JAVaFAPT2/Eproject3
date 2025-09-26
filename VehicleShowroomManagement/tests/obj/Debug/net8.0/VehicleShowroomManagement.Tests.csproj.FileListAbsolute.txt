@@ -159,3 +159,4 @@ C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\bin\De
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\bin\Debug\net8.0\VehicleShowroomManagement.Application.pdb
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\bin\Debug\net8.0\VehicleShowroomManagement.Infrastructure.pdb
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\bin\Debug\net8.0\VehicleShowroomManagement.WebAPI.pdb
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\bin\Debug\net8.0\BCrypt.Net-Next.dll

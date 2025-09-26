@@ -12,7 +12,7 @@ namespace VehicleShowroomManagement.Domain.Services
         /// <summary>
         /// Calculates the final price for a vehicle including taxes and discounts
         /// </summary>
-        Task<Money> CalculateFinalPrice(Vehicle vehicle, decimal discountPercentage = 0);
+        Money CalculateFinalPrice(Vehicle vehicle, decimal discountPercentage = 0);
 
         /// <summary>
         /// Calculates tax amount based on vehicle price and tax rate
@@ -22,12 +22,12 @@ namespace VehicleShowroomManagement.Domain.Services
         /// <summary>
         /// Validates if a price is within acceptable range for a vehicle model
         /// </summary>
-        Task<bool> IsPriceValid(Vehicle vehicle, Money price);
+        bool IsPriceValid(Vehicle vehicle, Money price);
 
         /// <summary>
         /// Calculates total price for a sales order
         /// </summary>
-        Task<Money> CalculateOrderTotal(SalesOrder salesOrder);
+        Money CalculateOrderTotal(SalesOrder salesOrder);
 
         /// <summary>
         /// Applies discount to a price

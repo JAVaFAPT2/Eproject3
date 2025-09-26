@@ -7,6 +7,7 @@ using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Interfaces;
+using VehicleShowroomManagement.Domain.Services;
 
 namespace VehicleShowroomManagement.Application.Handlers
 {
@@ -16,10 +17,14 @@ namespace VehicleShowroomManagement.Application.Handlers
     public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, Unit>
     {
         private readonly IRepository<User> _userRepository;
+        private readonly IPasswordService _passwordService;
 
-        public UpdateProfileCommandHandler(IRepository<User> userRepository)
+        public UpdateProfileCommandHandler(
+            IRepository<User> userRepository,
+            IPasswordService passwordService)
         {
             _userRepository = userRepository;
+            _passwordService = passwordService;
         }
 
         public async Task<Unit> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
@@ -68,10 +73,14 @@ namespace VehicleShowroomManagement.Application.Handlers
     public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Unit>
     {
         private readonly IRepository<User> _userRepository;
+        private readonly IPasswordService _passwordService;
 
-        public ChangePasswordCommandHandler(IRepository<User> userRepository)
+        public ChangePasswordCommandHandler(
+            IRepository<User> userRepository,
+            IPasswordService passwordService)
         {
             _userRepository = userRepository;
+            _passwordService = passwordService;
         }
 
         public async Task<Unit> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
@@ -83,14 +92,13 @@ namespace VehicleShowroomManagement.Application.Handlers
             }
 
             // Verify old password
-            var hashedOldPassword = HashPassword(request.OldPassword);
-            if (user.PasswordHash != hashedOldPassword)
+            if (!_passwordService.VerifyPassword(request.OldPassword, user.PasswordHash))
             {
                 throw new ArgumentException("Invalid old password");
             }
 
             // Update password
-            user.PasswordHash = HashPassword(request.NewPassword);
+            user.PasswordHash = _passwordService.HashPassword(request.NewPassword);
             user.UpdatedAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
@@ -99,11 +107,6 @@ namespace VehicleShowroomManagement.Application.Handlers
             return Unit.Value;
         }
 
-        private string HashPassword(string password)
-        {
-            // In a real implementation, use BCrypt or similar
-            return $"hashed_{password}";
-        }
     }
 
     /// <summary>

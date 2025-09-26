@@ -11,6 +11,7 @@ using VehicleShowroomManagement.Application.Commands;
 using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Interfaces;
+using VehicleShowroomManagement.Domain.Services;
 
 namespace VehicleShowroomManagement.Application.Handlers
 {
@@ -21,15 +22,18 @@ namespace VehicleShowroomManagement.Application.Handlers
     {
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Role> _roleRepository;
+        private readonly IPasswordService _passwordService;
         private readonly IConfiguration _configuration;
 
         public LoginCommandHandler(
             IRepository<User> userRepository,
             IRepository<Role> roleRepository,
+            IPasswordService passwordService,
             IConfiguration configuration)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _passwordService = passwordService;
             _configuration = configuration;
         }
 
@@ -46,9 +50,8 @@ namespace VehicleShowroomManagement.Application.Handlers
                 throw new UnauthorizedAccessException("Invalid email or password");
             }
 
-            // Verify password (in a real implementation, use proper password hashing)
-            var hashedPassword = HashPassword(request.Password);
-            if (user.PasswordHash != hashedPassword)
+            // Verify password using BCrypt
+            if (!_passwordService.VerifyPassword(request.Password, user.PasswordHash))
             {
                 throw new UnauthorizedAccessException("Invalid email or password");
             }
@@ -78,11 +81,6 @@ namespace VehicleShowroomManagement.Application.Handlers
             };
         }
 
-        private string HashPassword(string password)
-        {
-            // In a real implementation, use BCrypt or similar
-            return $"hashed_{password}";
-        }
 
         private string GenerateJwtToken(User user, Role role)
         {
@@ -124,17 +122,18 @@ namespace VehicleShowroomManagement.Application.Handlers
             _userRepository = userRepository;
         }
 
-        public async Task<Unit> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
             // Find user by email
-            var user = await _userRepository.FirstOrDefaultAsync(u =>
+            // Note: In a real implementation, this would be async
+            var user = _userRepository.FirstOrDefaultAsync(u =>
                 u.Email == request.Email &&
-                !u.IsDeleted);
+                !u.IsDeleted).Result;
 
             if (user == null)
             {
                 // Don't reveal if email exists or not for security
-                return Unit.Value;
+                return Task.FromResult(Unit.Value);
             }
 
             // Generate password reset token (in real implementation, save to database with expiration)
@@ -147,7 +146,7 @@ namespace VehicleShowroomManagement.Application.Handlers
             // For now, just log the token
             Console.WriteLine($"Password reset token for {user.Email}: {resetToken}");
 
-            return Unit.Value;
+            return Task.FromResult(Unit.Value);
         }
     }
 
@@ -157,10 +156,14 @@ namespace VehicleShowroomManagement.Application.Handlers
     public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Unit>
     {
         private readonly IRepository<User> _userRepository;
+        private readonly IPasswordService _passwordService;
 
-        public ResetPasswordCommandHandler(IRepository<User> userRepository)
+        public ResetPasswordCommandHandler(
+            IRepository<User> userRepository,
+            IPasswordService passwordService)
         {
             _userRepository = userRepository;
+            _passwordService = passwordService;
         }
 
         public async Task<Unit> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
@@ -172,7 +175,7 @@ namespace VehicleShowroomManagement.Application.Handlers
             // 4. Clear the reset token
 
             // For now, just simulate the process
-            var hashedPassword = $"hashed_{request.NewPassword}";
+            var hashedPassword = _passwordService.HashPassword(request.NewPassword);
 
             Console.WriteLine($"Password reset with token: {request.Token}");
             Console.WriteLine($"New hashed password: {hashedPassword}");

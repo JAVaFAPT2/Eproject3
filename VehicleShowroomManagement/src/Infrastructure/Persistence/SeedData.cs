@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
+using BCrypt.Net;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -86,8 +87,8 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
 
         private static string HashPassword(string password)
         {
-            // In a real implementation, use BCrypt or similar
-            return $"hashed_{password}";
+            // Use BCrypt for secure password hashing
+            return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
         }
     }
 }
