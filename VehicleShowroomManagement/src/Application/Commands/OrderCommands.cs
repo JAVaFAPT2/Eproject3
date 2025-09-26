@@ -1,0 +1,42 @@
+using System;
+using MediatR;
+using VehicleShowroomManagement.WebAPI.Controllers;
+
+namespace VehicleShowroomManagement.Application.Commands
+{
+    /// <summary>
+    /// Command for creating a new order
+    /// </summary>
+    public class CreateOrderCommand : IRequest<OrderDto>
+    {
+        public Controllers.CustomerInfo Customer { get; set; }
+        public string VehicleId { get; set; }
+        public decimal TotalAmount { get; set; }
+        public string PaymentMethod { get; set; }
+
+        public CreateOrderCommand(
+            Controllers.CustomerInfo customer,
+            string vehicleId,
+            decimal totalAmount,
+            string paymentMethod)
+        {
+            Customer = customer;
+            VehicleId = vehicleId;
+            TotalAmount = totalAmount;
+            PaymentMethod = paymentMethod;
+        }
+    }
+
+    /// <summary>
+    /// Command for printing an order
+    /// </summary>
+    public class PrintOrderCommand : IRequest<OrderPrintDto>
+    {
+        public string OrderId { get; set; }
+
+        public PrintOrderCommand(string orderId)
+        {
+            OrderId = orderId;
+        }
+    }
+}
