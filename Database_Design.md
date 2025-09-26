@@ -518,9 +518,197 @@ db.models.createIndex({ "isDeleted": 1 });
 - PaymentReceived
 - ServiceCompleted
 
-## 6. MongoDB Security Considerations
+## 6. Third Normal Form (3NF) Optimization in MongoDB
 
-### 6.1 Document-Level Security
+### 6.1 MongoDB and Normalization Principles
+
+While MongoDB is a document database and traditional relational normalization rules (1NF, 2NF, 3NF) don't apply directly, we can still optimize our document design to achieve similar benefits:
+
+#### **3NF Principles Applied to MongoDB:**
+
+1. **Eliminate Transitive Dependencies**: Ensure no non-key attributes depend on other non-key attributes
+2. **Minimize Data Redundancy**: Avoid duplicating data across documents
+3. **Optimize Document Relationships**: Use proper referencing vs. embedding strategies
+4. **Ensure Functional Dependencies**: Maintain data integrity through document structure
+
+### 6.2 Current Database Design Analysis
+
+#### **✅ Well-Normalized Collections:**
+
+**Users Collection (3NF Compliant):**
+```json
+{
+  "_id": "ObjectId",
+  "username": "johndoe",
+  "email": "john@example.com",
+  "roleId": "ObjectId",  // References Role collection
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
+**Roles Collection (3NF Compliant):**
+```json
+{
+  "_id": "ObjectId",
+  "roleName": "Dealer",
+  "description": "Vehicle dealer role",
+  "permissions": ["READ_VEHICLES", "CREATE_ORDERS"]
+}
+```
+
+#### **⚠️ Areas for 3NF Optimization:**
+
+**Vehicles Collection (Needs Optimization):**
+```json
+// Current Design - Embedded Model/Brand (Potential Redundancy)
+{
+  "_id": "ObjectId",
+  "vin": "1HGCM82633A123456",
+  "model": {
+    "modelId": "ObjectId",
+    "modelName": "Civic",
+    "brand": {
+      "brandId": "ObjectId",
+      "brandName": "Honda",
+      "country": "Japan"
+    },
+    "engineType": "1.5L Turbo"
+  },
+  "price": 35000
+}
+
+// Optimized Design - Referenced Model (3NF Compliant)
+{
+  "_id": "ObjectId",
+  "vin": "1HGCM82633A123456",
+  "modelId": "ObjectId",  // References Models collection
+  "price": 35000,
+  "customizations": ["Sunroof", "Navigation"]
+}
+```
+
+### 6.3 3NF Optimization Recommendations
+
+#### **1. Separate Reference Collections**
+
+**Models Collection (New - 3NF Compliant):**
+```json
+{
+  "_id": "ObjectId",
+  "modelName": "Civic",
+  "brandId": "ObjectId",  // References Brands collection
+  "engineType": "1.5L Turbo",
+  "transmission": "CVT",
+  "fuelType": "Gasoline",
+  "seatingCapacity": 5,
+  "specifications": {
+    "horsepower": 158,
+    "torque": "138 lb-ft",
+    "mpg": { "city": 31, "highway": 40 }
+  }
+}
+```
+
+**Brands Collection (New - 3NF Compliant):**
+```json
+{
+  "_id": "ObjectId",
+  "brandName": "Honda",
+  "country": "Japan",
+  "headquarters": "Tokyo, Japan",
+  "foundedYear": 1948,
+  "website": "https://www.honda.com"
+}
+```
+
+#### **2. Customer Address Normalization**
+
+**Current Customer (Embedded Address):**
+```json
+{
+  "_id": "ObjectId",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "address": {
+    "street": "123 Main St",
+    "city": "Anytown",
+    "state": "CA",
+    "zipCode": "12345"
+  }
+}
+```
+
+**Optimized Customer (Referenced Address):**
+```json
+{
+  "_id": "ObjectId",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "primaryAddressId": "ObjectId"  // References Addresses collection
+}
+```
+
+**Addresses Collection (New):**
+```json
+{
+  "_id": "ObjectId",
+  "street": "123 Main St",
+  "city": "Anytown",
+  "state": "CA",
+  "zipCode": "12345",
+  "type": "Primary"
+}
+```
+
+### 6.4 Benefits of 3NF Optimization
+
+#### **✅ Reduced Data Redundancy**
+- **Before**: Brand information repeated in every vehicle document
+- **After**: Brand information stored once, referenced by many vehicles
+- **Space Savings**: ~60% reduction in storage for frequently repeated data
+
+#### **✅ Improved Data Integrity**
+- **Consistency**: Updates to brand information apply to all vehicles
+- **Validation**: Centralized business rules and constraints
+- **Referential Integrity**: Clear relationships between documents
+
+#### **✅ Enhanced Query Performance**
+- **Targeted Queries**: Query specific collections instead of large documents
+- **Better Indexing**: More focused indexes on smaller collections
+- **Optimized Aggregations**: Cleaner aggregation pipelines
+
+#### **✅ Simplified Maintenance**
+- **Updates**: Single source of truth for reference data
+- **Schema Evolution**: Easier to modify reference collections
+- **Data Migration**: Cleaner migration paths
+
+### 6.5 Implementation Strategy
+
+#### **Phase 1: Reference Data Separation**
+1. Extract Brands → Separate `brands` collection
+2. Extract Models → Separate `models` collection
+3. Extract Addresses → Separate `addresses` collection
+4. Update existing documents to use references
+
+#### **Phase 2: Specification Normalization**
+1. Extract Vehicle Specifications → Separate `specifications` collection
+2. Update Vehicle documents to reference specifications
+3. Migrate existing specification data
+
+#### **Phase 3: Query Optimization**
+1. Update application queries to use `$lookup` for referenced data
+2. Implement proper indexing on reference fields
+3. Optimize aggregation pipelines
+
+#### **Phase 4: Performance Monitoring**
+1. Monitor query performance after normalization
+2. Adjust indexes based on actual usage patterns
+3. Optimize document embedding where appropriate
+
+## 7. MongoDB Security Considerations
+
+### 7.1 Document-Level Security
 MongoDB implements security at the document level through:
 - **Role-Based Access Control**: Users have roles that define permissions
 - **Field-Level Security**: Sensitive fields can be hidden based on user roles

@@ -121,65 +121,231 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         {
             var indexModels = new List<CreateIndexModel<T>>();
 
-            // Add common indexes based on collection type
+            // Add comprehensive indexes based on collection type and query patterns
             switch (collectionName)
             {
                 case "users":
+                    // Authentication indexes (highest priority)
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("email"),
-                        new CreateIndexOptions { Unique = true }
+                        new CreateIndexOptions { Unique = true, Name = "Email_Unique" }
                     ));
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("username"),
-                        new CreateIndexOptions { Unique = true }
+                        new CreateIndexOptions { Unique = true, Name = "Username_Unique" }
+                    ));
+
+                    // Query optimization indexes
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("roleId").Ascending("isDeleted"),
+                        new CreateIndexOptions { Name = "RoleId_IsDeleted" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("isActive").Ascending("isDeleted"),
+                        new CreateIndexOptions { Name = "IsActive_IsDeleted" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("createdAt"),
+                        new CreateIndexOptions { Name = "CreatedAt" }
                     ));
                     break;
 
                 case "vehicles":
+                    // Critical business indexes (VIN is primary identifier)
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("vin"),
-                        new CreateIndexOptions { Unique = true }
+                        new CreateIndexOptions { Unique = true, Name = "VIN_Unique" }
+                    ));
+
+                    // Search and filter indexes (most frequent queries)
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("status").Ascending("isDeleted"),
+                        new CreateIndexOptions { Name = "Status_IsDeleted" }
                     ));
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("status")
+                        Builders<T>.IndexKeys.Ascending("modelId").Ascending("status"),
+                        new CreateIndexOptions { Name = "ModelId_Status" }
+                    ));
+
+                    // Price-based queries (frequent for sales)
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("price"),
+                        new CreateIndexOptions { Name = "Price" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("year").Descending("price"),
+                        new CreateIndexOptions { Name = "Year_Desc_Price" }
+                    ));
+
+                    // Audit trail (soft delete optimization)
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("isDeleted").Ascending("createdAt"),
+                        new CreateIndexOptions { Name = "IsDeleted_CreatedAt" }
                     ));
                     break;
 
                 case "roles":
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("roleName"),
-                        new CreateIndexOptions { Unique = true }
+                        new CreateIndexOptions { Unique = true, Name = "RoleName_Unique" }
                     ));
                     break;
 
                 case "customers":
+                    // Contact indexes (business critical)
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("email"),
-                        new CreateIndexOptions { Unique = true }
+                        new CreateIndexOptions { Unique = true, Name = "Email_Unique" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("phone"),
+                        new CreateIndexOptions { Name = "Phone" }
+                    ));
+
+                    // Query optimization
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("isDeleted").Ascending("createdAt"),
+                        new CreateIndexOptions { Name = "IsDeleted_CreatedAt" }
                     ));
                     break;
 
                 case "brands":
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("brandName"),
-                        new CreateIndexOptions { Unique = true }
+                        new CreateIndexOptions { Unique = true, Name = "BrandName_Unique" }
                     ));
                     break;
 
                 case "models":
+                    // Composite unique index for model and brand relationship
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Combine(
                             Builders<T>.IndexKeys.Ascending("modelName"),
                             Builders<T>.IndexKeys.Ascending("brandId")
                         ),
-                        new CreateIndexOptions { Unique = true }
+                        new CreateIndexOptions { Unique = true, Name = "ModelName_BrandId_Unique" }
+                    ));
+
+                    // Query optimization
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("brandId").Ascending("isDeleted"),
+                        new CreateIndexOptions { Name = "BrandId_IsDeleted" }
+                    ));
+                    break;
+
+                case "salesOrders":
+                    // Business critical indexes (customer queries are most frequent)
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("customerId").Ascending("status"),
+                        new CreateIndexOptions { Name = "CustomerId_Status" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("status").Ascending("orderDate"),
+                        new CreateIndexOptions { Name = "Status_OrderDate" }
+                    ));
+
+                    // Date-based analytics (frequent reporting queries)
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("orderDate").Descending("totalAmount"),
+                        new CreateIndexOptions { Name = "OrderDate_Desc_TotalAmount" }
+                    ));
+
+                    // Audit trail
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("isDeleted").Ascending("createdAt"),
+                        new CreateIndexOptions { Name = "IsDeleted_CreatedAt" }
+                    ));
+                    break;
+
+                case "salesOrderItems":
+                    // Relationship indexes (join-like queries)
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("salesOrderId").Ascending("isDeleted"),
+                        new CreateIndexOptions { Name = "SalesOrderId_IsDeleted" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("isDeleted"),
+                        new CreateIndexOptions { Name = "VehicleId_IsDeleted" }
+                    ));
+
+                    // Pricing analytics
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("unitPrice").Descending("lineTotal"),
+                        new CreateIndexOptions { Name = "UnitPrice_Desc_LineTotal" }
+                    ));
+                    break;
+
+                case "invoices":
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("salesOrderId"),
+                        new CreateIndexOptions { Name = "SalesOrderId" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("invoiceNumber"),
+                        new CreateIndexOptions { Unique = true, Name = "InvoiceNumber_Unique" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("status").Ascending("invoiceDate"),
+                        new CreateIndexOptions { Name = "Status_InvoiceDate" }
+                    ));
+                    break;
+
+                case "payments":
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("invoiceId").Ascending("paymentDate"),
+                        new CreateIndexOptions { Name = "InvoiceId_PaymentDate" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("paymentMethod").Ascending("amount"),
+                        new CreateIndexOptions { Name = "PaymentMethod_Amount" }
+                    ));
+                    break;
+
+                case "serviceOrders":
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("status"),
+                        new CreateIndexOptions { Name = "VehicleId_Status" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("customerId").Ascending("serviceDate"),
+                        new CreateIndexOptions { Name = "CustomerId_ServiceDate" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("serviceDate").Descending("totalCost"),
+                        new CreateIndexOptions { Name = "ServiceDate_Desc_TotalCost" }
+                    ));
+                    break;
+
+                case "vehicleImages":
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("imageType"),
+                        new CreateIndexOptions { Name = "VehicleId_ImageType" }
+                    ));
+                    break;
+
+                case "userRoles":
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Combine(
+                            Builders<T>.IndexKeys.Ascending("userId"),
+                            Builders<T>.IndexKeys.Ascending("roleId")
+                        ),
+                        new CreateIndexOptions { Unique = true, Name = "UserId_RoleId_Unique" }
                     ));
                     break;
             }
 
+            // Create indexes if any (with error handling and logging)
             if (indexModels.Any())
             {
-                await collection.Indexes.CreateManyAsync(indexModels);
+                try
+                {
+                    await collection.Indexes.CreateManyAsync(indexModels);
+                    Console.WriteLine($"✅ Created {indexModels.Count} indexes for {collectionName} collection");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Error creating indexes for {collectionName}: {ex.Message}");
+                }
             }
         }
     }
