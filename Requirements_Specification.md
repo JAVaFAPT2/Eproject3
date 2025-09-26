@@ -50,8 +50,8 @@ The system will be built using **Domain-Driven Design (DDD)** with **Clean Archi
 - **Framework**: ASP.NET Core 8.0
 - **Language**: C# 12.0
 - **Architecture**: DDD + Clean Architecture + CQRS
-- **ORM**: Entity Framework Core 8.0
-- **Database**: SQL Server 2022
+- **Database Driver**: MongoDB Driver 2.22.0
+- **Database**: MongoDB 5.0+
 - **Authentication**: ASP.NET Core Identity
 - **Authorization**: Role-based access control
 
@@ -169,11 +169,12 @@ The system will be built using **Domain-Driven Design (DDD)** with **Clean Archi
 - Caching for frequently accessed data
 
 ### 6.2 Security
-- SQL injection prevention
+- NoSQL injection prevention
 - XSS protection
 - CSRF protection
 - Data encryption at rest and in transit
 - Audit logging for all operations
+- MongoDB authentication and authorization
 
 ### 6.3 Scalability
 - Horizontal scaling capability
@@ -188,23 +189,23 @@ The system will be built using **Domain-Driven Design (DDD)** with **Clean Archi
 
 ## 7. Database Design
 
-### 7.1 Entity Relationships
-- **Users** (HR, Dealers, Customers)
-- **Vehicles** with specifications and status
-- **PurchaseOrders** linked to suppliers
-- **SalesOrders** linked to customers
-- **ServiceOrders** for pre-delivery services
-- **Invoices** and payments
-- **Inventory** tracking
+### 7.1 Document Structure
+- **Users** with embedded role information and references
+- **Vehicles** with embedded model/brand data and image arrays
+- **PurchaseOrders** with embedded items
+- **SalesOrders** with embedded items and customer references
+- **ServiceOrders** with embedded items
+- **Invoices** with payment references
+- **Inventory** tracking with document references
 
-### 7.2 Key Entities
-- User
+### 7.2 Key Documents
+- User (with embedded RoleInfo)
 - Role
-- Vehicle
-- Customer
-- PurchaseOrder
-- SalesOrder
-- ServiceOrder
+- Vehicle (with embedded ModelInfo and BrandInfo)
+- Customer (with embedded AddressInfo)
+- PurchaseOrder (with embedded items)
+- SalesOrder (with embedded items)
+- ServiceOrder (with embedded items)
 - Invoice
 - Payment
 - Supplier

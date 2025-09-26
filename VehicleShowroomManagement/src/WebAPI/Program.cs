@@ -48,9 +48,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Database Configuration
-builder.Services.AddDbContext<VehicleShowroomDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// MongoDB is configured in ServiceExtensions
 
 // Authentication and Authorization
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

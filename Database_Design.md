@@ -3,15 +3,17 @@
 ## 1. Database Overview
 
 ### 1.1 Database Engine
-- **Database**: SQL Server 2022
-- **Design Pattern**: Code-First with Entity Framework Core
-- **Approach**: Domain-Driven Design with normalized schema
+- **Database**: MongoDB 5.0+
+- **Design Pattern**: Document-Oriented with MongoDB Driver
+- **Approach**: Domain-Driven Design with embedded documents
 
 ### 1.2 Design Principles
-- Normalization up to 3rd Normal Form (3NF)
-- Primary keys and foreign key constraints
-- Indexes for optimal query performance
+- Document-oriented data modeling
+- Embedded documents for related data
+- ObjectId primary keys
+- MongoDB indexes for optimal query performance
 - Audit fields for data tracking
+- Flexible schema design
 
 ## 2. Entity Relationship Diagram (ERD)
 
@@ -92,305 +94,409 @@
                                              └─────────────────┘
 ```
 
-## 3. Database Schema
+## 3. Document Structure
 
-### 3.1 Tables and Columns
+### 3.1 MongoDB Collections and Documents
 
-#### Users Table
-```sql
-CREATE TABLE Users (
-    UserId int IDENTITY(1,1) PRIMARY KEY,
-    Username nvarchar(50) NOT NULL UNIQUE,
-    Email nvarchar(100) NOT NULL UNIQUE,
-    PasswordHash nvarchar(255) NOT NULL,
-    FirstName nvarchar(50) NOT NULL,
-    LastName nvarchar(50) NOT NULL,
-    RoleId int NOT NULL,
-    IsActive bit NOT NULL DEFAULT 1,
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (RoleId) REFERENCES Roles(RoleId)
-);
+#### Users Collection
+```json
+{
+  "_id": "ObjectId",
+  "username": "johndoe",
+  "email": "john@example.com",
+  "passwordHash": "hashed_password",
+  "firstName": "John",
+  "lastName": "Doe",
+  "roleId": "ObjectId",
+  "role": {
+    "roleId": "ObjectId",
+    "roleName": "Dealer",
+    "description": "Vehicle dealer role"
+  },
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "userRoleIds": ["ObjectId1", "ObjectId2"],
+  "salesOrderIds": ["ObjectId1", "ObjectId2"]
+}
 ```
 
-#### Roles Table
-```sql
-CREATE TABLE Roles (
-    RoleId int IDENTITY(1,1) PRIMARY KEY,
-    RoleName nvarchar(50) NOT NULL UNIQUE,
-    Description nvarchar(255),
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE()
-);
+#### Roles Collection
+```json
+{
+  "_id": "ObjectId",
+  "roleName": "HR",
+  "description": "Human Resources - manages employees and user accounts",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "userIds": ["ObjectId1", "ObjectId2"]
+}
 ```
 
-#### UserRoles Table (Many-to-Many between Users and Roles)
-```sql
-CREATE TABLE UserRoles (
-    UserId int NOT NULL,
-    RoleId int NOT NULL,
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    PRIMARY KEY (UserId, RoleId),
-    FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE,
-    FOREIGN KEY (RoleId) REFERENCES Roles(RoleId) ON DELETE CASCADE
-);
+#### UserRoles Collection (Many-to-Many between Users and Roles)
+```json
+{
+  "_id": "ObjectId",
+  "userId": "ObjectId",
+  "roleId": "ObjectId",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z"
+}
 ```
 
-#### Brands Table
-```sql
-CREATE TABLE Brands (
-    BrandId int IDENTITY(1,1) PRIMARY KEY,
-    BrandName nvarchar(100) NOT NULL UNIQUE,
-    Country nvarchar(50),
-    LogoUrl nvarchar(255),
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE()
-);
+#### Brands Collection
+```json
+{
+  "_id": "ObjectId",
+  "brandName": "Honda",
+  "country": "Japan",
+  "logoUrl": "/images/brands/honda.jpg",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "modelIds": ["ObjectId1", "ObjectId2"]
+}
 ```
 
-#### Models Table
-```sql
-CREATE TABLE Models (
-    ModelId int IDENTITY(1,1) PRIMARY KEY,
-    ModelName nvarchar(100) NOT NULL,
-    BrandId int NOT NULL,
-    EngineType nvarchar(50),
-    Transmission nvarchar(50),
-    FuelType nvarchar(30),
-    SeatingCapacity int,
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (BrandId) REFERENCES Brands(BrandId),
-    UNIQUE (ModelName, BrandId)
-);
+#### Models Collection
+```json
+{
+  "_id": "ObjectId",
+  "modelName": "Civic",
+  "brandId": "ObjectId",
+  "brand": {
+    "brandId": "ObjectId",
+    "brandName": "Honda",
+    "country": "Japan"
+  },
+  "engineType": "1.5L Turbo",
+  "transmission": "CVT",
+  "fuelType": "Gasoline",
+  "seatingCapacity": 5,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "vehicleIds": ["ObjectId1", "ObjectId2"]
+}
 ```
 
-#### Vehicles Table
-```sql
-CREATE TABLE Vehicles (
-    VehicleId int IDENTITY(1,1) PRIMARY KEY,
-    VIN nvarchar(17) NOT NULL UNIQUE,
-    ModelId int NOT NULL,
-    Color nvarchar(50) NOT NULL,
-    Year int NOT NULL,
-    Price decimal(12,2) NOT NULL,
-    Mileage int DEFAULT 0,
-    Status nvarchar(20) NOT NULL DEFAULT 'Available',
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (ModelId) REFERENCES Models(ModelId)
-);
+#### Vehicles Collection
+```json
+{
+  "_id": "ObjectId",
+  "vin": "1HGCM82633A123456",
+  "modelId": "ObjectId",
+  "model": {
+    "modelId": "ObjectId",
+    "modelName": "Civic",
+    "brandId": "ObjectId",
+    "brand": {
+      "brandId": "ObjectId",
+      "brandName": "Honda",
+      "country": "Japan"
+    },
+    "engineType": "1.5L Turbo",
+    "transmission": "CVT",
+    "fuelType": "Gasoline",
+    "seatingCapacity": 5
+  },
+  "color": "Blue",
+  "year": 2024,
+  "price": 35000.00,
+  "mileage": 15000,
+  "status": "Available",
+  "images": [
+    {
+      "imageId": "ObjectId",
+      "imageUrl": "/images/vehicles/vehicle1.jpg",
+      "imageType": "Exterior",
+      "fileName": "vehicle1.jpg"
+    }
+  ],
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "purchaseOrderItemIds": ["ObjectId1"],
+  "salesOrderItemIds": ["ObjectId1"],
+  "serviceOrderIds": ["ObjectId1"]
+}
 ```
 
-#### Customers Table
-```sql
-CREATE TABLE Customers (
-    CustomerId int IDENTITY(1,1) PRIMARY KEY,
-    FirstName nvarchar(50) NOT NULL,
-    LastName nvarchar(50) NOT NULL,
-    Email nvarchar(100) NOT NULL UNIQUE,
-    Phone nvarchar(20),
-    Address nvarchar(255),
-    City nvarchar(50),
-    State nvarchar(50),
-    ZipCode nvarchar(10),
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE()
-);
+#### Customers Collection
+```json
+{
+  "_id": "ObjectId",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "phone": "+1234567890",
+  "address": "123 Main St",
+  "city": "New York",
+  "state": "NY",
+  "zipCode": "10001",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "salesOrderIds": ["ObjectId1", "ObjectId2"],
+  "serviceOrderIds": ["ObjectId1"]
+}
 ```
 
-#### Suppliers Table
-```sql
-CREATE TABLE Suppliers (
-    SupplierId int IDENTITY(1,1) PRIMARY KEY,
-    CompanyName nvarchar(100) NOT NULL,
-    ContactPerson nvarchar(100),
-    Email nvarchar(100),
-    Phone nvarchar(20),
-    Address nvarchar(255),
-    City nvarchar(50),
-    State nvarchar(50),
-    ZipCode nvarchar(10),
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE()
-);
+#### Suppliers Collection
+```json
+{
+  "_id": "ObjectId",
+  "companyName": "Honda Motor Co.",
+  "contactPerson": "John Smith",
+  "email": "john.smith@honda.com",
+  "phone": "+1234567890",
+  "address": "123 Corporate Blvd",
+  "city": "Tokyo",
+  "state": "Tokyo",
+  "zipCode": "100-0011",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false
+}
 ```
 
-#### PurchaseOrders Table
-```sql
-CREATE TABLE PurchaseOrders (
-    PurchaseId int IDENTITY(1,1) PRIMARY KEY,
-    SupplierId int NOT NULL,
-    Status nvarchar(20) NOT NULL DEFAULT 'Pending',
-    OrderDate datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    DeliveryDate datetime2,
-    TotalAmount decimal(12,2) NOT NULL,
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (SupplierId) REFERENCES Suppliers(SupplierId)
-);
+#### PurchaseOrders Collection
+```json
+{
+  "_id": "ObjectId",
+  "supplierId": "ObjectId",
+  "status": "Confirmed",
+  "orderDate": "2024-01-01T00:00:00Z",
+  "deliveryDate": "2024-02-01T00:00:00Z",
+  "totalAmount": 35000.00,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "items": [
+    {
+      "purchaseOrderItemId": "ObjectId",
+      "vehicleId": "ObjectId",
+      "quantity": 1,
+      "unitPrice": 35000.00,
+      "totalAmount": 35000.00,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z",
+      "isDeleted": false
+    }
+  ]
+}
 ```
 
-#### PurchaseOrderItems Table
-```sql
-CREATE TABLE PurchaseOrderItems (
-    PurchaseOrderItemId int IDENTITY(1,1) PRIMARY KEY,
-    PurchaseId int NOT NULL,
-    VehicleId int NOT NULL,
-    Quantity int NOT NULL DEFAULT 1,
-    UnitPrice decimal(12,2) NOT NULL,
-    TotalAmount decimal(12,2) NOT NULL,
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (PurchaseId) REFERENCES PurchaseOrders(PurchaseId) ON DELETE CASCADE,
-    FOREIGN KEY (VehicleId) REFERENCES Vehicles(VehicleId)
-);
+#### PurchaseOrderItems Collection
+```json
+{
+  "_id": "ObjectId",
+  "purchaseId": "ObjectId",
+  "vehicleId": "ObjectId",
+  "quantity": 1,
+  "unitPrice": 35000.00,
+  "totalAmount": 35000.00,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false
+}
 ```
 
-#### SalesOrders Table
-```sql
-CREATE TABLE SalesOrders (
-    SalesOrderId int IDENTITY(1,1) PRIMARY KEY,
-    CustomerId int NOT NULL,
-    SalesPersonId int NOT NULL,
-    Status nvarchar(20) NOT NULL DEFAULT 'Draft',
-    OrderDate datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    TotalAmount decimal(12,2) NOT NULL,
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId),
-    FOREIGN KEY (SalesPersonId) REFERENCES Users(UserId)
-);
+#### SalesOrders Collection
+```json
+{
+  "_id": "ObjectId",
+  "customerId": "ObjectId",
+  "salesPersonId": "ObjectId",
+  "status": "Confirmed",
+  "orderDate": "2024-01-01T00:00:00Z",
+  "totalAmount": 35000.00,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "items": [
+    {
+      "salesOrderItemId": "ObjectId",
+      "vehicleId": "ObjectId",
+      "quantity": 1,
+      "unitPrice": 35000.00,
+      "discount": 0.00,
+      "lineTotal": 35000.00,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z",
+      "isDeleted": false
+    }
+  ]
+}
 ```
 
-#### SalesOrderItems Table
-```sql
-CREATE TABLE SalesOrderItems (
-    SalesOrderItemId int IDENTITY(1,1) PRIMARY KEY,
-    SalesOrderId int NOT NULL,
-    VehicleId int NOT NULL,
-    Quantity int NOT NULL DEFAULT 1,
-    UnitPrice decimal(12,2) NOT NULL,
-    Discount decimal(12,2) DEFAULT 0,
-    LineTotal decimal(12,2) NOT NULL,
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (SalesOrderId) REFERENCES SalesOrders(SalesOrderId) ON DELETE CASCADE,
-    FOREIGN KEY (VehicleId) REFERENCES Vehicles(VehicleId)
-);
+#### SalesOrderItems Collection
+```json
+{
+  "_id": "ObjectId",
+  "salesOrderId": "ObjectId",
+  "vehicleId": "ObjectId",
+  "quantity": 1,
+  "unitPrice": 35000.00,
+  "discount": 0.00,
+  "lineTotal": 35000.00,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false
+}
 ```
 
-#### Invoices Table
-```sql
-CREATE TABLE Invoices (
-    InvoiceId int IDENTITY(1,1) PRIMARY KEY,
-    SalesOrderId int NOT NULL,
-    InvoiceNumber nvarchar(50) NOT NULL UNIQUE,
-    InvoiceDate datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    Subtotal decimal(12,2) NOT NULL,
-    TaxAmount decimal(12,2) NOT NULL,
-    TotalAmount decimal(12,2) NOT NULL,
-    Status nvarchar(20) NOT NULL DEFAULT 'Unpaid',
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (SalesOrderId) REFERENCES SalesOrders(SalesOrderId)
-);
+#### Invoices Collection
+```json
+{
+  "_id": "ObjectId",
+  "salesOrderId": "ObjectId",
+  "invoiceNumber": "INV-2024-001",
+  "invoiceDate": "2024-01-01T00:00:00Z",
+  "subtotal": 35000.00,
+  "taxAmount": 2975.00,
+  "totalAmount": 37975.00,
+  "status": "Paid",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false
+}
 ```
 
-#### Payments Table
-```sql
-CREATE TABLE Payments (
-    PaymentId int IDENTITY(1,1) PRIMARY KEY,
-    InvoiceId int NOT NULL,
-    Amount decimal(12,2) NOT NULL,
-    PaymentMethod nvarchar(50) NOT NULL,
-    PaymentDate datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    ReferenceNumber nvarchar(100),
-    Status nvarchar(20) NOT NULL DEFAULT 'Completed',
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (InvoiceId) REFERENCES Invoices(InvoiceId)
-);
+#### Payments Collection
+```json
+{
+  "_id": "ObjectId",
+  "invoiceId": "ObjectId",
+  "amount": 37975.00,
+  "paymentMethod": "CreditCard",
+  "paymentDate": "2024-01-01T00:00:00Z",
+  "referenceNumber": "CC-123456789",
+  "status": "Completed",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false
+}
 ```
 
-#### ServiceOrders Table
-```sql
-CREATE TABLE ServiceOrders (
-    ServiceOrderId int IDENTITY(1,1) PRIMARY KEY,
-    VehicleId int NOT NULL,
-    CustomerId int NOT NULL,
-    ServiceDate datetime2 NOT NULL,
-    Status nvarchar(20) NOT NULL DEFAULT 'Scheduled',
-    TotalCost decimal(12,2) DEFAULT 0,
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (VehicleId) REFERENCES Vehicles(VehicleId),
-    FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId)
-);
+#### ServiceOrders Collection
+```json
+{
+  "_id": "ObjectId",
+  "vehicleId": "ObjectId",
+  "customerId": "ObjectId",
+  "serviceDate": "2024-01-15T10:00:00Z",
+  "status": "Completed",
+  "totalCost": 250.00,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-15T10:00:00Z",
+  "isDeleted": false,
+  "items": [
+    {
+      "serviceOrderItemId": "ObjectId",
+      "serviceType": "Pre-Delivery Inspection",
+      "description": "Full vehicle inspection before delivery",
+      "cost": 150.00,
+      "status": "Completed",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-15T10:00:00Z",
+      "isDeleted": false
+    },
+    {
+      "serviceOrderItemId": "ObjectId",
+      "serviceType": "Detailing",
+      "description": "Interior and exterior detailing",
+      "cost": 100.00,
+      "status": "Completed",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-15T10:00:00Z",
+      "isDeleted": false
+    }
+  ]
+}
 ```
 
-#### ServiceOrderItems Table
-```sql
-CREATE TABLE ServiceOrderItems (
-    ServiceOrderItemId int IDENTITY(1,1) PRIMARY KEY,
-    ServiceOrderId int NOT NULL,
-    ServiceType nvarchar(100) NOT NULL,
-    Description nvarchar(255),
-    Cost decimal(12,2) NOT NULL,
-    Status nvarchar(20) NOT NULL DEFAULT 'Pending',
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (ServiceOrderId) REFERENCES ServiceOrders(ServiceOrderId) ON DELETE CASCADE
-);
+#### ServiceOrderItems Collection
+```json
+{
+  "_id": "ObjectId",
+  "serviceOrderId": "ObjectId",
+  "serviceType": "Pre-Delivery Inspection",
+  "description": "Full vehicle inspection before delivery",
+  "cost": 150.00,
+  "status": "Completed",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-15T10:00:00Z",
+  "isDeleted": false
+}
 ```
 
-#### VehicleImages Table
-```sql
-CREATE TABLE VehicleImages (
-    ImageId int IDENTITY(1,1) PRIMARY KEY,
-    VehicleId int NOT NULL,
-    ImageUrl nvarchar(255) NOT NULL,
-    ImageType nvarchar(20) NOT NULL,
-    FileName nvarchar(100) NOT NULL,
-    FileSize int NOT NULL,
-    UploadedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    CreatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt datetime2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (VehicleId) REFERENCES Vehicles(VehicleId) ON DELETE CASCADE
-);
+#### VehicleImages Collection
+```json
+{
+  "_id": "ObjectId",
+  "vehicleId": "ObjectId",
+  "imageUrl": "/images/vehicles/honda-civic-1.jpg",
+  "imageType": "Exterior",
+  "fileName": "honda-civic-1.jpg",
+  "fileSize": 2048576,
+  "uploadedAt": "2024-01-01T00:00:00Z",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false
+}
 ```
 
-## 4. Indexes and Performance Optimization
+## 4. MongoDB Indexes and Performance Optimization
 
-### 4.1 Clustered Indexes
-- Primary keys on all tables (automatically created)
+### 4.1 Automatic Indexes
+- Primary keys (_id) are automatically indexed in MongoDB
+- ObjectId fields are automatically indexed for efficient queries
 
-### 4.2 Non-Clustered Indexes
-```sql
--- Users table
-CREATE INDEX IX_Users_Email ON Users(Email);
-CREATE INDEX IX_Users_Username ON Users(Username);
-CREATE INDEX IX_Users_RoleId ON Users(RoleId);
+### 4.2 Strategic Indexes for Performance
+```javascript
+// Users collection indexes
+db.users.createIndex({ "email": 1 }, { unique: true });
+db.users.createIndex({ "username": 1 }, { unique: true });
+db.users.createIndex({ "roleId": 1 });
+db.users.createIndex({ "isDeleted": 1 });
 
--- Vehicles table
-CREATE INDEX IX_Vehicles_Status ON Vehicles(Status);
-CREATE INDEX IX_Vehicles_ModelId ON Vehicles(ModelId);
-CREATE INDEX IX_Vehicles_VIN ON Vehicles(VIN);
+// Vehicles collection indexes
+db.vehicles.createIndex({ "vin": 1 }, { unique: true });
+db.vehicles.createIndex({ "status": 1 });
+db.vehicles.createIndex({ "modelId": 1 });
+db.vehicles.createIndex({ "isDeleted": 1 });
 
--- Customers table
-CREATE INDEX IX_Customers_Email ON Customers(Email);
-CREATE INDEX IX_Customers_Phone ON Customers(Phone);
+// Customers collection indexes
+db.customers.createIndex({ "email": 1 }, { unique: true });
+db.customers.createIndex({ "phone": 1 });
+db.customers.createIndex({ "isDeleted": 1 });
 
--- SalesOrders table
-CREATE INDEX IX_SalesOrders_CustomerId ON SalesOrders(CustomerId);
-CREATE INDEX IX_SalesOrders_Status ON SalesOrders(Status);
-CREATE INDEX IX_SalesOrders_OrderDate ON SalesOrders(OrderDate);
+// SalesOrders collection indexes
+db.salesOrders.createIndex({ "customerId": 1 });
+db.salesOrders.createIndex({ "status": 1 });
+db.salesOrders.createIndex({ "orderDate": 1 });
+db.salesOrders.createIndex({ "isDeleted": 1 });
 
--- PurchaseOrders table
-CREATE INDEX IX_PurchaseOrders_SupplierId ON PurchaseOrders(SupplierId);
-CREATE INDEX IX_PurchaseOrders_Status ON PurchaseOrders(Status);
-CREATE INDEX IX_PurchaseOrders_OrderDate ON PurchaseOrders(OrderDate);
+// PurchaseOrders collection indexes
+db.purchaseOrders.createIndex({ "supplierId": 1 });
+db.purchaseOrders.createIndex({ "status": 1 });
+db.purchaseOrders.createIndex({ "orderDate": 1 });
+db.purchaseOrders.createIndex({ "isDeleted": 1 });
+
+// Roles collection indexes
+db.roles.createIndex({ "roleName": 1 }, { unique: true });
+db.roles.createIndex({ "isDeleted": 1 });
+
+// Brands collection indexes
+db.brands.createIndex({ "brandName": 1 }, { unique: true });
+db.brands.createIndex({ "isDeleted": 1 });
+
+// Models collection indexes
+db.models.createIndex({ "modelName": 1, "brandId": 1 }, { unique: true });
+db.models.createIndex({ "isDeleted": 1 });
 ```
 
 ## 5. Domain-Driven Design Mapping
@@ -414,59 +520,90 @@ CREATE INDEX IX_PurchaseOrders_OrderDate ON PurchaseOrders(OrderDate);
 - PaymentReceived
 - ServiceCompleted
 
-## 6. Security Considerations
+## 6. MongoDB Security Considerations
 
-### 6.1 Row-Level Security
-```sql
--- Users can only see their own data unless they have admin role
-CREATE FUNCTION dbo.fn_UserAccess(@UserId int)
-RETURNS TABLE
-AS
-RETURN
-(
-    SELECT 1 as Access
-    WHERE EXISTS (
-        SELECT 1 FROM Users u
-        INNER JOIN UserRoles ur ON u.UserId = ur.UserId
-        INNER JOIN Roles r ON ur.RoleId = r.RoleId
-        WHERE u.UserId = @UserId AND r.RoleName IN ('Admin', 'Manager')
-    )
-);
+### 6.1 Document-Level Security
+MongoDB implements security at the document level through:
+- **Role-Based Access Control**: Users have roles that define permissions
+- **Field-Level Security**: Sensitive fields can be hidden based on user roles
+- **Document Filtering**: Queries automatically filter based on user permissions
+
+```javascript
+// Example: Users can only access their own documents unless they have admin role
+db.users.find({
+  $or: [
+    { "userId": currentUserId },
+    { "role.roleName": { $in: ["Admin", "Manager"] } }
+  ]
+});
 ```
 
-### 6.2 Audit Triggers
-```sql
-CREATE TRIGGER tr_Users_Audit ON Users
-AFTER INSERT, UPDATE, DELETE
-AS
-BEGIN
-    INSERT INTO AuditLog (TableName, Operation, UserId, OldValues, NewValues, Timestamp)
-    SELECT
-        'Users',
-        CASE WHEN EXISTS(SELECT * FROM inserted) AND EXISTS(SELECT * FROM deleted) THEN 'UPDATE'
-             WHEN EXISTS(SELECT * FROM inserted) THEN 'INSERT'
-             ELSE 'DELETE' END,
-        SYSTEM_USER,
-        (SELECT * FROM deleted FOR JSON PATH, WITHOUT_ARRAY_WRAPPER),
-        (SELECT * FROM inserted FOR JSON PATH, WITHOUT_ARRAY_WRAPPER),
-        GETUTCDATE()
-    FROM inserted FULL OUTER JOIN deleted ON 1=0;
-END;
+### 6.2 Audit Logging
+MongoDB provides built-in audit logging capabilities:
+- **Document Changes**: All create, update, delete operations are logged
+- **User Actions**: Track who performed what operations
+- **Field-Level Changes**: Log changes to specific fields
+- **Timestamp Tracking**: Automatic audit trail with timestamps
+
+```javascript
+// Example audit log entry
+{
+  "_id": "ObjectId",
+  "collectionName": "users",
+  "operation": "UPDATE",
+  "userId": "ObjectId",
+  "documentId": "ObjectId",
+  "oldValues": {
+    "firstName": "John",
+    "lastName": "Doe"
+  },
+  "newValues": {
+    "firstName": "Jane",
+    "lastName": "Smith"
+  },
+  "timestamp": "2024-01-01T10:30:00Z"
+}
 ```
 
-## 7. Migration Strategy
+## 7. MongoDB Setup and Initialization
 
-### 7.1 Entity Framework Core Migrations
-```bash
-dotnet ef migrations add InitialCreate
-dotnet ef database update
+### 7.1 MongoDB Collection Initialization
+```javascript
+// Create collections with indexes
+db.createCollection("users");
+db.createCollection("roles");
+db.createCollection("userRoles");
+db.createCollection("brands");
+db.createCollection("models");
+db.createCollection("vehicles");
+db.createCollection("vehicleImages");
+db.createCollection("customers");
+db.createCollection("suppliers");
+db.createCollection("purchaseOrders");
+db.createCollection("salesOrders");
+db.createCollection("invoices");
+db.createCollection("payments");
+db.createCollection("serviceOrders");
+
+// Create indexes (already defined in VehicleShowroomDbContext)
 ```
 
 ### 7.2 Seed Data
-- Default roles (HR, Dealer, Customer)
-- Default admin user
+- Default roles (HR, Dealer, Admin)
+- Default admin user (username: admin, password: Admin123!)
 - Sample brands and models
 - System configuration
+
+### 7.3 MongoDB Connection Setup
+```csharp
+// In Program.cs
+services.AddSingleton<IMongoClient>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("MongoDB");
+    return new MongoClient(connectionString);
+});
+```
 
 ---
 
