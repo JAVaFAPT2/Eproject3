@@ -10,7 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using VehicleShowroomManagement.Application.Auth.Commands;
 using VehicleShowroomManagement.Application.Common.DTOs;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Domain.Interfaces;
 using VehicleShowroomManagement.Domain.Services;
 
 namespace VehicleShowroomManagement.Application.Auth.Handlers
