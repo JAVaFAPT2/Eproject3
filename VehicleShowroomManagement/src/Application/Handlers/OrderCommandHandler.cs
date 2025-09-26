@@ -85,10 +85,9 @@ namespace VehicleShowroomManagement.Application.Handlers
                 {
                     new SalesOrderItem
                     {
-                        SalesOrderItemId = ObjectId.GenerateNewId().ToString(),
+                        Id = ObjectId.GenerateNewId().ToString(),
                         SalesOrderId = ObjectId.GenerateNewId().ToString(), // Will be set properly after order creation
                         VehicleId = request.VehicleId,
-                        Quantity = 1,
                         UnitPrice = request.TotalAmount,
                         Discount = 0,
                         LineTotal = request.TotalAmount,

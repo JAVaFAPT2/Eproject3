@@ -63,14 +63,8 @@ namespace VehicleShowroomManagement.Domain.Entities
         public List<VehicleImage> VehicleImages { get; set; } = new List<VehicleImage>();
 
         // References to other documents
-        [BsonElement("purchaseOrderItemIds")]
-        public List<string> PurchaseOrderItemIds { get; set; } = new List<string>();
-
         [BsonElement("salesOrderItemIds")]
         public List<string> SalesOrderItemIds { get; set; } = new List<string>();
-
-        [BsonElement("serviceOrderIds")]
-        public List<string> ServiceOrderIds { get; set; } = new List<string>();
 
         // Domain Methods
         public void UpdateVehicleInfo(string color, int year, decimal price, int mileage)

@@ -192,9 +192,8 @@ The system will be built using **Domain-Driven Design (DDD)** with **Clean Archi
 ### 7.1 Document Structure
 - **Users** with embedded role information and references
 - **Vehicles** with embedded model/brand data and image arrays
-- **PurchaseOrders** with embedded items
-- **SalesOrders** with embedded items and customer references
-- **ServiceOrders** with embedded items
+- **SalesOrders** with item references and customer references
+- **ServiceOrders** with customer and vehicle references
 - **Invoices** with payment references
 - **Inventory** tracking with document references
 
@@ -203,12 +202,11 @@ The system will be built using **Domain-Driven Design (DDD)** with **Clean Archi
 - Role
 - Vehicle (with embedded ModelInfo and BrandInfo)
 - Customer (with embedded AddressInfo)
-- PurchaseOrder (with embedded items)
-- SalesOrder (with embedded items)
-- ServiceOrder (with embedded items)
+- SalesOrder
+- SalesOrderItem
+- ServiceOrder
 - Invoice
 - Payment
-- Supplier
 
 ## 8. API Design
 

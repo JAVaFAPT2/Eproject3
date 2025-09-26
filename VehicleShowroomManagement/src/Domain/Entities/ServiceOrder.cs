@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -12,42 +12,44 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class ServiceOrder : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ServiceOrderId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        public int VehicleId { get; set; }
+        [BsonElement("vehicleId")]
+        [BsonRequired]
+        public string VehicleId { get; set; } = string.Empty;
 
-        [Required]
-        public int CustomerId { get; set; }
+        [BsonElement("customerId")]
+        [BsonRequired]
+        public string CustomerId { get; set; } = string.Empty;
 
+        [BsonElement("serviceDate")]
         public DateTime ServiceDate { get; set; } = DateTime.UtcNow;
 
-        [Required]
-        [StringLength(20)]
-        [Column(TypeName = "nvarchar(20)")]
+        [BsonElement("status")]
         public string Status { get; set; } = "Scheduled"; // Scheduled, InProgress, Completed, Cancelled
 
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("totalCost")]
         public decimal TotalCost { get; set; } = 0;
 
+        [BsonElement("description")]
+        public string? Description { get; set; }
+
+        [BsonElement("serviceType")]
+        public string ServiceType { get; set; } = string.Empty;
+
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
-        public DateTime? DeletedAt { get; set; }
-
-        // Navigation Properties
-        [ForeignKey("VehicleId")]
-        public virtual Vehicle Vehicle { get; set; } = null!;
-
-        [ForeignKey("CustomerId")]
-        public virtual Customer Customer { get; set; } = null!;
-
-        public virtual ICollection<ServiceOrderItem> ServiceOrderItems { get; set; } = new List<ServiceOrderItem>();
+        [BsonElement("deletedAt")]
+        public DateTime? DeletedAt { get; set; };
 
         // Domain Methods
         public void StartService()

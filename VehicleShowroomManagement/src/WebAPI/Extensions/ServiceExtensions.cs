@@ -62,15 +62,11 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
             services.AddScoped<IRepository<Vehicle>, MongoRepository<Vehicle>>();
             services.AddScoped<IRepository<VehicleImage>, MongoRepository<VehicleImage>>();
             services.AddScoped<IRepository<Customer>, MongoRepository<Customer>>();
-            services.AddScoped<IRepository<Supplier>, MongoRepository<Supplier>>();
-            services.AddScoped<IRepository<PurchaseOrder>, MongoRepository<PurchaseOrder>>();
-            services.AddScoped<IRepository<PurchaseOrderItem>, MongoRepository<PurchaseOrderItem>>();
             services.AddScoped<IRepository<SalesOrder>, MongoRepository<SalesOrder>>();
             services.AddScoped<IRepository<SalesOrderItem>, MongoRepository<SalesOrderItem>>();
             services.AddScoped<IRepository<Invoice>, MongoRepository<Invoice>>();
             services.AddScoped<IRepository<Payment>, MongoRepository<Payment>>();
             services.AddScoped<IRepository<ServiceOrder>, MongoRepository<ServiceOrder>>();
-            services.AddScoped<IRepository<ServiceOrderItem>, MongoRepository<ServiceOrderItem>>();
 
             // Register domain services
             services.AddScoped<IPricingService, PricingService>();

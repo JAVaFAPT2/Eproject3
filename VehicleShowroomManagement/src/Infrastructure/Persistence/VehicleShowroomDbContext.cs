@@ -30,15 +30,11 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         public IMongoCollection<Vehicle> Vehicles => _database.GetCollection<Vehicle>("vehicles");
         public IMongoCollection<VehicleImage> VehicleImages => _database.GetCollection<VehicleImage>("vehicleImages");
         public IMongoCollection<Customer> Customers => _database.GetCollection<Customer>("customers");
-        public IMongoCollection<Supplier> Suppliers => _database.GetCollection<Supplier>("suppliers");
-        public IMongoCollection<PurchaseOrder> PurchaseOrders => _database.GetCollection<PurchaseOrder>("purchaseOrders");
-        public IMongoCollection<PurchaseOrderItem> PurchaseOrderItems => _database.GetCollection<PurchaseOrderItem>("purchaseOrderItems");
         public IMongoCollection<SalesOrder> SalesOrders => _database.GetCollection<SalesOrder>("salesOrders");
         public IMongoCollection<SalesOrderItem> SalesOrderItems => _database.GetCollection<SalesOrderItem>("salesOrderItems");
         public IMongoCollection<Invoice> Invoices => _database.GetCollection<Invoice>("invoices");
         public IMongoCollection<Payment> Payments => _database.GetCollection<Payment>("payments");
         public IMongoCollection<ServiceOrder> ServiceOrders => _database.GetCollection<ServiceOrder>("serviceOrders");
-        public IMongoCollection<ServiceOrderItem> ServiceOrderItems => _database.GetCollection<ServiceOrderItem>("serviceOrderItems");
 
         // IUnitOfWork implementation
         public async Task<int> SaveChangesAsync()
@@ -102,15 +98,11 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                 (Vehicles, "vehicles"),
                 (VehicleImages, "vehicleImages"),
                 (Customers, "customers"),
-                (Suppliers, "suppliers"),
-                (PurchaseOrders, "purchaseOrders"),
-                (PurchaseOrderItems, "purchaseOrderItems"),
                 (SalesOrders, "salesOrders"),
                 (SalesOrderItems, "salesOrderItems"),
                 (Invoices, "invoices"),
                 (Payments, "payments"),
-                (ServiceOrders, "serviceOrders"),
-                (ServiceOrderItems, "serviceOrderItems")
+                (ServiceOrders, "serviceOrders")
             };
 
             foreach (var (collection, name) in collections)

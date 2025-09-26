@@ -480,11 +480,10 @@ db.salesOrders.createIndex({ "status": 1 });
 db.salesOrders.createIndex({ "orderDate": 1 });
 db.salesOrders.createIndex({ "isDeleted": 1 });
 
-// PurchaseOrders collection indexes
-db.purchaseOrders.createIndex({ "supplierId": 1 });
-db.purchaseOrders.createIndex({ "status": 1 });
-db.purchaseOrders.createIndex({ "orderDate": 1 });
-db.purchaseOrders.createIndex({ "isDeleted": 1 });
+// SalesOrderItems collection indexes
+db.salesOrderItems.createIndex({ "salesOrderId": 1 });
+db.salesOrderItems.createIndex({ "vehicleId": 1 });
+db.salesOrderItems.createIndex({ "isDeleted": 1 });
 
 // Roles collection indexes
 db.roles.createIndex({ "roleName": 1 }, { unique: true });
@@ -504,8 +503,7 @@ db.models.createIndex({ "isDeleted": 1 });
 ### 5.1 Aggregates
 - **Vehicle Aggregate**: Vehicle, VehicleImages
 - **Sales Aggregate**: SalesOrder, SalesOrderItems, Invoice, Payments
-- **Purchase Aggregate**: PurchaseOrder, PurchaseOrderItems
-- **Service Aggregate**: ServiceOrder, ServiceOrderItems
+- **Service Aggregate**: ServiceOrder
 - **User Aggregate**: User, UserRoles
 
 ### 5.2 Value Objects
@@ -578,9 +576,8 @@ db.createCollection("models");
 db.createCollection("vehicles");
 db.createCollection("vehicleImages");
 db.createCollection("customers");
-db.createCollection("suppliers");
-db.createCollection("purchaseOrders");
 db.createCollection("salesOrders");
+db.createCollection("salesOrderItems");
 db.createCollection("invoices");
 db.createCollection("payments");
 db.createCollection("serviceOrders");

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -12,44 +12,45 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class SalesOrder : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int SalesOrderId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        public int CustomerId { get; set; }
+        [BsonElement("customerId")]
+        [BsonRequired]
+        public string CustomerId { get; set; } = string.Empty;
 
-        [Required]
-        public int SalesPersonId { get; set; }
+        [BsonElement("salesPersonId")]
+        [BsonRequired]
+        public string SalesPersonId { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(20)]
-        [Column(TypeName = "nvarchar(20)")]
+        [BsonElement("status")]
         public string Status { get; set; } = "Draft"; // Draft, Confirmed, Invoiced, Completed, Cancelled
 
+        [BsonElement("orderDate")]
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("totalAmount")]
         public decimal TotalAmount { get; set; } = 0;
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("CustomerId")]
-        public virtual Customer Customer { get; set; } = null!;
+        // References to other documents
+        [BsonElement("salesOrderItemIds")]
+        public List<string> SalesOrderItemIds { get; set; } = new List<string>();
 
-        [ForeignKey("SalesPersonId")]
-        public virtual User SalesPerson { get; set; } = null!;
-
-        public virtual ICollection<SalesOrderItem> SalesOrderItems { get; set; } = new List<SalesOrderItem>();
-
-        public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+        [BsonElement("invoiceIds")]
+        public List<string> InvoiceIds { get; set; } = new List<string>();
 
         // Domain Methods
         public void ConfirmOrder()

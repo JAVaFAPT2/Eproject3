@@ -1,6 +1,6 @@
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -11,46 +11,44 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class SalesOrderItem : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int SalesOrderItemId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        public int SalesOrderId { get; set; }
+        [BsonElement("salesOrderId")]
+        [BsonRequired]
+        public string SalesOrderId { get; set; } = string.Empty;
 
-        [Required]
-        public int VehicleId { get; set; }
+        [BsonElement("vehicleId")]
+        [BsonRequired]
+        public string VehicleId { get; set; } = string.Empty;
 
-        public int Quantity { get; set; } = 1;
-
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("unitPrice")]
+        [BsonRequired]
         public decimal UnitPrice { get; set; }
 
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("discount")]
         public decimal Discount { get; set; } = 0;
 
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("lineTotal")]
         public decimal LineTotal { get; set; }
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
-
-        // Navigation Properties
-        [ForeignKey("SalesOrderId")]
-        public virtual SalesOrder SalesOrder { get; set; } = null!;
-
-        [ForeignKey("VehicleId")]
-        public virtual Vehicle Vehicle { get; set; } = null!;
 
         // Domain Methods
         public void CalculateLineTotal()
         {
-            LineTotal = (UnitPrice * Quantity) - Discount;
+            LineTotal = UnitPrice - Discount;
             UpdatedAt = DateTime.UtcNow;
         }
 
