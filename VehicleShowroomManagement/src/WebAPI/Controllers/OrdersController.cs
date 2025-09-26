@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using VehicleShowroomManagement.Application.Commands;
-using VehicleShowroomManagement.Application.Queries;
+using VehicleShowroomManagement.Application.Orders.Commands;
+using VehicleShowroomManagement.Application.Orders.Queries;
 
-using CustomerInfo = VehicleShowroomManagement.Application.DTOs.CustomerInfo;
+using CustomerInfo = VehicleShowroomManagement.Application.Common.DTOs.CustomerInfo;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {

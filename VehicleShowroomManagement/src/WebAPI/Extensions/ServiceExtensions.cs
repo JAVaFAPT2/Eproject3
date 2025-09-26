@@ -1,9 +1,6 @@
 using System.Reflection;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using VehicleShowroomManagement.Application.Handlers;
-using VehicleShowroomManagement.Application.Queries;
+using VehicleShowroomManagement.Application.Users.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Services;
 using VehicleShowroomManagement.Infrastructure.Interfaces;

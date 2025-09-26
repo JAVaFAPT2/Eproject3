@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using VehicleShowroomManagement.Application.Queries;
+using VehicleShowroomManagement.Application.Returns.Queries;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 

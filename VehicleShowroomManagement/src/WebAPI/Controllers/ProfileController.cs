@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using VehicleShowroomManagement.Application.DTOs;
-using VehicleShowroomManagement.Application.Commands;
-using VehicleShowroomManagement.Application.Queries;
+using VehicleShowroomManagement.Application.Common.DTOs;
+using VehicleShowroomManagement.Application.Users.Commands;
+using VehicleShowroomManagement.Application.Users.Queries;
 using System.Threading.Tasks;
 using System.Security.Claims;
 

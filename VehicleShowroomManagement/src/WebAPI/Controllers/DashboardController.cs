@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using VehicleShowroomManagement.Application.Queries;
+using VehicleShowroomManagement.Application.Dashboard.Queries;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {

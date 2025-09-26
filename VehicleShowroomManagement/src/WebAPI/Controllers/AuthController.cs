@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using VehicleShowroomManagement.Application.Commands;
+using VehicleShowroomManagement.Application.Auth.Commands;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {

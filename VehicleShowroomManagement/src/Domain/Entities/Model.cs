@@ -81,23 +81,4 @@ namespace VehicleShowroomManagement.Domain.Entities
         }
     }
 
-    /// <summary>
-    /// Embedded brand information within Model document
-    /// </summary>
-    public class BrandInfo
-    {
-        [BsonElement("brandId")]
-        [BsonRequired]
-        public string BrandId { get; set; } = string.Empty;
-
-        [BsonElement("brandName")]
-        [BsonRequired]
-        public string BrandName { get; set; } = string.Empty;
-
-        [BsonElement("country")]
-        public string? Country { get; set; }
-
-        [BsonElement("logoUrl")]
-        public string? LogoUrl { get; set; }
-    }
 }
