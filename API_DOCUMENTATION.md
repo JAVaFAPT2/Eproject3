@@ -17,16 +17,17 @@ Content-Type: application/json
 # Response (200 OK)
 {
   "user": {
-    "userId": 1,
+    "userId": "507f1f77bcf86cd799439011",
     "username": "admin",
     "email": "admin@showroom.com",
     "firstName": "System",
     "lastName": "Administrator",
-    "roleId": 1,
+    "roleId": "507f1f77bcf86cd799439012",
     "roleName": "Admin",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "tokenExpiresAt": "2024-01-02T00:00:00Z",
     "isActive": true,
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
+    "fullName": "System Administrator"
   },
   "message": "Login successful"
 }
@@ -819,8 +820,19 @@ Authorization: Bearer <jwt-token>
 
 ### **JWT Token Usage**
 ```bash
-# Include in request headers
+# Include in request headers (token from login response)
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# Token contains claims:
+# - sub: User ID
+# - email: User email
+# - name: User full name
+# - username: Username
+# - role: User role
+# - jti: Unique token ID
+# - exp: Expiration timestamp
+# - iss: Token issuer
+# - aud: Token audience
 ```
 
 ### **Error Responses**
