@@ -55,6 +55,13 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
+        // Password reset token fields
+        [BsonElement("passwordResetToken")]
+        public string? PasswordResetToken { get; set; }
+
+        [BsonElement("passwordResetTokenExpiry")]
+        public DateTime? PasswordResetTokenExpiry { get; set; }
+
         // Embedded role information
         [BsonElement("role")]
         public RoleInfo? Role { get; set; }

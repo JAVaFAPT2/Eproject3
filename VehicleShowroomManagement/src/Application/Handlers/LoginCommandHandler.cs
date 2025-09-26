@@ -122,31 +122,41 @@ namespace VehicleShowroomManagement.Application.Handlers
             _userRepository = userRepository;
         }
 
-        public Task<Unit> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
             // Find user by email
-            // Note: In a real implementation, this would be async
-            var user = _userRepository.FirstOrDefaultAsync(u =>
+            var user = await _userRepository.FirstOrDefaultAsync(u =>
                 u.Email == request.Email &&
-                !u.IsDeleted).Result;
+                !u.IsDeleted &&
+                u.IsActive);
 
             if (user == null)
             {
                 // Don't reveal if email exists or not for security
-                return Task.FromResult(Unit.Value);
+                // Always return success to prevent email enumeration attacks
+                return Unit.Value;
             }
 
-            // Generate password reset token (in real implementation, save to database with expiration)
+            // Generate password reset token
             var resetToken = Guid.NewGuid().ToString();
 
-            // In a real implementation, you would:
-            // 1. Save the reset token to the database with expiration time
-            // 2. Send an email with the reset link containing the token
+            // Set token expiry (24 hours from now)
+            var tokenExpiry = DateTime.UtcNow.AddHours(24);
 
-            // For now, just log the token
+            // Update user with reset token
+            user.PasswordResetToken = resetToken;
+            user.PasswordResetTokenExpiry = tokenExpiry;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            // In a real implementation, you would send an email with the reset link
+            // For now, log the token (in production, this would be sent via email)
             Console.WriteLine($"Password reset token for {user.Email}: {resetToken}");
+            Console.WriteLine($"Token expires at: {tokenExpiry}");
 
-            return Task.FromResult(Unit.Value);
+            return Unit.Value;
         }
     }
 
@@ -168,17 +178,37 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<Unit> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
         {
-            // In a real implementation, you would:
-            // 1. Find the user by the reset token
-            // 2. Check if the token is valid and not expired
-            // 3. Update the user's password
-            // 4. Clear the reset token
+            // Find user by reset token
+            var user = await _userRepository.FirstOrDefaultAsync(u =>
+                u.PasswordResetToken == request.Token &&
+                !u.IsDeleted &&
+                u.IsActive);
 
-            // For now, just simulate the process
+            if (user == null)
+            {
+                throw new ArgumentException("Invalid or expired reset token");
+            }
+
+            // Check if token has expired
+            if (user.PasswordResetTokenExpiry == null ||
+                user.PasswordResetTokenExpiry.Value < DateTime.UtcNow)
+            {
+                throw new ArgumentException("Reset token has expired");
+            }
+
+            // Hash the new password
             var hashedPassword = _passwordService.HashPassword(request.NewPassword);
 
-            Console.WriteLine($"Password reset with token: {request.Token}");
-            Console.WriteLine($"New hashed password: {hashedPassword}");
+            // Update user password and clear reset token
+            user.PasswordHash = hashedPassword;
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            Console.WriteLine($"Password successfully reset for user: {user.Email}");
 
             return Unit.Value;
         }
