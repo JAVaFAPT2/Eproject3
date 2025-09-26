@@ -1,0 +1,80 @@
+using System.Reflection;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
+using VehicleShowroomManagement.Application.Handlers;
+using VehicleShowroomManagement.Domain.Services;
+using VehicleShowroomManagement.Infrastructure.Interfaces;
+using VehicleShowroomManagement.Infrastructure.Persistence;
+using VehicleShowroomManagement.Infrastructure.Repositories;
+
+namespace VehicleShowroomManagement.WebAPI.Extensions
+{
+    /// <summary>
+    /// Extension methods for configuring services
+    /// </summary>
+    public static class ServiceExtensions
+    {
+        /// <summary>
+        /// Configures application services
+        /// </summary>
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+        {
+            // Register MediatR for CQRS
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+            // Register AutoMapper
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+            return services;
+        }
+
+        /// <summary>
+        /// Configures infrastructure services
+        /// </summary>
+        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
+        {
+            // Register MongoDB
+            services.AddSingleton<IMongoClient>(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                var connectionString = configuration.GetConnectionString("MongoDB");
+                return new MongoClient(connectionString);
+            });
+
+            services.AddScoped<IMongoDatabase>(sp =>
+            {
+                var client = sp.GetRequiredService<IMongoClient>();
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                var databaseName = configuration["MongoDB:DatabaseName"] ?? "VehicleShowroomDB";
+                return client.GetDatabase(databaseName);
+            });
+
+            // Register database context
+            services.AddScoped<VehicleShowroomDbContext>();
+
+            // Register repositories with MongoDB implementation
+            services.AddScoped<IRepository<User>>(sp => new MongoRepository<User>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Users"));
+            services.AddScoped<IRepository<Role>>(sp => new MongoRepository<Role>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Roles"));
+            services.AddScoped<IRepository<UserRole>>(sp => new MongoRepository<UserRole>(sp.GetRequiredService<VehicleShowroomDbContext>(), "UserRoles"));
+            services.AddScoped<IRepository<Brand>>(sp => new MongoRepository<Brand>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Brands"));
+            services.AddScoped<IRepository<Model>>(sp => new MongoRepository<Model>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Models"));
+            services.AddScoped<IRepository<Vehicle>>(sp => new MongoRepository<Vehicle>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Vehicles"));
+            services.AddScoped<IRepository<VehicleImage>>(sp => new MongoRepository<VehicleImage>(sp.GetRequiredService<VehicleShowroomDbContext>(), "VehicleImages"));
+            services.AddScoped<IRepository<Customer>>(sp => new MongoRepository<Customer>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Customers"));
+            services.AddScoped<IRepository<SalesOrder>>(sp => new MongoRepository<SalesOrder>(sp.GetRequiredService<VehicleShowroomDbContext>(), "SalesOrders"));
+            services.AddScoped<IRepository<SalesOrderItem>>(sp => new MongoRepository<SalesOrderItem>(sp.GetRequiredService<VehicleShowroomDbContext>(), "SalesOrderItems"));
+            services.AddScoped<IRepository<Invoice>>(sp => new MongoRepository<Invoice>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Invoices"));
+            services.AddScoped<IRepository<Payment>>(sp => new MongoRepository<Payment>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Payments"));
+            services.AddScoped<IRepository<ServiceOrder>>(sp => new MongoRepository<ServiceOrder>(sp.GetRequiredService<VehicleShowroomDbContext>(), "ServiceOrders"));
+
+            // Register domain services
+            services.AddScoped<IPricingService, PricingService>();
+
+            // Register Unit of Work
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            return services;
+        }
+    }
+}
