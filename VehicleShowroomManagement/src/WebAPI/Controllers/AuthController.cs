@@ -24,7 +24,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
                 return Ok(new
                 {
-                    user = result,
+                    token = result.Token,
+                    tokenExpiresAt = result.TokenExpiresAt,
+                    userId = result.UserId,
+                    role = result.RoleName,
                     message = "Login successful"
                 });
             }

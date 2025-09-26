@@ -68,16 +68,10 @@ namespace VehicleShowroomManagement.Application.Auth.Handlers
 
             return new LoginResultDto
             {
-                UserId = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                RoleId = user.RoleId,
-                RoleName = role.RoleName,
                 Token = token,
                 TokenExpiresAt = DateTime.UtcNow.AddHours(24),
-                IsActive = user.IsActive
+                RoleName = role.RoleName,
+                UserId = user.Id
             };
         }
 

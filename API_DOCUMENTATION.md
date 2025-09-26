@@ -3,7 +3,8 @@
 ## 🔐 **Authentication APIs** (`/api/auth`)
 
 ### **1. POST /api/auth/login**
-**User Login**
+**User Login (Returns JWT Token)**
+*Returns minimal user info for security. Use `/api/users/profile` for detailed user information.*
 ```bash
 # Request
 POST /api/auth/login
@@ -16,19 +17,10 @@ Content-Type: application/json
 
 # Response (200 OK)
 {
-  "user": {
-    "userId": "507f1f77bcf86cd799439011",
-    "username": "admin",
-    "email": "admin@showroom.com",
-    "firstName": "System",
-    "lastName": "Administrator",
-    "roleId": "507f1f77bcf86cd799439012",
-    "roleName": "Admin",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "tokenExpiresAt": "2024-01-02T00:00:00Z",
-    "isActive": true,
-    "fullName": "System Administrator"
-  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenExpiresAt": "2024-01-02T00:00:00Z",
+  "userId": "507f1f77bcf86cd799439011",
+  "role": "Admin",
   "message": "Login successful"
 }
 ```
@@ -812,6 +804,12 @@ Authorization: Bearer <jwt-token>
 
 ## 🔑 **Authentication & Authorization Notes**
 
+### **🔐 Login Security**
+- **Minimal Response**: Login returns only essential info (token, userId, role)
+- **Token Claims**: All user info embedded in JWT for performance
+- **Profile Endpoint**: Use `/api/users/profile` for detailed user information
+- **Token Expiry**: 24 hours, automatic logout on expiry
+
 ### **Roles & Permissions**
 - **Admin**: Full access to all endpoints
 - **HR**: User management, employee viewing
@@ -823,16 +821,19 @@ Authorization: Bearer <jwt-token>
 # Include in request headers (token from login response)
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# Token contains claims:
+# Token contains user claims for authorization:
 # - sub: User ID
 # - email: User email
 # - name: User full name
 # - username: Username
-# - role: User role
+# - role: User role (used for authorization)
 # - jti: Unique token ID
-# - exp: Expiration timestamp
+# - exp: Expiration timestamp (24 hours)
 # - iss: Token issuer
 # - aud: Token audience
+
+# Note: User details are embedded in token for performance
+# No additional API calls needed for basic user info
 ```
 
 ### **Error Responses**
