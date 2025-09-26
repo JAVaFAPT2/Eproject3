@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using MongoDB.Driver.Linq;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Infrastructure.Interfaces
@@ -15,7 +16,7 @@ namespace VehicleShowroomManagement.Infrastructure.Interfaces
         /// <summary>
         /// Gets all entities as IQueryable for further filtering
         /// </summary>
-        IQueryable<T> GetAllQueryable();
+        IMongoQueryable<T> GetAllQueryable();
 
         /// <summary>
         /// Gets all entities
@@ -25,7 +26,7 @@ namespace VehicleShowroomManagement.Infrastructure.Interfaces
         /// <summary>
         /// Gets entity by ID
         /// </summary>
-        Task<T?> GetByIdAsync(int id);
+        Task<T?> GetByIdAsync(string id);
 
         /// <summary>
         /// Finds first entity matching the predicate

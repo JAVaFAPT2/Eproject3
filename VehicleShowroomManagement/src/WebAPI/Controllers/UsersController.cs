@@ -82,7 +82,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             // This would typically be implemented with an UpdateUserCommand
             // For now, returning NotImplemented
-            return NotImplemented();
+            return StatusCode(501, "Not Implemented");
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             // This would typically be implemented with a DeleteUserCommand
             // For now, returning NotImplemented
-            return NotImplemented();
+            return StatusCode(501, "Not Implemented");
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             // This would typically get the current user from the authentication context
             // For now, returning NotImplemented
-            return NotImplemented();
+            return StatusCode(501, "Not Implemented");
         }
     }
 

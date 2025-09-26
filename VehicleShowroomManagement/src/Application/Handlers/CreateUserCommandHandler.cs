@@ -26,7 +26,7 @@ namespace VehicleShowroomManagement.Application.Handlers
         public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             // Validate that role exists
-            var role = await _roleRepository.GetByIdAsync(request.RoleId);
+            var role = await _roleRepository.GetByIdAsync(request.RoleId.ToString());
             if (role == null)
             {
                 throw new ArgumentException($"Role with ID {request.RoleId} does not exist");
@@ -57,7 +57,7 @@ namespace VehicleShowroomManagement.Application.Handlers
                 PasswordHash = passwordHash,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                RoleId = request.RoleId,
+                RoleId = request.RoleId.ToString(),
                 IsActive = true
             };
 
@@ -68,12 +68,12 @@ namespace VehicleShowroomManagement.Application.Handlers
             // Return the DTO
             return new UserDto
             {
-                UserId = user.UserId,
+                UserId = int.Parse(user.Id),
                 Username = user.Username,
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                RoleId = user.RoleId,
+                RoleId = int.Parse(user.RoleId),
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt

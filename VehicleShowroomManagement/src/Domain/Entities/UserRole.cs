@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// Junction entity for User-Role many-to-many relationship
     /// Supports multiple roles per user and audit trail
     /// </summary>
-    public class UserRole : IAuditableEntity
+    public class UserRole : IEntity, IAuditableEntity
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

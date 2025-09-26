@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using VehicleShowroomManagement.Application.Handlers;
+using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Services;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 using VehicleShowroomManagement.Infrastructure.Persistence;

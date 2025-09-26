@@ -38,8 +38,8 @@ namespace VehicleShowroomManagement.Application.Handlers
                 var searchTerm = request.SearchTerm.ToLower();
                 filteredVehicles = filteredVehicles.Where(v =>
                     v.VIN.ToLower().Contains(searchTerm) ||
-                    (v.Model?.ModelName ?? "").ToLower().Contains(searchTerm) ||
-                    (v.Model?.Brand?.BrandName ?? "").ToLower().Contains(searchTerm));
+                    (v.Model != null && v.Model.ModelName.ToLower().Contains(searchTerm)) ||
+                    (v.Model != null && v.Model.Brand != null && v.Model.Brand.BrandName.ToLower().Contains(searchTerm)));
             }
 
             if (!string.IsNullOrEmpty(request.Status))
@@ -50,7 +50,7 @@ namespace VehicleShowroomManagement.Application.Handlers
             if (!string.IsNullOrEmpty(request.Brand))
             {
                 filteredVehicles = filteredVehicles.Where(v =>
-                    v.Model?.Brand?.BrandName.ToLower() == request.Brand.ToLower());
+                    v.Model != null && v.Model.Brand != null && v.Model.Brand.BrandName.ToLower() == request.Brand.ToLower());
             }
 
             // Apply pagination

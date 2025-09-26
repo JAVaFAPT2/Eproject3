@@ -49,6 +49,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("salesOrderItemIds")]
         public List<string> SalesOrderItemIds { get; set; } = new List<string>();
 
+        // Navigation property for domain operations
+        public List<SalesOrderItem> SalesOrderItems { get; set; } = new List<SalesOrderItem>();
+
         [BsonElement("invoiceIds")]
         public List<string> InvoiceIds { get; set; } = new List<string>();
 

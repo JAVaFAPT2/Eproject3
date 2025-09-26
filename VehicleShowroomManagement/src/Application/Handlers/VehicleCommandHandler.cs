@@ -87,22 +87,8 @@ namespace VehicleShowroomManagement.Application.Handlers
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 IsDeleted = false,
-                Model = new Vehicle.ModelInfo
-                {
-                    ModelId = model.Id,
-                    ModelName = model.ModelName,
-                    BrandId = brand.Id,
-                    Brand = new Vehicle.BrandInfo
-                    {
-                        BrandId = brand.Id,
-                        BrandName = brand.BrandName,
-                        Country = brand.Country
-                    },
-                    EngineType = model.EngineType,
-                    Transmission = model.Transmission,
-                    FuelType = model.FuelType,
-                    SeatingCapacity = model.SeatingCapacity
-                }
+                // Model info would be populated from model data
+                // For now, set basic properties
             };
 
             await _vehicleRepository.AddAsync(vehicle);

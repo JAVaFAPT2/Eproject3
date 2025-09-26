@@ -30,6 +30,10 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("discount")]
         public decimal Discount { get; set; } = 0;
 
+        [BsonElement("quantity")]
+        [BsonRequired]
+        public int Quantity { get; set; } = 1;
+
         [BsonElement("lineTotal")]
         public decimal LineTotal { get; set; }
 

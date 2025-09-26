@@ -102,12 +102,12 @@ namespace VehicleShowroomManagement.Application.Handlers
         {
             return new UserDto
             {
-                UserId = user.UserId,
+                UserId = int.Parse(user.Id),
                 Username = user.Username,
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                RoleId = user.RoleId,
+                RoleId = int.Parse(user.RoleId),
                 RoleName = user.Role?.RoleName,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt,

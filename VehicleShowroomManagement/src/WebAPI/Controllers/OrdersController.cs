@@ -7,6 +7,8 @@ using VehicleShowroomManagement.Application.Queries;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using CustomerInfo = VehicleShowroomManagement.Application.DTOs.CustomerInfo;
+
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
     /// <summary>
@@ -124,17 +126,5 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public string VehicleId { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
         public string PaymentMethod { get; set; } = "CASH";
-    }
-
-    /// <summary>
-    /// Customer information for order creation
-    /// </summary>
-    public class CustomerInfo
-    {
-        public string Cccd { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Address { get; set; } = string.Empty;
     }
 }

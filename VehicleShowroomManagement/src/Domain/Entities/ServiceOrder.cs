@@ -49,7 +49,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         public bool IsDeleted { get; set; } = false;
 
         [BsonElement("deletedAt")]
-        public DateTime? DeletedAt { get; set; };
+        public DateTime? DeletedAt { get; set; }
 
         // Domain Methods
         public void StartService()

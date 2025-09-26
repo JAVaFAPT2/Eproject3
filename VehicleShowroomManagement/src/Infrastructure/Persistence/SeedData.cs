@@ -72,12 +72,6 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                 FirstName = "System",
                 LastName = "Administrator",
                 RoleId = adminRole.Id,
-                Role = new User.RoleInfo
-                {
-                    RoleId = adminRole.Id,
-                    RoleName = adminRole.RoleName,
-                    Description = adminRole.Description
-                },
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,

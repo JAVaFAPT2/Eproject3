@@ -1,6 +1,7 @@
 using System;
 using MediatR;
-using VehicleShowroomManagement.WebAPI.Controllers;
+using VehicleShowroomManagement.Application.DTOs;
+
 
 namespace VehicleShowroomManagement.Application.Commands
 {
@@ -9,13 +10,13 @@ namespace VehicleShowroomManagement.Application.Commands
     /// </summary>
     public class CreateOrderCommand : IRequest<OrderDto>
     {
-        public Controllers.CustomerInfo Customer { get; set; }
+        public CustomerInfo Customer { get; set; }
         public string VehicleId { get; set; }
         public decimal TotalAmount { get; set; }
         public string PaymentMethod { get; set; }
 
         public CreateOrderCommand(
-            Controllers.CustomerInfo customer,
+            CustomerInfo customer,
             string vehicleId,
             decimal totalAmount,
             string paymentMethod)

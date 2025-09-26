@@ -7,7 +7,6 @@ using VehicleShowroomManagement.Application.Commands;
 using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Interfaces;
-using VehicleShowroomManagement.WebAPI.Controllers;
 
 namespace VehicleShowroomManagement.Application.Handlers
 {
@@ -130,11 +129,11 @@ namespace VehicleShowroomManagement.Application.Handlers
                 CustomerId = order.CustomerId,
                 Customer = new CustomerInfo
                 {
-                    CustomerId = order.CustomerId,
-                    Name = "Customer Name", // Would need to populate from customer entity
+                    Id = order.CustomerId,
+                    FirstName = "Customer", // Would need to populate from customer entity
+                    LastName = "Name",
                     Email = "customer@example.com",
-                    Phone = "0901234567",
-                    Address = "Customer Address"
+                    Phone = "0901234567"
                 },
                 VehicleId = "VehicleId", // Would need to populate from order items
                 Vehicle = new VehicleInfo
@@ -189,10 +188,11 @@ namespace VehicleShowroomManagement.Application.Handlers
                 OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{request.OrderId.Substring(0, 4)}",
                 Customer = new CustomerInfo
                 {
-                    Name = "Customer Name",
+                    Id = "customer-id",
+                    FirstName = "Customer",
+                    LastName = "Name",
                     Email = "customer@example.com",
-                    Phone = "0901234567",
-                    Address = "Customer Address"
+                    Phone = "0901234567"
                 },
                 Vehicle = new VehicleInfo
                 {

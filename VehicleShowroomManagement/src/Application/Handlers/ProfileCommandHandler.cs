@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MediatR;
 using VehicleShowroomManagement.Application.Commands;
 using VehicleShowroomManagement.Application.DTOs;
+using VehicleShowroomManagement.Application.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Interfaces;
 

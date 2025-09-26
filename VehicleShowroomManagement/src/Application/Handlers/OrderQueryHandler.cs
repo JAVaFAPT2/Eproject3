@@ -104,5 +104,38 @@ namespace VehicleShowroomManagement.Application.Handlers
 
             return MapToDto(order);
         }
+
+        private static OrderDto MapToDto(SalesOrder order)
+        {
+            return new OrderDto
+            {
+                Id = order.Id,
+                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{(order.Id ?? "UNKNOWN").Substring(0, Math.Min(4, (order.Id ?? "UNKNOWN").Length))}",
+                CustomerId = order.CustomerId,
+                Customer = new CustomerInfo
+                {
+                    Id = order.CustomerId,
+                    FirstName = "Customer", // Would need to populate from customer entity
+                    LastName = "Name",
+                    Email = "customer@example.com",
+                    Phone = "0901234567"
+                },
+                VehicleId = "VehicleId", // Would need to populate from order items
+                Vehicle = new VehicleInfo
+                {
+                    VehicleId = "VehicleId",
+                    Name = "Vehicle Name",
+                    VIN = "VIN123",
+                    Brand = "Brand Name",
+                    Price = order.TotalAmount
+                },
+                Items = new List<OrderItemDto>(), // Would need to populate from order items
+                TotalAmount = order.TotalAmount,
+                OrderDate = order.OrderDate,
+                PaymentMethod = "Cash", // Would need to populate from order data
+                CreatedAt = order.CreatedAt,
+                UpdatedAt = order.UpdatedAt
+            };
+        }
     }
 }

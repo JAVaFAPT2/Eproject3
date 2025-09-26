@@ -27,7 +27,12 @@ namespace VehicleShowroomManagement.Domain.ValueObjects
         public string? ZipCode { get; private set; }
 
         // Required for Entity Framework
-        protected Address() { }
+        protected Address()
+        {
+            Street = string.Empty;
+            City = string.Empty;
+            State = string.Empty;
+        }
 
         public Address(string street, string city, string state, string? zipCode = null)
         {

@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Domain.Events
     /// </summary>
     public abstract class DomainEvent : INotification
     {
-        public DateTime OccurredOn { get; protected set; } = DateTime.UtcNow();
+        public DateTime OccurredOn { get; protected set; } = DateTime.UtcNow;
 
         protected DomainEvent()
         {

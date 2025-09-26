@@ -25,18 +25,6 @@ namespace VehicleShowroomManagement.Application.DTOs
         public DateTime UpdatedAt { get; set; }
     }
 
-    /// <summary>
-    /// Customer information for orders
-    /// </summary>
-    public class CustomerInfo
-    {
-        public string CustomerId { get; set; } = string.Empty;
-        public string Cccd { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Address { get; set; } = string.Empty;
-    }
 
     /// <summary>
     /// Vehicle information for orders
@@ -70,6 +58,7 @@ namespace VehicleShowroomManagement.Application.DTOs
         public string ItemId { get; set; } = string.Empty;
         public string VehicleId { get; set; } = string.Empty;
         public decimal UnitPrice { get; set; }
+        public int Quantity { get; set; } = 1;
         public decimal Discount { get; set; }
         public decimal LineTotal { get; set; }
     }

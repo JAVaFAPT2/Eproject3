@@ -1,0 +1,13 @@
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\VehicleShowroomManagement.Domain.csproj.AssemblyReference.cache
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\VehicleShowroomManagement.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\VehicleShowroomManagement.Domain.AssemblyInfoInputs.cache
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\VehicleShowroomManagement.Domain.AssemblyInfo.cs
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\VehicleShowroomManagement.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\VehicleShowroomManagement.Domain.sourcelink.json
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\bin\Debug\net8.0\VehicleShowroomManagement.Domain.deps.json
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\bin\Debug\net8.0\VehicleShowroomManagement.Domain.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\bin\Debug\net8.0\VehicleShowroomManagement.Domain.pdb
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\VehicleShowroomManagement.Domain.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\refint\VehicleShowroomManagement.Domain.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\VehicleShowroomManagement.Domain.pdb
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\Domain\obj\Debug\net8.0\ref\VehicleShowroomManagement.Domain.dll

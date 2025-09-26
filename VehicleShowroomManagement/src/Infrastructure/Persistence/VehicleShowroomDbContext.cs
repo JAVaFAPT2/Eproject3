@@ -94,24 +94,24 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         // Initialize collections with indexes
         public async Task InitializeCollectionsAsync()
         {
-            var collections = new[]
+            var collectionNames = new (string, dynamic)[]
             {
-                (Users, "users"),
-                (Roles, "roles"),
-                (UserRoles, "userRoles"),
-                (Brands, "brands"),
-                (Models, "models"),
-                (Vehicles, "vehicles"),
-                (VehicleImages, "vehicleImages"),
-                (Customers, "customers"),
-                (SalesOrders, "salesOrders"),
-                (SalesOrderItems, "salesOrderItems"),
-                (Invoices, "invoices"),
-                (Payments, "payments"),
-                (ServiceOrders, "serviceOrders")
+                ("users", Users),
+                ("roles", Roles),
+                ("userRoles", UserRoles),
+                ("brands", Brands),
+                ("models", Models),
+                ("vehicles", Vehicles),
+                ("vehicleImages", VehicleImages),
+                ("customers", Customers),
+                ("salesOrders", SalesOrders),
+                ("salesOrderItems", SalesOrderItems),
+                ("invoices", Invoices),
+                ("payments", Payments),
+                ("serviceOrders", ServiceOrders)
             };
 
-            foreach (var (collection, name) in collections)
+            foreach (var (name, collection) in collectionNames)
             {
                 await CreateIndexesAsync(collection, name);
             }

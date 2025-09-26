@@ -33,7 +33,7 @@ namespace VehicleShowroomManagement.Domain.Services
             var isValid = await IsPriceValid(vehicle, finalPrice);
             if (!isValid)
             {
-                throw new InvalidOperationException($"Calculated price is not valid for vehicle {vehicle.VehicleId}");
+                throw new InvalidOperationException($"Calculated price is not valid for vehicle {vehicle.Id}");
             }
 
             return finalPrice;

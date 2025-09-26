@@ -20,10 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Domain\VehicleShowroomManagement.Domain.csproj" />
-    <ProjectReference Include="..\..\src\Application\VehicleShowroomManagement.Application.csproj" />
-    <ProjectReference Include="..\..\src\Infrastructure\VehicleShowroomManagement.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\WebAPI\VehicleShowroomManagement.WebAPI.csproj" />
+    <ProjectReference Include="..\src\Domain\VehicleShowroomManagement.Domain.csproj" />
+    <ProjectReference Include="..\src\Application\VehicleShowroomManagement.Application.csproj" />
+    <ProjectReference Include="..\src\Infrastructure\VehicleShowroomManagement.Infrastructure.csproj" />
+    <ProjectReference Include="..\src\WebAPI\VehicleShowroomManagement.WebAPI.csproj" />
   </ItemGroup>
 
 </Project>

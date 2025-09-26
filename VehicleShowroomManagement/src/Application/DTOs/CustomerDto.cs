@@ -46,4 +46,32 @@ namespace VehicleShowroomManagement.Application.DTOs
 
         public string FullAddress => $"{Street}, {City}, {State} {(string.IsNullOrEmpty(ZipCode) ? "" : ZipCode)}";
     }
+
+    /// <summary>
+    /// Customer information for order operations
+    /// </summary>
+    public class CustomerInfo
+    {
+        public string Id { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? Phone { get; set; }
+
+        public CustomerInfo(string id = "", string firstName = "", string lastName = "", string email = "", string? phone = null)
+        {
+            Id = id;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Phone = phone;
+        }
+
+        public string FullName => $"{FirstName} {LastName}";
+
+        // Backward compatibility properties
+        public string CustomerId { get => Id; set => Id = value; }
+        public string Name { get => FullName; set => FirstName = value; }
+        public string Address { get; set; } = ""; // Would need to be populated from actual address data
+    }
 }
