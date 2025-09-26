@@ -809,12 +809,12 @@ Authorization: Bearer <jwt-token>
 - **Token Claims**: All user info embedded in JWT for performance
 - **Profile Endpoint**: Use `/api/users/profile` for detailed user information
 - **Token Expiry**: 24 hours, automatic logout on expiry
+- **User Roles**: 2 main roles (HR, Dealer) + 1 system role (Admin)
 
 ### **Roles & Permissions**
-- **Admin**: Full access to all endpoints
-- **HR**: User management, employee viewing
-- **Dealer**: Vehicle and order management
-- **Sales**: Basic read access, order creation
+- **HR**: Human Resources - manages employees and user accounts
+- **Dealer**: Vehicle Dealer - manages sales, inventory, and customer relations
+- **Admin**: System Administrator - full system access (system role, not user-assignable)
 
 ### **JWT Token Usage**
 ```bash
@@ -854,9 +854,10 @@ Most list endpoints support:
 
 All **30 API endpoints** are now documented with examples. The system follows **Clean Architecture + CQRS** principles with **feature-based organization** for maximum developer productivity! 🎯
 
-**Base URL**: `https://your-api-domain.com/api/`  
-**Content-Type**: `application/json` for POST/PUT requests  
+**Base URL**: `https://your-api-domain.com/api/`
+**Content-Type**: `application/json` for POST/PUT requests
 **Authentication**: JWT Bearer token required for protected endpoints
+**User Roles**: HR (Human Resources), Dealer (Vehicle Sales), Admin (System Administration)
 
 ---
 
