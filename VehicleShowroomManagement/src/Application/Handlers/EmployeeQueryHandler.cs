@@ -32,17 +32,14 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<IEnumerable<EmployeeDto>> Handle(GetEmployeesQuery request, CancellationToken cancellationToken)
         {
-            var users = await _userRepository.GetAllQueryable()
-                .Where(u => !u.IsDeleted && u.IsActive)
-                .ToListAsync(cancellationToken);
+            var allUsers = await _userRepository.GetAllAsync();
+            var users = allUsers.Where(u => !u.IsDeleted && u.IsActive).ToList();
 
-            var roles = await _roleRepository.GetAllQueryable()
-                .Where(r => !r.IsDeleted)
-                .ToListAsync(cancellationToken);
+            var allRoles = await _roleRepository.GetAllAsync();
+            var roles = allRoles.Where(r => !r.IsDeleted).ToList();
 
-            var orders = await _orderRepository.GetAllQueryable()
-                .Where(o => !o.IsDeleted && o.Status == "COMPLETED")
-                .ToListAsync(cancellationToken);
+            var allOrders = await _orderRepository.GetAllAsync();
+            var orders = allOrders.Where(o => !o.IsDeleted && o.Status == "COMPLETED").ToList();
 
             // Apply search filter
             var filteredUsers = users.AsQueryable();
@@ -61,15 +58,20 @@ namespace VehicleShowroomManagement.Application.Handlers
             var skip = (request.PageNumber - 1) * request.PageSize;
             var paginatedUsers = filteredUsers.Skip(skip).Take(request.PageSize);
 
-            return paginatedUsers.Select(MapToDto).ToList();
+            var employeeDtos = new List<EmployeeDto>();
+            foreach (var user in paginatedUsers)
+            {
+                var employeeDto = await MapToDto(user);
+                employeeDtos.Add(employeeDto);
+            }
+            return employeeDtos;
         }
 
-        private EmployeeDto MapToDto(User user)
+        private async Task<EmployeeDto> MapToDto(User user)
         {
-            var role = _roleRepository.GetByIdAsync(user.RoleId).Result;
-            var userOrders = _orderRepository.GetAllQueryable()
-                .Where(o => o.SalesPersonId == user.Id && !o.IsDeleted)
-                .Result ?? new List<SalesOrder>();
+            var role = await _roleRepository.GetByIdAsync(user.RoleId);
+            var allOrders = await _orderRepository.GetAllAsync();
+            var userOrders = allOrders.Where(o => o.SalesPersonId == user.Id && !o.IsDeleted).ToList();
 
             return new EmployeeDto
             {

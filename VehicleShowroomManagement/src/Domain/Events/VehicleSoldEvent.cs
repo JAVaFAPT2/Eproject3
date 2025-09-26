@@ -8,12 +8,12 @@ namespace VehicleShowroomManagement.Domain.Events
     /// </summary>
     public class VehicleSoldEvent : DomainEvent
     {
-        public int VehicleId { get; }
-        public int SalesOrderId { get; }
-        public int CustomerId { get; }
+        public string VehicleId { get; }
+        public string SalesOrderId { get; }
+        public string CustomerId { get; }
         public decimal SalePrice { get; }
 
-        public VehicleSoldEvent(int vehicleId, int salesOrderId, int customerId, decimal salePrice)
+        public VehicleSoldEvent(string vehicleId, string salesOrderId, string customerId, decimal salePrice)
         {
             VehicleId = vehicleId;
             SalesOrderId = salesOrderId;

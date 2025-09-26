@@ -22,8 +22,7 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
         public MongoRepository(VehicleShowroomDbContext context, string collectionName)
         {
             _context = context;
-            _collection = context.GetType().GetProperty(collectionName)?.GetValue(context) as IMongoCollection<T>
-                ?? throw new ArgumentException($"Collection {collectionName} not found in context");
+            _collection = _context.GetDatabase().GetCollection<T>(collectionName.ToLower());
         }
 
         public IMongoQueryable<T> GetAllQueryable()

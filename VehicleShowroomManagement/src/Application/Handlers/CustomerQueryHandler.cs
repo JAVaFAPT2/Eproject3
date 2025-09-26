@@ -25,9 +25,8 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<IEnumerable<CustomerDto>> Handle(GetCustomersQuery request, CancellationToken cancellationToken)
         {
-            var customers = await _customerRepository.GetAllQueryable()
-                .Where(c => !c.IsDeleted)
-                .ToListAsync(cancellationToken);
+            var allCustomers = await _customerRepository.GetAllAsync();
+            var customers = allCustomers.Where(c => !c.IsDeleted).ToList();
 
             // Apply search filter
             var filteredCustomers = customers.AsQueryable();
@@ -84,19 +83,18 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<IEnumerable<OrderDto>> Handle(GetCustomerOrdersQuery request, CancellationToken cancellationToken)
         {
-            var orders = await _orderRepository.GetAllQueryable()
-                .Where(o => o.CustomerId == request.CustomerId && !o.IsDeleted)
-                .ToListAsync(cancellationToken);
+            var allOrders = await _orderRepository.GetAllAsync();
+            var orders = allOrders.Where(o => o.CustomerId == request.CustomerId && !o.IsDeleted).ToList();
 
-            return orders.Select(MapToDto).ToList();
+            return orders.Select(MapToDto);
         }
 
         private static OrderDto MapToDto(SalesOrder order)
         {
             return new OrderDto
             {
-                Id = order.SalesOrderId.ToString(),
-                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{order.SalesOrderId.ToString().Substring(0, 4)}",
+                Id = order.Id.ToString(),
+                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{order.Id.ToString().Substring(0, 4)}",
                 CustomerId = order.CustomerId,
                 Customer = new CustomerInfo
                 {

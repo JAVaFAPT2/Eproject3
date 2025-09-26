@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Queries;
 using VehicleShowroomManagement.Domain.Entities;
@@ -64,9 +65,8 @@ namespace VehicleShowroomManagement.Application.Handlers
             };
 
             // Execute query
-            var users = await _userRepository.GetAllQueryable()
-                .Where(u => !u.IsDeleted)
-                .ToListAsync(cancellationToken);
+            var allUsers = await _userRepository.GetAllAsync();
+            var users = allUsers.Where(u => !u.IsDeleted).ToList();
 
             // Apply MongoDB filters manually since we can't use EF-style queries
             var filteredUsers = users.AsQueryable();

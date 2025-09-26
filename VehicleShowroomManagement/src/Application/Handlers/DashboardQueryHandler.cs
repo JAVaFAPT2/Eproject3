@@ -46,9 +46,8 @@ namespace VehicleShowroomManagement.Application.Handlers
                     throw new ArgumentException("Invalid period. Use 'month' or 'year'");
             }
 
-            var orders = await _orderRepository.GetAllQueryable()
-                .Where(o => !o.IsDeleted && o.Status == "COMPLETED")
-                .ToListAsync(cancellationToken);
+            var allOrders = await _orderRepository.GetAllAsync();
+            var orders = allOrders.Where(o => !o.IsDeleted && o.Status == "COMPLETED").ToList();
 
             var currentOrders = orders.Where(o =>
                 o.OrderDate >= currentStart && o.OrderDate <= currentEnd).ToList();
@@ -116,9 +115,8 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<CustomerGrowthDto> Handle(GetCustomerGrowthQuery request, CancellationToken cancellationToken)
         {
-            var customers = await _customerRepository.GetAllQueryable()
-                .Where(c => !c.IsDeleted)
-                .ToListAsync(cancellationToken);
+            var allCustomers = await _customerRepository.GetAllAsync();
+            var customers = allCustomers.Where(c => !c.IsDeleted).ToList();
 
             var now = DateTime.UtcNow;
             DateTime currentStart, previousStart;
@@ -202,13 +200,11 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<IEnumerable<VehicleSalesDto>> Handle(GetTopVehiclesQuery request, CancellationToken cancellationToken)
         {
-            var vehicles = await _vehicleRepository.GetAllQueryable()
-                .Where(v => !v.IsDeleted && v.Status == "SOLD")
-                .ToListAsync(cancellationToken);
+            var allVehicles = await _vehicleRepository.GetAllAsync();
+            var vehicles = allVehicles.Where(v => !v.IsDeleted && v.Status == "SOLD").ToList();
 
-            var orderItems = await _orderItemRepository.GetAllQueryable()
-                .Where(oi => !oi.IsDeleted)
-                .ToListAsync(cancellationToken);
+            var allOrderItems = await _orderItemRepository.GetAllAsync();
+            var orderItems = allOrderItems.Where(oi => !oi.IsDeleted).ToList();
 
             var vehicleSales = vehicles.GroupBy(v => v.Id)
                 .Select(g =>
@@ -250,11 +246,11 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<IEnumerable<OrderDto>> Handle(GetRecentOrdersQuery request, CancellationToken cancellationToken)
         {
-            var orders = await _orderRepository.GetAllQueryable()
-                .Where(o => !o.IsDeleted)
+            var allOrders = await _orderRepository.GetAllAsync();
+            var orders = allOrders.Where(o => !o.IsDeleted)
                 .OrderByDescending(o => o.OrderDate)
                 .Take(5)
-                .ToListAsync(cancellationToken);
+                .ToList();
 
             return orders.Select(MapToDto).ToList();
         }
@@ -263,8 +259,8 @@ namespace VehicleShowroomManagement.Application.Handlers
         {
             return new OrderDto
             {
-                Id = order.SalesOrderId.ToString(),
-                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{order.SalesOrderId.ToString().Substring(0, 4)}",
+                Id = order.Id.ToString(),
+                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{order.Id.ToString().Substring(0, 4)}",
                 CustomerId = order.CustomerId,
                 Customer = new CustomerInfo
                 {

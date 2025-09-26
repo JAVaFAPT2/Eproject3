@@ -36,6 +36,12 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         public IMongoCollection<Payment> Payments => _database.GetCollection<Payment>("payments");
         public IMongoCollection<ServiceOrder> ServiceOrders => _database.GetCollection<ServiceOrder>("serviceOrders");
 
+        // Helper methods
+        public IMongoDatabase GetDatabase()
+        {
+            return _database;
+        }
+
         // IUnitOfWork implementation
         public async Task<int> SaveChangesAsync()
         {

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Queries;
 using VehicleShowroomManagement.Domain.Entities;
@@ -25,23 +27,24 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<IEnumerable<OrderDto>> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
         {
-            var orders = await _orderRepository.GetAllQueryable()
-                .Where(o => !o.IsDeleted)
-                .ToListAsync(cancellationToken);
-
-            // Apply pagination
             var skip = (request.PageNumber - 1) * request.PageSize;
-            var paginatedOrders = orders.Skip(skip).Take(request.PageSize);
 
-            return paginatedOrders.Select(MapToDto).ToList();
+            var allOrders = await _orderRepository.GetAllAsync();
+            var orders = allOrders.Where(o => !o.IsDeleted)
+                .Skip(skip)
+                .Take(request.PageSize)
+                .ToList();
+
+            return orders.Select(MapToDto);
         }
 
         private static OrderDto MapToDto(SalesOrder order)
         {
+            var orderId = order.Id ?? "UNKNOWN";
             return new OrderDto
             {
-                Id = order.SalesOrderId.ToString(),
-                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{order.SalesOrderId.ToString().Substring(0, 4)}",
+                Id = orderId,
+                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{orderId.Substring(0, Math.Min(4, orderId.Length))}",
                 CustomerId = order.CustomerId,
                 Customer = new CustomerInfo
                 {
@@ -100,48 +103,6 @@ namespace VehicleShowroomManagement.Application.Handlers
             }
 
             return MapToDto(order);
-        }
-
-        private static OrderDto MapToDto(SalesOrder order)
-        {
-            return new OrderDto
-            {
-                Id = order.SalesOrderId.ToString(),
-                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{order.SalesOrderId.ToString().Substring(0, 4)}",
-                CustomerId = order.CustomerId,
-                Customer = new CustomerInfo
-                {
-                    CustomerId = order.CustomerId,
-                    Name = "Customer Name", // Would need to populate from customer entity
-                    Email = "customer@example.com",
-                    Phone = "0901234567",
-                    Address = "Customer Address"
-                },
-                VehicleId = "VehicleId", // Would need to populate from order items
-                Vehicle = new VehicleInfo
-                {
-                    VehicleId = "VehicleId",
-                    VIN = "VIN123",
-                    ModelNumber = "MODEL001",
-                    Name = "Vehicle Name",
-                    Brand = "Brand Name",
-                    Price = 50000
-                },
-                SalesPersonId = order.SalesPersonId,
-                SalesPerson = new UserInfo
-                {
-                    UserId = order.SalesPersonId,
-                    Username = "salesperson",
-                    FullName = "Sales Person",
-                    Email = "sales@example.com"
-                },
-                Status = order.Status,
-                TotalAmount = order.TotalAmount,
-                PaymentMethod = "CASH",
-                OrderDate = order.OrderDate,
-                CreatedAt = order.CreatedAt,
-                UpdatedAt = order.UpdatedAt
-            };
         }
     }
 }

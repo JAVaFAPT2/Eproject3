@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -11,47 +11,48 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class Invoice : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int InvoiceId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        public int SalesOrderId { get; set; }
+        [BsonElement("salesOrderId")]
+        [BsonRequired]
+        public string SalesOrderId { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("invoiceNumber")]
+        [BsonRequired]
         public string InvoiceNumber { get; set; } = string.Empty;
 
+        [BsonElement("invoiceDate")]
         public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
 
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("subtotal")]
         public decimal Subtotal { get; set; }
 
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("taxAmount")]
         public decimal TaxAmount { get; set; }
 
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("totalAmount")]
         public decimal TotalAmount { get; set; }
 
-        [Required]
-        [StringLength(20)]
-        [Column(TypeName = "nvarchar(20)")]
+        [BsonElement("status")]
         public string Status { get; set; } = "Unpaid"; // Unpaid, Paid, PartiallyPaid, Overdue, Cancelled
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("SalesOrderId")]
-        public virtual SalesOrder SalesOrder { get; set; } = null!;
-
-        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        // References to other documents
+        [BsonElement("paymentIds")]
+        public List<string> PaymentIds { get; set; } = new List<string>();
 
         // Domain Methods
         public void CalculateTotals(decimal subtotal, decimal taxRate)

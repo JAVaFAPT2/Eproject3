@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Queries;
 using VehicleShowroomManagement.Domain.Entities;
@@ -26,9 +27,8 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<IEnumerable<VehicleDto>> Handle(GetVehiclesQuery request, CancellationToken cancellationToken)
         {
-            var vehicles = await _vehicleRepository.GetAllQueryable()
-                .Where(v => !v.IsDeleted)
-                .ToListAsync(cancellationToken);
+            var allVehicles = await _vehicleRepository.GetAllAsync();
+            var vehicles = allVehicles.Where(v => !v.IsDeleted).ToList();
 
             // Apply filters
             var filteredVehicles = vehicles.AsQueryable();
