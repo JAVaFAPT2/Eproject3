@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -12,31 +12,32 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class Role : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int RoleId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("roleName")]
+        [BsonRequired]
         public string RoleName { get; set; } = string.Empty;
 
-        [StringLength(255)]
-        [Column(TypeName = "nvarchar(255)")]
+        [BsonElement("description")]
         public string? Description { get; set; }
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Navigation Properties
-        public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-
-        public virtual ICollection<User> Users { get; set; } = new List<User>();
+        // References to users with this role
+        [BsonElement("userIds")]
+        public List<string> UserIds { get; set; } = new List<string>();
 
         // Domain Methods
         public void UpdateRole(string roleName, string? description)

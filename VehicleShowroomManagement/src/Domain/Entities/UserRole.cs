@@ -1,6 +1,6 @@
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -11,23 +11,22 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class UserRole : IAuditableEntity
     {
-        [Key]
-        [Column(Order = 1)]
-        public int UserId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Key]
-        [Column(Order = 2)]
-        public int RoleId { get; set; }
+        [BsonElement("userId")]
+        [BsonRequired]
+        public string UserId { get; set; } = string.Empty;
 
+        [BsonElement("roleId")]
+        [BsonRequired]
+        public string RoleId { get; set; } = string.Empty;
+
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        // Navigation Properties
-        [ForeignKey("UserId")]
-        public virtual User User { get; set; } = null!;
-
-        [ForeignKey("RoleId")]
-        public virtual Role Role { get; set; } = null!;
     }
 }

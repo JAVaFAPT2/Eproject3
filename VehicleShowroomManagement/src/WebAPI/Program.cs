@@ -2,7 +2,6 @@ using System;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using VehicleShowroomManagement.Infrastructure.Persistence;
@@ -112,14 +111,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Database Migration and Seeding
+// Database Initialization and Seeding
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var context = services.GetRequiredService<VehicleShowroomDbContext>();
-        await context.Database.MigrateAsync();
+
+        // Initialize MongoDB collections with indexes
+        await context.InitializeCollectionsAsync();
 
         // Seed initial data
         await SeedData.Initialize(services);
@@ -127,7 +128,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
+        logger.LogError(ex, "An error occurred while initializing or seeding the database.");
     }
 }
 

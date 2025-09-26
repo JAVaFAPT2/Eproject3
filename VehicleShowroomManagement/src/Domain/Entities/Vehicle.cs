@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
-using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -13,56 +12,65 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class Vehicle : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int VehicleId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        [StringLength(17)]
-        [Column(TypeName = "nvarchar(17)")]
+        [BsonElement("vin")]
+        [BsonRequired]
         public string VIN { get; set; } = string.Empty; // Vehicle Identification Number
 
-        [Required]
-        public int ModelId { get; set; }
+        [BsonElement("modelId")]
+        [BsonRequired]
+        public string ModelId { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("color")]
+        [BsonRequired]
         public string Color { get; set; } = string.Empty;
 
-        [Required]
+        [BsonElement("year")]
+        [BsonRequired]
         public int Year { get; set; }
 
-        [Required]
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("price")]
+        [BsonRequired]
         public decimal Price { get; set; }
 
+        [BsonElement("mileage")]
         public int Mileage { get; set; } = 0;
 
-        [Required]
-        [StringLength(20)]
-        [Column(TypeName = "nvarchar(20)")]
+        [BsonElement("status")]
         public string Status { get; set; } = "Available"; // Available, Sold, InService, Reserved
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("ModelId")]
-        public virtual Model Model { get; set; } = null!;
+        // Embedded model information
+        [BsonElement("model")]
+        public ModelInfo? Model { get; set; }
 
-        public virtual ICollection<VehicleImage> VehicleImages { get; set; } = new List<VehicleImage>();
+        // Embedded images
+        [BsonElement("images")]
+        public List<VehicleImage> VehicleImages { get; set; } = new List<VehicleImage>();
 
-        public virtual ICollection<PurchaseOrderItem> PurchaseOrderItems { get; set; } = new List<PurchaseOrderItem>();
+        // References to other documents
+        [BsonElement("purchaseOrderItemIds")]
+        public List<string> PurchaseOrderItemIds { get; set; } = new List<string>();
 
-        public virtual ICollection<SalesOrderItem> SalesOrderItems { get; set; } = new List<SalesOrderItem>();
+        [BsonElement("salesOrderItemIds")]
+        public List<string> SalesOrderItemIds { get; set; } = new List<string>();
 
-        public virtual ICollection<ServiceOrder> ServiceOrders { get; set; } = new List<ServiceOrder>();
+        [BsonElement("serviceOrderIds")]
+        public List<string> ServiceOrderIds { get; set; } = new List<string>();
 
         // Domain Methods
         public void UpdateVehicleInfo(string color, int year, decimal price, int mileage)
@@ -121,5 +129,58 @@ namespace VehicleShowroomManagement.Domain.Entities
             DeletedAt = null;
             UpdatedAt = DateTime.UtcNow;
         }
+    }
+
+    /// <summary>
+    /// Embedded model information within Vehicle document
+    /// </summary>
+    public class ModelInfo
+    {
+        [BsonElement("modelId")]
+        [BsonRequired]
+        public string ModelId { get; set; } = string.Empty;
+
+        [BsonElement("modelName")]
+        [BsonRequired]
+        public string ModelName { get; set; } = string.Empty;
+
+        [BsonElement("brandId")]
+        [BsonRequired]
+        public string BrandId { get; set; } = string.Empty;
+
+        [BsonElement("brand")]
+        public BrandInfo? Brand { get; set; }
+
+        [BsonElement("engineType")]
+        public string? EngineType { get; set; }
+
+        [BsonElement("transmission")]
+        public string? Transmission { get; set; }
+
+        [BsonElement("fuelType")]
+        public string? FuelType { get; set; }
+
+        [BsonElement("seatingCapacity")]
+        public int? SeatingCapacity { get; set; }
+    }
+
+    /// <summary>
+    /// Embedded brand information within Model document
+    /// </summary>
+    public class BrandInfo
+    {
+        [BsonElement("brandId")]
+        [BsonRequired]
+        public string BrandId { get; set; } = string.Empty;
+
+        [BsonElement("brandName")]
+        [BsonRequired]
+        public string BrandName { get; set; } = string.Empty;
+
+        [BsonElement("country")]
+        public string? Country { get; set; }
+
+        [BsonElement("logoUrl")]
+        public string? LogoUrl { get; set; }
     }
 }

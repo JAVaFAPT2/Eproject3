@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -11,45 +11,49 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class Model : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ModelId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        [StringLength(100)]
-        [Column(TypeName = "nvarchar(100)")]
+        [BsonElement("modelName")]
+        [BsonRequired]
         public string ModelName { get; set; } = string.Empty;
 
-        [Required]
-        public int BrandId { get; set; }
+        [BsonElement("brandId")]
+        [BsonRequired]
+        public string BrandId { get; set; } = string.Empty;
 
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("engineType")]
         public string? EngineType { get; set; }
 
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("transmission")]
         public string? Transmission { get; set; }
 
-        [StringLength(30)]
-        [Column(TypeName = "nvarchar(30)")]
+        [BsonElement("fuelType")]
         public string? FuelType { get; set; }
 
+        [BsonElement("seatingCapacity")]
         public int? SeatingCapacity { get; set; }
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("BrandId")]
-        public virtual Brand Brand { get; set; } = null!;
+        // Embedded brand information
+        [BsonElement("brand")]
+        public BrandInfo? Brand { get; set; }
 
-        public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+        // References to vehicles
+        [BsonElement("vehicleIds")]
+        public List<string> VehicleIds { get; set; } = new List<string>();
 
         // Domain Methods
         public void UpdateModel(string modelName, string? engineType, string? transmission, string? fuelType, int? seatingCapacity)
@@ -75,5 +79,25 @@ namespace VehicleShowroomManagement.Domain.Entities
             DeletedAt = null;
             UpdatedAt = DateTime.UtcNow;
         }
+    }
+
+    /// <summary>
+    /// Embedded brand information within Model document
+    /// </summary>
+    public class BrandInfo
+    {
+        [BsonElement("brandId")]
+        [BsonRequired]
+        public string BrandId { get; set; } = string.Empty;
+
+        [BsonElement("brandName")]
+        [BsonRequired]
+        public string BrandName { get; set; } = string.Empty;
+
+        [BsonElement("country")]
+        public string? Country { get; set; }
+
+        [BsonElement("logoUrl")]
+        public string? LogoUrl { get; set; }
     }
 }

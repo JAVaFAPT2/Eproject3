@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using VehicleShowroomManagement.Application.DTOs;
 using VehicleShowroomManagement.Application.Queries;
 using VehicleShowroomManagement.Domain.Entities;
@@ -28,15 +28,53 @@ namespace VehicleShowroomManagement.Application.Handlers
 
         public async Task<IEnumerable<UserDto>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
         {
-            var query = _userRepository.GetAllQueryable()
-                .Include(u => u.Role)
-                .Where(u => !u.IsDeleted);
+            var filterBuilder = Builders<User>.Filter;
+            var filter = filterBuilder.Eq(u => u.IsDeleted, false);
 
             // Apply filters
             if (!string.IsNullOrEmpty(request.SearchTerm))
             {
                 var searchTerm = request.SearchTerm.ToLower();
-                query = query.Where(u =>
+                var searchFilter = filterBuilder.Or(
+                    filterBuilder.Regex(u => u.Username, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                    filterBuilder.Regex(u => u.Email, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                    filterBuilder.Regex(u => u.FirstName, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                    filterBuilder.Regex(u => u.LastName, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
+                );
+                filter = filterBuilder.And(filter, searchFilter);
+            }
+
+            if (request.RoleId.HasValue)
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(u => u.RoleId, request.RoleId.Value.ToString()));
+            }
+
+            if (request.IsActive.HasValue)
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(u => u.IsActive, request.IsActive.Value));
+            }
+
+            // Apply pagination
+            var skip = (request.PageNumber - 1) * request.PageSize;
+            var options = new FindOptions<User>
+            {
+                Skip = skip,
+                Limit = request.PageSize,
+                Sort = Builders<User>.Sort.Ascending(u => u.CreatedAt)
+            };
+
+            // Execute query
+            var users = await _userRepository.GetAllQueryable()
+                .Where(u => !u.IsDeleted)
+                .ToListAsync(cancellationToken);
+
+            // Apply MongoDB filters manually since we can't use EF-style queries
+            var filteredUsers = users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(request.SearchTerm))
+            {
+                var searchTerm = request.SearchTerm.ToLower();
+                filteredUsers = filteredUsers.Where(u =>
                     u.Username.ToLower().Contains(searchTerm) ||
                     u.Email.ToLower().Contains(searchTerm) ||
                     u.FirstName.ToLower().Contains(searchTerm) ||
@@ -45,23 +83,19 @@ namespace VehicleShowroomManagement.Application.Handlers
 
             if (request.RoleId.HasValue)
             {
-                query = query.Where(u => u.RoleId == request.RoleId.Value);
+                filteredUsers = filteredUsers.Where(u => u.RoleId == request.RoleId.Value.ToString());
             }
 
             if (request.IsActive.HasValue)
             {
-                query = query.Where(u => u.IsActive == request.IsActive.Value);
+                filteredUsers = filteredUsers.Where(u => u.IsActive == request.IsActive.Value);
             }
 
             // Apply pagination
-            var skip = (request.PageNumber - 1) * request.PageSize;
-            query = query.Skip(skip).Take(request.PageSize);
-
-            // Execute query
-            var users = await query.ToListAsync(cancellationToken);
+            var paginatedUsers = filteredUsers.Skip(skip).Take(request.PageSize);
 
             // Map to DTOs
-            return users.Select(MapToDto).ToList();
+            return paginatedUsers.Select(MapToDto).ToList();
         }
 
         private static UserDto MapToDto(User user)

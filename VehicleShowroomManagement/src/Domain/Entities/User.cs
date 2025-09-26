@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -12,68 +12,71 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class User : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int UserId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("username")]
+        [BsonRequired]
         public string Username { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(100)]
-        [EmailAddress]
-        [Column(TypeName = "nvarchar(100)")]
+        [BsonElement("email")]
+        [BsonRequired]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
-        [Column(TypeName = "nvarchar(255)")]
+        [BsonElement("passwordHash")]
+        [BsonRequired]
         public string PasswordHash { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("firstName")]
+        [BsonRequired]
         public string FirstName { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("lastName")]
+        [BsonRequired]
         public string LastName { get; set; } = string.Empty;
 
-        [Required]
-        public int RoleId { get; set; }
+        [BsonElement("roleId")]
+        [BsonRequired]
+        public string RoleId { get; set; } = string.Empty;
 
-        [Required]
+        [BsonElement("isActive")]
         public bool IsActive { get; set; } = true;
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Navigation Properties
-        [ForeignKey("RoleId")]
-        public virtual Role Role { get; set; } = null!;
+        // Embedded role information
+        [BsonElement("role")]
+        public RoleInfo? Role { get; set; }
 
-        public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        // References to other documents
+        [BsonElement("userRoles")]
+        public List<string> UserRoleIds { get; set; } = new List<string>();
 
-        public virtual ICollection<SalesOrder> SalesOrders { get; set; } = new List<SalesOrder>();
+        [BsonElement("salesOrderIds")]
+        public List<string> SalesOrderIds { get; set; } = new List<string>();
 
         // Computed Properties
-        [NotMapped]
+        [BsonIgnore]
         public string FullName => $"{FirstName} {LastName}";
 
-        [NotMapped]
+        [BsonIgnore]
         public bool IsHr => Role?.RoleName == "HR";
 
-        [NotMapped]
+        [BsonIgnore]
         public bool IsDealer => Role?.RoleName == "Dealer";
 
-        [NotMapped]
+        [BsonIgnore]
         public bool IsAdmin => Role?.RoleName == "Admin";
 
         // Domain Methods
@@ -116,5 +119,22 @@ namespace VehicleShowroomManagement.Domain.Entities
             DeletedAt = null;
             UpdatedAt = DateTime.UtcNow;
         }
+    }
+
+    /// <summary>
+    /// Embedded role information within User document
+    /// </summary>
+    public class RoleInfo
+    {
+        [BsonElement("roleId")]
+        [BsonRequired]
+        public string RoleId { get; set; } = string.Empty;
+
+        [BsonElement("roleName")]
+        [BsonRequired]
+        public string RoleName { get; set; } = string.Empty;
+
+        [BsonElement("description")]
+        public string? Description { get; set; }
     }
 }

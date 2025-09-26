@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -11,33 +11,35 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class Brand : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int BrandId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        [StringLength(100)]
-        [Column(TypeName = "nvarchar(100)")]
+        [BsonElement("brandName")]
+        [BsonRequired]
         public string BrandName { get; set; } = string.Empty;
 
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("country")]
         public string? Country { get; set; }
 
-        [StringLength(255)]
-        [Column(TypeName = "nvarchar(255)")]
+        [BsonElement("logoUrl")]
         public string? LogoUrl { get; set; }
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Navigation Properties
-        public virtual ICollection<Model> Models { get; set; } = new List<Model>();
+        // References to models
+        [BsonElement("modelIds")]
+        public List<string> ModelIds { get; set; } = new List<string>();
 
         // Domain Methods
         public void UpdateBrand(string brandName, string? country, string? logoUrl)

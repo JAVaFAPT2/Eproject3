@@ -6,7 +6,7 @@ using VehicleShowroomManagement.Infrastructure.Persistence;
 namespace VehicleShowroomManagement.Infrastructure.Repositories
 {
     /// <summary>
-    /// Unit of Work implementation for managing database transactions
+    /// Unit of Work implementation for managing MongoDB transactions
     /// </summary>
     public class UnitOfWork : IUnitOfWork
     {

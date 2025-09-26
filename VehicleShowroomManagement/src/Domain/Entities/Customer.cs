@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
-using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -12,72 +11,69 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class Customer : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int CustomerId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("firstName")]
+        [BsonRequired]
         public string FirstName { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("lastName")]
+        [BsonRequired]
         public string LastName { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(100)]
-        [EmailAddress]
-        [Column(TypeName = "nvarchar(100)")]
+        [BsonElement("email")]
+        [BsonRequired]
         public string Email { get; set; } = string.Empty;
 
-        [StringLength(20)]
-        [Column(TypeName = "nvarchar(20)")]
+        [BsonElement("phone")]
         public string? Phone { get; set; }
 
-        [StringLength(255)]
-        [Column(TypeName = "nvarchar(255)")]
+        [BsonElement("address")]
         public string? Address { get; set; }
 
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("city")]
         public string? City { get; set; }
 
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("state")]
         public string? State { get; set; }
 
-        [StringLength(10)]
-        [Column(TypeName = "nvarchar(10)")]
+        [BsonElement("zipCode")]
         public string? ZipCode { get; set; }
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Navigation Properties
-        public virtual ICollection<SalesOrder> SalesOrders { get; set; } = new List<SalesOrder>();
+        // References to other documents
+        [BsonElement("salesOrderIds")]
+        public List<string> SalesOrderIds { get; set; } = new List<string>();
 
-        public virtual ICollection<ServiceOrder> ServiceOrders { get; set; } = new List<ServiceOrder>();
+        [BsonElement("serviceOrderIds")]
+        public List<string> ServiceOrderIds { get; set; } = new List<string>();
 
         // Computed Properties
-        [NotMapped]
+        [BsonIgnore]
         public string FullName => $"{FirstName} {LastName}";
 
-        [NotMapped]
-        public Address? CustomerAddress
+        [BsonIgnore]
+        public AddressInfo? CustomerAddress
         {
             get
             {
                 if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(City) || string.IsNullOrEmpty(State))
                     return null;
 
-                return new Address(Address, City, State, ZipCode);
+                return new AddressInfo(Address, City, State, ZipCode);
             }
         }
 
@@ -113,5 +109,37 @@ namespace VehicleShowroomManagement.Domain.Entities
             DeletedAt = null;
             UpdatedAt = DateTime.UtcNow;
         }
+    }
+
+    /// <summary>
+    /// Embedded address information within Customer document
+    /// </summary>
+    public class AddressInfo
+    {
+        [BsonElement("street")]
+        [BsonRequired]
+        public string Street { get; set; } = string.Empty;
+
+        [BsonElement("city")]
+        [BsonRequired]
+        public string City { get; set; } = string.Empty;
+
+        [BsonElement("state")]
+        [BsonRequired]
+        public string State { get; set; } = string.Empty;
+
+        [BsonElement("zipCode")]
+        public string? ZipCode { get; set; }
+
+        public AddressInfo(string street, string city, string state, string? zipCode)
+        {
+            Street = street;
+            City = city;
+            State = state;
+            ZipCode = zipCode;
+        }
+
+        [BsonIgnore]
+        public string FullAddress => $"{Street}, {City}, {State} {(string.IsNullOrEmpty(ZipCode) ? "" : ZipCode)}";
     }
 }
