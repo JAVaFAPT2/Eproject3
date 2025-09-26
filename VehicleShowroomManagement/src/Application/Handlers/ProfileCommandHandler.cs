@@ -112,7 +112,7 @@ namespace VehicleShowroomManagement.Application.Handlers
     /// <summary>
     /// Handler for updating a user (admin function)
     /// </summary>
-    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserDto>
+    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Unit>
     {
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Role> _roleRepository;
@@ -125,7 +125,7 @@ namespace VehicleShowroomManagement.Application.Handlers
             _roleRepository = roleRepository;
         }
 
-        public async Task<UserDto> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.UserId);
             if (user == null || user.IsDeleted)
@@ -174,21 +174,7 @@ namespace VehicleShowroomManagement.Application.Handlers
             await _userRepository.UpdateAsync(user);
             await _userRepository.SaveChangesAsync();
 
-            var role = await _roleRepository.GetByIdAsync(user.RoleId);
-
-            return new UserDto
-            {
-                UserId = int.Parse(user.Id),
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                RoleId = int.Parse(user.RoleId),
-                RoleName = role?.RoleName ?? "Unknown",
-                IsActive = user.IsActive,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
-            };
+            return Unit.Value;
         }
     }
 

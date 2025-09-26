@@ -73,7 +73,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpPost]
         [Authorize(Roles = "HR,Admin")] // Only HR and Admin can create users
-        public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserRequest request)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             var command = new CreateUserCommand(
                 request.Username,
@@ -83,8 +83,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.LastName,
                 request.RoleId);
 
-            var result = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetUser), new { id = result.UserId }, result);
+            var userId = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetUser), new { id = userId }, new { id = userId, message = "User created successfully" });
         }
 
         /// <summary>
@@ -101,10 +101,13 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                     request.FirstName,
                     request.LastName,
                     request.Email,
-                    request.RoleId.ToString());
+                    null, // phone
+                    null, // salary
+                    request.RoleId.ToString(),
+                    request.IsActive);
 
-                var result = await _mediator.Send(command);
-                return Ok(result);
+                await _mediator.Send(command);
+                return Ok(new { message = "User updated successfully" });
             }
             catch (Exception ex)
             {

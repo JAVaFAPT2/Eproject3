@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using VehicleShowroomManagement.Application.Handlers;
+using VehicleShowroomManagement.Application.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Services;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
@@ -75,6 +76,10 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
             // Register domain services
             services.AddScoped<IPricingService, PricingService>();
             services.AddScoped<IPasswordService, PasswordService>();
+            services.AddScoped<IUserDomainService, UserDomainService>();
+
+            // Register query services
+            services.AddScoped<IUserQueryService, UserQueryService>();
 
             // Register Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

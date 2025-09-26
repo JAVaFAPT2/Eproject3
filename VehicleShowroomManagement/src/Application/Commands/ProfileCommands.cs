@@ -43,7 +43,7 @@ namespace VehicleShowroomManagement.Application.Commands
     /// <summary>
     /// Command for updating a user (admin function)
     /// </summary>
-    public class UpdateUserCommand : IRequest<UserDto>
+    public class UpdateUserCommand : IRequest<Unit>
     {
         public string UserId { get; set; }
         public string? FirstName { get; set; }

@@ -13,23 +13,23 @@ namespace VehicleShowroomManagement.Application.Handlers
     /// <summary>
     /// Handler for creating a new user
     /// </summary>
-    public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
+    public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, string>
     {
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Role> _roleRepository;
-        private readonly IPasswordService _passwordService;
+        private readonly IUserDomainService _userDomainService;
 
         public CreateUserCommandHandler(
             IRepository<User> userRepository,
             IRepository<Role> roleRepository,
-            IPasswordService passwordService)
+            IUserDomainService userDomainService)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
-            _passwordService = passwordService;
+            _userDomainService = userDomainService;
         }
 
-        public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             // Validate that role exists
             var role = await _roleRepository.GetByIdAsync(request.RoleId.ToString());
@@ -52,38 +52,19 @@ namespace VehicleShowroomManagement.Application.Handlers
                 throw new ArgumentException($"Email '{request.Email}' already exists");
             }
 
-            // Hash the password using BCrypt
-            var passwordHash = _passwordService.HashPassword(request.Password);
+            // Use domain service to create user
+            var user = await _userDomainService.CreateUserAsync(
+                request.Username,
+                request.Email,
+                request.Password,
+                request.FirstName,
+                request.LastName,
+                request.RoleId.ToString());
 
-            // Create the user
-            var user = new User
-            {
-                Username = request.Username,
-                Email = request.Email,
-                PasswordHash = passwordHash,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                RoleId = request.RoleId.ToString(),
-                IsActive = true
-            };
-
-            // Save the user
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
 
-            // Return the DTO
-            return new UserDto
-            {
-                UserId = int.Parse(user.Id),
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                RoleId = int.Parse(user.RoleId),
-                IsActive = user.IsActive,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
-            };
+            return user.Id;
         }
 
     }
