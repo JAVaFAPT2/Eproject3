@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VehicleShowroomManagement.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+35c298546f6b3402f2147916fb257b16b4f389b4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+55ae72441c1e8757ab9ec791e9b5898c180a8596")]
 [assembly: System.Reflection.AssemblyProductAttribute("VehicleShowroomManagement.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VehicleShowroomManagement.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

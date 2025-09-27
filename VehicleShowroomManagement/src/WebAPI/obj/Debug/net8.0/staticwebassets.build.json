@@ -1,11 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "u5R30J2OZMRWI2y8jysmSNYH3lMh2P9nUj4hLMjYoiQ=",
-  "Source": "VehicleShowroomManagement.WebAPI",
-  "BasePath": "_content/VehicleShowroomManagement.WebAPI",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
-}
+{"Version":1,"Hash":"XK8w9Ag4LFa5shrSNC5q11FV1z/p0JKnuerYH/Et6HI=","Source":"VehicleShowroomManagement.WebAPI","BasePath":"_content/VehicleShowroomManagement.WebAPI","Mode":"Default","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}
