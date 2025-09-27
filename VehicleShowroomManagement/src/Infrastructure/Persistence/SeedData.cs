@@ -19,7 +19,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             using var scope = serviceProvider.CreateScope();
             var services = scope.ServiceProvider;
 
-            var userRepository = services.GetRequiredService<IRepository<User>>();
+            var employeeRepository = services.GetRequiredService<IRepository<Employee>>();
             var roleRepository = services.GetRequiredService<IRepository<Role>>();
 
             // Check if data already exists
@@ -63,24 +63,23 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             await roleRepository.AddRangeAsync(new[] { hrRole, dealerRole, adminRole });
             await roleRepository.SaveChangesAsync();
 
-            // Seed default admin user
-            var adminUser = new User
+            // Seed default admin employee
+            var adminEmployee = new Employee
             {
                 Id = ObjectId.GenerateNewId().ToString(),
-                Username = "admin",
-                Email = "admin@vehicleshowroom.com",
-                PasswordHash = HashPassword("Admin123!"),
-                FirstName = "System",
-                LastName = "Administrator",
-                RoleId = adminRole.Id,
-                IsActive = true,
+                EmployeeId = "ADMIN001",
+                Name = "System Administrator",
+                Role = "Admin",
+                Position = "System Administrator",
+                HireDate = DateTime.UtcNow,
+                Status = "Active",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 IsDeleted = false
             };
 
-            await userRepository.AddAsync(adminUser);
-            await userRepository.SaveChangesAsync();
+            await employeeRepository.AddAsync(adminEmployee);
+            await employeeRepository.SaveChangesAsync();
 
             Console.WriteLine("MongoDB database seeded successfully!");
         }

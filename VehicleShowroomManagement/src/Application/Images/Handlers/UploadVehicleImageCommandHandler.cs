@@ -40,7 +40,7 @@ namespace VehicleShowroomManagement.Application.Images.Handlers
 
             var vehicleImage = new VehicleImage
             {
-                VehicleId = int.Parse(request.VehicleId),
+                VehicleId = request.VehicleId,
                 PublicId = publicId,
                 OriginalFileName = request.ImageFile.FileName,
                 ContentType = request.ImageFile.ContentType,
@@ -51,7 +51,7 @@ namespace VehicleShowroomManagement.Application.Images.Handlers
             };
 
             await _vehicleImageRepository.AddAsync(vehicleImage);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return vehicleImage.ImageUrl;
         }

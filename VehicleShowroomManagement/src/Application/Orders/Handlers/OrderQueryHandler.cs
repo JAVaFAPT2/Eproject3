@@ -44,7 +44,7 @@ namespace VehicleShowroomManagement.Application.Orders.Handlers
             return new OrderDto
             {
                 Id = orderId,
-                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{orderId.Substring(0, Math.Min(4, orderId.Length))}",
+                OrderNumber = order.SalesOrderId,
                 CustomerId = order.CustomerId,
                 Customer = new CustomerInfo
                 {
@@ -54,26 +54,26 @@ namespace VehicleShowroomManagement.Application.Orders.Handlers
                     Phone = "0901234567",
                     Address = "Customer Address"
                 },
-                VehicleId = "VehicleId", // Would need to populate from order items
+                VehicleId = order.VehicleId,
                 Vehicle = new VehicleInfo
                 {
-                    VehicleId = "VehicleId",
-                    VIN = "VIN123",
+                    VehicleId = order.VehicleId,
+                    VIN = order.VehicleId,
                     ModelNumber = "MODEL001",
                     Name = "Vehicle Name",
                     Brand = "Brand Name",
-                    Price = 50000
+                    Price = order.SalePrice
                 },
-                SalesPersonId = order.SalesPersonId,
+                SalesPersonId = order.EmployeeId,
                 SalesPerson = new UserInfo
                 {
-                    UserId = order.SalesPersonId,
-                    Username = "salesperson",
-                    FullName = "Sales Person",
-                    Email = "sales@example.com"
+                    UserId = order.EmployeeId,
+                    Username = "employee",
+                    FullName = "Employee",
+                    Email = "employee@example.com"
                 },
                 Status = order.Status,
-                TotalAmount = order.TotalAmount,
+                TotalAmount = order.SalePrice,
                 PaymentMethod = "CASH",
                 OrderDate = order.OrderDate,
                 CreatedAt = order.CreatedAt,
@@ -127,10 +127,10 @@ namespace VehicleShowroomManagement.Application.Orders.Handlers
                     Name = "Vehicle Name",
                     VIN = "VIN123",
                     Brand = "Brand Name",
-                    Price = order.TotalAmount
+                    Price = order.SalePrice
                 },
                 Items = new List<OrderItemDto>(), // Would need to populate from order items
-                TotalAmount = order.TotalAmount,
+                TotalAmount = order.SalePrice,
                 OrderDate = order.OrderDate,
                 PaymentMethod = "Cash", // Would need to populate from order data
                 CreatedAt = order.CreatedAt,

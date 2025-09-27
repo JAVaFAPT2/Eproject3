@@ -57,7 +57,7 @@ namespace VehicleShowroomManagement.Application.GoodsReceipts.Handlers
             };
 
             await _goodsReceiptRepository.AddAsync(goodsReceipt);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return goodsReceipt.Id;
         }

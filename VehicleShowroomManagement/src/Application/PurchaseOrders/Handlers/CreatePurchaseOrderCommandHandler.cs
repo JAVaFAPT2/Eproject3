@@ -42,7 +42,7 @@ namespace VehicleShowroomManagement.Application.PurchaseOrders.Handlers
             purchaseOrder.CalculateTotalAmount();
 
             await _purchaseOrderRepository.AddAsync(purchaseOrder);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return purchaseOrder.Id;
         }

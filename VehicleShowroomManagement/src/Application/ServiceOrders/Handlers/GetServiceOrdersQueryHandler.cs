@@ -22,25 +22,16 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
         {
             var serviceOrders = await _serviceOrderRepository.GetAllAsync();
 
-            // Apply filters
+            // Apply filters (simplified for new schema)
             if (!string.IsNullOrEmpty(request.SearchTerm))
             {
-                serviceOrders = serviceOrders.Where(so => 
+                serviceOrders = serviceOrders.Where(so =>
                     so.Description != null && so.Description.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    so.ServiceType.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    so.VehicleId.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    so.CustomerId.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase));
+                    so.ServiceOrderId.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    so.SalesOrderId.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase));
             }
 
-            if (!string.IsNullOrEmpty(request.Status))
-            {
-                serviceOrders = serviceOrders.Where(so => so.Status == request.Status);
-            }
-
-            if (!string.IsNullOrEmpty(request.ServiceType))
-            {
-                serviceOrders = serviceOrders.Where(so => so.ServiceType == request.ServiceType);
-            }
+            // Status and ServiceType filtering not available in new schema
 
             if (request.FromDate.HasValue)
             {
@@ -65,13 +56,12 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
             return new ServiceOrderDto
             {
                 Id = serviceOrder.Id,
-                VehicleId = serviceOrder.VehicleId,
-                CustomerId = serviceOrder.CustomerId,
+                ServiceOrderId = serviceOrder.ServiceOrderId,
+                SalesOrderId = serviceOrder.SalesOrderId,
+                EmployeeId = serviceOrder.EmployeeId,
                 ServiceDate = serviceOrder.ServiceDate,
-                Status = serviceOrder.Status,
-                TotalCost = serviceOrder.TotalCost,
                 Description = serviceOrder.Description,
-                ServiceType = serviceOrder.ServiceType,
+                Cost = serviceOrder.Cost,
                 CreatedAt = serviceOrder.CreatedAt,
                 UpdatedAt = serviceOrder.UpdatedAt
             };

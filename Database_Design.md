@@ -18,149 +18,152 @@
 ## 2. Entity Relationship Diagram (ERD)
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│     Users       │    │     Roles       │    │   UserRoles     │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ UserId (PK)     │◄──►│ RoleId (PK)     │    │ UserId (PK,FK)  │
-│ Username        │    │ RoleName        │    │ RoleId (PK,FK)  │
-│ Email           │    │ Description     │    │ CreatedAt       │
-│ PasswordHash    │    │ CreatedAt       │    │ UpdatedAt       │
-│ FirstName       │    │ UpdatedAt       │    └─────────────────┘
-│ LastName        │    └─────────────────┘
-│ Role (FK)       │
-│ IsActive        │
-│ CreatedAt       │
-│ UpdatedAt       │
-└─────────────────┘
+    EMPLOYEE ||--o{ SALES_ORDER : handles
+    SUPPLIER ||--o{ PURCHASE_ORDER : supplies
+    PURCHASE_ORDER ||--o{ PURCHASE_ORDER_LINE : has
+    PURCHASE_ORDER ||--o{ GOODS_RECEIPT : received_via
+    GOODS_RECEIPT ||--o{ VEHICLE : creates
+    VEHICLE_MODEL ||--o{ VEHICLE : instance_of
+    CUSTOMER ||--o{ SALES_ORDER : places
+    CUSTOMER ||--o{ WAITING_LIST : on
+    SALES_ORDER ||--|| VEHICLE : assigns
+    SALES_ORDER ||--|| SERVICE_ORDER : requires
+    SALES_ORDER ||--|| BILLING_DOCUMENT : generates
+    VEHICLE ||--o{ ALLOTMENT : assigned_via
+    CUSTOMER ||--o{ ALLOTMENT : assigned_to
+    WAITING_LIST ||--o{ VEHICLE_MODEL : requests
 
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Vehicles      │    │    Brands       │    │    Models       │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ VehicleId (PK)  │    │ BrandId (PK)    │    │ ModelId (PK)    │
-│ VIN             │    │ BrandName       │    │ ModelName       │
-│ ModelId (FK)    │    │ Country         │    │ BrandId (FK)    │
-│ Color           │    │ LogoUrl         │    │ EngineType      │
-│ Year            │    │ CreatedAt       │    │ Transmission    │
-│ Price           │    │ UpdatedAt       │    │ FuelType        │
-│ Mileage         │    └─────────────────┘    │ SeatingCapacity │
-│ Status          │                          │ CreatedAt       │
-│ CreatedAt       │                          │ UpdatedAt       │
-│ UpdatedAt       │                          └─────────────────┘
-└─────────────────┘
+    EMPLOYEE {
+        string EmployeeID PK
+        string Name
+        string Role "Dealer, HR"
+        string Position
+        date HireDate
+        string Status
+    }
 
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Customers     │    │ PurchaseOrders  │    │    Suppliers    │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ CustomerId (PK) │    │ PurchaseId (PK) │    │ SupplierId (PK) │
-│ FirstName       │    │ SupplierId (FK) │    │ CompanyName     │
-│ LastName        │    │ VehicleId (FK)  │    │ ContactPerson   │
-│ Email           │    │ Quantity        │    │ Email           │
-│ Phone           │    │ UnitPrice       │    │ Phone           │
-│ Address         │    │ TotalAmount     │    │ Address         │
-│ City            │    │ Status          │    │ City            │
-│ State           │    │ OrderDate       │    │ State           │
-│ ZipCode         │    │ DeliveryDate    │    │ ZipCode         │
-│ CreatedAt       │    │ CreatedAt       │    │ CreatedAt       │
-│ UpdatedAt       │    │ UpdatedAt       │    │ UpdatedAt       │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+    VEHICLE_MODEL {
+        string ModelNumber PK
+        string Name
+        string Brand
+        decimal BasePrice
+    }
 
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│  SalesOrders    │    │ SalesOrderItems │    │     Invoices    │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ SalesOrderId(PK)│    │ SalesOrderItemId│    │ InvoiceId (PK)  │
-│ CustomerId (FK) │    │ SalesOrderId(FK)│    │ SalesOrderId(FK)│
-│ SalesPersonId(FK)│   │ VehicleId (FK)  │    │ InvoiceNumber   │
-│ OrderDate       │    │ Quantity        │    │ InvoiceDate     │
-│ Status          │    │ UnitPrice       │    │ Subtotal        │
-│ TotalAmount     │    │ Discount        │    │ TaxAmount       │
-│ CreatedAt       │    │ LineTotal       │    │ TotalAmount     │
-│ UpdatedAt       │    │ CreatedAt       │    │ Status          │
-└─────────────────┘    │ UpdatedAt       │    │ CreatedAt       │
-                      └─────────────────┘    │ UpdatedAt       │
-                                             └─────────────────┘
+    VEHICLE {
+        string VehicleID PK
+        string ModelNumber FK
+        string ExternalNumber
+        json RegistrationData
+        string Status
+        decimal PurchasePrice
+        array Photos
+        date ReceiptDate
+    }
 
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│ ServiceOrders   │    │ServiceOrderItems│    │   VehicleImages │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ ServiceOrderId(PK)│ │ServiceOrderItemId│ │ ImageId (PK)    │
-│ VehicleId (FK)  │    │ ServiceOrderId(FK)│ │ VehicleId (FK)  │
-│ CustomerId (FK) │    │ ServiceType     │ │ ImageUrl        │
-│ ServiceDate     │    │ Description     │ │ ImageType       │
-│ Status          │    │ Cost            │ │ FileName        │
-│ TotalCost       │    │ Status          │ │ FileSize        │
-│ CreatedAt       │    │ CreatedAt       │ │ UploadedAt      │
-│ UpdatedAt       │    │ UpdatedAt       │ │ CreatedAt       │
-└─────────────────┘    └─────────────────┘    │ UpdatedAt       │
-                                             └─────────────────┘
+    SUPPLIER {
+        string SupplierID PK
+        string Name
+        string ContactInfo
+    }
 
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│PurchaseOrders   │    │  GoodsReceipts  │    │VehicleRegistrations│
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ PurchaseOrderId(PK)│ │ GoodsReceiptId(PK)│ │ VehicleRegId(PK)│
-│ OrderNumber     │    │ ReceiptNumber   │    │ RegistrationNumber│
-│ OrderDate       │    │ PurchaseOrderId(FK)│ │ VehicleId (FK)  │
-│ SupplierId (FK) │    │ ReceiptDate     │    │ VIN             │
-│ ModelNumber     │    │ VehicleId (FK)  │    │ CustomerId (FK) │
-│ Name            │    │ VIN             │    │ RegistrationDate│
-│ Brand           │    │ ManufacturerVIN │    │ ExpiryDate      │
-│ Price           │    │ Status          │    │ IssuingAuthority│
-│ Quantity        │    │ Notes           │    │ Status          │
-│ TotalAmount     │    │ CreatedAt       │    │ OwnerName       │
-│ Status          │    │ UpdatedAt       │    │ OwnerAddress    │
-│ Notes           │    │ IsDeleted       │    │ CreatedAt       │
-│ CreatedAt       │    │ DeletedAt       │    │ UpdatedAt       │
-│ UpdatedAt       │    └─────────────────┘    │ IsDeleted       │
-│ IsDeleted       │                           │ DeletedAt       │
-│ DeletedAt       │                           └─────────────────┘
-└─────────────────┘
+    PURCHASE_ORDER {
+        string POID PK
+        string SupplierID FK
+        string EmployeeID FK "Dealer only"
+        date OrderDate
+        decimal TotalAmount
+        string Status
+    }
 
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Allotments    │    │  WaitingLists   │    │   ModelInfo     │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ AllotmentId (PK)│    │ WaitingListId(PK)│   │ ModelId (PK)    │
-│ AllotmentNumber │    │ RequestNumber   │    │ ModelName       │
-│ VehicleId (FK)  │    │ CustomerId (FK) │    │ ModelNumber     │
-│ CustomerId (FK) │    │ RequestedVehicleModelId│ BrandId (FK)   │
-│ AllotmentDate   │    │ RequestedVehicleBrandId│ EngineType     │
-│ ExpiryDate      │    │ PreferredColor  │    │ Transmission    │
-│ Status          │    │ MinPrice        │    │ FuelType        │
-│ AllotmentType   │    │ MaxPrice        │    │ SeatingCapacity │
-│ ReservationAmount│   │ RequestDate     │    │ CreatedAt       │
-│ Notes           │    │ Priority        │    │ UpdatedAt       │
-│ CreatedAt       │    │ Status          │    │ IsDeleted       │
-│ UpdatedAt       │    │ Notes           │    │ DeletedAt       │
-│ IsDeleted       │    │ CreatedAt       │    └─────────────────┘
-│ DeletedAt       │    │ UpdatedAt       │
-└─────────────────┘    │ IsDeleted       │
-                      │ DeletedAt       │
-                      └─────────────────┘
+    PURCHASE_ORDER_LINE {
+        string POLineID PK
+        string POID FK
+        string ModelNumber FK
+        int Quantity
+        decimal PricePerUnit
+    }
+
+    GOODS_RECEIPT {
+        string ReceiptID PK
+        string POID FK
+        string EmployeeID FK "Dealer only"
+        date ReceiptDate
+        array ReceivedVehicles
+    }
+
+    CUSTOMER {
+        string CustomerID PK
+        string Name
+        string Address
+        string Phone
+        string Email
+    }
+
+    SALES_ORDER {
+        string SalesOrderID PK
+        string CustomerID FK
+        string VehicleID FK
+        string EmployeeID FK "Dealer only"
+        date OrderDate
+        decimal SalePrice
+        string Status
+        json DataSheetOutput
+        json ConfirmationOutput
+    }
+
+    SERVICE_ORDER {
+        string ServiceOrderID PK
+        string SalesOrderID FK
+        string EmployeeID FK "Dealer only"
+        date ServiceDate
+        string Description
+        decimal Cost
+    }
+
+    BILLING_DOCUMENT {
+        string BillID PK
+        string SalesOrderID FK
+        string EmployeeID FK "Dealer only"
+        date BillDate
+        decimal Amount
+        json Output
+    }
+
+    WAITING_LIST {
+        string WaitID PK
+        string CustomerID FK
+        string ModelNumber FK
+        date RequestDate
+        string Status
+    }
+
+    ALLOTMENT {
+        string AllotmentID PK
+        string VehicleID FK
+        string CustomerID FK
+        string EmployeeID FK "Dealer only"
+        date AllotmentDate
+    }
 ```
 
 ## 3. Document Structure
 
 ### 3.1 MongoDB Collections and Documents
 
-#### Users Collection
+#### Employee Collection
 ```json
 {
   "_id": "ObjectId",
-  "username": "johndoe",
-  "email": "john@example.com",
-  "passwordHash": "hashed_password",
-  "firstName": "John",
-  "lastName": "Doe",
-  "roleId": "ObjectId",
-  "role": {
-    "roleId": "ObjectId",
-    "roleName": "Dealer",
-    "description": "Vehicle dealer role"
-  },
-  "isActive": true,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
+  "employeeId": "EMP001",
+  "name": "John Doe",
+  "role": "Dealer",
+  "position": "Senior Sales Representative",
+  "hireDate": "2023-01-15T00:00:00Z",
+  "status": "Active",
+  "createdAt": "2023-01-15T00:00:00Z",
+  "updatedAt": "2023-01-15T00:00:00Z",
   "isDeleted": false,
-  "userRoleIds": ["ObjectId1", "ObjectId2"],
-  "salesOrderIds": ["ObjectId1", "ObjectId2"]
+  "deletedAt": null
 }
 ```
 
@@ -173,7 +176,7 @@
   "createdAt": "2024-01-01T00:00:00Z",
   "updatedAt": "2024-01-01T00:00:00Z",
   "isDeleted": false,
-  "userIds": ["ObjectId1", "ObjectId2"]
+  "deletedAt": null
 }
 ```
 
@@ -198,300 +201,65 @@
   "createdAt": "2024-01-01T00:00:00Z",
   "updatedAt": "2024-01-01T00:00:00Z",
   "isDeleted": false,
-  "modelIds": ["ObjectId1", "ObjectId2"]
+  "deletedAt": null
 }
 ```
 
-#### Models Collection
+#### VehicleModel Collection
 ```json
 {
   "_id": "ObjectId",
-  "modelName": "Civic",
-  "brandId": "ObjectId",
-  "brand": {
-    "brandId": "ObjectId",
-    "brandName": "Honda",
-    "country": "Japan"
-  },
-  "engineType": "1.5L Turbo",
-  "transmission": "CVT",
-  "fuelType": "Gasoline",
-  "seatingCapacity": 5,
+  "modelNumber": "CIVIC-2024-001",
+  "name": "Civic",
+  "brand": "Honda",
+  "basePrice": 25000.00,
   "createdAt": "2024-01-01T00:00:00Z",
   "updatedAt": "2024-01-01T00:00:00Z",
   "isDeleted": false,
-  "vehicleIds": ["ObjectId1", "ObjectId2"]
+  "deletedAt": null
 }
 ```
 
-#### Vehicles Collection
+#### Vehicle Collection
 ```json
 {
   "_id": "ObjectId",
+  "vehicleId": "VEH001",
+  "modelNumber": "CIVIC-2024-001",
+  "externalNumber": "EXT-001",
+  "registrationData": {
   "vin": "1HGCM82633A123456",
-  "modelId": "ObjectId",
-  "model": {
-    "modelId": "ObjectId",
-    "modelName": "Civic",
-    "brandId": "ObjectId",
-    "brand": {
-      "brandId": "ObjectId",
-      "brandName": "Honda",
-      "country": "Japan"
-    },
-    "engineType": "1.5L Turbo",
-    "transmission": "CVT",
-    "fuelType": "Gasoline",
-    "seatingCapacity": 5
+    "licensePlate": "ABC-123",
+    "registrationDate": "2024-01-15T00:00:00Z",
+    "expiryDate": "2025-01-15T00:00:00Z"
   },
-  "color": "Blue",
-  "year": 2024,
-  "price": 35000.00,
-  "mileage": 15000,
   "status": "Available",
-  "images": [
-    {
-      "imageId": "ObjectId",
-      "imageUrl": "/images/vehicles/vehicle1.jpg",
-      "imageType": "Exterior",
-      "fileName": "vehicle1.jpg"
-    }
+  "purchasePrice": 30000.00,
+  "photos": [
+    "/images/vehicles/vehicle1.jpg",
+    "/images/vehicles/vehicle2.jpg"
   ],
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
+  "receiptDate": "2024-01-15T00:00:00Z",
+  "createdAt": "2024-01-15T00:00:00Z",
+  "updatedAt": "2024-01-15T00:00:00Z",
   "isDeleted": false,
-  "purchaseOrderItemIds": ["ObjectId1"],
-  "salesOrderItemIds": ["ObjectId1"],
-  "serviceOrderIds": ["ObjectId1"]
+  "deletedAt": null
 }
 ```
 
-#### Customers Collection
+#### Customer Collection
 ```json
 {
   "_id": "ObjectId",
-  "firstName": "John",
-  "lastName": "Doe",
+  "customerId": "CUST001",
+  "name": "John Doe",
+  "address": "123 Main St, New York, NY 10001",
+  "phone": "+1234567890",
   "email": "john@example.com",
-  "phone": "+1234567890",
-  "address": "123 Main St",
-  "city": "New York",
-  "state": "NY",
-  "zipCode": "10001",
   "createdAt": "2024-01-01T00:00:00Z",
   "updatedAt": "2024-01-01T00:00:00Z",
   "isDeleted": false,
-  "salesOrderIds": ["ObjectId1", "ObjectId2"],
-  "serviceOrderIds": ["ObjectId1"]
-}
-```
-
-#### Suppliers Collection
-```json
-{
-  "_id": "ObjectId",
-  "companyName": "Honda Motor Co.",
-  "contactPerson": "John Smith",
-  "email": "john.smith@honda.com",
-  "phone": "+1234567890",
-  "address": "123 Corporate Blvd",
-  "city": "Tokyo",
-  "state": "Tokyo",
-  "zipCode": "100-0011",
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
-  "isDeleted": false
-}
-```
-
-#### PurchaseOrders Collection
-```json
-{
-  "_id": "ObjectId",
-  "supplierId": "ObjectId",
-  "status": "Confirmed",
-  "orderDate": "2024-01-01T00:00:00Z",
-  "deliveryDate": "2024-02-01T00:00:00Z",
-  "totalAmount": 35000.00,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
-  "isDeleted": false,
-  "items": [
-    {
-      "purchaseOrderItemId": "ObjectId",
-      "vehicleId": "ObjectId",
-      "quantity": 1,
-      "unitPrice": 35000.00,
-      "totalAmount": 35000.00,
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-01T00:00:00Z",
-      "isDeleted": false
-    }
-  ]
-}
-```
-
-#### PurchaseOrderItems Collection
-```json
-{
-  "_id": "ObjectId",
-  "purchaseId": "ObjectId",
-  "vehicleId": "ObjectId",
-  "quantity": 1,
-  "unitPrice": 35000.00,
-  "totalAmount": 35000.00,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
-  "isDeleted": false
-}
-```
-
-#### SalesOrders Collection
-```json
-{
-  "_id": "ObjectId",
-  "customerId": "ObjectId",
-  "salesPersonId": "ObjectId",
-  "status": "Confirmed",
-  "orderDate": "2024-01-01T00:00:00Z",
-  "totalAmount": 35000.00,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
-  "isDeleted": false,
-  "items": [
-    {
-      "salesOrderItemId": "ObjectId",
-      "vehicleId": "ObjectId",
-      "quantity": 1,
-      "unitPrice": 35000.00,
-      "discount": 0.00,
-      "lineTotal": 35000.00,
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-01T00:00:00Z",
-      "isDeleted": false
-    }
-  ]
-}
-```
-
-#### SalesOrderItems Collection
-```json
-{
-  "_id": "ObjectId",
-  "salesOrderId": "ObjectId",
-  "vehicleId": "ObjectId",
-  "quantity": 1,
-  "unitPrice": 35000.00,
-  "discount": 0.00,
-  "lineTotal": 35000.00,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
-  "isDeleted": false
-}
-```
-
-#### Invoices Collection
-```json
-{
-  "_id": "ObjectId",
-  "salesOrderId": "ObjectId",
-  "invoiceNumber": "INV-2024-001",
-  "invoiceDate": "2024-01-01T00:00:00Z",
-  "subtotal": 35000.00,
-  "taxAmount": 2975.00,
-  "totalAmount": 37975.00,
-  "status": "Paid",
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
-  "isDeleted": false
-}
-```
-
-#### Payments Collection
-```json
-{
-  "_id": "ObjectId",
-  "invoiceId": "ObjectId",
-  "amount": 37975.00,
-  "paymentMethod": "CreditCard",
-  "paymentDate": "2024-01-01T00:00:00Z",
-  "referenceNumber": "CC-123456789",
-  "status": "Completed",
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
-  "isDeleted": false
-}
-```
-
-#### ServiceOrders Collection
-```json
-{
-  "_id": "ObjectId",
-  "vehicleId": "ObjectId",
-  "customerId": "ObjectId",
-  "serviceDate": "2024-01-15T10:00:00Z",
-  "status": "Completed",
-  "totalCost": 250.00,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-15T10:00:00Z",
-  "isDeleted": false,
-  "items": [
-    {
-      "serviceOrderItemId": "ObjectId",
-      "serviceType": "Pre-Delivery Inspection",
-      "description": "Full vehicle inspection before delivery",
-      "cost": 150.00,
-      "status": "Completed",
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-15T10:00:00Z",
-      "isDeleted": false
-    },
-    {
-      "serviceOrderItemId": "ObjectId",
-      "serviceType": "Detailing",
-      "description": "Interior and exterior detailing",
-      "cost": 100.00,
-      "status": "Completed",
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-15T10:00:00Z",
-      "isDeleted": false
-    }
-  ]
-}
-```
-
-#### ServiceOrderItems Collection
-```json
-{
-  "_id": "ObjectId",
-  "serviceOrderId": "ObjectId",
-  "serviceType": "Pre-Delivery Inspection",
-  "description": "Full vehicle inspection before delivery",
-  "cost": 150.00,
-  "status": "Completed",
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-15T10:00:00Z",
-  "isDeleted": false
-}
-```
-
-#### VehicleImages Collection
-```json
-{
-  "_id": "ObjectId",
-  "vehicleId": "ObjectId",
-  "imageUrl": "/images/vehicles/honda-civic-1.jpg",
-  "imageType": "Exterior",
-  "fileName": "honda-civic-1.jpg",
-  "fileSize": 2048576,
-  "publicId": "vehicle-showroom/abc123",
-  "originalFileName": "honda-civic-1.jpg",
-  "contentType": "image/jpeg",
-  "isPrimary": true,
-  "uploadedAt": "2024-01-01T00:00:00Z",
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z",
-  "isDeleted": false
+  "deletedAt": null
 }
 ```
 
@@ -512,7 +280,218 @@
   "notes": "Urgent delivery required",
   "createdAt": "2024-01-01T00:00:00Z",
   "updatedAt": "2024-01-01T00:00:00Z",
-  "isDeleted": false
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### Suppliers Collection
+```json
+{
+  "_id": "ObjectId",
+  "companyName": "Acme Motors",
+  "contactPerson": "Jane Doe",
+  "email": "jane@acmemotors.com",
+  "phone": "+1234567890",
+  "address": "123 Supplier St",
+  "city": "Detroit",
+  "state": "MI",
+  "zipCode": "48201",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### PurchaseOrderLine Collection
+```json
+{
+  "_id": "ObjectId",
+  "poLineId": "POL001",
+  "poId": "PO001",
+  "modelNumber": "CIVIC-2024-001",
+  "quantity": 5,
+  "pricePerUnit": 25000.00,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### SalesOrder Collection
+```json
+{
+  "_id": "ObjectId",
+  "salesOrderId": "SO001",
+  "customerId": "CUST001",
+  "vehicleId": "VEH001",
+  "employeeId": "EMP001",
+  "orderDate": "2024-01-20T00:00:00Z",
+  "salePrice": 35000.00,
+  "status": "Confirmed",
+  "dataSheetOutput": {
+    "format": "PDF",
+    "generatedAt": "2024-01-20T00:00:00Z",
+    "url": "/documents/sales-order-datasheet-so001.pdf"
+  },
+  "confirmationOutput": {
+    "format": "PDF",
+    "generatedAt": "2024-01-20T00:00:00Z",
+    "url": "/documents/sales-order-confirmation-so001.pdf"
+  },
+  "createdAt": "2024-01-20T00:00:00Z",
+  "updatedAt": "2024-01-20T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### SalesOrderItems Collection
+```json
+{
+  "_id": "ObjectId",
+  "salesOrderId": "ObjectId",
+  "vehicleId": "ObjectId",
+  "quantity": 1,
+  "unitPrice": 35000.00,
+  "discount": 0.00,
+  "lineTotal": 35000.00,
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### Invoices Collection
+```json
+{
+  "_id": "ObjectId",
+  "salesOrderId": "ObjectId",
+  "invoiceNumber": "INV-2024-001",
+  "invoiceDate": "2024-01-01T00:00:00Z",
+  "subtotal": 35000.00,
+  "taxAmount": 2975.00,
+  "totalAmount": 37975.00,
+  "status": "Paid",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### Payments Collection
+```json
+{
+  "_id": "ObjectId",
+  "invoiceId": "ObjectId",
+  "amount": 37975.00,
+  "paymentMethod": "CreditCard",
+  "paymentDate": "2024-01-01T00:00:00Z",
+  "referenceNumber": "CC-123456789",
+  "status": "Completed",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### ServiceOrder Collection
+```json
+{
+  "_id": "ObjectId",
+  "serviceOrderId": "SERV001",
+  "salesOrderId": "SO001",
+  "employeeId": "EMP001",
+  "serviceDate": "2024-01-25T10:00:00Z",
+  "description": "Pre-delivery inspection and vehicle preparation",
+  "cost": 250.00,
+  "createdAt": "2024-01-25T00:00:00Z",
+  "updatedAt": "2024-01-25T10:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### BillingDocument Collection
+```json
+{
+  "_id": "ObjectId",
+  "billId": "BILL001",
+  "salesOrderId": "SO001",
+  "employeeId": "EMP001",
+  "billDate": "2024-01-25T00:00:00Z",
+  "amount": 35250.00,
+  "output": {
+    "format": "PDF",
+    "generatedAt": "2024-01-25T00:00:00Z",
+    "url": "/documents/bill-bill001.pdf"
+  },
+  "createdAt": "2024-01-25T00:00:00Z",
+  "updatedAt": "2024-01-25T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### ServiceOrderItems Collection
+```json
+{
+  "_id": "ObjectId",
+  "serviceOrderId": "ObjectId",
+  "serviceType": "Pre-Delivery Inspection",
+  "description": "Full vehicle inspection before delivery",
+  "cost": 150.00,
+  "status": "Completed",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-15T10:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### VehicleImages Collection
+```json
+{
+  "_id": "ObjectId",
+  "vehicleId": "ObjectId",
+  "imageUrl": "/images/vehicles/honda-civic-1.jpg",
+  "imageType": "Exterior",
+  "fileName": "honda-civic-1.jpg",
+  "fileSize": 2048576,
+  "publicId": "vehicle-showroom/abc123",
+  "originalFileName": "honda-civic-1.jpg",
+  "contentType": "image/jpeg",
+  "isPrimary": true,
+  "uploadedAt": "2024-01-01T00:00:00Z",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### RefreshTokens Collection
+```json
+{
+  "_id": "ObjectId",
+  "token": "base64-encoded-refresh-token",
+  "userId": "ObjectId",
+  "expiresAt": "2024-01-08T00:00:00Z",
+  "isRevoked": false,
+  "revokedAt": null,
+  "revokedByIp": null,
+  "replacedByToken": null,
+  "reasonRevoked": null,
+  "createdByIp": "192.168.1.1",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
 }
 ```
 
@@ -530,7 +509,8 @@
   "notes": "Vehicle in excellent condition",
   "createdAt": "2024-01-15T00:00:00Z",
   "updatedAt": "2024-01-15T00:00:00Z",
-  "isDeleted": false
+  "isDeleted": false,
+  "deletedAt": null
 }
 ```
 
@@ -550,48 +530,57 @@
   "ownerAddress": "123 Main St, City, State 12345",
   "createdAt": "2024-01-20T00:00:00Z",
   "updatedAt": "2024-01-20T00:00:00Z",
-  "isDeleted": false
+  "isDeleted": false,
+  "deletedAt": null
 }
 ```
 
-#### Allotments Collection
+#### Allotment Collection
 ```json
 {
   "_id": "ObjectId",
-  "allotmentNumber": "ALL-20240101-001",
-  "vehicleId": "ObjectId",
-  "customerId": "ObjectId",
+  "allotmentId": "ALL001",
+  "vehicleId": "VEH001",
+  "customerId": "CUST001",
+  "employeeId": "EMP001",
   "allotmentDate": "2024-01-10T00:00:00Z",
-  "expiryDate": "2024-01-25T00:00:00Z",
-  "status": "Active",
-  "allotmentType": "Reservation",
-  "reservationAmount": 5000.00,
-  "notes": "Customer requested specific color",
-  "salesPersonId": "ObjectId",
   "createdAt": "2024-01-10T00:00:00Z",
   "updatedAt": "2024-01-10T00:00:00Z",
-  "isDeleted": false
+  "isDeleted": false,
+  "deletedAt": null
 }
 ```
 
-#### WaitingLists Collection
+#### WaitingList Collection
 ```json
 {
   "_id": "ObjectId",
-  "requestNumber": "WL-20240101-001",
-  "customerId": "ObjectId",
-  "requestedVehicleModelId": "ObjectId",
-  "requestedVehicleBrandId": "ObjectId",
-  "preferredColor": "Blue",
-  "minPrice": 20000.00,
-  "maxPrice": 30000.00,
+  "waitId": "WAIT001",
+  "customerId": "CUST001",
+  "modelNumber": "CIVIC-2024-001",
   "requestDate": "2024-01-05T00:00:00Z",
-  "priority": "High",
   "status": "Waiting",
-  "notes": "Customer prefers automatic transmission",
   "createdAt": "2024-01-05T00:00:00Z",
   "updatedAt": "2024-01-05T00:00:00Z",
-  "isDeleted": false
+  "isDeleted": false,
+  "deletedAt": null
+}
+```
+
+#### ReturnRequests Collection
+```json
+{
+  "_id": "ObjectId",
+  "salesOrderId": "ObjectId",
+  "vehicleId": "ObjectId",
+  "reason": "Defective product",
+  "status": "Pending",
+  "requestDate": "2024-01-25T00:00:00Z",
+  "processedDate": null,
+  "createdAt": "2024-01-25T00:00:00Z",
+  "updatedAt": "2024-01-25T00:00:00Z",
+  "isDeleted": false,
+  "deletedAt": null
 }
 ```
 
@@ -603,108 +592,123 @@
 
 ### 4.2 Strategic Indexes for Performance
 ```javascript
-// Users collection indexes
-db.users.createIndex({ "email": 1 }, { unique: true });
-db.users.createIndex({ "username": 1 }, { unique: true });
-db.users.createIndex({ "roleId": 1 });
-db.users.createIndex({ "isDeleted": 1 });
+// Employee collection indexes
+db.employees.createIndex({ "employeeId": 1 }, { unique: true });
+db.employees.createIndex({ "role": 1 });
+db.employees.createIndex({ "status": 1 });
+db.employees.createIndex({ "isDeleted": 1 });
 
-// Vehicles collection indexes
-db.vehicles.createIndex({ "vin": 1 }, { unique: true });
+// VehicleModel collection indexes
+db.vehicleModels.createIndex({ "modelNumber": 1 }, { unique: true });
+db.vehicleModels.createIndex({ "name": 1 });
+db.vehicleModels.createIndex({ "brand": 1 });
+db.vehicleModels.createIndex({ "isDeleted": 1 });
+
+// Vehicle collection indexes
+db.vehicles.createIndex({ "vehicleId": 1 }, { unique: true });
+db.vehicles.createIndex({ "modelNumber": 1 });
 db.vehicles.createIndex({ "status": 1 });
-db.vehicles.createIndex({ "modelId": 1 });
 db.vehicles.createIndex({ "isDeleted": 1 });
 
-// Customers collection indexes
+// Customer collection indexes
+db.customers.createIndex({ "customerId": 1 }, { unique: true });
 db.customers.createIndex({ "email": 1 }, { unique: true });
 db.customers.createIndex({ "phone": 1 });
 db.customers.createIndex({ "isDeleted": 1 });
 
-// SalesOrders collection indexes
+// Supplier collection indexes
+db.suppliers.createIndex({ "supplierId": 1 }, { unique: true });
+db.suppliers.createIndex({ "name": 1 });
+db.suppliers.createIndex({ "isDeleted": 1 });
+
+// PurchaseOrder collection indexes
+db.purchaseOrders.createIndex({ "poId": 1 }, { unique: true });
+db.purchaseOrders.createIndex({ "supplierId": 1 });
+db.purchaseOrders.createIndex({ "employeeId": 1 });
+db.purchaseOrders.createIndex({ "orderDate": 1 });
+db.purchaseOrders.createIndex({ "status": 1 });
+db.purchaseOrders.createIndex({ "isDeleted": 1 });
+
+// PurchaseOrderLine collection indexes
+db.purchaseOrderLines.createIndex({ "poLineId": 1 }, { unique: true });
+db.purchaseOrderLines.createIndex({ "poId": 1 });
+db.purchaseOrderLines.createIndex({ "modelNumber": 1 });
+db.purchaseOrderLines.createIndex({ "isDeleted": 1 });
+
+// GoodsReceipt collection indexes
+db.goodsReceipts.createIndex({ "receiptId": 1 }, { unique: true });
+db.goodsReceipts.createIndex({ "poId": 1 });
+db.goodsReceipts.createIndex({ "employeeId": 1 });
+db.goodsReceipts.createIndex({ "receiptDate": 1 });
+db.goodsReceipts.createIndex({ "isDeleted": 1 });
+
+// SalesOrder collection indexes
+db.salesOrders.createIndex({ "salesOrderId": 1 }, { unique: true });
 db.salesOrders.createIndex({ "customerId": 1 });
-db.salesOrders.createIndex({ "status": 1 });
+db.salesOrders.createIndex({ "vehicleId": 1 });
+db.salesOrders.createIndex({ "employeeId": 1 });
 db.salesOrders.createIndex({ "orderDate": 1 });
+db.salesOrders.createIndex({ "status": 1 });
 db.salesOrders.createIndex({ "isDeleted": 1 });
 
-// SalesOrderItems collection indexes
-db.salesOrderItems.createIndex({ "salesOrderId": 1 });
-db.salesOrderItems.createIndex({ "vehicleId": 1 });
-db.salesOrderItems.createIndex({ "isDeleted": 1 });
+// ServiceOrder collection indexes
+db.serviceOrders.createIndex({ "serviceOrderId": 1 }, { unique: true });
+db.serviceOrders.createIndex({ "salesOrderId": 1 });
+db.serviceOrders.createIndex({ "employeeId": 1 });
+db.serviceOrders.createIndex({ "serviceDate": 1 });
+db.serviceOrders.createIndex({ "isDeleted": 1 });
 
-// Roles collection indexes
+// BillingDocument collection indexes
+db.billingDocuments.createIndex({ "billId": 1 }, { unique: true });
+db.billingDocuments.createIndex({ "salesOrderId": 1 });
+db.billingDocuments.createIndex({ "employeeId": 1 });
+db.billingDocuments.createIndex({ "billDate": 1 });
+db.billingDocuments.createIndex({ "isDeleted": 1 });
+
+// WaitingList collection indexes
+db.waitingLists.createIndex({ "waitId": 1 }, { unique: true });
+db.waitingLists.createIndex({ "customerId": 1 });
+db.waitingLists.createIndex({ "modelNumber": 1 });
+db.waitingLists.createIndex({ "requestDate": 1 });
+db.waitingLists.createIndex({ "status": 1 });
+db.waitingLists.createIndex({ "isDeleted": 1 });
+
+// Allotment collection indexes
+db.allotments.createIndex({ "allotmentId": 1 }, { unique: true });
+db.allotments.createIndex({ "vehicleId": 1 });
+db.allotments.createIndex({ "customerId": 1 });
+db.allotments.createIndex({ "employeeId": 1 });
+db.allotments.createIndex({ "allotmentDate": 1 });
+db.allotments.createIndex({ "isDeleted": 1 });
+
+// Roles collection indexes (keeping for backward compatibility)
 db.roles.createIndex({ "roleName": 1 }, { unique: true });
 db.roles.createIndex({ "isDeleted": 1 });
 
-// Brands collection indexes
-db.brands.createIndex({ "brandName": 1 }, { unique: true });
-db.brands.createIndex({ "isDeleted": 1 });
-
-// Models collection indexes
-db.models.createIndex({ "modelName": 1, "brandId": 1 }, { unique: true });
-db.models.createIndex({ "isDeleted": 1 });
-
-// PurchaseOrders collection indexes
-db.purchaseOrders.createIndex({ "orderNumber": 1 }, { unique: true });
-db.purchaseOrders.createIndex({ "supplierId": 1 });
-db.purchaseOrders.createIndex({ "status": 1 });
-db.purchaseOrders.createIndex({ "orderDate": 1 });
-db.purchaseOrders.createIndex({ "isDeleted": 1 });
-
-// GoodsReceipts collection indexes
-db.goodsReceipts.createIndex({ "receiptNumber": 1 }, { unique: true });
-db.goodsReceipts.createIndex({ "purchaseOrderId": 1 });
-db.goodsReceipts.createIndex({ "vehicleId": 1 });
-db.goodsReceipts.createIndex({ "vin": 1 }, { unique: true });
-db.goodsReceipts.createIndex({ "status": 1 });
-db.goodsReceipts.createIndex({ "isDeleted": 1 });
-
-// VehicleRegistrations collection indexes
-db.vehicleRegistrations.createIndex({ "registrationNumber": 1 }, { unique: true });
-db.vehicleRegistrations.createIndex({ "vehicleId": 1 });
-db.vehicleRegistrations.createIndex({ "vin": 1 });
-db.vehicleRegistrations.createIndex({ "customerId": 1 });
-db.vehicleRegistrations.createIndex({ "status": 1 });
-db.vehicleRegistrations.createIndex({ "expiryDate": 1 });
-db.vehicleRegistrations.createIndex({ "isDeleted": 1 });
-
-// Allotments collection indexes
-db.allotments.createIndex({ "allotmentNumber": 1 }, { unique: true });
-db.allotments.createIndex({ "vehicleId": 1 });
-db.allotments.createIndex({ "customerId": 1 });
-db.allotments.createIndex({ "status": 1 });
-db.allotments.createIndex({ "allotmentDate": 1 });
-db.allotments.createIndex({ "expiryDate": 1 });
-db.allotments.createIndex({ "isDeleted": 1 });
-
-// WaitingLists collection indexes
-db.waitingLists.createIndex({ "requestNumber": 1 }, { unique: true });
-db.waitingLists.createIndex({ "customerId": 1 });
-db.waitingLists.createIndex({ "requestedVehicleModelId": 1 });
-db.waitingLists.createIndex({ "requestedVehicleBrandId": 1 });
-db.waitingLists.createIndex({ "status": 1 });
-db.waitingLists.createIndex({ "priority": 1 });
-db.waitingLists.createIndex({ "requestDate": 1 });
-db.waitingLists.createIndex({ "isDeleted": 1 });
-
-// VehicleImages collection indexes
-db.vehicleImages.createIndex({ "vehicleId": 1 });
-db.vehicleImages.createIndex({ "imageType": 1 });
-db.vehicleImages.createIndex({ "isPrimary": 1 });
-db.vehicleImages.createIndex({ "isDeleted": 1 });
+// RefreshTokens collection indexes
+db.refreshTokens.createIndex({ "token": 1 }, { unique: true });
+db.refreshTokens.createIndex({ "userId": 1 });
+db.refreshTokens.createIndex({ "expiresAt": 1 });
+db.refreshTokens.createIndex({ "isRevoked": 1 });
+db.refreshTokens.createIndex({ "isDeleted": 1 });
 ```
 
 ## 5. Domain-Driven Design Mapping
 
 ### 5.1 Aggregates
-- **Vehicle Aggregate**: Vehicle, VehicleImages
-- **Sales Aggregate**: SalesOrder, SalesOrderItems, Invoice, Payments
-- **Service Aggregate**: ServiceOrder
-- **User Aggregate**: User, UserRoles
+- **Vehicle Aggregate**: Vehicle, VehicleModel
+- **Sales Aggregate**: SalesOrder, ServiceOrder, BillingDocument
+- **Purchase Aggregate**: PurchaseOrder, PurchaseOrderLine, GoodsReceipt
+- **Customer Aggregate**: Customer, WaitingList, Allotment
+- **Employee Aggregate**: Employee
 
 ### 5.2 Value Objects
-- **Address**: Street, City, State, ZipCode
-- **Money**: Amount, Currency
-- **ContactInfo**: Email, Phone
+- **Address**: Street, City, State, ZipCode (embedded in Customer)
+- **Money**: Amount, Currency (decimal fields)
+- **ContactInfo**: Email, Phone (embedded in entities)
+- **RoleInfo**: RoleId, RoleName, Description (embedded in User)
+- **ModelInfo**: Model details (embedded in Vehicle)
+- **BrandInfo**: Brand details (embedded in Model)
 
 ### 5.3 Domain Events
 - VehiclePurchased
@@ -712,198 +716,12 @@ db.vehicleImages.createIndex({ "isDeleted": 1 });
 - VehicleReserved
 - PaymentReceived
 - ServiceCompleted
+- VehicleRegistered
+- VehicleAllotted
 
-## 6. Third Normal Form (3NF) Optimization in MongoDB
+## 6. MongoDB Security Considerations
 
-### 6.1 MongoDB and Normalization Principles
-
-While MongoDB is a document database and traditional relational normalization rules (1NF, 2NF, 3NF) don't apply directly, we can still optimize our document design to achieve similar benefits:
-
-#### **3NF Principles Applied to MongoDB:**
-
-1. **Eliminate Transitive Dependencies**: Ensure no non-key attributes depend on other non-key attributes
-2. **Minimize Data Redundancy**: Avoid duplicating data across documents
-3. **Optimize Document Relationships**: Use proper referencing vs. embedding strategies
-4. **Ensure Functional Dependencies**: Maintain data integrity through document structure
-
-### 6.2 Current Database Design Analysis
-
-#### **✅ Well-Normalized Collections:**
-
-**Users Collection (3NF Compliant):**
-```json
-{
-  "_id": "ObjectId",
-  "username": "johndoe",
-  "email": "john@example.com",
-  "roleId": "ObjectId",  // References Role collection
-  "isActive": true,
-  "createdAt": "2024-01-01T00:00:00Z"
-}
-```
-
-**Roles Collection (3NF Compliant):**
-```json
-{
-  "_id": "ObjectId",
-  "roleName": "Dealer",
-  "description": "Vehicle dealer role",
-  "permissions": ["READ_VEHICLES", "CREATE_ORDERS"]
-}
-```
-
-#### **⚠️ Areas for 3NF Optimization:**
-
-**Vehicles Collection (Needs Optimization):**
-```json
-// Current Design - Embedded Model/Brand (Potential Redundancy)
-{
-  "_id": "ObjectId",
-  "vin": "1HGCM82633A123456",
-  "model": {
-    "modelId": "ObjectId",
-    "modelName": "Civic",
-    "brand": {
-      "brandId": "ObjectId",
-      "brandName": "Honda",
-      "country": "Japan"
-    },
-    "engineType": "1.5L Turbo"
-  },
-  "price": 35000
-}
-
-// Optimized Design - Referenced Model (3NF Compliant)
-{
-  "_id": "ObjectId",
-  "vin": "1HGCM82633A123456",
-  "modelId": "ObjectId",  // References Models collection
-  "price": 35000,
-  "customizations": ["Sunroof", "Navigation"]
-}
-```
-
-### 6.3 3NF Optimization Recommendations
-
-#### **1. Separate Reference Collections**
-
-**Models Collection (New - 3NF Compliant):**
-```json
-{
-  "_id": "ObjectId",
-  "modelName": "Civic",
-  "brandId": "ObjectId",  // References Brands collection
-  "engineType": "1.5L Turbo",
-  "transmission": "CVT",
-  "fuelType": "Gasoline",
-  "seatingCapacity": 5,
-  "specifications": {
-    "horsepower": 158,
-    "torque": "138 lb-ft",
-    "mpg": { "city": 31, "highway": 40 }
-  }
-}
-```
-
-**Brands Collection (New - 3NF Compliant):**
-```json
-{
-  "_id": "ObjectId",
-  "brandName": "Honda",
-  "country": "Japan",
-  "headquarters": "Tokyo, Japan",
-  "foundedYear": 1948,
-  "website": "https://www.honda.com"
-}
-```
-
-#### **2. Customer Address Normalization**
-
-**Current Customer (Embedded Address):**
-```json
-{
-  "_id": "ObjectId",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "address": {
-    "street": "123 Main St",
-    "city": "Anytown",
-    "state": "CA",
-    "zipCode": "12345"
-  }
-}
-```
-
-**Optimized Customer (Referenced Address):**
-```json
-{
-  "_id": "ObjectId",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "primaryAddressId": "ObjectId"  // References Addresses collection
-}
-```
-
-**Addresses Collection (New):**
-```json
-{
-  "_id": "ObjectId",
-  "street": "123 Main St",
-  "city": "Anytown",
-  "state": "CA",
-  "zipCode": "12345",
-  "type": "Primary"
-}
-```
-
-### 6.4 Benefits of 3NF Optimization
-
-#### **✅ Reduced Data Redundancy**
-- **Before**: Brand information repeated in every vehicle document
-- **After**: Brand information stored once, referenced by many vehicles
-- **Space Savings**: ~60% reduction in storage for frequently repeated data
-
-#### **✅ Improved Data Integrity**
-- **Consistency**: Updates to brand information apply to all vehicles
-- **Validation**: Centralized business rules and constraints
-- **Referential Integrity**: Clear relationships between documents
-
-#### **✅ Enhanced Query Performance**
-- **Targeted Queries**: Query specific collections instead of large documents
-- **Better Indexing**: More focused indexes on smaller collections
-- **Optimized Aggregations**: Cleaner aggregation pipelines
-
-#### **✅ Simplified Maintenance**
-- **Updates**: Single source of truth for reference data
-- **Schema Evolution**: Easier to modify reference collections
-- **Data Migration**: Cleaner migration paths
-
-### 6.5 Implementation Strategy
-
-#### **Phase 1: Reference Data Separation**
-1. Extract Brands → Separate `brands` collection
-2. Extract Models → Separate `models` collection
-3. Extract Addresses → Separate `addresses` collection
-4. Update existing documents to use references
-
-#### **Phase 2: Specification Normalization**
-1. Extract Vehicle Specifications → Separate `specifications` collection
-2. Update Vehicle documents to reference specifications
-3. Migrate existing specification data
-
-#### **Phase 3: Query Optimization**
-1. Update application queries to use `$lookup` for referenced data
-2. Implement proper indexing on reference fields
-3. Optimize aggregation pipelines
-
-#### **Phase 4: Performance Monitoring**
-1. Monitor query performance after normalization
-2. Adjust indexes based on actual usage patterns
-3. Optimize document embedding where appropriate
-
-## 7. MongoDB Security Considerations
-
-### 7.1 Document-Level Security
+### 6.1 Document-Level Security
 MongoDB implements security at the document level through:
 - **Role-Based Access Control**: Users have roles that define permissions
 - **Field-Level Security**: Sensitive fields can be hidden based on user roles
@@ -951,27 +769,23 @@ MongoDB provides built-in audit logging capabilities:
 ### 7.1 MongoDB Collection Initialization
 ```javascript
 // Create collections with indexes
-db.createCollection("users");
+db.createCollection("employees");
 db.createCollection("roles");
-db.createCollection("userRoles");
-db.createCollection("brands");
-db.createCollection("models");
+db.createCollection("vehicleModels");
 db.createCollection("vehicles");
-db.createCollection("vehicleImages");
 db.createCollection("customers");
 db.createCollection("suppliers");
 db.createCollection("purchaseOrders");
+db.createCollection("purchaseOrderLines");
 db.createCollection("goodsReceipts");
-db.createCollection("vehicleRegistrations");
-db.createCollection("allotments");
-db.createCollection("waitingLists");
 db.createCollection("salesOrders");
-db.createCollection("salesOrderItems");
-db.createCollection("invoices");
-db.createCollection("payments");
 db.createCollection("serviceOrders");
+db.createCollection("billingDocuments");
+db.createCollection("waitingLists");
+db.createCollection("allotments");
+db.createCollection("refreshTokens");
 
-// Create indexes (already defined in VehicleShowroomDbContext)
+// Create indexes (as defined above)
 ```
 
 ### 7.2 Seed Data
@@ -993,6 +807,6 @@ services.AddSingleton<IMongoClient>(sp =>
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: $(date)
+**Document Version**: 2.0
+**Last Updated**: 2024-01-15
 **Prepared by**: Development Team

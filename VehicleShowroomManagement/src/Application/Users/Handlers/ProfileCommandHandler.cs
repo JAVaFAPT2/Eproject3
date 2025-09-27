@@ -12,97 +12,73 @@ using VehicleShowroomManagement.Domain.Services;
 namespace VehicleShowroomManagement.Application.Users.Handlers
 {
     /// <summary>
-    /// Handler for updating user profile
+    /// Handler for updating employee profile
     /// </summary>
     public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, Unit>
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IPasswordService _passwordService;
+        private readonly IRepository<Employee> _employeeRepository;
 
         public UpdateProfileCommandHandler(
-            IRepository<User> userRepository,
-            IPasswordService passwordService)
+            IRepository<Employee> employeeRepository)
         {
-            _userRepository = userRepository;
-            _passwordService = passwordService;
+            _employeeRepository = employeeRepository;
         }
 
         public async Task<Unit> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.UserId);
-            if (user == null)
+            var employee = await _employeeRepository.GetByIdAsync(request.EmployeeId);
+            if (employee == null)
             {
-                throw new ArgumentException("User not found");
+                throw new ArgumentException("Employee not found");
             }
 
             // Update profile information
-            if (!string.IsNullOrEmpty(request.FullName))
+            if (!string.IsNullOrEmpty(request.Name))
             {
-                var nameParts = request.FullName.Split(' ', 2);
-                user.FirstName = nameParts[0];
-                if (nameParts.Length > 1)
-                {
-                    user.LastName = nameParts[1];
-                }
+                employee.Name = request.Name;
             }
 
-            if (!string.IsNullOrEmpty(request.Address))
+            if (!string.IsNullOrEmpty(request.Position))
             {
-                user.Role = null; // Update address field in user entity
-                // Note: In a real implementation, you'd have an Address field in User entity
+                employee.Position = request.Position;
             }
 
-            if (!string.IsNullOrEmpty(request.Phone))
-            {
-                // Update phone field in user entity
-                // Note: User entity doesn't have Phone field, this would need to be added
-            }
+            employee.UpdatedAt = DateTime.UtcNow;
 
-            user.UpdatedAt = DateTime.UtcNow;
-
-            await _userRepository.UpdateAsync(user);
-            await _userRepository.SaveChangesAsync();
+            await _employeeRepository.UpdateAsync(employee);
+            await _employeeRepository.SaveChangesAsync();
 
             return Unit.Value;
         }
     }
 
     /// <summary>
-    /// Handler for changing password
+    /// Handler for changing employee status
     /// </summary>
-    public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Unit>
+    public class ChangeStatusCommandHandler : IRequestHandler<ChangeStatusCommand, Unit>
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IPasswordService _passwordService;
+        private readonly IRepository<Employee> _employeeRepository;
 
-        public ChangePasswordCommandHandler(
-            IRepository<User> userRepository,
-            IPasswordService passwordService)
+        public ChangeStatusCommandHandler(
+            IRepository<Employee> employeeRepository)
         {
-            _userRepository = userRepository;
-            _passwordService = passwordService;
+            _employeeRepository = employeeRepository;
         }
 
-        public async Task<Unit> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(ChangeStatusCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.UserId);
-            if (user == null)
+            var employee = await _employeeRepository.GetByIdAsync(request.EmployeeId);
+            if (employee == null)
             {
-                throw new ArgumentException("User not found");
+                throw new ArgumentException("Employee not found");
             }
 
-            // Verify old password
-            if (!_passwordService.VerifyPassword(request.OldPassword, user.PasswordHash))
-            {
-                throw new ArgumentException("Invalid old password");
-            }
+            // Update status
+            employee.Status = request.Status;
+            employee.UpdatedAt = DateTime.UtcNow;
 
-            // Update password
-            user.PasswordHash = _passwordService.HashPassword(request.NewPassword);
-            user.UpdatedAt = DateTime.UtcNow;
-
-            await _userRepository.UpdateAsync(user);
-            await _userRepository.SaveChangesAsync();
+            await _employeeRepository.UpdateAsync(employee);
+            await _employeeRepository.SaveChangesAsync();
 
             return Unit.Value;
         }
@@ -110,147 +86,118 @@ namespace VehicleShowroomManagement.Application.Users.Handlers
     }
 
     /// <summary>
-    /// Handler for updating a user (admin function)
+    /// Handler for updating an employee (admin function)
     /// </summary>
-    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Unit>
+    public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeCommand, Unit>
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IRepository<Role> _roleRepository;
+        private readonly IRepository<Employee> _employeeRepository;
 
-        public UpdateUserCommandHandler(
-            IRepository<User> userRepository,
-            IRepository<Role> roleRepository)
+        public UpdateEmployeeCommandHandler(
+            IRepository<Employee> employeeRepository)
         {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
+            _employeeRepository = employeeRepository;
         }
 
-        public async Task<Unit> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.UserId);
-            if (user == null || user.IsDeleted)
+            var employee = await _employeeRepository.GetByIdAsync(request.EmployeeId);
+            if (employee == null || employee.IsDeleted)
             {
-                throw new ArgumentException("User not found");
+                throw new ArgumentException("Employee not found");
             }
 
             // Update fields if provided
-            if (!string.IsNullOrEmpty(request.FirstName))
+            if (!string.IsNullOrEmpty(request.Name))
             {
-                user.FirstName = request.FirstName;
+                employee.Name = request.Name;
             }
 
-            if (!string.IsNullOrEmpty(request.LastName))
+            if (!string.IsNullOrEmpty(request.Position))
             {
-                user.LastName = request.LastName;
+                employee.Position = request.Position;
             }
 
-            if (!string.IsNullOrEmpty(request.Email))
+            if (!string.IsNullOrEmpty(request.Role))
             {
-                user.Email = request.Email;
+                employee.Role = request.Role;
             }
 
-            if (!string.IsNullOrEmpty(request.Phone))
+            if (!string.IsNullOrEmpty(request.Status))
             {
-                user.Phone = request.Phone;
+                employee.Status = request.Status;
             }
 
-            if (request.Salary.HasValue)
-            {
-                user.Salary = request.Salary.Value;
-            }
+            employee.UpdatedAt = DateTime.UtcNow;
 
-            if (!string.IsNullOrEmpty(request.RoleId))
-            {
-                user.RoleId = request.RoleId;
-            }
-
-            if (request.IsActive.HasValue)
-            {
-                user.IsActive = request.IsActive.Value;
-            }
-
-            user.UpdatedAt = DateTime.UtcNow;
-
-            await _userRepository.UpdateAsync(user);
-            await _userRepository.SaveChangesAsync();
+            await _employeeRepository.UpdateAsync(employee);
+            await _employeeRepository.SaveChangesAsync();
 
             return Unit.Value;
         }
     }
 
     /// <summary>
-    /// Handler for deleting a user (admin function)
+    /// Handler for deleting an employee (admin function)
     /// </summary>
-    public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Unit>
+    public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeCommand, Unit>
     {
-        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Employee> _employeeRepository;
 
-        public DeleteUserCommandHandler(IRepository<User> userRepository)
+        public DeleteEmployeeCommandHandler(IRepository<Employee> employeeRepository)
         {
-            _userRepository = userRepository;
+            _employeeRepository = employeeRepository;
         }
 
-        public async Task<Unit> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DeleteEmployeeCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.UserId);
-            if (user == null)
+            var employee = await _employeeRepository.GetByIdAsync(request.EmployeeId);
+            if (employee == null)
             {
-                throw new ArgumentException("User not found");
+                throw new ArgumentException("Employee not found");
             }
 
-            // Soft delete the user
-            user.SoftDelete();
+            // Soft delete the employee
+            employee.SoftDelete();
 
-            await _userRepository.UpdateAsync(user);
-            await _userRepository.SaveChangesAsync();
+            await _employeeRepository.UpdateAsync(employee);
+            await _employeeRepository.SaveChangesAsync();
 
             return Unit.Value;
         }
     }
 
     /// <summary>
-    /// Handler for getting user profile
+    /// Handler for getting employee profile
     /// </summary>
-    public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, UserProfileDto>
+    public class GetEmployeeProfileQueryHandler : IRequestHandler<GetEmployeeProfileQuery, EmployeeProfileDto>
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IRepository<Role> _roleRepository;
+        private readonly IRepository<Employee> _employeeRepository;
 
-        public GetUserProfileQueryHandler(
-            IRepository<User> userRepository,
-            IRepository<Role> roleRepository)
+        public GetEmployeeProfileQueryHandler(
+            IRepository<Employee> employeeRepository)
         {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
+            _employeeRepository = employeeRepository;
         }
 
-        public async Task<UserProfileDto> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
+        public async Task<EmployeeProfileDto> Handle(GetEmployeeProfileQuery request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.UserId);
-            if (user == null)
+            var employee = await _employeeRepository.GetByIdAsync(request.EmployeeId);
+            if (employee == null)
             {
-                throw new ArgumentException("User not found");
+                throw new ArgumentException("Employee not found");
             }
 
-            var role = await _roleRepository.GetByIdAsync(user.RoleId);
-
-            return new UserProfileDto
+            return new EmployeeProfileDto
             {
-                UserId = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Phone = user.Role?.RoleId, // Using RoleId as phone for now (would need proper Phone field)
-                Address = null, // User doesn't have Address field
-                City = null,
-                State = null,
-                ZipCode = null,
-                RoleId = user.RoleId,
-                RoleName = role?.RoleName ?? "Unknown",
-                IsActive = user.IsActive,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                EmployeeId = employee.Id,
+                EmployeeNumber = employee.EmployeeId,
+                Name = employee.Name,
+                Role = employee.Role,
+                Position = employee.Position,
+                HireDate = employee.HireDate,
+                Status = employee.Status,
+                CreatedAt = employee.CreatedAt,
+                UpdatedAt = employee.UpdatedAt
             };
         }
     }

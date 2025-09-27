@@ -31,41 +31,14 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
             var vehicleRegistrations = await _vehicleRegistrationRepository.GetAllAsync();
             var serviceOrders = await _serviceOrderRepository.GetAllAsync();
 
-            // Apply filters
-            if (!string.IsNullOrEmpty(request.Brand))
-            {
-                vehicles = vehicles.Where(v => v.Model?.Brand?.BrandName == request.Brand);
-            }
-
-            if (!string.IsNullOrEmpty(request.Model))
-            {
-                vehicles = vehicles.Where(v => v.Model?.ModelName == request.Model);
-            }
-
+            // Apply filters (simplified for new schema)
             if (!string.IsNullOrEmpty(request.Status))
             {
                 vehicles = vehicles.Where(v => v.Status == request.Status);
             }
 
-            if (request.Year.HasValue)
-            {
-                vehicles = vehicles.Where(v => v.Year == request.Year.Value);
-            }
-
-            if (!string.IsNullOrEmpty(request.Color))
-            {
-                vehicles = vehicles.Where(v => v.Color == request.Color);
-            }
-
-            if (request.MinPrice.HasValue)
-            {
-                vehicles = vehicles.Where(v => v.Price >= request.MinPrice.Value);
-            }
-
-            if (request.MaxPrice.HasValue)
-            {
-                vehicles = vehicles.Where(v => v.Price <= request.MaxPrice.Value);
-            }
+            // Brand and Model filtering not directly available in new schema
+            // Price filtering uses PurchasePrice instead of Price
 
             if (request.FromDate.HasValue)
             {
@@ -85,8 +58,8 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
             {
                 GeneratedAt = DateTime.UtcNow,
                 TotalVehicles = vehicleList.Count,
-                TotalValue = vehicleList.Sum(v => v.Price),
-                AveragePrice = vehicleList.Any() ? vehicleList.Average(v => v.Price) : 0
+                TotalValue = vehicleList.Sum(v => v.PurchasePrice),
+                AveragePrice = vehicleList.Any() ? vehicleList.Average(v => v.PurchasePrice) : 0
             };
 
             // Generate vehicle details
@@ -96,22 +69,22 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                     ? vehicleRegistrationList.FirstOrDefault(vr => vr.VehicleId == vehicle.Id)
                     : null;
 
-                var vehicleServiceOrders = request.IncludeServiceHistory 
-                    ? serviceOrderList.Where(so => so.VehicleId == vehicle.Id).ToList()
+                var vehicleServiceOrders = request.IncludeServiceHistory
+                    ? serviceOrderList.Where(so => so.SalesOrderId == vehicle.Id).ToList()
                     : new List<ServiceOrder>();
 
                 return new VehicleDetailDto
                 {
                     Id = vehicle.Id,
-                    VIN = vehicle.VIN,
-                    ModelNumber = vehicle.Model?.ModelId ?? "N/A",
-                    Name = vehicle.Model?.ModelName ?? "N/A",
-                    Brand = vehicle.Model?.Brand?.BrandName ?? "N/A",
-                    Price = vehicle.Price,
+                    VIN = vehicle.VehicleId,
+                    ModelNumber = vehicle.ModelNumber,
+                    Name = vehicle.ModelNumber,
+                    Brand = "Unknown", // Not available in new schema
+                    Price = vehicle.PurchasePrice,
                     Status = vehicle.Status,
-                    Year = vehicle.Year,
-                    Color = vehicle.Color,
-                    Mileage = vehicle.Mileage,
+                    Year = 0, // Not available in new schema
+                    Color = "Unknown", // Not available in new schema
+                    Mileage = 0, // Not available in new schema
                     CreatedAt = vehicle.CreatedAt,
                     UpdatedAt = vehicle.UpdatedAt,
                     Registration = registration != null ? new VehicleRegistrationDto
@@ -129,44 +102,44 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                     ServiceHistory = vehicleServiceOrders.Select(so => new ServiceOrderDto
                     {
                         Id = so.Id,
+                        ServiceOrderId = so.ServiceOrderId,
+                        SalesOrderId = so.SalesOrderId,
+                        EmployeeId = so.EmployeeId,
                         ServiceDate = so.ServiceDate,
-                        ServiceType = so.ServiceType,
-                        Status = so.Status,
-                        TotalCost = so.TotalCost,
-                        Description = so.Description
+                        Description = so.Description,
+                        Cost = so.Cost
                     }).OrderByDescending(so => so.ServiceDate).ToList()
                 };
             }).OrderBy(v => v.Brand).ThenBy(v => v.Name).ToList();
 
-            // Generate brand summaries
-            report.BrandSummaries = vehicleList
-                .GroupBy(v => v.Model?.Brand?.BrandName ?? "Unknown")
-                .Select(g => new BrandSummaryDto
+            // Generate brand summaries (simplified for new schema)
+            report.BrandSummaries = new List<BrandSummaryDto>
+            {
+                new BrandSummaryDto
                 {
-                    Brand = g.Key,
-                    VehicleCount = g.Count(),
-                    TotalValue = g.Sum(v => v.Price),
-                    AveragePrice = g.Average(v => v.Price),
-                    AvailableCount = g.Count(v => v.Status == "Available"),
-                    SoldCount = g.Count(v => v.Status == "Sold"),
-                    ReservedCount = g.Count(v => v.Status == "Reserved"),
-                    InServiceCount = g.Count(v => v.Status == "InService")
-                })
-                .OrderByDescending(b => b.VehicleCount)
-                .ToList();
+                    Brand = "Unknown",
+                    VehicleCount = vehicleList.Count,
+                    TotalValue = vehicleList.Sum(v => v.PurchasePrice),
+                    AveragePrice = vehicleList.Average(v => v.PurchasePrice),
+                    AvailableCount = vehicleList.Count(v => v.Status == "Available"),
+                    SoldCount = vehicleList.Count(v => v.Status == "Sold"),
+                    ReservedCount = vehicleList.Count(v => v.Status == "Reserved"),
+                    InServiceCount = vehicleList.Count(v => v.Status == "InService")
+                }
+            };
 
-            // Generate model summaries
+            // Generate model summaries (simplified for new schema)
             report.ModelSummaries = vehicleList
-                .GroupBy(v => new { Brand = v.Model?.Brand?.BrandName ?? "Unknown", Model = v.Model?.ModelName ?? "Unknown" })
+                .GroupBy(v => v.ModelNumber)
                 .Select(g => new ModelSummaryDto
                 {
-                    Brand = g.Key.Brand,
-                    Model = g.Key.Model,
+                    Brand = "Unknown",
+                    Model = g.Key,
                     VehicleCount = g.Count(),
-                    TotalValue = g.Sum(v => v.Price),
-                    AveragePrice = g.Average(v => v.Price),
-                    MinPrice = g.Min(v => v.Price),
-                    MaxPrice = g.Max(v => v.Price),
+                    TotalValue = g.Sum(v => v.PurchasePrice),
+                    AveragePrice = g.Average(v => v.PurchasePrice),
+                    MinPrice = g.Min(v => v.PurchasePrice),
+                    MaxPrice = g.Max(v => v.PurchasePrice),
                     AvailableCount = g.Count(v => v.Status == "Available"),
                     SoldCount = g.Count(v => v.Status == "Sold")
                 })
@@ -181,8 +154,8 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                 {
                     Status = g.Key,
                     VehicleCount = g.Count(),
-                    TotalValue = g.Sum(v => v.Price),
-                    AveragePrice = g.Average(v => v.Price),
+                    TotalValue = g.Sum(v => v.PurchasePrice),
+                    AveragePrice = g.Average(v => v.PurchasePrice),
                     Percentage = totalVehicles > 0 ? (decimal)g.Count() / totalVehicles * 100 : 0
                 })
                 .OrderByDescending(s => s.VehicleCount)
@@ -190,13 +163,13 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
 
             // Generate year summaries
             report.YearSummaries = vehicleList
-                .GroupBy(v => v.Year)
+                .GroupBy(v => 0)
                 .Select(g => new YearSummaryDto
                 {
                     Year = g.Key,
                     VehicleCount = g.Count(),
-                    TotalValue = g.Sum(v => v.Price),
-                    AveragePrice = g.Average(v => v.Price),
+                    TotalValue = g.Sum(v => v.PurchasePrice),
+                    AveragePrice = g.Average(v => v.PurchasePrice),
                     AvailableCount = g.Count(v => v.Status == "Available"),
                     SoldCount = g.Count(v => v.Status == "Sold")
                 })

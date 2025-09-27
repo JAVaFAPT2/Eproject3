@@ -45,7 +45,7 @@ namespace VehicleShowroomManagement.Application.VehicleRegistrations.Handlers
             vehicleRegistration.Notes = request.Notes;
 
             await _vehicleRegistrationRepository.UpdateAsync(vehicleRegistration);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
         }

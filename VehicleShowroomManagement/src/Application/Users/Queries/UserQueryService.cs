@@ -8,124 +8,112 @@ using VehicleShowroomManagement.Domain.Interfaces;
 namespace VehicleShowroomManagement.Application.Users.Queries
 {
     /// <summary>
-    /// Implementation of user query service
+    /// Implementation of employee query service
     /// </summary>
     public class UserQueryService : IUserQueryService
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IRepository<Role> _roleRepository;
+        private readonly IRepository<Employee> _employeeRepository;
 
         public UserQueryService(
-            IRepository<User> userRepository,
-            IRepository<Role> roleRepository)
+            IRepository<Employee> employeeRepository)
         {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
+            _employeeRepository = employeeRepository;
         }
 
-        public async Task<IEnumerable<UserDto>> GetUsersAsync(
+        public async Task<IEnumerable<EmployeeDto>> GetUsersAsync(
             string? searchTerm = null,
             int? roleId = null,
             bool? isActive = null,
             int pageNumber = 1,
             int pageSize = 10)
         {
-            var allUsers = await _userRepository.GetAllAsync();
-            var users = allUsers.Where(u => !u.IsDeleted).AsQueryable();
+            var allEmployees = await _employeeRepository.GetAllAsync();
+            var employees = allEmployees.Where(e => !e.IsDeleted).AsQueryable();
 
             // Apply filters
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 var term = searchTerm.ToLower();
-                users = users.Where(u =>
-                    u.FirstName.ToLower().Contains(term) ||
-                    u.LastName.ToLower().Contains(term) ||
-                    u.Email.ToLower().Contains(term) ||
-                    u.Username.ToLower().Contains(term));
-            }
-
-            if (roleId.HasValue)
-            {
-                users = users.Where(u => u.RoleId == roleId.Value.ToString());
+                employees = employees.Where(e =>
+                    e.Name.ToLower().Contains(term) ||
+                    e.EmployeeId.ToLower().Contains(term) ||
+                    e.Role.ToLower().Contains(term));
             }
 
             if (isActive.HasValue)
             {
-                users = users.Where(u => u.IsActive == isActive.Value);
+                employees = employees.Where(e => e.IsActive == isActive.Value);
             }
 
             // Apply pagination
             var skip = (pageNumber - 1) * pageSize;
-            var paginatedUsers = users.Skip(skip).Take(pageSize);
+            var paginatedEmployees = employees.Skip(skip).Take(pageSize);
 
-            var userDtos = new List<UserDto>();
-            foreach (var user in paginatedUsers)
+            var employeeDtos = new List<EmployeeDto>();
+            foreach (var employee in paginatedEmployees)
             {
-                var role = await _roleRepository.GetByIdAsync(user.RoleId);
-                userDtos.Add(new UserDto
+                employeeDtos.Add(new EmployeeDto
                 {
-                    UserId = int.Parse(user.Id),
-                    Username = user.Username,
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    RoleId = int.Parse(user.RoleId),
-                    RoleName = role?.RoleName ?? "Unknown",
-                    IsActive = user.IsActive,
-                    CreatedAt = user.CreatedAt,
-                    UpdatedAt = user.UpdatedAt
+                    Id = employee.Id,
+                    EmployeeNumber = employee.EmployeeId,
+                    Name = employee.Name,
+                    Role = employee.Role,
+                    Position = employee.Position,
+                    HireDate = employee.HireDate,
+                    Status = employee.Status,
+                    CreatedAt = employee.CreatedAt,
+                    UpdatedAt = employee.UpdatedAt,
+                    TotalSales = 0, // Would need to calculate from orders
+                    TotalRevenue = 0 // Would need to calculate from orders
                 });
             }
 
-            return userDtos;
+            return employeeDtos;
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(string userId)
+        public async Task<EmployeeDto?> GetUserByIdAsync(string userId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null || user.IsDeleted)
+            var employee = await _employeeRepository.GetByIdAsync(userId);
+            if (employee == null || employee.IsDeleted)
             {
                 return null;
             }
 
-            var role = await _roleRepository.GetByIdAsync(user.RoleId);
-            return new UserDto
+            return new EmployeeDto
             {
-                UserId = int.Parse(user.Id),
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                RoleId = int.Parse(user.RoleId),
-                RoleName = role?.RoleName ?? "Unknown",
-                IsActive = user.IsActive,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                Id = employee.Id,
+                EmployeeNumber = employee.EmployeeId,
+                Name = employee.Name,
+                Role = employee.Role,
+                Position = employee.Position,
+                HireDate = employee.HireDate,
+                Status = employee.Status,
+                CreatedAt = employee.CreatedAt,
+                UpdatedAt = employee.UpdatedAt,
+                TotalSales = 0, // Would need to calculate from orders
+                TotalRevenue = 0 // Would need to calculate from orders
             };
         }
 
-        public async Task<UserProfileDto?> GetUserProfileAsync(string userId)
+        public async Task<EmployeeProfileDto?> GetUserProfileAsync(string userId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null || user.IsDeleted)
+            var employee = await _employeeRepository.GetByIdAsync(userId);
+            if (employee == null || employee.IsDeleted)
             {
                 return null;
             }
 
-            var role = await _roleRepository.GetByIdAsync(user.RoleId);
-            return new UserProfileDto
+            return new EmployeeProfileDto
             {
-                UserId = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Phone = user.Phone,
-                RoleId = user.RoleId,
-                RoleName = role?.RoleName ?? "Unknown",
-                IsActive = user.IsActive,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                EmployeeId = employee.Id,
+                EmployeeNumber = employee.EmployeeId,
+                Name = employee.Name,
+                Role = employee.Role,
+                Position = employee.Position,
+                HireDate = employee.HireDate,
+                Status = employee.Status,
+                CreatedAt = employee.CreatedAt,
+                UpdatedAt = employee.UpdatedAt
             };
         }
 
@@ -134,42 +122,37 @@ namespace VehicleShowroomManagement.Application.Users.Queries
             int pageNumber = 1,
             int pageSize = 10)
         {
-            var allUsers = await _userRepository.GetAllAsync();
-            var users = allUsers.Where(u => !u.IsDeleted && u.IsActive).ToList();
+            var allEmployees = await _employeeRepository.GetAllAsync();
+            var employees = allEmployees.Where(e => !e.IsDeleted && e.IsActive).ToList();
 
             // Apply search filter
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 var term = searchTerm.ToLower();
-                users = users.Where(u =>
-                    u.FirstName.ToLower().Contains(term) ||
-                    u.LastName.ToLower().Contains(term) ||
-                    u.Email.ToLower().Contains(term) ||
-                    u.Username.ToLower().Contains(term)).ToList();
+                employees = employees.Where(e =>
+                    e.Name.ToLower().Contains(term) ||
+                    e.EmployeeId.ToLower().Contains(term) ||
+                    e.Role.ToLower().Contains(term)).ToList();
             }
 
             // Apply pagination
             var skip = (pageNumber - 1) * pageSize;
-            var paginatedUsers = users.Skip(skip).Take(pageSize);
+            var paginatedEmployees = employees.Skip(skip).Take(pageSize);
 
             var employeeDtos = new List<EmployeeDto>();
-            foreach (var user in paginatedUsers)
+            foreach (var employee in paginatedEmployees)
             {
-                var role = await _roleRepository.GetByIdAsync(user.RoleId);
                 employeeDtos.Add(new EmployeeDto
                 {
-                    Id = user.Id,
-                    Username = user.Username,
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Phone = user.Phone,
-                    Salary = user.Salary,
-                    RoleId = user.RoleId,
-                    RoleName = role?.RoleName ?? "Unknown",
-                    IsActive = user.IsActive,
-                    CreatedAt = user.CreatedAt,
-                    UpdatedAt = user.UpdatedAt,
+                    Id = employee.Id,
+                    EmployeeNumber = employee.EmployeeId,
+                    Name = employee.Name,
+                    Role = employee.Role,
+                    Position = employee.Position,
+                    HireDate = employee.HireDate,
+                    Status = employee.Status,
+                    CreatedAt = employee.CreatedAt,
+                    UpdatedAt = employee.UpdatedAt,
                     TotalSales = 0, // Would need to calculate from orders
                     TotalRevenue = 0 // Would need to calculate from orders
                 });

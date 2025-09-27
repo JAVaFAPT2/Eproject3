@@ -33,7 +33,7 @@ namespace VehicleShowroomManagement.Application.PurchaseOrders.Handlers
             purchaseOrder.SoftDelete();
 
             await _purchaseOrderRepository.UpdateAsync(purchaseOrder);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
         }

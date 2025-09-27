@@ -8,9 +8,9 @@ using VehicleShowroomManagement.Application.Users.Queries;
 namespace VehicleShowroomManagement.Application.Users.Handlers
 {
     /// <summary>
-    /// Handler for retrieving users with filtering and pagination
+    /// Handler for retrieving employees with filtering and pagination
     /// </summary>
-    public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<UserDto>>
+    public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<EmployeeDto>>
     {
         private readonly IUserQueryService _userQueryService;
 
@@ -19,7 +19,7 @@ namespace VehicleShowroomManagement.Application.Users.Handlers
             _userQueryService = userQueryService;
         }
 
-        public async Task<IEnumerable<UserDto>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<EmployeeDto>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
         {
             return await _userQueryService.GetUsersAsync(
                 request.SearchTerm,
@@ -31,9 +31,9 @@ namespace VehicleShowroomManagement.Application.Users.Handlers
     }
 
     /// <summary>
-    /// Handler for getting a single user by ID
+    /// Handler for getting a single employee by ID
     /// </summary>
-    public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto?>
+    public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, EmployeeDto?>
     {
         private readonly IUserQueryService _userQueryService;
 
@@ -42,7 +42,7 @@ namespace VehicleShowroomManagement.Application.Users.Handlers
             _userQueryService = userQueryService;
         }
 
-        public async Task<UserDto?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+        public async Task<EmployeeDto?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
             return await _userQueryService.GetUserByIdAsync(request.UserId);
         }

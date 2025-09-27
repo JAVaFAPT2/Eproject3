@@ -24,20 +24,17 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
         public async Task<bool> Handle(CompleteServiceOrderCommand request, CancellationToken cancellationToken)
         {
             var serviceOrder = await _serviceOrderRepository.GetByIdAsync(request.Id);
-            if (serviceOrder == null)
+            if (serviceOrder == null || serviceOrder.IsDeleted)
                 return false;
 
-            if (serviceOrder.Status != "InProgress")
-                return false;
-
-            serviceOrder.CompleteService();
+            // Update completion notes if provided
             if (!string.IsNullOrEmpty(request.CompletionNotes))
             {
-                serviceOrder.Description = request.CompletionNotes;
+                serviceOrder.UpdateDescription(request.CompletionNotes);
             }
 
             await _serviceOrderRepository.UpdateAsync(serviceOrder);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
         }

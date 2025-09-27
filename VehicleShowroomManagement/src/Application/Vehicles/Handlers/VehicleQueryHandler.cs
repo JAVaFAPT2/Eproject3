@@ -37,9 +37,9 @@ namespace VehicleShowroomManagement.Application.Vehicles.Handlers
             {
                 var searchTerm = request.SearchTerm.ToLower();
                 filteredVehicles = filteredVehicles.Where(v =>
-                    v.VIN.ToLower().Contains(searchTerm) ||
-                    (v.Model != null && v.Model.ModelName.ToLower().Contains(searchTerm)) ||
-                    (v.Model != null && v.Model.Brand != null && v.Model.Brand.BrandName.ToLower().Contains(searchTerm)));
+                    v.VehicleId.ToLower().Contains(searchTerm) ||
+                    v.ModelNumber.ToLower().Contains(searchTerm) ||
+                    v.ExternalNumber.ToLower().Contains(searchTerm));
             }
 
             if (!string.IsNullOrEmpty(request.Status))
@@ -49,8 +49,9 @@ namespace VehicleShowroomManagement.Application.Vehicles.Handlers
 
             if (!string.IsNullOrEmpty(request.Brand))
             {
-                filteredVehicles = filteredVehicles.Where(v =>
-                    v.Model != null && v.Model.Brand != null && v.Model.Brand.BrandName.ToLower() == request.Brand.ToLower());
+                // Brand filtering not directly available in new schema
+                // Could be implemented by joining with VehicleModel
+                filteredVehicles = filteredVehicles.Where(v => v.ModelNumber.Contains(request.Brand));
             }
 
             // Apply pagination
@@ -65,31 +66,30 @@ namespace VehicleShowroomManagement.Application.Vehicles.Handlers
             return new VehicleDto
             {
                 Id = vehicle.Id,
-                VIN = vehicle.VIN,
-                ModelNumber = vehicle.VIN,
-                Name = vehicle.Model?.ModelName ?? "Unknown",
-                Brand = vehicle.Model?.Brand?.BrandName ?? "Unknown",
-                BrandId = vehicle.Model?.BrandId ?? string.Empty,
-                ModelId = vehicle.ModelId,
-                Color = vehicle.Color,
-                Year = vehicle.Year,
-                Price = vehicle.Price,
-                Mileage = vehicle.Mileage,
+                VehicleId = vehicle.VehicleId,
+                VIN = vehicle.RegistrationData?.VIN ?? vehicle.VehicleId,
+                ModelNumber = vehicle.ModelNumber,
+                ExternalNumber = vehicle.ExternalNumber,
+                Name = vehicle.ModelNumber, // Using ModelNumber as name
+                Brand = "Unknown", // Not available in new schema
+                BrandId = string.Empty,
+                ModelId = vehicle.ModelNumber,
+                Color = "Unknown", // Not available in new schema
+                Year = 0, // Not available in new schema
+                PurchasePrice = vehicle.PurchasePrice,
+                Price = vehicle.PurchasePrice, // Backward compatibility
+                Mileage = 0, // Not available in new schema
                 Status = vehicle.Status,
-                RegistrationNumber = "TEMP-001", // Placeholder
-                RegistrationDate = DateTime.UtcNow,
-                ExternalId = "EXT-001", // Placeholder
+                LicensePlate = vehicle.RegistrationData?.LicensePlate ?? "N/A",
+                RegistrationNumber = vehicle.RegistrationData?.LicensePlate ?? "N/A",
+                RegistrationDate = vehicle.RegistrationData?.RegistrationDate,
+                ExpiryDate = vehicle.RegistrationData?.ExpiryDate,
+                ExternalId = vehicle.ExternalNumber,
+                Photos = vehicle.Photos ?? new List<string>(),
+                ReceiptDate = vehicle.ReceiptDate,
                 CreatedAt = vehicle.CreatedAt,
                 UpdatedAt = vehicle.UpdatedAt,
-                Images = vehicle.VehicleImages.Select(img => new VehicleImageDto
-                {
-                    ImageId = img.ImageId.ToString(),
-                    ImageUrl = img.ImageUrl,
-                    ImageType = img.ImageType,
-                    FileName = img.FileName,
-                    FileSize = img.FileSize,
-                    UploadedAt = img.UploadedAt
-                }).ToList()
+                Images = new List<VehicleImageDto>() // Not available in new schema
             };
         }
     }
@@ -122,31 +122,30 @@ namespace VehicleShowroomManagement.Application.Vehicles.Handlers
             return new VehicleDto
             {
                 Id = vehicle.Id,
-                VIN = vehicle.VIN,
-                ModelNumber = vehicle.VIN,
-                Name = vehicle.Model?.ModelName ?? "Unknown",
-                Brand = vehicle.Model?.Brand?.BrandName ?? "Unknown",
-                BrandId = vehicle.Model?.BrandId ?? string.Empty,
-                ModelId = vehicle.ModelId,
-                Color = vehicle.Color,
-                Year = vehicle.Year,
-                Price = vehicle.Price,
-                Mileage = vehicle.Mileage,
+                VehicleId = vehicle.VehicleId,
+                VIN = vehicle.RegistrationData?.VIN ?? vehicle.VehicleId,
+                ModelNumber = vehicle.ModelNumber,
+                ExternalNumber = vehicle.ExternalNumber,
+                Name = vehicle.ModelNumber, // Using ModelNumber as name
+                Brand = "Unknown", // Not available in new schema
+                BrandId = string.Empty,
+                ModelId = vehicle.ModelNumber,
+                Color = "Unknown", // Not available in new schema
+                Year = 0, // Not available in new schema
+                PurchasePrice = vehicle.PurchasePrice,
+                Price = vehicle.PurchasePrice, // Backward compatibility
+                Mileage = 0, // Not available in new schema
                 Status = vehicle.Status,
-                RegistrationNumber = "TEMP-001", // Placeholder
-                RegistrationDate = DateTime.UtcNow,
-                ExternalId = "EXT-001", // Placeholder
+                LicensePlate = vehicle.RegistrationData?.LicensePlate ?? "N/A",
+                RegistrationNumber = vehicle.RegistrationData?.LicensePlate ?? "N/A",
+                RegistrationDate = vehicle.RegistrationData?.RegistrationDate,
+                ExpiryDate = vehicle.RegistrationData?.ExpiryDate,
+                ExternalId = vehicle.ExternalNumber,
+                Photos = vehicle.Photos ?? new List<string>(),
+                ReceiptDate = vehicle.ReceiptDate,
                 CreatedAt = vehicle.CreatedAt,
                 UpdatedAt = vehicle.UpdatedAt,
-                Images = vehicle.VehicleImages.Select(img => new VehicleImageDto
-                {
-                    ImageId = img.ImageId.ToString(),
-                    ImageUrl = img.ImageUrl,
-                    ImageType = img.ImageType,
-                    FileName = img.FileName,
-                    FileSize = img.FileSize,
-                    UploadedAt = img.UploadedAt
-                }).ToList()
+                Images = new List<VehicleImageDto>() // Not available in new schema
             };
         }
     }

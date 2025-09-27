@@ -18,7 +18,9 @@ Content-Type: application/json
 # Response (200 OK)
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "base64-encoded-refresh-token",
   "tokenExpiresAt": "2024-01-02T00:00:00Z",
+  "refreshTokenExpiresAt": "2024-01-08T00:00:00Z",
   "userId": "507f1f77bcf86cd799439011",
   "role": "Admin",
   "message": "Login successful"
@@ -42,7 +44,47 @@ Content-Type: application/json
 }
 ```
 
-### **3. POST /api/auth/reset-password**
+### **3. POST /api/auth/refresh-token**
+**Refresh JWT Token using Refresh Token**
+```bash
+# Request
+POST /api/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "base64-encoded-refresh-token"
+}
+
+# Response (200 OK)
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "new-base64-encoded-refresh-token",
+  "tokenExpiresAt": "2024-01-02T00:00:00Z",
+  "refreshTokenExpiresAt": "2024-01-08T00:00:00Z",
+  "userId": "507f1f77bcf86cd799439011",
+  "role": "Admin",
+  "message": "Token refreshed successfully"
+}
+```
+
+### **4. POST /api/auth/revoke-token**
+**Revoke Refresh Token (Logout)**
+```bash
+# Request
+POST /api/auth/revoke-token
+Content-Type: application/json
+
+{
+  "refreshToken": "base64-encoded-refresh-token"
+}
+
+# Response (200 OK)
+{
+  "message": "Token revoked successfully"
+}
+```
+
+### **5. POST /api/auth/reset-password**
 **Reset Password with Token**
 ```bash
 # Request
@@ -62,133 +104,126 @@ Content-Type: application/json
 
 ---
 
-## 👥 **User Management APIs** (`/api/users`) - *Requires Authentication*
+## 👥 **Employee Management APIs** (`/api/employees`) - *Requires Authentication*
 
-### **4. GET /api/users**
-**Get All Users (HR/Admin only)**
+### **4. GET /api/employees**
+**Get All Employees (HR/Admin only)**
 ```bash
 # Request with query parameters
-GET /api/users?searchTerm=john&roleId=2&isActive=true&pageNumber=1&pageSize=10
+GET /api/employees?searchTerm=john&role=Dealer&status=Active&pageNumber=1&pageSize=10
 Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
 [
   {
-    "userId": 1,
-    "username": "john_doe",
-    "email": "john@showroom.com",
-    "firstName": "John",
-    "lastName": "Doe",
-    "roleId": 2,
-    "roleName": "Dealer",
-    "isActive": true,
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
+    "id": "507f1f77bcf86cd799439011",
+    "employeeId": "EMP001",
+    "name": "John Doe",
+    "role": "Dealer",
+    "position": "Senior Sales Representative",
+    "hireDate": "2023-01-15T00:00:00Z",
+    "status": "Active",
+    "createdAt": "2023-01-15T00:00:00Z",
+    "updatedAt": "2023-01-15T00:00:00Z"
   }
 ]
 ```
 
-### **5. GET /api/users/{id}**
-**Get User by ID (HR/Admin only)**
+### **5. GET /api/employees/{id}**
+**Get Employee by ID (HR/Admin only)**
 ```bash
 # Request
-GET /api/users/507f1f77bcf86cd799439011
+GET /api/employees/507f1f77bcf86cd799439011
 Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
 {
-  "userId": 1,
-  "username": "john_doe",
-  "email": "john@showroom.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "roleId": 2,
-  "roleName": "Dealer",
-  "isActive": true,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z"
+  "id": "507f1f77bcf86cd799439011",
+  "employeeId": "EMP001",
+  "name": "John Doe",
+  "role": "Dealer",
+  "position": "Senior Sales Representative",
+  "hireDate": "2023-01-15T00:00:00Z",
+  "status": "Active",
+  "createdAt": "2023-01-15T00:00:00Z",
+  "updatedAt": "2023-01-15T00:00:00Z"
 }
 ```
 
-### **6. POST /api/users**
-**Create New User (HR/Admin only)**
+### **6. POST /api/employees**
+**Create New Employee (HR/Admin only)**
 ```bash
 # Request
-POST /api/users
+POST /api/employees
 Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
-  "username": "new_user",
-  "email": "newuser@showroom.com",
-  "password": "SecurePass123!",
-  "firstName": "New",
-  "lastName": "User",
-  "roleId": 3
+  "employeeId": "EMP002",
+  "name": "Jane Smith",
+  "role": "HR",
+  "position": "HR Manager",
+  "hireDate": "2023-02-01T00:00:00Z"
 }
 
 # Response (201 Created)
 {
   "id": "507f1f77bcf86cd799439011",
-  "message": "User created successfully"
+  "message": "Employee created successfully"
 }
 ```
 
-### **7. PUT /api/users/{id}**
-**Update User (HR/Admin only)**
+### **7. PUT /api/employees/{id}**
+**Update Employee (HR/Admin only)**
 ```bash
 # Request
-PUT /api/users/507f1f77bcf86cd799439011
+PUT /api/employees/507f1f77bcf86cd799439011
 Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
-  "firstName": "Updated",
-  "lastName": "Name",
-  "email": "updated@showroom.com",
-  "roleId": 2,
-  "isActive": true
+  "name": "John Doe Updated",
+  "position": "Senior Sales Manager",
+  "status": "Active"
 }
 
 # Response (200 OK)
 {
-  "message": "User updated successfully"
+  "message": "Employee updated successfully"
 }
 ```
 
-### **8. DELETE /api/users/{id}**
-**Delete User (Admin only)**
+### **8. DELETE /api/employees/{id}**
+**Delete Employee (Admin only)**
 ```bash
 # Request
-DELETE /api/users/507f1f77bcf86cd799439011
+DELETE /api/employees/507f1f77bcf86cd799439011
 Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
 {
-  "message": "User deleted successfully"
+  "message": "Employee deleted successfully"
 }
 ```
 
-### **9. GET /api/users/profile**
-**Get Current User Profile**
+### **9. GET /api/employees/profile**
+**Get Current Employee Profile**
 ```bash
 # Request
-GET /api/users/profile
+GET /api/employees/profile
 Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
 {
-  "userId": "507f1f77bcf86cd799439011",
-  "username": "john_doe",
-  "email": "john@showroom.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "phone": "+1234567890",
-  "roleId": "507f1f77bcf86cd799439012",
-  "roleName": "Dealer",
-  "isActive": true,
-  "createdAt": "2024-01-01T00:00:00Z",
-  "updatedAt": "2024-01-01T00:00:00Z"
+  "id": "507f1f77bcf86cd799439011",
+  "employeeId": "EMP001",
+  "name": "John Doe",
+  "role": "Dealer",
+  "position": "Senior Sales Representative",
+  "hireDate": "2023-01-15T00:00:00Z",
+  "status": "Active",
+  "createdAt": "2023-01-15T00:00:00Z",
+  "updatedAt": "2023-01-15T00:00:00Z"
 }
 ```
 
@@ -200,22 +235,26 @@ Authorization: Bearer <jwt-token>
 **Get All Vehicles**
 ```bash
 # Request with query parameters
-GET /api/vehicles?searchTerm=toyota&status=AVAILABLE&brand=Toyota&pageNumber=1&pageSize=10
+GET /api/vehicles?searchTerm=toyota&status=Available&modelNumber=CAMRY2024&pageNumber=1&pageSize=10
 Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
 [
   {
     "id": "507f1f77bcf86cd799439011",
-    "vin": "1HGCM82633A123456",
+    "vehicleId": "VEH001",
     "modelNumber": "CAMRY2024",
-    "name": "Toyota Camry 2024",
-    "brand": "Toyota",
-    "price": 25000.00,
-    "status": "AVAILABLE",
-    "year": 2024,
-    "color": "White",
-    "mileage": 0,
+    "externalNumber": "EXT-001",
+    "registrationData": {
+      "vin": "1HGCM82633A123456",
+      "licensePlate": "ABC-123",
+      "registrationDate": "2024-01-15T00:00:00Z",
+      "expiryDate": "2025-01-15T00:00:00Z"
+    },
+    "status": "Available",
+    "purchasePrice": 30000.00,
+    "photos": ["/images/vehicles/vehicle1.jpg"],
+    "receiptDate": "2024-01-15T00:00:00Z",
     "createdAt": "2024-01-01T00:00:00Z",
     "updatedAt": "2024-01-01T00:00:00Z"
   }
@@ -232,15 +271,19 @@ Authorization: Bearer <jwt-token>
 # Response (200 OK)
 {
   "id": "507f1f77bcf86cd799439011",
-  "vin": "1HGCM82633A123456",
+  "vehicleId": "VEH001",
   "modelNumber": "CAMRY2024",
-  "name": "Toyota Camry 2024",
-  "brand": "Toyota",
-  "price": 25000.00,
-  "status": "AVAILABLE",
-  "year": 2024,
-  "color": "White",
-  "mileage": 0,
+  "externalNumber": "EXT-001",
+  "registrationData": {
+    "vin": "1HGCM82633A123456",
+    "licensePlate": "ABC-123",
+    "registrationDate": "2024-01-15T00:00:00Z",
+    "expiryDate": "2025-01-15T00:00:00Z"
+  },
+  "status": "Available",
+  "purchasePrice": 30000.00,
+  "photos": ["/images/vehicles/vehicle1.jpg"],
+  "receiptDate": "2024-01-15T00:00:00Z",
   "createdAt": "2024-01-01T00:00:00Z",
   "updatedAt": "2024-01-01T00:00:00Z"
 }
@@ -255,28 +298,36 @@ Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
+  "vehicleId": "VEH002",
   "modelNumber": "ACCORD2024",
-  "name": "Honda Accord 2024",
-  "brand": "Honda",
-  "price": 28000.00,
-  "status": "AVAILABLE",
-  "registrationNumber": "ABC-123",
-  "registrationDate": "2024-01-15T00:00:00Z",
-  "externalId": "EXT-001"
+  "externalNumber": "EXT-002",
+  "registrationData": {
+    "vin": "1HGCM82633A123457",
+    "licensePlate": "XYZ-456",
+    "registrationDate": "2024-01-16T00:00:00Z",
+    "expiryDate": "2025-01-16T00:00:00Z"
+  },
+  "purchasePrice": 28000.00,
+  "photos": ["/images/vehicles/vehicle2.jpg"],
+  "receiptDate": "2024-01-16T00:00:00Z"
 }
 
 # Response (201 Created)
 {
   "id": "507f1f77bcf86cd799439011",
-  "vin": "1HGCM82633A123456",
+  "vehicleId": "VEH002",
   "modelNumber": "ACCORD2024",
-  "name": "Honda Accord 2024",
-  "brand": "Honda",
-  "price": 28000.00,
-  "status": "AVAILABLE",
-  "year": 2024,
-  "color": "Default",
-  "mileage": 0,
+  "externalNumber": "EXT-002",
+  "registrationData": {
+    "vin": "1HGCM82633A123457",
+    "licensePlate": "XYZ-456",
+    "registrationDate": "2024-01-16T00:00:00Z",
+    "expiryDate": "2025-01-16T00:00:00Z"
+  },
+  "status": "Available",
+  "purchasePrice": 28000.00,
+  "photos": ["/images/vehicles/vehicle2.jpg"],
+  "receiptDate": "2024-01-16T00:00:00Z",
   "createdAt": "2024-01-01T00:00:00Z",
   "updatedAt": "2024-01-01T00:00:00Z"
 }
@@ -291,8 +342,8 @@ Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
-  "price": 27000.00,
-  "status": "SOLD"
+  "purchasePrice": 27000.00,
+  "status": "Sold"
 }
 
 # Response (200 OK)

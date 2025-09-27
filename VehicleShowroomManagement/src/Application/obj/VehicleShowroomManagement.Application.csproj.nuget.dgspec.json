@@ -78,6 +78,10 @@
               "target": "Package",
               "version": "[11.7.1, )"
             },
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
             "MediatR": {
               "target": "Package",
               "version": "[12.1.1, )"
@@ -93,6 +97,14 @@
             "Microsoft.IdentityModel.Tokens": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "MimeKit": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "RazorEngineCore": {
+              "target": "Package",
+              "version": "[2024.4.1, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",

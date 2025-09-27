@@ -62,8 +62,7 @@ namespace VehicleShowroomManagement.Application.Returns.Handlers
                 Customer = customer != null ? new CustomerInfo
                 {
                     Id = customer.Id,
-                    FirstName = customer.FirstName,
-                    LastName = customer.LastName,
+                    Name = customer.Name,
                     Email = customer.Email,
                     Phone = customer.Phone
                 } : new CustomerInfo(),
@@ -71,11 +70,11 @@ namespace VehicleShowroomManagement.Application.Returns.Handlers
                 Vehicle = vehicle != null ? new VehicleInfo
                 {
                     VehicleId = vehicle.Id,
-                    VIN = vehicle.VIN,
-                    ModelNumber = vehicle.VIN, // Using VIN as ModelNumber for now
-                    Name = vehicle.Model?.ModelName ?? "Unknown",
-                    Brand = vehicle.Model?.Brand?.BrandName ?? "Unknown",
-                    Price = vehicle.Price
+                    VIN = vehicle.VehicleId,
+                    ModelNumber = vehicle.ModelNumber,
+                    Name = vehicle.ModelNumber,
+                    Brand = "Unknown",
+                    Price = vehicle.PurchasePrice
                 } : new VehicleInfo(),
                 Reason = returnRequest.Reason,
                 Status = returnRequest.Status,

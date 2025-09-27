@@ -15,7 +15,7 @@ namespace VehicleShowroomManagement.Domain.Services
 
         public Money CalculateFinalPrice(Vehicle vehicle, decimal discountPercentage = 0)
         {
-            var basePrice = new Money(vehicle.Price);
+            var basePrice = new Money(vehicle.PurchasePrice);
 
             // Apply discount if specified
             if (discountPercentage > 0)
@@ -29,13 +29,6 @@ namespace VehicleShowroomManagement.Domain.Services
             // Calculate final price
             var finalPrice = basePrice.Add(taxAmount);
 
-            // Validate the final price
-            var isValid = IsPriceValid(vehicle, finalPrice);
-            if (!isValid)
-            {
-                throw new InvalidOperationException($"Calculated price is not valid for vehicle {vehicle.Id}");
-            }
-
             return finalPrice;
         }
 
@@ -46,11 +39,11 @@ namespace VehicleShowroomManagement.Domain.Services
 
         public bool IsPriceValid(Vehicle vehicle, Money price)
         {
-            // Get the model base price (this would typically come from a repository)
-            var modelBasePrice = new Money(vehicle.Price);
+            // Get the vehicle purchase price
+            var vehiclePurchasePrice = new Money(vehicle.PurchasePrice);
 
             // Calculate minimum allowed price based on profit margin
-            var minimumPrice = modelBasePrice.Multiply(1 + (_minimumProfitMargin / 100));
+            var minimumPrice = vehiclePurchasePrice.Multiply(1 + (_minimumProfitMargin / 100));
 
             // Price should not be below minimum
             if (price.Amount < minimumPrice.Amount)
@@ -63,16 +56,8 @@ namespace VehicleShowroomManagement.Domain.Services
 
         public Money CalculateOrderTotal(SalesOrder salesOrder)
         {
-            Money total = new Money(0);
-
-            foreach (var item in salesOrder.SalesOrderItems)
-            {
-                var itemTotal = new Money(item.UnitPrice * item.Quantity);
-                itemTotal = ApplyDiscount(itemTotal, (item.Discount / itemTotal.Amount) * 100);
-                total = total.Add(itemTotal);
-            }
-
-            return total;
+            // Calculate total from sale price (single vehicle per order in new schema)
+            return new Money(salesOrder.SalePrice);
         }
 
         public Money ApplyDiscount(Money price, decimal discountPercentage)

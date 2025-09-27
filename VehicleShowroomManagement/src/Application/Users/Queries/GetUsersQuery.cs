@@ -5,9 +5,9 @@ using VehicleShowroomManagement.Application.Common.DTOs;
 namespace VehicleShowroomManagement.Application.Users.Queries
 {
     /// <summary>
-    /// Query for retrieving users with optional filtering
+    /// Query for retrieving employees with optional filtering
     /// </summary>
-    public class GetUsersQuery : IRequest<IEnumerable<UserDto>>
+    public class GetUsersQuery : IRequest<IEnumerable<EmployeeDto>>
     {
         public string? SearchTerm { get; set; }
         public int? RoleId { get; set; }
@@ -26,9 +26,9 @@ namespace VehicleShowroomManagement.Application.Users.Queries
     }
 
     /// <summary>
-    /// Query for retrieving a single user by ID
+    /// Query for retrieving a single employee by ID
     /// </summary>
-    public class GetUserByIdQuery : IRequest<UserDto?>
+    public class GetUserByIdQuery : IRequest<EmployeeDto?>
     {
         public string UserId { get; set; }
 

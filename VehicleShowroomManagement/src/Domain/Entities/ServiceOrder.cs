@@ -16,28 +16,28 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("vehicleId")]
+        [BsonElement("serviceOrderId")]
         [BsonRequired]
-        public string VehicleId { get; set; } = string.Empty;
+        public string ServiceOrderId { get; set; } = string.Empty;
 
-        [BsonElement("customerId")]
+        [BsonElement("salesOrderId")]
         [BsonRequired]
-        public string CustomerId { get; set; } = string.Empty;
+        public string SalesOrderId { get; set; } = string.Empty;
+
+        [BsonElement("employeeId")]
+        [BsonRequired]
+        public string EmployeeId { get; set; } = string.Empty;
 
         [BsonElement("serviceDate")]
         public DateTime ServiceDate { get; set; } = DateTime.UtcNow;
 
-        [BsonElement("status")]
-        public string Status { get; set; } = "Scheduled"; // Scheduled, InProgress, Completed, Cancelled
-
-        [BsonElement("totalCost")]
-        public decimal TotalCost { get; set; } = 0;
-
         [BsonElement("description")]
-        public string? Description { get; set; }
+        [BsonRequired]
+        public string Description { get; set; } = string.Empty;
 
-        [BsonElement("serviceType")]
-        public string ServiceType { get; set; } = string.Empty;
+        [BsonElement("cost")]
+        [BsonRequired]
+        public decimal Cost { get; set; }
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -52,54 +52,22 @@ namespace VehicleShowroomManagement.Domain.Entities
         public DateTime? DeletedAt { get; set; }
 
         // Domain Methods
-        public void StartService()
+        public void UpdateCost(decimal cost)
         {
-            Status = "InProgress";
+            Cost = cost;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void CompleteService()
+        public void UpdateServiceDate(DateTime serviceDate)
         {
-            Status = "Completed";
+            ServiceDate = serviceDate;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void CancelService()
+        public void UpdateDescription(string description)
         {
-            Status = "Cancelled";
+            Description = description;
             UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void UpdateTotalCost(decimal cost)
-        {
-            TotalCost = cost;
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void Reschedule(DateTime newServiceDate)
-        {
-            ServiceDate = newServiceDate;
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public bool CanBeStarted()
-        {
-            return Status == "Scheduled";
-        }
-
-        public bool CanBeCompleted()
-        {
-            return Status == "InProgress";
-        }
-
-        public bool CanBeCancelled()
-        {
-            return Status != "Completed";
-        }
-
-        public bool IsCompleted()
-        {
-            return Status == "Completed";
         }
 
         public void SoftDelete()

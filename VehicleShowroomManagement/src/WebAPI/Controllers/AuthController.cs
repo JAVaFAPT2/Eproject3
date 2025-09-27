@@ -25,7 +25,9 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 return Ok(new
                 {
                     token = result.Token,
+                    refreshToken = result.RefreshToken,
                     tokenExpiresAt = result.TokenExpiresAt,
+                    refreshTokenExpiresAt = result.RefreshTokenExpiresAt,
                     userId = result.UserId,
                     role = result.RoleName,
                     message = "Login successful"
@@ -45,7 +47,12 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             try
             {
-                var command = new ForgotPasswordCommand(request.Email);
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+                var command = new ForgotPasswordCommand 
+                { 
+                    Email = request.Email,
+                    BaseUrl = baseUrl
+                };
                 await mediator.Send(command);
 
                 return Ok(new { message = "Password reset token sent to your email" });
@@ -64,7 +71,11 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             try
             {
-                var command = new ResetPasswordCommand(request.Token, request.NewPassword);
+                var command = new ResetPasswordCommand
+                {
+                    Token = request.Token,
+                    NewPassword = request.NewPassword
+                };
                 await mediator.Send(command);
 
                 return Ok(new { message = "Password reset successfully" });
@@ -73,6 +84,69 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        /// <summary>
+        /// Refresh JWT token using refresh token
+        /// </summary>
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            try
+            {
+                var command = new RefreshTokenCommand
+                {
+                    RefreshToken = request.RefreshToken,
+                    IpAddress = GetIpAddress()
+                };
+                var result = await mediator.Send(command);
+
+                return Ok(new
+                {
+                    token = result.Token,
+                    refreshToken = result.RefreshToken,
+                    tokenExpiresAt = result.TokenExpiresAt,
+                    refreshTokenExpiresAt = result.RefreshTokenExpiresAt,
+                    userId = result.UserId,
+                    role = result.RoleName,
+                    message = "Token refreshed successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Revoke refresh token (logout)
+        /// </summary>
+        [HttpPost("revoke-token")]
+        public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest request)
+        {
+            try
+            {
+                var command = new RevokeTokenCommand
+                {
+                    RefreshToken = request.RefreshToken,
+                    IpAddress = GetIpAddress()
+                };
+                await mediator.Send(command);
+
+                return Ok(new { message = "Token revoked successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        private string GetIpAddress()
+        {
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+                return Request.Headers["X-Forwarded-For"];
+            else
+                return HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "Unknown";
         }
     }
 
@@ -100,5 +174,21 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     {
         public string Token { get; set; } = string.Empty;
         public string NewPassword { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Request model for refresh token
+    /// </summary>
+    public class RefreshTokenRequest
+    {
+        public string RefreshToken { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Request model for revoke token
+    /// </summary>
+    public class RevokeTokenRequest
+    {
+        public string RefreshToken { get; set; } = string.Empty;
     }
 }

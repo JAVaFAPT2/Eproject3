@@ -33,7 +33,7 @@ namespace VehicleShowroomManagement.Application.GoodsReceipts.Handlers
             goodsReceipt.AcceptReceipt();
 
             await _goodsReceiptRepository.UpdateAsync(goodsReceipt);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
         }

@@ -41,7 +41,7 @@ namespace VehicleShowroomManagement.Application.Reports.DTOs
         public int Priority { get; set; }
         public int Position { get; set; }
         public string Status { get; set; } = string.Empty;
-        public DateTime EntryDate { get; set; }
+        public DateTime RequestDate { get; set; }
         public DateTime? ExpectedAvailabilityDate { get; set; }
         public DateTime? LastContactDate { get; set; }
         public DateTime? NextContactDate { get; set; }

@@ -10,6 +10,7 @@ namespace VehicleShowroomManagement.Application.Vehicles.Commands
     /// </summary>
     public class CreateVehicleCommand : IRequest<VehicleDto>
     {
+        public string? VehicleId { get; set; }
         public string ModelNumber { get; set; }
         public string Name { get; set; }
         public string Brand { get; set; }
@@ -20,6 +21,7 @@ namespace VehicleShowroomManagement.Application.Vehicles.Commands
         public string ExternalId { get; set; }
 
         public CreateVehicleCommand(
+            string? vehicleId,
             string modelNumber,
             string name,
             string brand,
@@ -29,6 +31,7 @@ namespace VehicleShowroomManagement.Application.Vehicles.Commands
             DateTime registrationDate,
             string externalId)
         {
+            VehicleId = vehicleId;
             ModelNumber = modelNumber;
             Name = name;
             Brand = brand;
@@ -46,13 +49,13 @@ namespace VehicleShowroomManagement.Application.Vehicles.Commands
     public class UpdateVehicleCommand : IRequest<Unit>
     {
         public string VehicleId { get; set; }
-        public decimal Price { get; set; }
+        public decimal PurchasePrice { get; set; }
         public string Status { get; set; }
 
-        public UpdateVehicleCommand(string vehicleId, decimal price, string status)
+        public UpdateVehicleCommand(string vehicleId, decimal purchasePrice, string status)
         {
             VehicleId = vehicleId;
-            Price = price;
+            PurchasePrice = purchasePrice;
             Status = status;
         }
     }

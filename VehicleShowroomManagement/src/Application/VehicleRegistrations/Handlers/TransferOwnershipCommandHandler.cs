@@ -35,7 +35,7 @@ namespace VehicleShowroomManagement.Application.VehicleRegistrations.Handlers
             vehicleRegistration.OwnerEmail = request.NewOwnerEmail;
 
             await _vehicleRegistrationRepository.UpdateAsync(vehicleRegistration);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
         }

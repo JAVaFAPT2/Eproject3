@@ -24,21 +24,14 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
         public async Task<bool> Handle(CancelServiceOrderCommand request, CancellationToken cancellationToken)
         {
             var serviceOrder = await _serviceOrderRepository.GetByIdAsync(request.Id);
-            if (serviceOrder == null)
+            if (serviceOrder == null || serviceOrder.IsDeleted)
                 return false;
 
-            if (serviceOrder.Status == "Completed" || serviceOrder.Status == "Cancelled")
-                return false;
-
-            serviceOrder.Status = "Cancelled";
-            if (!string.IsNullOrEmpty(request.CancellationReason))
-            {
-                serviceOrder.Description = request.CancellationReason;
-            }
-            serviceOrder.UpdatedAt = DateTime.UtcNow;
+            // Soft delete the service order to cancel it
+            serviceOrder.SoftDelete();
 
             await _serviceOrderRepository.UpdateAsync(serviceOrder);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
         }

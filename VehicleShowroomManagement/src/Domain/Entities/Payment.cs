@@ -1,6 +1,6 @@
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -10,44 +10,43 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class Payment : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int PaymentId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        public int InvoiceId { get; set; }
+        [BsonElement("invoiceId")]
+        [BsonRequired]
+        public string InvoiceId { get; set; } = string.Empty;
 
-        [Required]
-        [Column(TypeName = "decimal(12,2)")]
+        [BsonElement("amount")]
+        [BsonRequired]
         public decimal Amount { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        [Column(TypeName = "nvarchar(50)")]
+        [BsonElement("paymentMethod")]
+        [BsonRequired]
         public string PaymentMethod { get; set; } = string.Empty; // Cash, CreditCard, BankTransfer, Check
 
+        [BsonElement("paymentDate")]
         public DateTime PaymentDate { get; set; } = DateTime.UtcNow;
 
-        [StringLength(100)]
-        [Column(TypeName = "nvarchar(100)")]
+        [BsonElement("referenceNumber")]
         public string? ReferenceNumber { get; set; }
 
-        [Required]
-        [StringLength(20)]
-        [Column(TypeName = "nvarchar(20)")]
+        [BsonElement("status")]
+        [BsonRequired]
         public string Status { get; set; } = "Completed"; // Completed, Pending, Failed, Cancelled
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
-
-        // Navigation Properties
-        [ForeignKey("InvoiceId")]
-        public virtual Invoice Invoice { get; set; } = null!;
 
         // Domain Methods
         public void MarkAsCompleted()

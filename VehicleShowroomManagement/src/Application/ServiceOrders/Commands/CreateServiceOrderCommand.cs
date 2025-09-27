@@ -7,11 +7,10 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.Commands
     /// </summary>
     public class CreateServiceOrderCommand : IRequest<string>
     {
-        public string VehicleId { get; set; } = string.Empty;
-        public string CustomerId { get; set; } = string.Empty;
+        public string SalesOrderId { get; set; } = string.Empty;
+        public string EmployeeId { get; set; } = string.Empty;
         public DateTime ServiceDate { get; set; }
-        public string ServiceType { get; set; } = string.Empty;
-        public decimal TotalCost { get; set; } = 0;
+        public decimal Cost { get; set; } = 0;
         public string? Description { get; set; }
     }
 }

@@ -24,16 +24,14 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
         public async Task<bool> Handle(StartServiceOrderCommand request, CancellationToken cancellationToken)
         {
             var serviceOrder = await _serviceOrderRepository.GetByIdAsync(request.Id);
-            if (serviceOrder == null)
+            if (serviceOrder == null || serviceOrder.IsDeleted)
                 return false;
 
-            if (serviceOrder.Status != "Scheduled")
-                return false;
-
-            serviceOrder.StartService();
+            // Update service date to current time to indicate service has started
+            serviceOrder.UpdateServiceDate(DateTime.UtcNow);
 
             await _serviceOrderRepository.UpdateAsync(serviceOrder);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
         }

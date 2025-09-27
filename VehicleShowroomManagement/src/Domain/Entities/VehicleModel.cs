@@ -7,33 +7,29 @@ using VehicleShowroomManagement.Domain.Interfaces;
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
-    /// Model entity representing specific vehicle models under a brand
+    /// VehicleModel entity representing specific vehicle models
     /// </summary>
-    public class Model : IEntity, IAuditableEntity, ISoftDelete
+    public class VehicleModel : IEntity, IAuditableEntity, ISoftDelete
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("modelName")]
+        [BsonElement("modelNumber")]
         [BsonRequired]
-        public string ModelName { get; set; } = string.Empty;
+        public string ModelNumber { get; set; } = string.Empty;
 
-        [BsonElement("brandId")]
+        [BsonElement("name")]
         [BsonRequired]
-        public string BrandId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
-        [BsonElement("engineType")]
-        public string? EngineType { get; set; }
+        [BsonElement("brand")]
+        [BsonRequired]
+        public string Brand { get; set; } = string.Empty;
 
-        [BsonElement("transmission")]
-        public string? Transmission { get; set; }
-
-        [BsonElement("fuelType")]
-        public string? FuelType { get; set; }
-
-        [BsonElement("seatingCapacity")]
-        public int? SeatingCapacity { get; set; }
+        [BsonElement("basePrice")]
+        [BsonRequired]
+        public decimal BasePrice { get; set; }
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -47,22 +43,16 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Embedded brand information
-        [BsonElement("brand")]
-        public BrandInfo? Brand { get; set; }
-
         // References to vehicles
         [BsonElement("vehicleIds")]
         public List<string> VehicleIds { get; set; } = new List<string>();
 
         // Domain Methods
-        public void UpdateModel(string modelName, string? engineType, string? transmission, string? fuelType, int? seatingCapacity)
+        public void UpdateModel(string name, string brand, decimal basePrice)
         {
-            ModelName = modelName;
-            EngineType = engineType;
-            Transmission = transmission;
-            FuelType = fuelType;
-            SeatingCapacity = seatingCapacity;
+            Name = name;
+            Brand = brand;
+            BasePrice = basePrice;
             UpdatedAt = DateTime.UtcNow;
         }
 
@@ -80,5 +70,5 @@ namespace VehicleShowroomManagement.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
     }
-
 }
+

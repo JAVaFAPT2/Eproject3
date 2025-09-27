@@ -27,13 +27,12 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
             return new ServiceOrderDto
             {
                 Id = serviceOrder.Id,
-                VehicleId = serviceOrder.VehicleId,
-                CustomerId = serviceOrder.CustomerId,
+                ServiceOrderId = serviceOrder.ServiceOrderId,
+                SalesOrderId = serviceOrder.SalesOrderId,
+                EmployeeId = serviceOrder.EmployeeId,
                 ServiceDate = serviceOrder.ServiceDate,
-                Status = serviceOrder.Status,
-                TotalCost = serviceOrder.TotalCost,
                 Description = serviceOrder.Description,
-                ServiceType = serviceOrder.ServiceType,
+                Cost = serviceOrder.Cost,
                 CreatedAt = serviceOrder.CreatedAt,
                 UpdatedAt = serviceOrder.UpdatedAt
             };

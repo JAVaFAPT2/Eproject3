@@ -6,13 +6,12 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.DTOs
     public class ServiceOrderDto
     {
         public string Id { get; set; } = string.Empty;
-        public string VehicleId { get; set; } = string.Empty;
-        public string CustomerId { get; set; } = string.Empty;
+        public string ServiceOrderId { get; set; } = string.Empty;
+        public string SalesOrderId { get; set; } = string.Empty;
+        public string EmployeeId { get; set; } = string.Empty;
         public DateTime ServiceDate { get; set; }
-        public string Status { get; set; } = string.Empty;
-        public decimal TotalCost { get; set; }
         public string? Description { get; set; }
-        public string ServiceType { get; set; } = string.Empty;
+        public decimal Cost { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

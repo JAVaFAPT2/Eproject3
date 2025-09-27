@@ -58,8 +58,8 @@ namespace VehicleShowroomManagement.Application.Dashboard.Handlers
             var currentData = GetRevenueData(currentOrders, currentStart, currentEnd, request.Period);
             var previousData = GetRevenueData(previousOrders, previousStart, previousEnd, request.Period);
 
-            var totalCurrent = currentOrders.Sum(o => o.TotalAmount);
-            var totalPrevious = previousOrders.Sum(o => o.TotalAmount);
+            var totalCurrent = currentOrders.Sum(o => o.SalePrice);
+            var totalPrevious = previousOrders.Sum(o => o.SalePrice);
             var growthPercentage = totalPrevious > 0 ? ((totalCurrent - totalPrevious) / totalPrevious) * 100 : 0;
 
             return new RevenueComparisonDto
@@ -83,7 +83,7 @@ namespace VehicleShowroomManagement.Application.Dashboard.Handlers
                 return days.Select(day => new RevenueData
                 {
                     Period = day.ToString("dd/MM"),
-                    Amount = orders.Where(o => o.OrderDate.Date == day).Sum(o => o.TotalAmount),
+                    Amount = orders.Where(o => o.OrderDate.Date == day).Sum(o => o.SalePrice),
                     OrderCount = orders.Count(o => o.OrderDate.Date == day)
                 }).ToList();
             }
@@ -94,7 +94,7 @@ namespace VehicleShowroomManagement.Application.Dashboard.Handlers
                 return months.Select(month => new RevenueData
                 {
                     Period = month.ToString("MMM"),
-                    Amount = orders.Where(o => o.OrderDate.Year == month.Year && o.OrderDate.Month == month.Month).Sum(o => o.TotalAmount),
+                    Amount = orders.Where(o => o.OrderDate.Year == month.Year && o.OrderDate.Month == month.Month).Sum(o => o.SalePrice),
                     OrderCount = orders.Count(o => o.OrderDate.Year == month.Year && o.OrderDate.Month == month.Month)
                 }).ToList();
             }
@@ -211,14 +211,14 @@ namespace VehicleShowroomManagement.Application.Dashboard.Handlers
                 {
                     var vehicle = g.First();
                     var salesCount = orderItems.Count(oi => oi.VehicleId == vehicle.Id);
-                    var totalRevenue = g.Sum(v => v.Price);
+                    var totalRevenue = g.Sum(v => v.PurchasePrice);
 
                     return new VehicleSalesDto
                     {
                         VehicleId = vehicle.Id,
-                        VIN = vehicle.VIN,
-                        ModelName = vehicle.Model?.ModelName ?? "Unknown",
-                        BrandName = vehicle.Model?.Brand?.BrandName ?? "Unknown",
+                        VIN = vehicle.RegistrationData?.VIN ?? vehicle.VehicleId,
+                        ModelName = vehicle.ModelNumber,
+                        BrandName = "Unknown", // Not available in new schema
                         SalesCount = salesCount,
                         TotalRevenue = totalRevenue,
                         AveragePrice = salesCount > 0 ? totalRevenue / salesCount : 0
@@ -280,16 +280,16 @@ namespace VehicleShowroomManagement.Application.Dashboard.Handlers
                     Brand = "Brand Name",
                     Price = 50000
                 },
-                SalesPersonId = order.SalesPersonId,
+                SalesPersonId = order.EmployeeId,
                 SalesPerson = new UserInfo
                 {
-                    UserId = order.SalesPersonId,
-                    Username = "salesperson",
-                    FullName = "Sales Person",
-                    Email = "sales@example.com"
+                    UserId = order.EmployeeId,
+                    Username = "employee",
+                    FullName = "Employee",
+                    Email = "employee@example.com"
                 },
                 Status = order.Status,
-                TotalAmount = order.TotalAmount,
+                TotalAmount = order.SalePrice,
                 PaymentMethod = "CASH",
                 OrderDate = order.OrderDate,
                 CreatedAt = order.CreatedAt,

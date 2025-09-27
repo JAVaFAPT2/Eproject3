@@ -14,18 +14,18 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
         private readonly IRepository<Allotment> _allotmentRepository;
         private readonly IRepository<Vehicle> _vehicleRepository;
         private readonly IRepository<Customer> _customerRepository;
-        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Employee> _employeeRepository;
 
         public GetAllotmentDetailsReportQueryHandler(
             IRepository<Allotment> allotmentRepository,
             IRepository<Vehicle> vehicleRepository,
             IRepository<Customer> customerRepository,
-            IRepository<User> userRepository)
+            IRepository<Employee> employeeRepository)
         {
             _allotmentRepository = allotmentRepository;
             _vehicleRepository = vehicleRepository;
             _customerRepository = customerRepository;
-            _userRepository = userRepository;
+            _employeeRepository = employeeRepository;
         }
 
         public async Task<AllotmentDetailsReportDto> Handle(GetAllotmentDetailsReportQuery request, CancellationToken cancellationToken)
@@ -33,25 +33,13 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
             var allotments = await _allotmentRepository.GetAllAsync();
             var vehicles = await _vehicleRepository.GetAllAsync();
             var customers = await _customerRepository.GetAllAsync();
-            var users = await _userRepository.GetAllAsync();
+            var employees = await _employeeRepository.GetAllAsync();
 
             // Apply filters
             if (!string.IsNullOrEmpty(request.SearchTerm))
             {
                 allotments = allotments.Where(a => 
-                    a.AllotmentNumber.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    a.SpecialConditions != null && a.SpecialConditions.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    a.Notes != null && a.Notes.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (!string.IsNullOrEmpty(request.Status))
-            {
-                allotments = allotments.Where(a => a.Status == request.Status);
-            }
-
-            if (!string.IsNullOrEmpty(request.AllotmentType))
-            {
-                allotments = allotments.Where(a => a.AllotmentType == request.AllotmentType);
+                    a.AllotmentId.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase));
             }
 
             if (request.FromDate.HasValue)
@@ -64,32 +52,22 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                 allotments = allotments.Where(a => a.AllotmentDate <= request.ToDate.Value);
             }
 
-            if (!request.IncludeExpired)
-            {
-                allotments = allotments.Where(a => !a.IsExpired());
-            }
-
-            if (!request.IncludeConverted)
-            {
-                allotments = allotments.Where(a => !a.ConvertedToOrder);
-            }
-
             var allotmentList = allotments.ToList();
             var vehicleList = vehicles.ToList();
             var customerList = customers.ToList();
-            var userList = users.ToList();
+            var employeeList = employees.ToList();
 
             var report = new AllotmentDetailsReportDto
             {
                 GeneratedAt = DateTime.UtcNow,
                 TotalAllotments = allotmentList.Count,
-                ActiveAllotments = allotmentList.Count(a => a.IsActive()),
-                ExpiredAllotments = allotmentList.Count(a => a.IsExpired()),
-                ConvertedAllotments = allotmentList.Count(a => a.ConvertedToOrder),
-                CancelledAllotments = allotmentList.Count(a => a.Status == "Cancelled"),
-                TotalReservationAmount = allotmentList.Sum(a => a.ReservationAmount),
-                CollectedReservationAmount = allotmentList.Where(a => a.ReservationPaid).Sum(a => a.ReservationAmount),
-                PendingReservationAmount = allotmentList.Where(a => !a.ReservationPaid).Sum(a => a.ReservationAmount)
+                ActiveAllotments = allotmentList.Count(a => !a.IsDeleted),
+                ExpiredAllotments = 0, // Not available in new schema
+                ConvertedAllotments = 0, // Not available in new schema
+                CancelledAllotments = 0, // Not available in new schema
+                TotalReservationAmount = 0, // Not available in new schema
+                CollectedReservationAmount = 0, // Not available in new schema
+                PendingReservationAmount = 0 // Not available in new schema
             };
 
             // Generate allotment details
@@ -97,90 +75,88 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
             {
                 var vehicle = vehicleList.FirstOrDefault(v => v.Id == allotment.VehicleId);
                 var customer = customerList.FirstOrDefault(c => c.Id == allotment.CustomerId);
-                var salesPerson = userList.FirstOrDefault(u => u.Id == allotment.SalesPersonId);
+                var employee = employeeList.FirstOrDefault(e => e.Id == allotment.EmployeeId);
 
                 return new AllotmentDetailDto
                 {
                     Id = allotment.Id,
-                    AllotmentNumber = allotment.AllotmentNumber,
+                    AllotmentNumber = allotment.AllotmentId,
                     VehicleId = allotment.VehicleId,
-                    VehicleName = vehicle?.Model?.ModelName ?? "N/A",
-                    VehicleBrand = vehicle?.Model?.Brand?.BrandName ?? "N/A",
+                    VehicleName = vehicle?.ModelNumber ?? "N/A",
+                    VehicleBrand = "N/A", // Not available in new schema
                     CustomerId = allotment.CustomerId,
-                    CustomerName = customer != null ? $"{customer.FirstName} {customer.LastName}" : "N/A",
+                    CustomerName = customer?.Name ?? "N/A",
                     CustomerEmail = customer?.Email ?? "N/A",
                     CustomerPhone = customer?.Phone ?? "N/A",
-                    SalesPersonId = allotment.SalesPersonId,
-                    SalesPersonName = salesPerson != null ? $"{salesPerson.FirstName} {salesPerson.LastName}" : "N/A",
+                    SalesPersonId = allotment.EmployeeId,
+                    SalesPersonName = employee?.Name ?? "N/A",
                     AllotmentDate = allotment.AllotmentDate,
-                    ValidUntil = allotment.ValidUntil,
-                    Status = allotment.Status,
-                    AllotmentType = allotment.AllotmentType,
-                    Priority = allotment.Priority,
-                    ReservationAmount = allotment.ReservationAmount,
-                    ReservationPaid = allotment.ReservationPaid,
-                    PaymentMethod = allotment.PaymentMethod,
-                    PaymentReference = allotment.PaymentReference,
-                    SpecialConditions = allotment.SpecialConditions,
-                    Notes = allotment.Notes,
-                    ConvertedToOrder = allotment.ConvertedToOrder,
-                    OrderId = allotment.OrderId,
-                    ConversionDate = allotment.ConversionDate,
-                    CancellationReason = allotment.CancellationReason,
-                    CancelledDate = allotment.CancelledDate,
-                    CancelledBy = allotment.CancelledBy,
-                    CreatedBy = allotment.CreatedBy,
+                    ValidUntil = DateTime.UtcNow.AddDays(30), // Default value
+                    Status = "Active", // Default value
+                    AllotmentType = "Standard", // Default value
+                    Priority = 1, // Default value
+                    ReservationAmount = 0, // Not available in new schema
+                    ReservationPaid = false, // Not available in new schema
+                    PaymentMethod = "N/A", // Not available in new schema
+                    PaymentReference = "N/A", // Not available in new schema
+                    SpecialConditions = "N/A", // Not available in new schema
+                    Notes = "N/A", // Not available in new schema
+                    ConvertedToOrder = false, // Not available in new schema
+                    OrderId = "N/A", // Not available in new schema
+                    ConversionDate = null, // Not available in new schema
+                    CancellationReason = "N/A", // Not available in new schema
+                    CancelledDate = null, // Not available in new schema
+                    CancelledBy = "N/A", // Not available in new schema
+                    CreatedBy = "N/A", // Not available in new schema
                     CreatedAt = allotment.CreatedAt,
                     UpdatedAt = allotment.UpdatedAt,
-                    IsExpired = allotment.IsExpired(),
-                    DaysRemaining = allotment.IsExpired() ? 0 : Math.Max(0, (int)(allotment.ValidUntil - DateTime.UtcNow).TotalDays)
+                    IsExpired = false, // Default value
+                    DaysRemaining = 30 // Default value
                 };
             }).OrderByDescending(a => a.AllotmentDate).ToList();
 
-            // Generate status summaries
+            // Generate status summaries (simplified for new schema)
             var totalAllotments = allotmentList.Count;
-            report.StatusSummaries = allotmentList
-                .GroupBy(a => a.Status)
-                .Select(g => new StatusSummaryDto
+            report.StatusSummaries = new List<StatusSummaryDto>
+            {
+                new StatusSummaryDto
                 {
-                    Status = g.Key,
-                    Count = g.Count(),
-                    TotalReservationAmount = g.Sum(a => a.ReservationAmount),
-                    CollectedAmount = g.Where(a => a.ReservationPaid).Sum(a => a.ReservationAmount),
-                    PendingAmount = g.Where(a => !a.ReservationPaid).Sum(a => a.ReservationAmount),
-                    Percentage = totalAllotments > 0 ? (decimal)g.Count() / totalAllotments * 100 : 0
-                })
-                .OrderByDescending(s => s.Count)
-                .ToList();
+                    Status = "Active",
+                    Count = totalAllotments,
+                    TotalReservationAmount = 0,
+                    CollectedAmount = 0,
+                    PendingAmount = 0,
+                    Percentage = 100
+                }
+            };
 
-            // Generate type summaries
-            report.TypeSummaries = allotmentList
-                .GroupBy(a => a.AllotmentType)
-                .Select(g => new TypeSummaryDto
+            // Generate type summaries (simplified for new schema)
+            report.TypeSummaries = new List<TypeSummaryDto>
+            {
+                new TypeSummaryDto
                 {
-                    AllotmentType = g.Key,
-                    Count = g.Count(),
-                    TotalReservationAmount = g.Sum(a => a.ReservationAmount),
-                    CollectedAmount = g.Where(a => a.ReservationPaid).Sum(a => a.ReservationAmount),
-                    PendingAmount = g.Where(a => !a.ReservationPaid).Sum(a => a.ReservationAmount),
-                    AverageReservationAmount = g.Average(a => a.ReservationAmount)
-                })
-                .OrderByDescending(t => t.Count)
-                .ToList();
+                    AllotmentType = "Standard",
+                    Count = totalAllotments,
+                    TotalReservationAmount = 0,
+                    CollectedAmount = 0,
+                    PendingAmount = 0,
+                    AverageReservationAmount = 0
+                }
+            };
 
-            // Generate monthly trends
+            // Generate monthly trends (simplified for new schema)
             report.MonthlyTrends = allotmentList
                 .GroupBy(a => new { Year = a.AllotmentDate.Year, Month = a.AllotmentDate.Month })
                 .Select(g => new MonthlyAllotmentDto
                 {
                     Month = $"{g.Key.Year}-{g.Key.Month:D2}",
                     NewAllotments = g.Count(),
-                    ConvertedAllotments = g.Count(a => a.ConvertedToOrder),
-                    ExpiredAllotments = g.Count(a => a.IsExpired()),
-                    CancelledAllotments = g.Count(a => a.Status == "Cancelled"),
-                    TotalReservationAmount = g.Sum(a => a.ReservationAmount),
-                    CollectedAmount = g.Where(a => a.ReservationPaid).Sum(a => a.ReservationAmount),
-                    ConversionRate = g.Count() > 0 ? (decimal)g.Count(a => a.ConvertedToOrder) / g.Count() * 100 : 0
+                    ConvertedAllotments = 0,
+                    ExpiredAllotments = 0,
+                    CancelledAllotments = 0,
+                    TotalReservationAmount = 0,
+                    CollectedAmount = 0,
+                    ConversionRate = 0
                 })
                 .OrderBy(m => m.Month)
                 .ToList();

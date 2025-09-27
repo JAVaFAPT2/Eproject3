@@ -1,9 +1,11 @@
 using System.Reflection;
 using CloudinaryDotNet;
+using DocumentFormat.OpenXml.EMMA;
 using MongoDB.Driver;
 using VehicleShowroomManagement.Application.Images.Services;
 using VehicleShowroomManagement.Application.Reports.Services;
 using VehicleShowroomManagement.Application.Users.Queries;
+using VehicleShowroomManagement.Application.Email.Services;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Services;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
@@ -91,6 +93,10 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
 
             // Register Excel export service
             services.AddScoped<IExcelExportService, ExcelExportService>();
+
+            // Register email services
+            services.AddScoped<IEmailService, SmtpEmailService>();
+            services.AddScoped<IEmailTemplateService, RazorEmailTemplateService>();
 
             // Register Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

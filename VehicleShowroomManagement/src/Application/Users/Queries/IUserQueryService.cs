@@ -5,14 +5,14 @@ using VehicleShowroomManagement.Application.Common.DTOs;
 namespace VehicleShowroomManagement.Application.Users.Queries
 {
     /// <summary>
-    /// Query service for user read operations
+    /// Query service for employee read operations
     /// </summary>
     public interface IUserQueryService
     {
         /// <summary>
-        /// Gets all users with optional filtering
+        /// Gets all employees with optional filtering
         /// </summary>
-        Task<IEnumerable<UserDto>> GetUsersAsync(
+        Task<IEnumerable<EmployeeDto>> GetUsersAsync(
             string? searchTerm = null,
             int? roleId = null,
             bool? isActive = null,
@@ -20,14 +20,14 @@ namespace VehicleShowroomManagement.Application.Users.Queries
             int pageSize = 10);
 
         /// <summary>
-        /// Gets a user by ID
+        /// Gets an employee by ID
         /// </summary>
-        Task<UserDto?> GetUserByIdAsync(string userId);
+        Task<EmployeeDto?> GetUserByIdAsync(string userId);
 
         /// <summary>
-        /// Gets current user profile
+        /// Gets current employee profile
         /// </summary>
-        Task<UserProfileDto?> GetUserProfileAsync(string userId);
+        Task<EmployeeProfileDto?> GetUserProfileAsync(string userId);
 
         /// <summary>
         /// Gets employees with filtering

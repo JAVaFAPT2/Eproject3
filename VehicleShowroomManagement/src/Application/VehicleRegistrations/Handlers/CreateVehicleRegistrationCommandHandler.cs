@@ -58,7 +58,7 @@ namespace VehicleShowroomManagement.Application.VehicleRegistrations.Handlers
             };
 
             await _vehicleRegistrationRepository.AddAsync(vehicleRegistration);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return vehicleRegistration.Id;
         }

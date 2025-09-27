@@ -35,10 +35,9 @@ namespace VehicleShowroomManagement.Application.Users.Handlers
             {
                 var searchTerm = request.SearchTerm.ToLower();
                 filteredCustomers = filteredCustomers.Where(c =>
-                    c.FirstName.ToLower().Contains(searchTerm) ||
-                    c.LastName.ToLower().Contains(searchTerm) ||
+                    c.Name.ToLower().Contains(searchTerm) ||
                     c.Email.ToLower().Contains(searchTerm) ||
-                    (c.Phone ?? "").ToLower().Contains(searchTerm));
+                    c.Phone.ToLower().Contains(searchTerm));
             }
 
             // Apply pagination
@@ -53,15 +52,15 @@ namespace VehicleShowroomManagement.Application.Users.Handlers
             return new CustomerDto
             {
                 Id = customer.Id,
-                FirstName = customer.FirstName,
-                LastName = customer.LastName,
+                CustomerId = customer.CustomerId,
+                Name = customer.Name,
                 Email = customer.Email,
                 Phone = customer.Phone,
                 Address = customer.Address,
-                City = customer.City,
-                State = customer.State,
-                ZipCode = customer.ZipCode,
-                Cccd = customer.Cccd,
+                City = "N/A", // Not available in new schema
+                State = "N/A", // Not available in new schema
+                ZipCode = "N/A", // Not available in new schema
+                Cccd = "N/A", // Not available in new schema
                 CreatedAt = customer.CreatedAt,
                 UpdatedAt = customer.UpdatedAt,
                 Orders = new List<OrderDto>() // Would need to populate from related orders
@@ -94,7 +93,7 @@ namespace VehicleShowroomManagement.Application.Users.Handlers
             return new OrderDto
             {
                 Id = order.Id.ToString(),
-                OrderNumber = $"ORD-{order.OrderDate:yyyyMMdd}-{order.Id.ToString().Substring(0, 4)}",
+                OrderNumber = order.SalesOrderId,
                 CustomerId = order.CustomerId,
                 Customer = new CustomerInfo
                 {
@@ -104,26 +103,26 @@ namespace VehicleShowroomManagement.Application.Users.Handlers
                     Phone = "0901234567",
                     Address = "Customer Address"
                 },
-                VehicleId = "VehicleId",
+                VehicleId = order.VehicleId,
                 Vehicle = new VehicleInfo
                 {
-                    VehicleId = "VehicleId",
-                    VIN = "VIN123",
+                    VehicleId = order.VehicleId,
+                    VIN = order.VehicleId,
                     ModelNumber = "MODEL001",
                     Name = "Vehicle Name",
                     Brand = "Brand Name",
-                    Price = 50000
+                    Price = order.SalePrice
                 },
-                SalesPersonId = order.SalesPersonId,
+                SalesPersonId = order.EmployeeId,
                 SalesPerson = new UserInfo
                 {
-                    UserId = order.SalesPersonId,
-                    Username = "salesperson",
-                    FullName = "Sales Person",
-                    Email = "sales@example.com"
+                    UserId = order.EmployeeId,
+                    Username = "employee",
+                    FullName = "Employee",
+                    Email = "employee@example.com"
                 },
                 Status = order.Status,
-                TotalAmount = order.TotalAmount,
+                TotalAmount = order.SalePrice,
                 PaymentMethod = "CASH",
                 OrderDate = order.OrderDate,
                 CreatedAt = order.CreatedAt,

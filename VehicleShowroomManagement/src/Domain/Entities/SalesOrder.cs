@@ -16,22 +16,37 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
+        [BsonElement("salesOrderId")]
+        [BsonRequired]
+        public string SalesOrderId { get; set; } = string.Empty;
+
         [BsonElement("customerId")]
         [BsonRequired]
         public string CustomerId { get; set; } = string.Empty;
 
-        [BsonElement("salesPersonId")]
+        [BsonElement("vehicleId")]
         [BsonRequired]
-        public string SalesPersonId { get; set; } = string.Empty;
+        public string VehicleId { get; set; } = string.Empty;
 
-        [BsonElement("status")]
-        public string Status { get; set; } = "Draft"; // Draft, Confirmed, Invoiced, Completed, Cancelled
+        [BsonElement("employeeId")]
+        [BsonRequired]
+        public string EmployeeId { get; set; } = string.Empty;
 
         [BsonElement("orderDate")]
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
-        [BsonElement("totalAmount")]
-        public decimal TotalAmount { get; set; } = 0;
+        [BsonElement("salePrice")]
+        [BsonRequired]
+        public decimal SalePrice { get; set; }
+
+        [BsonElement("status")]
+        public string Status { get; set; } = "Confirmed"; // Confirmed, Completed, Cancelled
+
+        [BsonElement("dataSheetOutput")]
+        public SalesOrderOutput? DataSheetOutput { get; set; }
+
+        [BsonElement("confirmationOutput")]
+        public SalesOrderOutput? ConfirmationOutput { get; set; }
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -45,29 +60,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // References to other documents
-        [BsonElement("salesOrderItemIds")]
-        public List<string> SalesOrderItemIds { get; set; } = new List<string>();
-
-        // Navigation property for domain operations
-        public List<SalesOrderItem> SalesOrderItems { get; set; } = new List<SalesOrderItem>();
-
-        [BsonElement("invoiceIds")]
-        public List<string> InvoiceIds { get; set; } = new List<string>();
-
         // Domain Methods
-        public void ConfirmOrder()
-        {
-            Status = "Confirmed";
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void MarkAsInvoiced()
-        {
-            Status = "Invoiced";
-            UpdatedAt = DateTime.UtcNow;
-        }
-
         public void MarkAsCompleted()
         {
             Status = "Completed";
@@ -80,15 +73,32 @@ namespace VehicleShowroomManagement.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UpdateTotalAmount(decimal amount)
+        public void UpdateSalePrice(decimal salePrice)
         {
-            TotalAmount = amount;
+            SalePrice = salePrice;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public bool CanBeModified()
+        public void SetDataSheetOutput(string format, DateTime generatedAt, string url)
         {
-            return Status == "Draft" || Status == "Confirmed";
+            DataSheetOutput = new SalesOrderOutput
+            {
+                Format = format,
+                GeneratedAt = generatedAt,
+                Url = url
+            };
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetConfirmationOutput(string format, DateTime generatedAt, string url)
+        {
+            ConfirmationOutput = new SalesOrderOutput
+            {
+                Format = format,
+                GeneratedAt = generatedAt,
+                Url = url
+            };
+            UpdatedAt = DateTime.UtcNow;
         }
 
         public bool CanBeCancelled()
@@ -114,5 +124,23 @@ namespace VehicleShowroomManagement.Domain.Entities
             DeletedAt = null;
             UpdatedAt = DateTime.UtcNow;
         }
+    }
+
+    /// <summary>
+    /// Sales order output information embedded in SalesOrder entity
+    /// </summary>
+    public class SalesOrderOutput
+    {
+        [BsonElement("format")]
+        [BsonRequired]
+        public string Format { get; set; } = string.Empty;
+
+        [BsonElement("generatedAt")]
+        [BsonRequired]
+        public DateTime GeneratedAt { get; set; }
+
+        [BsonElement("url")]
+        [BsonRequired]
+        public string Url { get; set; } = string.Empty;
     }
 }

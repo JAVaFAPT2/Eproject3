@@ -25,17 +25,16 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
         {
             var serviceOrder = new ServiceOrder
             {
-                VehicleId = request.VehicleId,
-                CustomerId = request.CustomerId,
+                ServiceOrderId = $"SO-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}",
+                SalesOrderId = request.SalesOrderId,
+                EmployeeId = request.EmployeeId,
                 ServiceDate = request.ServiceDate,
-                ServiceType = request.ServiceType,
-                TotalCost = request.TotalCost,
                 Description = request.Description,
-                Status = "Scheduled"
+                Cost = request.Cost
             };
 
             await _serviceOrderRepository.AddAsync(serviceOrder);
-            _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return serviceOrder.Id;
         }

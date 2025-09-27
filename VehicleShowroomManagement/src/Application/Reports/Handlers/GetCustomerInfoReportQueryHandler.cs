@@ -27,25 +27,16 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
             var customers = await _customerRepository.GetAllAsync();
             var salesOrders = await _salesOrderRepository.GetAllAsync();
 
-            // Apply filters
+            // Apply filters (simplified for new schema)
             if (!string.IsNullOrEmpty(request.SearchTerm))
             {
-                customers = customers.Where(c => 
-                    c.FirstName.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    c.LastName.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                customers = customers.Where(c =>
+                    c.Name.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
                     c.Email.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
                     c.Phone.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase));
             }
 
-            if (!string.IsNullOrEmpty(request.City))
-            {
-                customers = customers.Where(c => c.City == request.City);
-            }
-
-            if (!string.IsNullOrEmpty(request.State))
-            {
-                customers = customers.Where(c => c.State == request.State);
-            }
+            // City and State filtering not available in new schema
 
             if (request.FromDate.HasValue)
             {
@@ -66,8 +57,8 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                 TotalCustomers = customerList.Count,
                 ActiveCustomers = customerList.Count(c => salesOrderList.Any(so => so.CustomerId == c.Id)),
                 NewCustomersThisMonth = customerList.Count(c => c.CreatedAt >= DateTime.UtcNow.AddMonths(-1)),
-                TotalRevenue = salesOrderList.Sum(so => so.TotalAmount),
-                AverageOrderValue = salesOrderList.Any() ? salesOrderList.Average(so => so.TotalAmount) : 0
+                TotalRevenue = salesOrderList.Sum(so => so.SalePrice),
+                AverageOrderValue = salesOrderList.Any() ? salesOrderList.Average(so => so.SalePrice) : 0
             };
 
             // Generate customer details
@@ -77,62 +68,56 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                 return new CustomerDetailDto
                 {
                     Id = customer.Id,
-                    FirstName = customer.FirstName,
-                    LastName = customer.LastName,
+                    FirstName = customer.Name, // Using Name as FirstName
+                    LastName = "", // Not available in new schema
                     Email = customer.Email,
                     Phone = customer.Phone,
                     Address = customer.Address,
-                    City = customer.City,
-                    State = customer.State,
-                    ZipCode = customer.ZipCode,
-                    Cccd = customer.Cccd,
+                    City = "N/A", // Not available in new schema
+                    State = "N/A", // Not available in new schema
+                    ZipCode = "N/A", // Not available in new schema
+                    Cccd = "N/A", // Not available in new schema
                     CreatedAt = customer.CreatedAt,
                     UpdatedAt = customer.UpdatedAt,
                     TotalOrders = customerOrders.Count,
-                    TotalSpent = customerOrders.Sum(so => so.TotalAmount),
+                    TotalSpent = customerOrders.Sum(so => so.SalePrice),
                     LastOrderDate = customerOrders.Any() ? customerOrders.Max(so => so.OrderDate) : null,
                     Orders = request.IncludeOrderHistory ? customerOrders.Select(so => new CustomerOrderDto
                     {
                         Id = so.Id,
-                        OrderNumber = $"ORD-{so.OrderDate:yyyyMMdd}-{so.Id[..8].ToUpper()}",
+                        OrderNumber = so.SalesOrderId,
                         VehicleName = "Vehicle Name", // TODO: Get from vehicle repository
                         VehicleBrand = "Vehicle Brand", // TODO: Get from vehicle repository
-                        TotalAmount = so.TotalAmount,
+                        TotalAmount = so.SalePrice,
                         Status = so.Status,
                         OrderDate = so.OrderDate
                     }).ToList() : new List<CustomerOrderDto>()
                 };
             }).OrderByDescending(c => c.TotalSpent).ToList();
 
-            // Generate city-wise customer data
-            report.CustomersByCity = customerList
-                .GroupBy(c => c.City)
-                .Select(g => new CityCustomerDto
+            // Generate city-wise customer data (simplified for new schema)
+            report.CustomersByCity = new List<CityCustomerDto>
+            {
+                new CityCustomerDto
                 {
-                    City = g.Key,
-                    CustomerCount = g.Count(),
-                    TotalRevenue = g.SelectMany(c => salesOrderList.Where(so => so.CustomerId == c.Id)).Sum(so => so.TotalAmount),
-                    AverageOrderValue = g.SelectMany(c => salesOrderList.Where(so => so.CustomerId == c.Id)).Any() 
-                        ? g.SelectMany(c => salesOrderList.Where(so => so.CustomerId == c.Id)).Average(so => so.TotalAmount) 
-                        : 0
-                })
-                .OrderByDescending(c => c.CustomerCount)
-                .ToList();
+                    City = "All",
+                    CustomerCount = customerList.Count,
+                    TotalRevenue = salesOrderList.Sum(so => so.SalePrice),
+                    AverageOrderValue = salesOrderList.Any() ? salesOrderList.Average(so => so.SalePrice) : 0
+                }
+            };
 
-            // Generate state-wise customer data
-            report.CustomersByState = customerList
-                .GroupBy(c => c.State)
-                .Select(g => new StateCustomerDto
+            // Generate state-wise customer data (simplified for new schema)
+            report.CustomersByState = new List<StateCustomerDto>
+            {
+                new StateCustomerDto
                 {
-                    State = g.Key,
-                    CustomerCount = g.Count(),
-                    TotalRevenue = g.SelectMany(c => salesOrderList.Where(so => so.CustomerId == c.Id)).Sum(so => so.TotalAmount),
-                    AverageOrderValue = g.SelectMany(c => salesOrderList.Where(so => so.CustomerId == c.Id)).Any() 
-                        ? g.SelectMany(c => salesOrderList.Where(so => so.CustomerId == c.Id)).Average(so => so.TotalAmount) 
-                        : 0
-                })
-                .OrderByDescending(s => s.CustomerCount)
-                .ToList();
+                    State = "All",
+                    CustomerCount = customerList.Count,
+                    TotalRevenue = salesOrderList.Sum(so => so.SalePrice),
+                    AverageOrderValue = salesOrderList.Any() ? salesOrderList.Average(so => so.SalePrice) : 0
+                }
+            };
 
             // Generate monthly customer trends
             report.MonthlyCustomerTrends = customerList
@@ -142,7 +127,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                     Month = $"{g.Key.Year}-{g.Key.Month:D2}",
                     NewCustomers = g.Count(),
                     TotalCustomers = customerList.Count(c => c.CreatedAt <= new DateTime(g.Key.Year, g.Key.Month, DateTime.DaysInMonth(g.Key.Year, g.Key.Month))),
-                    Revenue = salesOrderList.Where(so => so.OrderDate.Year == g.Key.Year && so.OrderDate.Month == g.Key.Month).Sum(so => so.TotalAmount)
+                    Revenue = salesOrderList.Where(so => so.OrderDate.Year == g.Key.Year && so.OrderDate.Month == g.Key.Month).Sum(so => so.SalePrice)
                 })
                 .OrderBy(m => m.Month)
                 .ToList();

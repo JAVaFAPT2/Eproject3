@@ -11,60 +11,42 @@ using VehicleShowroomManagement.Domain.Services;
 namespace VehicleShowroomManagement.Application.Users.Handlers
 {
     /// <summary>
-    /// Handler for creating a new user
+    /// Handler for creating a new employee
     /// </summary>
-    public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, string>
+    public class CreateEmployeeCommandHandler : IRequestHandler<CreateEmployeeCommand, string>
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IRepository<Role> _roleRepository;
-        private readonly IUserDomainService _userDomainService;
+        private readonly IRepository<Employee> _employeeRepository;
+        private readonly IEmployeeDomainService _employeeDomainService;
 
-        public CreateUserCommandHandler(
-            IRepository<User> userRepository,
-            IRepository<Role> roleRepository,
-            IUserDomainService userDomainService)
+        public CreateEmployeeCommandHandler(
+            IRepository<Employee> employeeRepository,
+            IEmployeeDomainService employeeDomainService)
         {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
-            _userDomainService = userDomainService;
+            _employeeRepository = employeeRepository;
+            _employeeDomainService = employeeDomainService;
         }
 
-        public async Task<string> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
         {
-            // Validate that role exists
-            var role = await _roleRepository.GetByIdAsync(request.RoleId.ToString());
-            if (role == null)
+            // Check if employee ID already exists
+            var existingEmployee = await _employeeRepository.FirstOrDefaultAsync(e => e.EmployeeId == request.EmployeeId);
+            if (existingEmployee != null)
             {
-                throw new ArgumentException($"Role with ID {request.RoleId} does not exist");
+                throw new ArgumentException($"Employee ID '{request.EmployeeId}' already exists");
             }
 
-            // Check if username already exists
-            var existingUser = await _userRepository.FirstOrDefaultAsync(u => u.Username == request.Username);
-            if (existingUser != null)
-            {
-                throw new ArgumentException($"Username '{request.Username}' already exists");
-            }
+            // Use domain service to create employee
+            var employee = await _employeeDomainService.CreateEmployeeAsync(
+                request.EmployeeId,
+                request.Name,
+                request.Role,
+                request.Position,
+                request.HireDate);
 
-            // Check if email already exists
-            existingUser = await _userRepository.FirstOrDefaultAsync(u => u.Email == request.Email);
-            if (existingUser != null)
-            {
-                throw new ArgumentException($"Email '{request.Email}' already exists");
-            }
+            await _employeeRepository.AddAsync(employee);
+            await _employeeRepository.SaveChangesAsync();
 
-            // Use domain service to create user
-            var user = await _userDomainService.CreateUserAsync(
-                request.Username,
-                request.Email,
-                request.Password,
-                request.FirstName,
-                request.LastName,
-                request.RoleId.ToString());
-
-            await _userRepository.AddAsync(user);
-            await _userRepository.SaveChangesAsync();
-
-            return user.Id;
+            return employee.Id;
         }
 
     }

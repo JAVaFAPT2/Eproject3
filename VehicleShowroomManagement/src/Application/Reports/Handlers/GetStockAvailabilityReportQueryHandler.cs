@@ -23,21 +23,13 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
             var vehicles = await _vehicleRepository.GetAllAsync();
             var asOfDate = request.AsOfDate ?? DateTime.UtcNow;
 
-            // Apply filters
-            if (!string.IsNullOrEmpty(request.Brand))
-            {
-                vehicles = vehicles.Where(v => v.Model?.Brand?.BrandName == request.Brand);
-            }
-
-            if (!string.IsNullOrEmpty(request.Model))
-            {
-                vehicles = vehicles.Where(v => v.Model?.ModelName == request.Model);
-            }
-
+            // Apply filters (simplified for new schema)
             if (!string.IsNullOrEmpty(request.Status))
             {
                 vehicles = vehicles.Where(v => v.Status == request.Status);
             }
+
+            // Brand and Model filtering not directly available in new schema
 
             // Filter by date if specified
             if (request.AsOfDate.HasValue)
@@ -56,42 +48,41 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                 SoldVehicles = vehicleList.Count(v => v.Status == "Sold"),
                 ReservedVehicles = vehicleList.Count(v => v.Status == "Reserved"),
                 InServiceVehicles = vehicleList.Count(v => v.Status == "InService"),
-                TotalValue = vehicleList.Sum(v => v.Price),
-                AvailableValue = vehicleList.Where(v => v.Status == "Available").Sum(v => v.Price)
+                TotalValue = vehicleList.Sum(v => v.PurchasePrice),
+                AvailableValue = vehicleList.Where(v => v.Status == "Available").Sum(v => v.PurchasePrice)
             };
 
-            // Generate brand-wise stock
-            report.BrandStocks = vehicleList
-                .GroupBy(v => v.Model?.Brand?.BrandName ?? "Unknown")
-                .Select(g => new BrandStockDto
+            // Generate brand-wise stock (simplified for new schema)
+            report.BrandStocks = new List<BrandStockDto>
+            {
+                new BrandStockDto
                 {
-                    Brand = g.Key,
-                    TotalCount = g.Count(),
-                    AvailableCount = g.Count(v => v.Status == "Available"),
-                    SoldCount = g.Count(v => v.Status == "Sold"),
-                    ReservedCount = g.Count(v => v.Status == "Reserved"),
-                    InServiceCount = g.Count(v => v.Status == "InService"),
-                    TotalValue = g.Sum(v => v.Price),
-                    AvailableValue = g.Where(v => v.Status == "Available").Sum(v => v.Price)
-                })
-                .OrderByDescending(b => b.TotalCount)
-                .ToList();
+                    Brand = "All",
+                    TotalCount = vehicleList.Count,
+                    AvailableCount = vehicleList.Count(v => v.Status == "Available"),
+                    SoldCount = vehicleList.Count(v => v.Status == "Sold"),
+                    ReservedCount = vehicleList.Count(v => v.Status == "Reserved"),
+                    InServiceCount = vehicleList.Count(v => v.Status == "InService"),
+                    TotalValue = vehicleList.Sum(v => v.PurchasePrice),
+                    AvailableValue = vehicleList.Where(v => v.Status == "Available").Sum(v => v.PurchasePrice)
+                }
+            };
 
-            // Generate model-wise stock
+            // Generate model-wise stock (simplified for new schema)
             report.ModelStocks = vehicleList
-                .GroupBy(v => new { Brand = v.Model?.Brand?.BrandName ?? "Unknown", Model = v.Model?.ModelName ?? "Unknown" })
+                .GroupBy(v => v.ModelNumber)
                 .Select(g => new ModelStockDto
                 {
-                    Brand = g.Key.Brand,
-                    Model = g.Key.Model,
+                    Brand = "Unknown",
+                    Model = g.Key,
                     TotalCount = g.Count(),
                     AvailableCount = g.Count(v => v.Status == "Available"),
                     SoldCount = g.Count(v => v.Status == "Sold"),
                     ReservedCount = g.Count(v => v.Status == "Reserved"),
                     InServiceCount = g.Count(v => v.Status == "InService"),
-                    TotalValue = g.Sum(v => v.Price),
-                    AvailableValue = g.Where(v => v.Status == "Available").Sum(v => v.Price),
-                    AveragePrice = g.Average(v => v.Price)
+                    TotalValue = g.Sum(v => v.PurchasePrice),
+                    AvailableValue = g.Where(v => v.Status == "Available").Sum(v => v.PurchasePrice),
+                    AveragePrice = g.Average(v => v.PurchasePrice)
                 })
                 .OrderByDescending(m => m.TotalCount)
                 .ToList();
@@ -103,8 +94,8 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                 {
                     Status = g.Key,
                     Count = g.Count(),
-                    TotalValue = g.Sum(v => v.Price),
-                    AveragePrice = g.Average(v => v.Price)
+                    TotalValue = g.Sum(v => v.PurchasePrice),
+                    AveragePrice = g.Average(v => v.PurchasePrice)
                 })
                 .OrderByDescending(s => s.Count)
                 .ToList();

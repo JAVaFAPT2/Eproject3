@@ -5,86 +5,73 @@ using VehicleShowroomManagement.Application.Common.DTOs;
 namespace VehicleShowroomManagement.Application.Users.Commands
 {
     /// <summary>
-    /// Command for updating user profile
+    /// Command for updating employee profile
     /// </summary>
     public class UpdateProfileCommand : IRequest<Unit>
     {
-        public string UserId { get; set; }
-        public string? FullName { get; set; }
-        public string? Address { get; set; }
-        public string? Phone { get; set; }
+        public string EmployeeId { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public string? Position { get; set; }
 
-        public UpdateProfileCommand(string userId, string? fullName, string? address, string? phone)
+        public UpdateProfileCommand(string employeeId, string? name, string? position)
         {
-            UserId = userId;
-            FullName = fullName;
-            Address = address;
-            Phone = phone;
+            EmployeeId = employeeId;
+            Name = name;
+            Position = position;
         }
     }
 
     /// <summary>
-    /// Command for changing password
+    /// Command for changing employee status
     /// </summary>
-    public class ChangePasswordCommand : IRequest<Unit>
+    public class ChangeStatusCommand : IRequest<Unit>
     {
-        public string UserId { get; set; }
-        public string OldPassword { get; set; }
-        public string NewPassword { get; set; }
+        public string EmployeeId { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
 
-        public ChangePasswordCommand(string userId, string oldPassword, string newPassword)
+        public ChangeStatusCommand(string employeeId, string status)
         {
-            UserId = userId;
-            OldPassword = oldPassword;
-            NewPassword = newPassword;
+            EmployeeId = employeeId;
+            Status = status;
         }
     }
 
     /// <summary>
-    /// Command for updating a user (admin function)
+    /// Command for updating an employee (admin function)
     /// </summary>
-    public class UpdateUserCommand : IRequest<Unit>
+    public class UpdateEmployeeCommand : IRequest<Unit>
     {
-        public string UserId { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
-        public decimal? Salary { get; set; }
-        public string? RoleId { get; set; }
-        public bool? IsActive { get; set; }
+        public string EmployeeId { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public string? Position { get; set; }
+        public string? Role { get; set; }
+        public string? Status { get; set; }
 
-        public UpdateUserCommand(
-            string userId,
-            string? firstName = null,
-            string? lastName = null,
-            string? email = null,
-            string? phone = null,
-            decimal? salary = null,
-            string? roleId = null,
-            bool? isActive = null)
+        public UpdateEmployeeCommand(
+            string employeeId,
+            string? name = null,
+            string? position = null,
+            string? role = null,
+            string? status = null)
         {
-            UserId = userId;
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
-            Phone = phone;
-            Salary = salary;
-            RoleId = roleId;
-            IsActive = isActive;
+            EmployeeId = employeeId;
+            Name = name;
+            Position = position;
+            Role = role;
+            Status = status;
         }
     }
 
     /// <summary>
-    /// Command for deleting a user (admin function)
+    /// Command for deleting an employee (admin function)
     /// </summary>
-    public class DeleteUserCommand : IRequest<Unit>
+    public class DeleteEmployeeCommand : IRequest<Unit>
     {
-        public string UserId { get; set; }
+        public string EmployeeId { get; set; } = string.Empty;
 
-        public DeleteUserCommand(string userId)
+        public DeleteEmployeeCommand(string employeeId)
         {
-            UserId = userId;
+            EmployeeId = employeeId;
         }
     }
 }

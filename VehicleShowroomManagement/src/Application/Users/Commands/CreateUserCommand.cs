@@ -5,25 +5,23 @@ using VehicleShowroomManagement.Application.Common.DTOs;
 namespace VehicleShowroomManagement.Application.Users.Commands
 {
     /// <summary>
-    /// Command for creating a new user
+    /// Command for creating a new employee
     /// </summary>
-    public class CreateUserCommand : IRequest<string>
+    public class CreateEmployeeCommand : IRequest<string>
     {
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public int RoleId { get; set; }
+        public string EmployeeId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string Position { get; set; } = string.Empty;
+        public DateTime HireDate { get; set; }
 
-        public CreateUserCommand(string username, string email, string password, string firstName, string lastName, int roleId)
+        public CreateEmployeeCommand(string employeeId, string name, string role, string position, DateTime hireDate)
         {
-            Username = username;
-            Email = email;
-            Password = password;
-            FirstName = firstName;
-            LastName = lastName;
-            RoleId = roleId;
+            EmployeeId = employeeId;
+            Name = name;
+            Role = role;
+            Position = position;
+            HireDate = hireDate;
         }
     }
 }

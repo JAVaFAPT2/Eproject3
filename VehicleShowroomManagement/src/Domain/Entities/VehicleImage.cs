@@ -1,6 +1,6 @@
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -11,58 +11,56 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// </summary>
     public class VehicleImage : IEntity, IAuditableEntity, ISoftDelete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ImageId { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [Required]
-        public int VehicleId { get; set; }
+        [BsonElement("vehicleId")]
+        [BsonRequired]
+        public string VehicleId { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(255)]
-        [Column(TypeName = "nvarchar(255)")]
+        [BsonElement("imageUrl")]
+        [BsonRequired]
         public string ImageUrl { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(20)]
-        [Column(TypeName = "nvarchar(20)")]
+        [BsonElement("imageType")]
+        [BsonRequired]
         public string ImageType { get; set; } = "Exterior"; // Exterior, Interior, Engine, Other
 
-        [Required]
-        [StringLength(100)]
-        [Column(TypeName = "nvarchar(100)")]
+        [BsonElement("fileName")]
+        [BsonRequired]
         public string FileName { get; set; } = string.Empty;
 
-        [Required]
+        [BsonElement("fileSize")]
+        [BsonRequired]
         public int FileSize { get; set; } // in bytes
 
-        [StringLength(255)]
-        [Column(TypeName = "nvarchar(255)")]
+        [BsonElement("publicId")]
         public string PublicId { get; set; } = string.Empty; // Cloudinary public ID
 
-        [StringLength(255)]
-        [Column(TypeName = "nvarchar(255)")]
+        [BsonElement("originalFileName")]
         public string OriginalFileName { get; set; } = string.Empty;
 
-        [StringLength(100)]
-        [Column(TypeName = "nvarchar(100)")]
+        [BsonElement("contentType")]
         public string ContentType { get; set; } = string.Empty;
 
+        [BsonElement("isPrimary")]
         public bool IsPrimary { get; set; } = false; // Primary image for vehicle
 
+        [BsonElement("uploadedAt")]
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [BsonElement("isDeleted")]
         public bool IsDeleted { get; set; } = false;
 
+        [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
-
-        // Navigation Properties
-        [ForeignKey("VehicleId")]
-        public virtual Vehicle Vehicle { get; set; } = null!;
 
         // Domain Methods
         public void UpdateImage(string imageUrl, string imageType, string fileName, int fileSize)

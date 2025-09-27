@@ -16,31 +16,32 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("vin")]
+        [BsonElement("vehicleId")]
         [BsonRequired]
-        public string VIN { get; set; } = string.Empty; // Vehicle Identification Number
+        public string VehicleId { get; set; } = string.Empty;
 
-        [BsonElement("modelId")]
+        [BsonElement("modelNumber")]
         [BsonRequired]
-        public string ModelId { get; set; } = string.Empty;
+        public string ModelNumber { get; set; } = string.Empty;
 
-        [BsonElement("color")]
-        [BsonRequired]
-        public string Color { get; set; } = string.Empty;
+        [BsonElement("externalNumber")]
+        public string? ExternalNumber { get; set; }
 
-        [BsonElement("year")]
-        [BsonRequired]
-        public int Year { get; set; }
-
-        [BsonElement("price")]
-        [BsonRequired]
-        public decimal Price { get; set; }
-
-        [BsonElement("mileage")]
-        public int Mileage { get; set; } = 0;
+        [BsonElement("registrationData")]
+        public RegistrationData? RegistrationData { get; set; }
 
         [BsonElement("status")]
         public string Status { get; set; } = "Available"; // Available, Sold, InService, Reserved
+
+        [BsonElement("purchasePrice")]
+        [BsonRequired]
+        public decimal PurchasePrice { get; set; }
+
+        [BsonElement("photos")]
+        public List<string> Photos { get; set; } = new List<string>();
+
+        [BsonElement("receiptDate")]
+        public DateTime ReceiptDate { get; set; } = DateTime.UtcNow;
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -54,25 +55,24 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Embedded model information
-        [BsonElement("model")]
-        public ModelInfo? Model { get; set; }
-
-        // Embedded images
-        [BsonElement("images")]
-        public List<VehicleImage> VehicleImages { get; set; } = new List<VehicleImage>();
-
-        // References to other documents
-        [BsonElement("salesOrderItemIds")]
-        public List<string> SalesOrderItemIds { get; set; } = new List<string>();
-
         // Domain Methods
-        public void UpdateVehicleInfo(string color, int year, decimal price, int mileage)
+        public void UpdateVehicleInfo(string modelNumber, decimal purchasePrice, List<string> photos)
         {
-            Color = color;
-            Year = year;
-            Price = price;
-            Mileage = mileage;
+            ModelNumber = modelNumber;
+            PurchasePrice = purchasePrice;
+            Photos = photos ?? new List<string>();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void UpdateRegistrationData(string vin, string licensePlate, DateTime registrationDate, DateTime expiryDate)
+        {
+            RegistrationData = new RegistrationData
+            {
+                VIN = vin,
+                LicensePlate = licensePlate,
+                RegistrationDate = registrationDate,
+                ExpiryDate = expiryDate
+            };
             UpdatedAt = DateTime.UtcNow;
         }
 
@@ -123,5 +123,27 @@ namespace VehicleShowroomManagement.Domain.Entities
             DeletedAt = null;
             UpdatedAt = DateTime.UtcNow;
         }
-}
+    }
+
+    /// <summary>
+    /// Registration data embedded in Vehicle entity
+    /// </summary>
+    public class RegistrationData
+    {
+        [BsonElement("vin")]
+        [BsonRequired]
+        public string VIN { get; set; } = string.Empty;
+
+        [BsonElement("licensePlate")]
+        [BsonRequired]
+        public string LicensePlate { get; set; } = string.Empty;
+
+        [BsonElement("registrationDate")]
+        [BsonRequired]
+        public DateTime RegistrationDate { get; set; }
+
+        [BsonElement("expiryDate")]
+        [BsonRequired]
+        public DateTime ExpiryDate { get; set; }
+    }
 }

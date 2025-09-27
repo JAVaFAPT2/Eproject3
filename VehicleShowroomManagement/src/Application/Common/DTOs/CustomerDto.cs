@@ -9,8 +9,8 @@ namespace VehicleShowroomManagement.Application.Common.DTOs
     public class CustomerDto
     {
         public string Id { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
+        public string CustomerId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? Phone { get; set; }
         public string? Address { get; set; }
@@ -22,7 +22,11 @@ namespace VehicleShowroomManagement.Application.Common.DTOs
         public DateTime UpdatedAt { get; set; }
         public List<OrderDto> Orders { get; set; } = new List<OrderDto>();
 
-        public string FullName => $"{FirstName} {LastName}";
+        // Backward compatibility properties
+        public string FirstName { get => Name; set => Name = value; }
+        public string LastName { get => ""; set { } }
+
+        public string FullName => Name;
         public AddressInfo? CustomerAddress => new AddressInfo(Address ?? "", City ?? "", State ?? "", ZipCode);
     }
 

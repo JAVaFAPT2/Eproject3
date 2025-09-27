@@ -22,19 +22,16 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         }
 
         // MongoDB Collections
-        public IMongoCollection<User> Users => _database.GetCollection<User>("users");
+        public IMongoCollection<Employee> Employees => _database.GetCollection<Employee>("employees");
         public IMongoCollection<Role> Roles => _database.GetCollection<Role>("roles");
-        public IMongoCollection<UserRole> UserRoles => _database.GetCollection<UserRole>("userRoles");
-        public IMongoCollection<Brand> Brands => _database.GetCollection<Brand>("brands");
-        public IMongoCollection<Model> Models => _database.GetCollection<Model>("models");
+        public IMongoCollection<VehicleModel> VehicleModels => _database.GetCollection<VehicleModel>("vehicleModels");
         public IMongoCollection<Vehicle> Vehicles => _database.GetCollection<Vehicle>("vehicles");
-        public IMongoCollection<VehicleImage> VehicleImages => _database.GetCollection<VehicleImage>("vehicleImages");
         public IMongoCollection<Customer> Customers => _database.GetCollection<Customer>("customers");
         public IMongoCollection<SalesOrder> SalesOrders => _database.GetCollection<SalesOrder>("salesOrders");
-        public IMongoCollection<SalesOrderItem> SalesOrderItems => _database.GetCollection<SalesOrderItem>("salesOrderItems");
-        public IMongoCollection<Invoice> Invoices => _database.GetCollection<Invoice>("invoices");
-        public IMongoCollection<Payment> Payments => _database.GetCollection<Payment>("payments");
         public IMongoCollection<ServiceOrder> ServiceOrders => _database.GetCollection<ServiceOrder>("serviceOrders");
+        public IMongoCollection<BillingDocument> BillingDocuments => _database.GetCollection<BillingDocument>("billingDocuments");
+        public IMongoCollection<Allotment> Allotments => _database.GetCollection<Allotment>("allotments");
+        public IMongoCollection<WaitingList> WaitingLists => _database.GetCollection<WaitingList>("waitingLists");
 
         // Helper methods
         public IMongoDatabase GetDatabase()
@@ -96,19 +93,16 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         {
             var collectionNames = new (string, dynamic)[]
             {
-                ("users", Users),
+                ("employees", Employees),
                 ("roles", Roles),
-                ("userRoles", UserRoles),
-                ("brands", Brands),
-                ("models", Models),
+                ("vehicleModels", VehicleModels),
                 ("vehicles", Vehicles),
-                ("vehicleImages", VehicleImages),
                 ("customers", Customers),
                 ("salesOrders", SalesOrders),
-                ("salesOrderItems", SalesOrderItems),
-                ("invoices", Invoices),
-                ("payments", Payments),
-                ("serviceOrders", ServiceOrders)
+                ("serviceOrders", ServiceOrders),
+                ("billingDocuments", BillingDocuments),
+                ("allotments", Allotments),
+                ("waitingLists", WaitingLists)
             };
 
             foreach (var (name, collection) in collectionNames)
@@ -124,25 +118,21 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             // Add comprehensive indexes based on collection type and query patterns
             switch (collectionName)
             {
-                case "users":
+                case "employees":
                     // Authentication indexes (highest priority)
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("email"),
-                        new CreateIndexOptions { Unique = true, Name = "Email_Unique" }
-                    ));
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("username"),
-                        new CreateIndexOptions { Unique = true, Name = "Username_Unique" }
+                        Builders<T>.IndexKeys.Ascending("employeeId"),
+                        new CreateIndexOptions { Unique = true, Name = "EmployeeId_Unique" }
                     ));
 
                     // Query optimization indexes
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("roleId").Ascending("isDeleted"),
-                        new CreateIndexOptions { Name = "RoleId_IsDeleted" }
+                        Builders<T>.IndexKeys.Ascending("role").Ascending("isDeleted"),
+                        new CreateIndexOptions { Name = "Role_IsDeleted" }
                     ));
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("isActive").Ascending("isDeleted"),
-                        new CreateIndexOptions { Name = "IsActive_IsDeleted" }
+                        Builders<T>.IndexKeys.Ascending("status").Ascending("isDeleted"),
+                        new CreateIndexOptions { Name = "Status_IsDeleted" }
                     ));
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("createdAt"),
@@ -151,10 +141,10 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                     break;
 
                 case "vehicles":
-                    // Critical business indexes (VIN is primary identifier)
+                    // Critical business indexes (vehicleId is primary identifier)
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("vin"),
-                        new CreateIndexOptions { Unique = true, Name = "VIN_Unique" }
+                        Builders<T>.IndexKeys.Ascending("vehicleId"),
+                        new CreateIndexOptions { Unique = true, Name = "VehicleId_Unique" }
                     ));
 
                     // Search and filter indexes (most frequent queries)
@@ -163,18 +153,14 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                         new CreateIndexOptions { Name = "Status_IsDeleted" }
                     ));
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("modelId").Ascending("status"),
-                        new CreateIndexOptions { Name = "ModelId_Status" }
+                        Builders<T>.IndexKeys.Ascending("modelNumber").Ascending("status"),
+                        new CreateIndexOptions { Name = "ModelNumber_Status" }
                     ));
 
                     // Price-based queries (frequent for sales)
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("price"),
-                        new CreateIndexOptions { Name = "Price" }
-                    ));
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("year").Descending("price"),
-                        new CreateIndexOptions { Name = "Year_Desc_Price" }
+                        Builders<T>.IndexKeys.Ascending("purchasePrice"),
+                        new CreateIndexOptions { Name = "PurchasePrice" }
                     ));
 
                     // Audit trail (soft delete optimization)
@@ -191,8 +177,30 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                     ));
                     break;
 
+                case "vehicleModels":
+                    // Unique index for model number
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("modelNumber"),
+                        new CreateIndexOptions { Unique = true, Name = "ModelNumber_Unique" }
+                    ));
+
+                    // Query optimization
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("brand").Ascending("isDeleted"),
+                        new CreateIndexOptions { Name = "Brand_IsDeleted" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("basePrice"),
+                        new CreateIndexOptions { Name = "BasePrice" }
+                    ));
+                    break;
+
                 case "customers":
                     // Contact indexes (business critical)
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("customerId"),
+                        new CreateIndexOptions { Unique = true, Name = "CustomerId_Unique" }
+                    ));
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("email"),
                         new CreateIndexOptions { Unique = true, Name = "Email_Unique" }
@@ -209,35 +217,23 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                     ));
                     break;
 
-                case "brands":
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("brandName"),
-                        new CreateIndexOptions { Unique = true, Name = "BrandName_Unique" }
-                    ));
-                    break;
-
-                case "models":
-                    // Composite unique index for model and brand relationship
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Combine(
-                            Builders<T>.IndexKeys.Ascending("modelName"),
-                            Builders<T>.IndexKeys.Ascending("brandId")
-                        ),
-                        new CreateIndexOptions { Unique = true, Name = "ModelName_BrandId_Unique" }
-                    ));
-
-                    // Query optimization
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("brandId").Ascending("isDeleted"),
-                        new CreateIndexOptions { Name = "BrandId_IsDeleted" }
-                    ));
-                    break;
-
                 case "salesOrders":
                     // Business critical indexes (customer queries are most frequent)
                     indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("salesOrderId"),
+                        new CreateIndexOptions { Unique = true, Name = "SalesOrderId_Unique" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("customerId").Ascending("status"),
                         new CreateIndexOptions { Name = "CustomerId_Status" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("status"),
+                        new CreateIndexOptions { Name = "VehicleId_Status" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("employeeId").Ascending("status"),
+                        new CreateIndexOptions { Name = "EmployeeId_Status" }
                     ));
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("status").Ascending("orderDate"),
@@ -246,32 +242,14 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
 
                     // Date-based analytics (frequent reporting queries)
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("orderDate").Descending("totalAmount"),
-                        new CreateIndexOptions { Name = "OrderDate_Desc_TotalAmount" }
+                        Builders<T>.IndexKeys.Ascending("orderDate").Descending("salePrice"),
+                        new CreateIndexOptions { Name = "OrderDate_Desc_SalePrice" }
                     ));
 
                     // Audit trail
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("isDeleted").Ascending("createdAt"),
                         new CreateIndexOptions { Name = "IsDeleted_CreatedAt" }
-                    ));
-                    break;
-
-                case "salesOrderItems":
-                    // Relationship indexes (join-like queries)
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("salesOrderId").Ascending("isDeleted"),
-                        new CreateIndexOptions { Name = "SalesOrderId_IsDeleted" }
-                    ));
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("isDeleted"),
-                        new CreateIndexOptions { Name = "VehicleId_IsDeleted" }
-                    ));
-
-                    // Pricing analytics
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("unitPrice").Descending("lineTotal"),
-                        new CreateIndexOptions { Name = "UnitPrice_Desc_LineTotal" }
                     ));
                     break;
 
@@ -303,33 +281,65 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
 
                 case "serviceOrders":
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("status"),
-                        new CreateIndexOptions { Name = "VehicleId_Status" }
+                        Builders<T>.IndexKeys.Ascending("serviceOrderId"),
+                        new CreateIndexOptions { Unique = true, Name = "ServiceOrderId_Unique" }
                     ));
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("customerId").Ascending("serviceDate"),
-                        new CreateIndexOptions { Name = "CustomerId_ServiceDate" }
+                        Builders<T>.IndexKeys.Ascending("salesOrderId").Ascending("status"),
+                        new CreateIndexOptions { Name = "SalesOrderId_Status" }
                     ));
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("serviceDate").Descending("totalCost"),
-                        new CreateIndexOptions { Name = "ServiceDate_Desc_TotalCost" }
+                        Builders<T>.IndexKeys.Ascending("employeeId").Ascending("status"),
+                        new CreateIndexOptions { Name = "EmployeeId_Status" }
                     ));
-                    break;
-
-                case "vehicleImages":
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("imageType"),
-                        new CreateIndexOptions { Name = "VehicleId_ImageType" }
+                        Builders<T>.IndexKeys.Ascending("serviceDate").Descending("cost"),
+                        new CreateIndexOptions { Name = "ServiceDate_Desc_Cost" }
                     ));
                     break;
 
-                case "userRoles":
+                case "billingDocuments":
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Combine(
-                            Builders<T>.IndexKeys.Ascending("userId"),
-                            Builders<T>.IndexKeys.Ascending("roleId")
-                        ),
-                        new CreateIndexOptions { Unique = true, Name = "UserId_RoleId_Unique" }
+                        Builders<T>.IndexKeys.Ascending("billId"),
+                        new CreateIndexOptions { Unique = true, Name = "BillId_Unique" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("salesOrderId").Ascending("billDate"),
+                        new CreateIndexOptions { Name = "SalesOrderId_BillDate" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("employeeId").Ascending("billDate"),
+                        new CreateIndexOptions { Name = "EmployeeId_BillDate" }
+                    ));
+                    break;
+
+                case "allotments":
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("allotmentId"),
+                        new CreateIndexOptions { Unique = true, Name = "AllotmentId_Unique" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("customerId"),
+                        new CreateIndexOptions { Name = "VehicleId_CustomerId" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("employeeId").Ascending("allotmentDate"),
+                        new CreateIndexOptions { Name = "EmployeeId_AllotmentDate" }
+                    ));
+                    break;
+
+                case "waitingLists":
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("waitId"),
+                        new CreateIndexOptions { Unique = true, Name = "WaitId_Unique" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("customerId").Ascending("modelNumber"),
+                        new CreateIndexOptions { Name = "CustomerId_ModelNumber" }
+                    ));
+                    indexModels.Add(new CreateIndexModel<T>(
+                        Builders<T>.IndexKeys.Ascending("status").Ascending("requestDate"),
+                        new CreateIndexOptions { Name = "Status_RequestDate" }
                     ));
                     break;
             }

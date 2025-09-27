@@ -15,35 +15,25 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("firstName")]
+        [BsonElement("customerId")]
         [BsonRequired]
-        public string FirstName { get; set; } = string.Empty;
+        public string CustomerId { get; set; } = string.Empty;
 
-        [BsonElement("lastName")]
+        [BsonElement("name")]
         [BsonRequired]
-        public string LastName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+
+        [BsonElement("address")]
+        [BsonRequired]
+        public string Address { get; set; } = string.Empty;
+
+        [BsonElement("phone")]
+        [BsonRequired]
+        public string Phone { get; set; } = string.Empty;
 
         [BsonElement("email")]
         [BsonRequired]
         public string Email { get; set; } = string.Empty;
-
-        [BsonElement("cccd")]
-        public string? Cccd { get; set; }
-
-        [BsonElement("phone")]
-        public string? Phone { get; set; }
-
-        [BsonElement("address")]
-        public string? Address { get; set; }
-
-        [BsonElement("city")]
-        public string? City { get; set; }
-
-        [BsonElement("state")]
-        public string? State { get; set; }
-
-        [BsonElement("zipCode")]
-        public string? ZipCode { get; set; }
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -64,38 +54,18 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("serviceOrderIds")]
         public List<string> ServiceOrderIds { get; set; } = new List<string>();
 
-        // Computed Properties
-        [BsonIgnore]
-        public string FullName => $"{FirstName} {LastName}";
-
-        [BsonIgnore]
-        public AddressInfo? CustomerAddress
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(City) || string.IsNullOrEmpty(State))
-                    return null;
-
-                return new AddressInfo(Address, City, State, ZipCode);
-            }
-        }
-
         // Domain Methods
-        public void UpdateProfile(string firstName, string lastName, string email, string? phone)
+        public void UpdateProfile(string name, string email, string phone)
         {
-            FirstName = firstName;
-            LastName = lastName;
+            Name = name;
             Email = email;
             Phone = phone;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UpdateAddress(string? address, string? city, string? state, string? zipCode)
+        public void UpdateAddress(string address)
         {
             Address = address;
-            City = city;
-            State = state;
-            ZipCode = zipCode;
             UpdatedAt = DateTime.UtcNow;
         }
 
@@ -112,37 +82,5 @@ namespace VehicleShowroomManagement.Domain.Entities
             DeletedAt = null;
             UpdatedAt = DateTime.UtcNow;
         }
-    }
-
-    /// <summary>
-    /// Embedded address information within Customer document
-    /// </summary>
-    public class AddressInfo
-    {
-        [BsonElement("street")]
-        [BsonRequired]
-        public string Street { get; set; } = string.Empty;
-
-        [BsonElement("city")]
-        [BsonRequired]
-        public string City { get; set; } = string.Empty;
-
-        [BsonElement("state")]
-        [BsonRequired]
-        public string State { get; set; } = string.Empty;
-
-        [BsonElement("zipCode")]
-        public string? ZipCode { get; set; }
-
-        public AddressInfo(string street, string city, string state, string? zipCode)
-        {
-            Street = street;
-            City = city;
-            State = state;
-            ZipCode = zipCode;
-        }
-
-        [BsonIgnore]
-        public string FullAddress => $"{Street}, {City}, {State} {(string.IsNullOrEmpty(ZipCode) ? "" : ZipCode)}";
     }
 }

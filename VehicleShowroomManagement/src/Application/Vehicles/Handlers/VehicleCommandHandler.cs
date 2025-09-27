@@ -9,7 +9,7 @@ using VehicleShowroomManagement.Domain.Interfaces;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleEntity = VehicleShowroomManagement.Domain.Entities.Vehicle;
 using BrandEntity = VehicleShowroomManagement.Domain.Entities.Brand;
-using ModelEntity = VehicleShowroomManagement.Domain.Entities.Model;
+using VehicleModelEntity = VehicleShowroomManagement.Domain.Entities.VehicleModel;
 
 
 namespace VehicleShowroomManagement.Application.Vehicles.Handlers
@@ -21,16 +21,16 @@ namespace VehicleShowroomManagement.Application.Vehicles.Handlers
     {
         private readonly IRepository<VehicleEntity> _vehicleRepository;
         private readonly IRepository<Brand> _brandRepository;
-        private readonly IRepository<Model> _modelRepository;
+        private readonly IRepository<VehicleModelEntity> _vehicleModelRepository;
 
         public CreateVehicleCommandHandler(
             IRepository<VehicleEntity> vehicleRepository,
             IRepository<Brand> brandRepository,
-            IRepository<Model> modelRepository)
+            IRepository<VehicleModelEntity> vehicleModelRepository)
         {
             _vehicleRepository = vehicleRepository;
             _brandRepository = brandRepository;
-            _modelRepository = modelRepository;
+            _vehicleModelRepository = vehicleModelRepository;
         }
 
         public async Task<VehicleDto> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
@@ -53,45 +53,49 @@ namespace VehicleShowroomManagement.Application.Vehicles.Handlers
                 await _brandRepository.AddAsync(brand);
             }
 
-            // Check if model exists, create if not
-            var model = await _modelRepository.FirstOrDefaultAsync(m =>
-                m.ModelName == request.Name &&
-                m.BrandId == brand.Id &&
+            // Check if vehicle model exists, create if not
+            var vehicleModel = await _vehicleModelRepository.FirstOrDefaultAsync(m =>
+                m.Name == request.Name &&
+                m.Brand == brand.BrandName &&
                 !m.IsDeleted);
 
-            if (model == null)
+            if (vehicleModel == null)
             {
-                model = new Model
+                vehicleModel = new VehicleModelEntity
                 {
                     Id = ObjectId.GenerateNewId().ToString(),
-                    ModelName = request.Name,
-                    BrandId = brand.Id,
-                    EngineType = "Standard", // Default values
-                    Transmission = "Manual",
-                    FuelType = "Gasoline",
-                    SeatingCapacity = 5,
+                    ModelNumber = request.ModelNumber,
+                    Name = request.Name,
+                    Brand = brand.BrandName,
+                    BasePrice = request.Price,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     IsDeleted = false
                 };
-                await _modelRepository.AddAsync(model);
+                await _vehicleModelRepository.AddAsync(vehicleModel);
             }
 
             // Create vehicle
             var vehicle = new VehicleEntity
             {
                 Id = ObjectId.GenerateNewId().ToString(),
-                VIN = request.ModelNumber, // Using ModelNumber as VIN for now
-                ModelId = model.Id,
-                Color = "Default", // Default color
-                Year = request.RegistrationDate.Year,
-                Price = request.Price,
-                Mileage = 0,
+                VehicleId = request.VehicleId ?? $"VEH-{DateTime.Now:yyyyMMdd}-{new Random().Next(1000, 9999)}",
+                ModelNumber = vehicleModel.ModelNumber,
+                ExternalNumber = request.ExternalId,
+                RegistrationData = new RegistrationData
+                {
+                    VIN = request.ModelNumber, // Using ModelNumber as VIN for now
+                    LicensePlate = request.RegistrationNumber ?? "TEMP-001",
+                    RegistrationDate = request.RegistrationDate,
+                    ExpiryDate = request.RegistrationDate.AddYears(1)
+                },
                 Status = request.Status,
+                PurchasePrice = request.Price,
+                Photos = new List<string>(),
+                ReceiptDate = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 IsDeleted = false
-                // Model info will be populated via reference to ModelId
             };
 
             await _vehicleRepository.AddAsync(vehicle);
@@ -105,31 +109,27 @@ namespace VehicleShowroomManagement.Application.Vehicles.Handlers
             return new VehicleDto
             {
                 Id = vehicle.Id,
-                VIN = vehicle.VIN,
-                ModelNumber = vehicle.VIN,
-                Name = vehicle.Model?.ModelName ?? "Unknown",
-                Brand = vehicle.Model?.Brand?.BrandName ?? "Unknown",
-                BrandId = vehicle.Model?.BrandId ?? string.Empty,
-                ModelId = vehicle.ModelId,
-                Color = vehicle.Color,
-                Year = vehicle.Year,
-                Price = vehicle.Price,
-                Mileage = vehicle.Mileage,
+                VehicleId = vehicle.VehicleId,
+                VIN = vehicle.RegistrationData?.VIN ?? string.Empty,
+                ModelNumber = vehicle.ModelNumber,
+                ExternalNumber = vehicle.ExternalNumber,
+                Name = vehicle.ModelNumber, // Using ModelNumber as name
+                Brand = "Unknown", // Not available in new schema
+                BrandId = string.Empty,
+                ModelId = vehicle.ModelNumber,
+                Color = "Unknown", // Not available in new schema
+                Year = 0, // Not available in new schema
+                PurchasePrice = vehicle.PurchasePrice,
+                Mileage = 0, // Not available in new schema
                 Status = vehicle.Status,
-                RegistrationNumber = "TEMP-001", // Placeholder
-                RegistrationDate = DateTime.UtcNow,
-                ExternalId = "EXT-001", // Placeholder
+                LicensePlate = vehicle.RegistrationData?.LicensePlate ?? string.Empty,
+                RegistrationDate = vehicle.RegistrationData?.RegistrationDate,
+                ExpiryDate = vehicle.RegistrationData?.ExpiryDate,
+                Photos = vehicle.Photos ?? new List<string>(),
+                ReceiptDate = vehicle.ReceiptDate,
                 CreatedAt = vehicle.CreatedAt,
                 UpdatedAt = vehicle.UpdatedAt,
-                Images = vehicle.VehicleImages.Select(img => new VehicleImageDto
-                {
-                    ImageId = img.ImageId.ToString(),
-                    ImageUrl = img.ImageUrl,
-                    ImageType = img.ImageType,
-                    FileName = img.FileName,
-                    FileSize = img.FileSize,
-                    UploadedAt = img.UploadedAt
-                }).ToList()
+                Images = new List<VehicleImageDto>() // Not available in new schema
             };
         }
     }
@@ -154,8 +154,13 @@ namespace VehicleShowroomManagement.Application.Vehicles.Handlers
                 throw new ArgumentException("Vehicle not found");
             }
 
-            vehicle.Price = request.Price;
-            vehicle.Status = request.Status;
+            vehicle.PurchasePrice = request.PurchasePrice;
+
+            if (!string.IsNullOrEmpty(request.Status))
+            {
+                vehicle.Status = request.Status;
+            }
+
             vehicle.UpdatedAt = DateTime.UtcNow;
 
             await _vehicleRepository.UpdateAsync(vehicle);

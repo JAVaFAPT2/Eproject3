@@ -20,4 +20,17 @@ namespace VehicleShowroomManagement.Application.Users.Queries
             PageSize = pageSize;
         }
     }
+
+    /// <summary>
+    /// Query for getting employee profile
+    /// </summary>
+    public class GetEmployeeProfileQuery : IRequest<EmployeeProfileDto>
+    {
+        public string EmployeeId { get; set; } = string.Empty;
+
+        public GetEmployeeProfileQuery(string employeeId)
+        {
+            EmployeeId = employeeId;
+        }
+    }
 }
