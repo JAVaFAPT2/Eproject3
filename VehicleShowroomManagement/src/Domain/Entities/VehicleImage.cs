@@ -62,6 +62,40 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
+        // Private constructor for MongoDB
+        private VehicleImage() { }
+
+        public VehicleImage(string vehicleId, string imageUrl, string imageType, string fileName, int fileSize, string? publicId = null, string? originalFileName = null, string? contentType = null, bool isPrimary = false)
+        {
+            if (string.IsNullOrWhiteSpace(vehicleId))
+                throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
+
+            if (string.IsNullOrWhiteSpace(imageUrl))
+                throw new ArgumentException("Image URL cannot be null or empty", nameof(imageUrl));
+
+            if (string.IsNullOrWhiteSpace(imageType))
+                throw new ArgumentException("Image type cannot be null or empty", nameof(imageType));
+
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentException("File name cannot be null or empty", nameof(fileName));
+
+            if (fileSize <= 0)
+                throw new ArgumentException("File size must be greater than zero", nameof(fileSize));
+
+            VehicleId = vehicleId;
+            ImageUrl = imageUrl;
+            ImageType = imageType;
+            FileName = fileName;
+            FileSize = fileSize;
+            PublicId = publicId ?? string.Empty;
+            OriginalFileName = originalFileName ?? fileName;
+            ContentType = contentType ?? "image/jpeg";
+            IsPrimary = isPrimary;
+            UploadedAt = DateTime.UtcNow;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         // Domain Methods
         public void UpdateImage(string imageUrl, string imageType, string fileName, int fileSize)
         {

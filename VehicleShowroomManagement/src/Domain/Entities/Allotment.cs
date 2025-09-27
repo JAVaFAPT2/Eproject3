@@ -47,6 +47,32 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
+        // Private constructor for MongoDB
+        private Allotment() { }
+
+        public Allotment(string allotmentId, string vehicleId, string customerId, string employeeId, DateTime allotmentDate)
+        {
+            if (string.IsNullOrWhiteSpace(allotmentId))
+                throw new ArgumentException("Allotment ID cannot be null or empty", nameof(allotmentId));
+
+            if (string.IsNullOrWhiteSpace(vehicleId))
+                throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
+
+            if (string.IsNullOrWhiteSpace(customerId))
+                throw new ArgumentException("Customer ID cannot be null or empty", nameof(customerId));
+
+            if (string.IsNullOrWhiteSpace(employeeId))
+                throw new ArgumentException("Employee ID cannot be null or empty", nameof(employeeId));
+
+            AllotmentId = allotmentId;
+            VehicleId = vehicleId;
+            CustomerId = customerId;
+            EmployeeId = employeeId;
+            AllotmentDate = allotmentDate;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         // Domain Methods
         public void UpdateAllotmentDate(DateTime allotmentDate)
         {

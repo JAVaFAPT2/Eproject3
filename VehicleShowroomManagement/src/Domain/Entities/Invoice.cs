@@ -50,6 +50,41 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
+        // Private constructor for MongoDB
+        private Invoice() { }
+
+        public Invoice(string salesOrderId, string invoiceNumber, string customerId, DateTime invoiceDate, DateTime dueDate, decimal subtotal, decimal taxAmount, decimal totalAmount)
+        {
+            if (string.IsNullOrWhiteSpace(salesOrderId))
+                throw new ArgumentException("Sales order ID cannot be null or empty", nameof(salesOrderId));
+
+            if (string.IsNullOrWhiteSpace(invoiceNumber))
+                throw new ArgumentException("Invoice number cannot be null or empty", nameof(invoiceNumber));
+
+            if (string.IsNullOrWhiteSpace(customerId))
+                throw new ArgumentException("Customer ID cannot be null or empty", nameof(customerId));
+
+            if (subtotal < 0)
+                throw new ArgumentException("Subtotal cannot be negative", nameof(subtotal));
+
+            if (taxAmount < 0)
+                throw new ArgumentException("Tax amount cannot be negative", nameof(taxAmount));
+
+            if (totalAmount < 0)
+                throw new ArgumentException("Total amount cannot be negative", nameof(totalAmount));
+
+            SalesOrderId = salesOrderId;
+            InvoiceNumber = invoiceNumber;
+            CustomerId = customerId;
+            InvoiceDate = invoiceDate;
+            DueDate = dueDate;
+            Subtotal = subtotal;
+            TaxAmount = taxAmount;
+            TotalAmount = totalAmount;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         // References to other documents
         [BsonElement("paymentIds")]
         public List<string> PaymentIds { get; set; } = new List<string>();

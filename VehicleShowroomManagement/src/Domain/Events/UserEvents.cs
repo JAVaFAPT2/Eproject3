@@ -54,4 +54,21 @@ namespace VehicleShowroomManagement.Domain.Events
             NewRole = newRole;
         }
     }
+
+    /// <summary>
+    /// Waiting list created domain event
+    /// </summary>
+    public record WaitingListCreatedEvent : DomainEvent
+    {
+        public string WaitingListId { get; init; }
+        public string WaitId { get; init; }
+        public string CustomerId { get; init; }
+        public string ModelNumber { get; init; }
+
+        public WaitingListCreatedEvent(string waitingListId, string waitId)
+        {
+            WaitingListId = waitingListId;
+            WaitId = waitId;
+        }
+    }
 }

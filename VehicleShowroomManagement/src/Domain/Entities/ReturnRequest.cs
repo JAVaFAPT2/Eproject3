@@ -60,6 +60,36 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
+        // Private constructor for MongoDB
+        private ReturnRequest() { }
+
+        public ReturnRequest(string orderId, string customerId, string vehicleId, string reason, string description = "", decimal refundAmount = 0)
+        {
+            if (string.IsNullOrWhiteSpace(orderId))
+                throw new ArgumentException("Order ID cannot be null or empty", nameof(orderId));
+
+            if (string.IsNullOrWhiteSpace(customerId))
+                throw new ArgumentException("Customer ID cannot be null or empty", nameof(customerId));
+
+            if (string.IsNullOrWhiteSpace(vehicleId))
+                throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
+
+            if (string.IsNullOrWhiteSpace(reason))
+                throw new ArgumentException("Reason cannot be null or empty", nameof(reason));
+
+            if (refundAmount < 0)
+                throw new ArgumentException("Refund amount cannot be negative", nameof(refundAmount));
+
+            OrderId = orderId;
+            CustomerId = customerId;
+            VehicleId = vehicleId;
+            Reason = reason;
+            Description = description;
+            RefundAmount = refundAmount;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         // Domain Methods
         public void Approve(string processedBy, string notes = "")
         {

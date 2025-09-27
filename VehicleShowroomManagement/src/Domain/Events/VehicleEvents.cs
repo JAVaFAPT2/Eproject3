@@ -70,4 +70,21 @@ namespace VehicleShowroomManagement.Domain.Events
             RegistrationNumber = registrationNumber;
         }
     }
+
+    /// <summary>
+    /// Vehicle image created domain event
+    /// </summary>
+    public record VehicleImageCreatedEvent : DomainEvent
+    {
+        public string VehicleImageId { get; init; }
+        public string VehicleId { get; init; }
+        public string ImageType { get; init; }
+        public bool IsPrimary { get; init; }
+
+        public VehicleImageCreatedEvent(string vehicleImageId, string vehicleId)
+        {
+            VehicleImageId = vehicleImageId;
+            VehicleId = vehicleId;
+        }
+    }
 }

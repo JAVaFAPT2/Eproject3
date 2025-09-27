@@ -111,4 +111,72 @@ namespace VehicleShowroomManagement.Domain.Events
             BillNumber = billNumber;
         }
     }
+
+    /// <summary>
+    /// Allotment created domain event
+    /// </summary>
+    public record AllotmentCreatedEvent : DomainEvent
+    {
+        public string AllotmentId { get; init; }
+        public string AllotmentNumber { get; init; }
+        public string VehicleId { get; init; }
+        public string CustomerId { get; init; }
+
+        public AllotmentCreatedEvent(string allotmentId, string allotmentNumber)
+        {
+            AllotmentId = allotmentId;
+            AllotmentNumber = allotmentNumber;
+        }
+    }
+
+    /// <summary>
+    /// Return request created domain event
+    /// </summary>
+    public record ReturnRequestCreatedEvent : DomainEvent
+    {
+        public string ReturnRequestId { get; init; }
+        public string OrderId { get; init; }
+        public string CustomerId { get; init; }
+        public string VehicleId { get; init; }
+
+        public ReturnRequestCreatedEvent(string returnRequestId, string orderId)
+        {
+            ReturnRequestId = returnRequestId;
+            OrderId = orderId;
+        }
+    }
+
+    /// <summary>
+    /// Invoice created domain event
+    /// </summary>
+    public record InvoiceCreatedEvent : DomainEvent
+    {
+        public string InvoiceId { get; init; }
+        public string InvoiceNumber { get; init; }
+        public string SalesOrderId { get; init; }
+        public decimal TotalAmount { get; init; }
+
+        public InvoiceCreatedEvent(string invoiceId, string invoiceNumber)
+        {
+            InvoiceId = invoiceId;
+            InvoiceNumber = invoiceNumber;
+        }
+    }
+
+    /// <summary>
+    /// Payment created domain event
+    /// </summary>
+    public record PaymentCreatedEvent : DomainEvent
+    {
+        public string PaymentId { get; init; }
+        public string InvoiceId { get; init; }
+        public decimal Amount { get; init; }
+        public string PaymentMethod { get; init; }
+
+        public PaymentCreatedEvent(string paymentId, string invoiceId)
+        {
+            PaymentId = paymentId;
+            InvoiceId = invoiceId;
+        }
+    }
 }

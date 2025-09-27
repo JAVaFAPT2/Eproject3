@@ -46,6 +46,29 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
+        // Private constructor for MongoDB
+        private WaitingList() { }
+
+        public WaitingList(string waitId, string customerId, string modelNumber, DateTime requestDate, string status = "Waiting")
+        {
+            if (string.IsNullOrWhiteSpace(waitId))
+                throw new ArgumentException("Wait ID cannot be null or empty", nameof(waitId));
+
+            if (string.IsNullOrWhiteSpace(customerId))
+                throw new ArgumentException("Customer ID cannot be null or empty", nameof(customerId));
+
+            if (string.IsNullOrWhiteSpace(modelNumber))
+                throw new ArgumentException("Model number cannot be null or empty", nameof(modelNumber));
+
+            WaitId = waitId;
+            CustomerId = customerId;
+            ModelNumber = modelNumber;
+            RequestDate = requestDate;
+            Status = status;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         // Domain Methods
         public void UpdateStatus(string status)
         {

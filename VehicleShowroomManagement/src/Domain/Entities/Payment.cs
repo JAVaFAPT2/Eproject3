@@ -48,6 +48,37 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
+        [BsonElement("salesOrderId")]
+        [BsonRequired]
+        public string SalesOrderId { get; set; } = string.Empty;
+
+        // Private constructor for MongoDB
+        private Payment() { }
+
+        public Payment(string invoiceId, string salesOrderId, decimal amount, string paymentMethod, DateTime paymentDate, string? referenceNumber = null)
+        {
+            if (string.IsNullOrWhiteSpace(invoiceId))
+                throw new ArgumentException("Invoice ID cannot be null or empty", nameof(invoiceId));
+
+            if (string.IsNullOrWhiteSpace(salesOrderId))
+                throw new ArgumentException("Sales order ID cannot be null or empty", nameof(salesOrderId));
+
+            if (amount <= 0)
+                throw new ArgumentException("Amount must be greater than zero", nameof(amount));
+
+            if (string.IsNullOrWhiteSpace(paymentMethod))
+                throw new ArgumentException("Payment method cannot be null or empty", nameof(paymentMethod));
+
+            InvoiceId = invoiceId;
+            SalesOrderId = salesOrderId;
+            Amount = amount;
+            PaymentMethod = paymentMethod;
+            PaymentDate = paymentDate;
+            ReferenceNumber = referenceNumber;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         // Domain Methods
         public void MarkAsCompleted()
         {
