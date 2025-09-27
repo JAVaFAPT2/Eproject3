@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.GoodsReceipts.DTOs;
+using VehicleShowroomManagement.Application.GoodsReceipts.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 

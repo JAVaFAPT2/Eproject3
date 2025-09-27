@@ -12,7 +12,7 @@ namespace VehicleShowroomManagement.Application.Reports.DTOs
         public List<VehicleDetailDto> Vehicles { get; set; } = new List<VehicleDetailDto>();
         public List<BrandSummaryDto> BrandSummaries { get; set; } = new List<BrandSummaryDto>();
         public List<ModelSummaryDto> ModelSummaries { get; set; } = new List<ModelSummaryDto>();
-        public List<StatusSummaryDto> StatusSummaries { get; set; } = new List<StatusSummaryDto>();
+        public List<VehicleStatusSummaryDto> StatusSummaries { get; set; } = new List<VehicleStatusSummaryDto>();
         public List<YearSummaryDto> YearSummaries { get; set; } = new List<YearSummaryDto>();
     }
 
@@ -82,7 +82,7 @@ namespace VehicleShowroomManagement.Application.Reports.DTOs
         public int SoldCount { get; set; }
     }
 
-    public class StatusSummaryDto
+    public class VehicleStatusSummaryDto
     {
         public string Status { get; set; } = string.Empty;
         public int VehicleCount { get; set; }

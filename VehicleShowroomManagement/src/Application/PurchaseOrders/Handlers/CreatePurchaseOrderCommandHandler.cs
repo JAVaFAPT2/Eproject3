@@ -1,4 +1,5 @@
 using MediatR;
+using VehicleShowroomManagement.Application.PurchaseOrders.Commands;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -41,7 +42,7 @@ namespace VehicleShowroomManagement.Application.PurchaseOrders.Handlers
             purchaseOrder.CalculateTotalAmount();
 
             await _purchaseOrderRepository.AddAsync(purchaseOrder);
-            await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.SaveChangesAsync();
 
             return purchaseOrder.Id;
         }

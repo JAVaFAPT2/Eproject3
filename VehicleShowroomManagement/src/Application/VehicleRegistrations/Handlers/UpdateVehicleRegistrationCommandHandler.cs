@@ -1,4 +1,5 @@
 using MediatR;
+using VehicleShowroomManagement.Application.VehicleRegistrations.Commands;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -44,7 +45,7 @@ namespace VehicleShowroomManagement.Application.VehicleRegistrations.Handlers
             vehicleRegistration.Notes = request.Notes;
 
             await _vehicleRegistrationRepository.UpdateAsync(vehicleRegistration);
-            await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.SaveChangesAsync();
 
             return true;
         }

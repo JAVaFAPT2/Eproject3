@@ -1,4 +1,5 @@
 using MediatR;
+using VehicleShowroomManagement.Application.ServiceOrders.DTOs;
 
 namespace VehicleShowroomManagement.Application.ServiceOrders.Queries
 {

@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Reports.DTOs;
+using VehicleShowroomManagement.Application.Reports.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -25,12 +26,12 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
             // Apply filters
             if (!string.IsNullOrEmpty(request.Brand))
             {
-                vehicles = vehicles.Where(v => v.Model?.Brand == request.Brand);
+                vehicles = vehicles.Where(v => v.Model?.Brand?.BrandName == request.Brand);
             }
 
             if (!string.IsNullOrEmpty(request.Model))
             {
-                vehicles = vehicles.Where(v => v.Model?.Name == request.Model);
+                vehicles = vehicles.Where(v => v.Model?.ModelName == request.Model);
             }
 
             if (!string.IsNullOrEmpty(request.Status))
@@ -61,7 +62,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
 
             // Generate brand-wise stock
             report.BrandStocks = vehicleList
-                .GroupBy(v => v.Model?.Brand ?? "Unknown")
+                .GroupBy(v => v.Model?.Brand?.BrandName ?? "Unknown")
                 .Select(g => new BrandStockDto
                 {
                     Brand = g.Key,
@@ -78,7 +79,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
 
             // Generate model-wise stock
             report.ModelStocks = vehicleList
-                .GroupBy(v => new { Brand = v.Model?.Brand ?? "Unknown", Model = v.Model?.Name ?? "Unknown" })
+                .GroupBy(v => new { Brand = v.Model?.Brand?.BrandName ?? "Unknown", Model = v.Model?.ModelName ?? "Unknown" })
                 .Select(g => new ModelStockDto
                 {
                     Brand = g.Key.Brand,

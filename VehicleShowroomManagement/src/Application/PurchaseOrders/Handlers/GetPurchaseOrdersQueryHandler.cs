@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.PurchaseOrders.DTOs;
+using VehicleShowroomManagement.Application.PurchaseOrders.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -25,10 +26,10 @@ namespace VehicleShowroomManagement.Application.PurchaseOrders.Handlers
             if (!string.IsNullOrEmpty(request.SearchTerm))
             {
                 purchaseOrders = purchaseOrders.Where(po => 
-                    po.OrderNumber.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    po.Name.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    po.Brand.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    po.ModelNumber.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase));
+                    po.OrderNumber.Contains(request.SearchTerm!, StringComparison.OrdinalIgnoreCase) ||
+                    po.Name.Contains(request.SearchTerm!, StringComparison.OrdinalIgnoreCase) ||
+                    po.Brand.Contains(request.SearchTerm!, StringComparison.OrdinalIgnoreCase) ||
+                    po.ModelNumber.Contains(request.SearchTerm!, StringComparison.OrdinalIgnoreCase));
             }
 
             if (!string.IsNullOrEmpty(request.Status))

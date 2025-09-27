@@ -1,4 +1,5 @@
 using MediatR;
+using VehicleShowroomManagement.Application.ServiceOrders.Commands;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -37,7 +38,7 @@ namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
             serviceOrder.UpdatedAt = DateTime.UtcNow;
 
             await _serviceOrderRepository.UpdateAsync(serviceOrder);
-            await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.SaveChangesAsync();
 
             return true;
         }

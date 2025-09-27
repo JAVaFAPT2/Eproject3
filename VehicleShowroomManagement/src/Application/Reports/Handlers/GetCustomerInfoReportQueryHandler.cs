@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Reports.DTOs;
+using VehicleShowroomManagement.Application.Reports.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 

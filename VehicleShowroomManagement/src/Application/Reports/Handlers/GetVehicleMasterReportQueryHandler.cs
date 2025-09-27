@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Reports.DTOs;
+using VehicleShowroomManagement.Application.Reports.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -33,12 +34,12 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
             // Apply filters
             if (!string.IsNullOrEmpty(request.Brand))
             {
-                vehicles = vehicles.Where(v => v.Model?.Brand == request.Brand);
+                vehicles = vehicles.Where(v => v.Model?.Brand?.BrandName == request.Brand);
             }
 
             if (!string.IsNullOrEmpty(request.Model))
             {
-                vehicles = vehicles.Where(v => v.Model?.Name == request.Model);
+                vehicles = vehicles.Where(v => v.Model?.ModelName == request.Model);
             }
 
             if (!string.IsNullOrEmpty(request.Status))
@@ -103,9 +104,9 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                 {
                     Id = vehicle.Id,
                     VIN = vehicle.VIN,
-                    ModelNumber = vehicle.Model?.ModelNumber ?? "N/A",
-                    Name = vehicle.Model?.Name ?? "N/A",
-                    Brand = vehicle.Model?.Brand ?? "N/A",
+                    ModelNumber = vehicle.Model?.ModelId ?? "N/A",
+                    Name = vehicle.Model?.ModelName ?? "N/A",
+                    Brand = vehicle.Model?.Brand?.BrandName ?? "N/A",
                     Price = vehicle.Price,
                     Status = vehicle.Status,
                     Year = vehicle.Year,
@@ -139,7 +140,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
 
             // Generate brand summaries
             report.BrandSummaries = vehicleList
-                .GroupBy(v => v.Model?.Brand ?? "Unknown")
+                .GroupBy(v => v.Model?.Brand?.BrandName ?? "Unknown")
                 .Select(g => new BrandSummaryDto
                 {
                     Brand = g.Key,
@@ -156,7 +157,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
 
             // Generate model summaries
             report.ModelSummaries = vehicleList
-                .GroupBy(v => new { Brand = v.Model?.Brand ?? "Unknown", Model = v.Model?.Name ?? "Unknown" })
+                .GroupBy(v => new { Brand = v.Model?.Brand?.BrandName ?? "Unknown", Model = v.Model?.ModelName ?? "Unknown" })
                 .Select(g => new ModelSummaryDto
                 {
                     Brand = g.Key.Brand,
@@ -176,7 +177,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
             var totalVehicles = vehicleList.Count;
             report.StatusSummaries = vehicleList
                 .GroupBy(v => v.Status)
-                .Select(g => new StatusSummaryDto
+                .Select(g => new VehicleStatusSummaryDto
                 {
                     Status = g.Key,
                     VehicleCount = g.Count(),

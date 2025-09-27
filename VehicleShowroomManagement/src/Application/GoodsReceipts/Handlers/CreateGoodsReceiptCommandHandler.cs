@@ -1,4 +1,5 @@
 using MediatR;
+using VehicleShowroomManagement.Application.GoodsReceipts.Commands;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -56,7 +57,7 @@ namespace VehicleShowroomManagement.Application.GoodsReceipts.Handlers
             };
 
             await _goodsReceiptRepository.AddAsync(goodsReceipt);
-            await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.SaveChangesAsync();
 
             return goodsReceipt.Id;
         }

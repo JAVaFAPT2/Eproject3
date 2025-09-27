@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Reports.DTOs;
+using VehicleShowroomManagement.Application.Reports.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -170,7 +171,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                     MediumPriorityEntries = g.Count(wl => wl.Priority == 2),
                     LowPriorityEntries = g.Count(wl => wl.Priority == 3),
                     ConvertedEntries = g.Count(wl => wl.ConvertedToAllotment),
-                    AverageWaitingDays = g.Average(wl => (DateTime.UtcNow - wl.EntryDate).TotalDays),
+                    AverageWaitingDays = (decimal)g.Average(wl => (DateTime.UtcNow - wl.EntryDate).TotalDays),
                     ConversionRate = g.Count() > 0 ? (decimal)g.Count(wl => wl.ConvertedToAllotment) / g.Count() * 100 : 0
                 })
                 .OrderByDescending(b => b.TotalEntries)
@@ -190,7 +191,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                     MediumPriorityEntries = g.Count(wl => wl.Priority == 2),
                     LowPriorityEntries = g.Count(wl => wl.Priority == 3),
                     ConvertedEntries = g.Count(wl => wl.ConvertedToAllotment),
-                    AverageWaitingDays = g.Average(wl => (DateTime.UtcNow - wl.EntryDate).TotalDays),
+                    AverageWaitingDays = (decimal)g.Average(wl => (DateTime.UtcNow - wl.EntryDate).TotalDays),
                     ConversionRate = g.Count() > 0 ? (decimal)g.Count(wl => wl.ConvertedToAllotment) / g.Count() * 100 : 0,
                     AverageMaxPrice = g.Where(wl => wl.MaxPrice.HasValue).Average(wl => wl.MaxPrice.Value),
                     AverageMinPrice = g.Where(wl => wl.MinPrice.HasValue).Average(wl => wl.MinPrice.Value)
@@ -214,7 +215,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                     TotalEntries = g.Count(),
                     ActiveEntries = g.Count(wl => wl.IsActive()),
                     ConvertedEntries = g.Count(wl => wl.ConvertedToAllotment),
-                    AverageWaitingDays = g.Average(wl => (DateTime.UtcNow - wl.EntryDate).TotalDays),
+                    AverageWaitingDays = (decimal)g.Average(wl => (DateTime.UtcNow - wl.EntryDate).TotalDays),
                     ConversionRate = g.Count() > 0 ? (decimal)g.Count(wl => wl.ConvertedToAllotment) / g.Count() * 100 : 0,
                     AverageMaxPrice = g.Where(wl => wl.MaxPrice.HasValue).Average(wl => wl.MaxPrice.Value),
                     AverageMinPrice = g.Where(wl => wl.MinPrice.HasValue).Average(wl => wl.MinPrice.Value)
@@ -234,7 +235,7 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                     ExpiredEntries = g.Count(wl => wl.Status == "Expired"),
                     ActiveEntries = g.Count(wl => wl.IsActive()),
                     ConversionRate = g.Count() > 0 ? (decimal)g.Count(wl => wl.ConvertedToAllotment) / g.Count() * 100 : 0,
-                    AverageWaitingDays = g.Average(wl => (DateTime.UtcNow - wl.EntryDate).TotalDays)
+                    AverageWaitingDays = (decimal)g.Average(wl => (DateTime.UtcNow - wl.EntryDate).TotalDays)
                 })
                 .OrderBy(m => m.Month)
                 .ToList();

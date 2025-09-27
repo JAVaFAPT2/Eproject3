@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Reports.DTOs;
+using VehicleShowroomManagement.Application.Reports.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Infrastructure.Interfaces;
 
@@ -103,8 +104,8 @@ namespace VehicleShowroomManagement.Application.Reports.Handlers
                     Id = allotment.Id,
                     AllotmentNumber = allotment.AllotmentNumber,
                     VehicleId = allotment.VehicleId,
-                    VehicleName = vehicle?.Model?.Name ?? "N/A",
-                    VehicleBrand = vehicle?.Model?.Brand ?? "N/A",
+                    VehicleName = vehicle?.Model?.ModelName ?? "N/A",
+                    VehicleBrand = vehicle?.Model?.Brand?.BrandName ?? "N/A",
                     CustomerId = allotment.CustomerId,
                     CustomerName = customer != null ? $"{customer.FirstName} {customer.LastName}" : "N/A",
                     CustomerEmail = customer?.Email ?? "N/A",

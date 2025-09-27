@@ -1,4 +1,5 @@
 using MediatR;
+using VehicleShowroomManagement.Application.GoodsReceipts.DTOs;
 
 namespace VehicleShowroomManagement.Application.GoodsReceipts.Queries
 {
