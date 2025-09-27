@@ -1,4 +1,5 @@
 using System;
+using VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById;
 
 namespace VehicleShowroomManagement.Application.Common.DTOs
 {
@@ -13,5 +14,8 @@ namespace VehicleShowroomManagement.Application.Common.DTOs
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime TokenExpiresAt { get; set; }
         public DateTime RefreshTokenExpiresAt { get; set; }
+        public string AccessToken { get; set; } = string.Empty;
+        public DateTime ExpiresAt { get; set; }
+        public UserDto User { get; set; } = new UserDto();
     }
 }

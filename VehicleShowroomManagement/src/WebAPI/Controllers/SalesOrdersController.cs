@@ -2,6 +2,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.SalesOrders.Commands.CreateSalesOrder;
+using VehicleShowroomManagement.Application.Features.SalesOrders.Commands.UpdateOrderStatus;
+using VehicleShowroomManagement.Application.Features.SalesOrders.Queries.GetOrderById;
+using VehicleShowroomManagement.Application.Features.SalesOrders.Queries.GetOrders;
+using VehicleShowroomManagement.Application.Features.SalesOrders.Commands.PrintOrder;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -43,13 +47,61 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
+        /// Gets all sales orders with pagination and filters
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetOrders(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] OrderStatus? status = null,
+            [FromQuery] string? customerId = null,
+            [FromQuery] DateTime? fromDate = null,
+            [FromQuery] DateTime? toDate = null)
+        {
+            var query = new GetOrdersQuery(pageNumber, pageSize, status, customerId, fromDate, toDate);
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Gets a sales order by ID
         /// </summary>
         [HttpGet("{id}")]
-        public Task<IActionResult> GetSalesOrder(string id)
+        public async Task<IActionResult> GetSalesOrder(string id)
         {
-            // TODO: Implement GetSalesOrderByIdQuery when needed
-            return Task.FromResult<IActionResult>(Ok(new { message = "Sales order retrieval not implemented yet" }));
+            var query = new GetOrderByIdQuery(id);
+            var order = await _mediator.Send(query);
+
+            if (order == null)
+                return NotFound(new { message = "Order not found" });
+
+            return Ok(order);
+        }
+
+        /// <summary>
+        /// Updates order status
+        /// </summary>
+        [HttpPut("{id}/status")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> UpdateOrderStatus(string id, [FromBody] UpdateOrderStatusRequest request)
+        {
+            var command = new UpdateOrderStatusCommand(id, request.Status);
+            await _mediator.Send(command);
+
+            return Ok(new { message = "Order status updated successfully" });
+        }
+
+        /// <summary>
+        /// Prints order document
+        /// </summary>
+        [HttpPost("{id}/print")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> PrintOrder(string id)
+        {
+            var command = new PrintOrderCommand(id);
+            var result = await _mediator.Send(command);
+
+            return File(result.Content, result.ContentType, result.FileName);
         }
     }
 
@@ -64,5 +116,13 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public string SalesPersonId { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
+    }
+
+    /// <summary>
+    /// Request model for updating order status
+    /// </summary>
+    public class UpdateOrderStatusRequest
+    {
+        public OrderStatus Status { get; set; }
     }
 }

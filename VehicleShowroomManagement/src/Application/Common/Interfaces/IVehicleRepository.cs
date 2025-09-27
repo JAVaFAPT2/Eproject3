@@ -15,6 +15,8 @@ namespace VehicleShowroomManagement.Application.Common.Interfaces
         Task<IEnumerable<Vehicle>> GetByStatusAsync(VehicleStatus status);
         Task<IEnumerable<Vehicle>> GetByModelNumberAsync(string modelNumber);
         Task<IEnumerable<Vehicle>> GetAvailableVehiclesAsync();
+        Task<List<Vehicle>> GetVehiclesAsync(int pageNumber, int pageSize, VehicleStatus? status, string? brand);
+        Task<int> GetVehiclesCountAsync(VehicleStatus? status, string? brand);
         Task AddAsync(Vehicle vehicle);
         Task UpdateAsync(Vehicle vehicle);
         Task DeleteAsync(string id);

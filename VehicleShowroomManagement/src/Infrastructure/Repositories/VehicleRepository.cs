@@ -88,5 +88,46 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
             var count = await _vehicles.CountDocumentsAsync(v => v.Vin == vin && !v.IsDeleted);
             return count > 0;
         }
+
+        public async Task<List<Vehicle>> GetVehiclesAsync(int pageNumber, int pageSize, VehicleStatus? status, string? brand)
+        {
+            var filterBuilder = Builders<Vehicle>.Filter;
+            var filter = filterBuilder.Eq(v => v.IsDeleted, false);
+
+            if (status.HasValue)
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(v => v.Status, status.Value));
+            }
+
+            if (!string.IsNullOrEmpty(brand))
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq("Brand.Name", brand));
+            }
+
+            return await _vehicles
+                .Find(filter)
+                .Skip((pageNumber - 1) * pageSize)
+                .Limit(pageSize)
+                .SortByDescending(v => v.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetVehiclesCountAsync(VehicleStatus? status, string? brand)
+        {
+            var filterBuilder = Builders<Vehicle>.Filter;
+            var filter = filterBuilder.Eq(v => v.IsDeleted, false);
+
+            if (status.HasValue)
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq(v => v.Status, status.Value));
+            }
+
+            if (!string.IsNullOrEmpty(brand))
+            {
+                filter = filterBuilder.And(filter, filterBuilder.Eq("Brand.Name", brand));
+            }
+
+            return (int)await _vehicles.CountDocumentsAsync(filter);
+        }
     }
 }
