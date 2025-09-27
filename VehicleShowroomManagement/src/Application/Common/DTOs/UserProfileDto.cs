@@ -7,6 +7,7 @@ namespace VehicleShowroomManagement.Application.Common.DTOs
     /// </summary>
     public class UserProfileDto
     {
+        public string Id { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -19,6 +20,7 @@ namespace VehicleShowroomManagement.Application.Common.DTOs
         public string? ZipCode { get; set; }
         public string RoleId { get; set; } = string.Empty;
         public string RoleName { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

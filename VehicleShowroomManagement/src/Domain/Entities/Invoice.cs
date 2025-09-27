@@ -7,7 +7,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
-    /// Invoice entity representing billing documents for sales orders
+    /// Invoice entity representing billing documents for sales orders and service orders
     /// </summary>
     public class Invoice 
     {
@@ -15,13 +15,18 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
+        [BsonElement("serviceOrderId")]
+        public string? ServiceOrderId { get; set; }
+
         [BsonElement("salesOrderId")]
-        [BsonRequired]
-        public string SalesOrderId { get; set; } = string.Empty;
+        public string? SalesOrderId { get; set; }
 
         [BsonElement("invoiceNumber")]
         [BsonRequired]
         public string InvoiceNumber { get; set; } = string.Empty;
+
+        [BsonElement("invoiceType")]
+        public string InvoiceType { get; set; } = "Sales"; // Sales, Service
 
         [BsonElement("invoiceDate")]
         public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
@@ -63,6 +68,22 @@ namespace VehicleShowroomManagement.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void SetForSalesOrder(string salesOrderId)
+        {
+            SalesOrderId = salesOrderId;
+            ServiceOrderId = null;
+            InvoiceType = "Sales";
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetForServiceOrder(string serviceOrderId)
+        {
+            ServiceOrderId = serviceOrderId;
+            SalesOrderId = null;
+            InvoiceType = "Service";
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void MarkAsPaid()
         {
             Status = "Paid";
@@ -101,6 +122,12 @@ namespace VehicleShowroomManagement.Domain.Entities
         {
             return Status == "Overdue";
         }
+
+        public bool IsServiceInvoice => InvoiceType == "Service" && !string.IsNullOrEmpty(ServiceOrderId);
+        
+        public bool IsSalesInvoice => InvoiceType == "Sales" && !string.IsNullOrEmpty(SalesOrderId);
+        
+        public string GetOrderId => IsServiceInvoice ? ServiceOrderId! : SalesOrderId ?? string.Empty;
 
         public void SoftDelete()
         {
