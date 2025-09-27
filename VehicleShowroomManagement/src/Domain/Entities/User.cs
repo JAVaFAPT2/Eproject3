@@ -40,7 +40,7 @@ namespace VehicleShowroomManagement.Domain.Entities
 
         [BsonElement("role")]
         [BsonRequired]
-        public UserRole Role { get; private set; }
+        public UserRole Role { get; private set; } = default!;
 
         [BsonElement("isActive")]
         public bool IsActive { get; private set; } = true;
@@ -64,8 +64,8 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("refreshTokens")]
         public List<RefreshToken> RefreshTokens { get; private set; } = new();
 
-        // Private constructor for MongoDB
-        private User() { }
+        // Internal constructor for MongoDB and domain services
+        internal User() { }
 
         public User(string username, Email email, string passwordHash, string firstName, string lastName, UserRole role, string? phone = null)
         {
@@ -171,11 +171,11 @@ namespace VehicleShowroomManagement.Domain.Entities
         // Computed properties
         public string FullName => $"{FirstName} {LastName}";
 
-        public bool IsAdmin => Role == UserRole.Admin;
+        public bool IsAdmin => Role == Enums.UserRole.Admin;
 
-        public bool IsHR => Role == UserRole.HR;
+        public bool IsHR => Role == Enums.UserRole.HR;
 
-        public bool IsDealer => Role == UserRole.Dealer;
+        public bool IsDealer => Role == Enums.UserRole.Dealer;
 
         public bool HasValidRefreshToken => RefreshTokens.Any(t => t.IsActive && !t.IsRevoked);
     }

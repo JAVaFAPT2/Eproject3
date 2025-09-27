@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using VehicleShowroomManagement.Domain.Entities;
+using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.Domain.Services
 {
@@ -14,7 +15,7 @@ namespace VehicleShowroomManagement.Domain.Services
         Task<Employee> CreateEmployeeAsync(
             string employeeId,
             string name,
-            string role,
+            Enums.UserRole role,
             string? position,
             DateTime hireDate);
 

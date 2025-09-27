@@ -3554,8 +3554,7 @@
           "MimeKit": "4.3.0",
           "RazorEngineCore": "2024.4.1",
           "System.IdentityModel.Tokens.Jwt": "8.0.0",
-          "VehicleShowroomManagement.Domain": "1.0.0",
-          "VehicleShowroomManagement.Infrastructure": "1.0.0"
+          "VehicleShowroomManagement.Domain": "1.0.0"
         },
         "compile": {
           "bin/placeholder/VehicleShowroomManagement.Application.dll": {}
@@ -3593,6 +3592,7 @@
           "MongoDB.Driver": "2.22.0",
           "Scrutor": "4.2.2",
           "System.IdentityModel.Tokens.Jwt": "8.0.0",
+          "VehicleShowroomManagement.Application": "1.0.0",
           "VehicleShowroomManagement.Domain": "1.0.0"
         },
         "compile": {
@@ -11089,49 +11089,41 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Admin\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/home/ubuntu/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\tests\\VehicleShowroomManagement.Tests.csproj",
+      "projectUniqueName": "/workspace/VehicleShowroomManagement/tests/VehicleShowroomManagement.Tests.csproj",
       "projectName": "VehicleShowroomManagement.Tests",
-      "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\tests\\VehicleShowroomManagement.Tests.csproj",
-      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\tests\\obj\\",
+      "projectPath": "/workspace/VehicleShowroomManagement/tests/VehicleShowroomManagement.Tests.csproj",
+      "packagesPath": "/home/ubuntu/.nuget/packages/",
+      "outputPath": "/workspace/VehicleShowroomManagement/tests/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/home/ubuntu/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj": {
-              "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj"
+            "/workspace/VehicleShowroomManagement/src/Application/VehicleShowroomManagement.Application.csproj": {
+              "projectPath": "/workspace/VehicleShowroomManagement/src/Application/VehicleShowroomManagement.Application.csproj"
             },
-            "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj": {
-              "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj"
+            "/workspace/VehicleShowroomManagement/src/Domain/VehicleShowroomManagement.Domain.csproj": {
+              "projectPath": "/workspace/VehicleShowroomManagement/src/Domain/VehicleShowroomManagement.Domain.csproj"
             },
-            "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj": {
-              "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj"
+            "/workspace/VehicleShowroomManagement/src/Infrastructure/VehicleShowroomManagement.Infrastructure.csproj": {
+              "projectPath": "/workspace/VehicleShowroomManagement/src/Infrastructure/VehicleShowroomManagement.Infrastructure.csproj"
             },
-            "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj": {
-              "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj"
+            "/workspace/VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj": {
+              "projectPath": "/workspace/VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj"
             }
           }
         }
@@ -11140,13 +11132,7 @@
         "warnAsError": [
           "NU1605"
         ]
-      },
-      "restoreAuditProperties": {
-        "enableAudit": "true",
-        "auditLevel": "low",
-        "auditMode": "direct"
-      },
-      "SdkAnalysisLevel": "9.0.300"
+      }
     },
     "frameworks": {
       "net8.0": {
@@ -11197,7 +11183,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.120/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

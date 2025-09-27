@@ -26,7 +26,7 @@ namespace VehicleShowroomManagement.Domain.Entities
 
         [BsonElement("role")]
         [BsonRequired]
-        public UserRole Role { get; private set; }
+        public UserRole Role { get; private set; } = default!;
 
         [BsonElement("position")]
         public string? Position { get; private set; }
@@ -55,8 +55,8 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Private constructor for MongoDB
-        private Employee() { }
+        // Internal constructor for MongoDB and domain services
+        internal Employee() { }
 
         public Employee(string employeeId, string name, UserRole role, string? position = null, DateTime? hireDate = null, decimal? salary = null)
         {
@@ -143,9 +143,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         // Computed properties
         public bool IsActive => Status == "Active";
 
-        public bool IsDealer => Role == UserRole.Dealer;
+        public bool IsDealer => Role == Enums.UserRole.Dealer;
 
-        public bool IsHR => Role == UserRole.HR;
+        public bool IsHR => Role == Enums.UserRole.HR;
 
         public bool HasUserAccount => !string.IsNullOrEmpty(UserId);
     }

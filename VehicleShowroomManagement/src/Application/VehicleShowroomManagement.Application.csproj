@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\VehicleShowroomManagement.Domain.csproj" />
-    <ProjectReference Include="..\Infrastructure\VehicleShowroomManagement.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

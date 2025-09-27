@@ -42,15 +42,15 @@ namespace VehicleShowroomManagement.Domain.Events
     public record VehicleSoldEvent : DomainEvent
     {
         public string VehicleId { get; init; }
+        public string SalesOrderId { get; init; }
         public string CustomerId { get; init; }
-        public string SalesPersonId { get; init; }
         public decimal SalePrice { get; init; }
 
-        public VehicleSoldEvent(string vehicleId, string customerId, string salesPersonId, decimal salePrice)
+        public VehicleSoldEvent(string vehicleId, string salesOrderId, string customerId, decimal salePrice)
         {
             VehicleId = vehicleId;
+            SalesOrderId = salesOrderId;
             CustomerId = customerId;
-            SalesPersonId = salesPersonId;
             SalePrice = salePrice;
         }
     }

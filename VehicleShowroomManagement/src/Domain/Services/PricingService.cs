@@ -26,15 +26,15 @@ namespace VehicleShowroomManagement.Domain.Services
             // Calculate tax
             var taxAmount = CalculateTax(basePrice, _defaultTaxRate);
 
-            // Calculate final price
-            var finalPrice = basePrice.Add(taxAmount);
+            // Calculate final price using operator overloading
+            var finalPrice = basePrice + taxAmount;
 
             return finalPrice;
         }
 
         public Money CalculateTax(Money basePrice, decimal taxRate)
         {
-            return basePrice.Multiply(taxRate / 100);
+            return basePrice * (taxRate / 100);
         }
 
         public bool IsPriceValid(Vehicle vehicle, Money price)
@@ -43,10 +43,10 @@ namespace VehicleShowroomManagement.Domain.Services
             var vehiclePurchasePrice = new Money(vehicle.PurchasePrice);
 
             // Calculate minimum allowed price based on profit margin
-            var minimumPrice = vehiclePurchasePrice.Multiply(1 + (_minimumProfitMargin / 100));
+            var minimumPrice = vehiclePurchasePrice * (1 + (_minimumProfitMargin / 100));
 
             // Price should not be below minimum
-            if (price.Amount < minimumPrice.Amount)
+            if (price < minimumPrice)
             {
                 return false;
             }
@@ -56,8 +56,8 @@ namespace VehicleShowroomManagement.Domain.Services
 
         public Money CalculateOrderTotal(SalesOrder salesOrder)
         {
-            // Calculate total from sale price (single vehicle per order in new schema)
-            return new Money(salesOrder.SalePrice);
+            // Calculate total from total amount (new schema)
+            return new Money(salesOrder.TotalAmount);
         }
 
         public Money ApplyDiscount(Money price, decimal discountPercentage)
