@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Interfaces;
+using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
-    /// Customer entity representing customers who purchase vehicles
+    /// Customer aggregate root for customer management
     /// </summary>
     public class Customer : IEntity, IAuditableEntity, ISoftDelete
     {
@@ -17,23 +16,30 @@ namespace VehicleShowroomManagement.Domain.Entities
 
         [BsonElement("customerId")]
         [BsonRequired]
-        public string CustomerId { get; set; } = string.Empty;
+        public string CustomerId { get; private set; } = string.Empty;
 
-        [BsonElement("name")]
+        [BsonElement("firstName")]
         [BsonRequired]
-        public string Name { get; set; } = string.Empty;
+        public string FirstName { get; private set; } = string.Empty;
 
-        [BsonElement("address")]
+        [BsonElement("lastName")]
         [BsonRequired]
-        public string Address { get; set; } = string.Empty;
-
-        [BsonElement("phone")]
-        [BsonRequired]
-        public string Phone { get; set; } = string.Empty;
+        public string LastName { get; private set; } = string.Empty;
 
         [BsonElement("email")]
-        [BsonRequired]
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; private set; }
+
+        [BsonElement("phone")]
+        public string? Phone { get; private set; }
+
+        [BsonElement("address")]
+        public Address? Address { get; private set; }
+
+        [BsonElement("cccd")]
+        public string? Cccd { get; private set; } // Citizen ID
+
+        [BsonElement("isActive")]
+        public bool IsActive { get; private set; } = true;
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -47,25 +53,58 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // References to other documents
-        [BsonElement("salesOrderIds")]
-        public List<string> SalesOrderIds { get; set; } = new List<string>();
+        // Private constructor for MongoDB
+        private Customer() { }
 
-        [BsonElement("serviceOrderIds")]
-        public List<string> ServiceOrderIds { get; set; } = new List<string>();
-
-        // Domain Methods
-        public void UpdateProfile(string name, string email, string phone)
+        public Customer(string customerId, string firstName, string lastName, string? email = null, string? phone = null, Address? address = null, string? cccd = null)
         {
-            Name = name;
+            if (string.IsNullOrWhiteSpace(customerId))
+                throw new ArgumentException("Customer ID cannot be null or empty", nameof(customerId));
+
+            if (string.IsNullOrWhiteSpace(firstName))
+                throw new ArgumentException("First name cannot be null or empty", nameof(firstName));
+
+            if (string.IsNullOrWhiteSpace(lastName))
+                throw new ArgumentException("Last name cannot be null or empty", nameof(lastName));
+
+            CustomerId = customerId;
+            FirstName = firstName;
+            LastName = lastName;
             Email = email;
             Phone = phone;
+            Address = address;
+            Cccd = cccd;
+            CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UpdateAddress(string address)
+        // Domain methods
+        public void UpdateProfile(string firstName, string lastName, string? email = null, string? phone = null, Address? address = null, string? cccd = null)
         {
+            if (string.IsNullOrWhiteSpace(firstName))
+                throw new ArgumentException("First name cannot be null or empty", nameof(firstName));
+
+            if (string.IsNullOrWhiteSpace(lastName))
+                throw new ArgumentException("Last name cannot be null or empty", nameof(lastName));
+
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Phone = phone;
             Address = address;
+            Cccd = cccd;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Activate()
+        {
+            IsActive = true;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Deactivate()
+        {
+            IsActive = false;
             UpdatedAt = DateTime.UtcNow;
         }
 
@@ -82,5 +121,8 @@ namespace VehicleShowroomManagement.Domain.Entities
             DeletedAt = null;
             UpdatedAt = DateTime.UtcNow;
         }
+
+        // Computed properties
+        public string FullName => $"{FirstName} {LastName}";
     }
 }

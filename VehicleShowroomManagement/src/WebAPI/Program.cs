@@ -78,7 +78,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddApplicationServices();
 
 // Register Infrastructure Services
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // CORS Configuration
 builder.Services.AddCors(options =>

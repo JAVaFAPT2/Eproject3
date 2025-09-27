@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using VehicleShowroomManagement.Domain.Entities;
+using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.Domain.Services
 {
@@ -12,7 +13,7 @@ namespace VehicleShowroomManagement.Domain.Services
         public Task<Employee> CreateEmployeeAsync(
             string employeeId,
             string name,
-            string role,
+            Enums.UserRole role,
             string? position,
             DateTime hireDate)
         {
@@ -21,27 +22,9 @@ namespace VehicleShowroomManagement.Domain.Services
                 throw new ArgumentException("Employee ID is required", nameof(employeeId));
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name is required", nameof(name));
-            if (string.IsNullOrWhiteSpace(role))
-                throw new ArgumentException("Role is required", nameof(role));
 
-            // Business rules validation
-            if (!new[] { "Dealer", "HR", "Admin" }.Contains(role))
-                throw new ArgumentException("Invalid role specified", nameof(role));
-
-            // Create employee entity
-            var employee = new Employee
-            {
-                Id = Guid.NewGuid().ToString(),
-                EmployeeId = employeeId,
-                Name = name,
-                Role = role,
-                Position = position,
-                HireDate = hireDate,
-                Status = "Active",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsDeleted = false
-            };
+            // Create employee entity using the new constructor
+            var employee = new Employee(employeeId, name, role, position, hireDate);
 
             return Task.FromResult(employee);
         }
@@ -55,15 +38,14 @@ namespace VehicleShowroomManagement.Domain.Services
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
 
-            // Apply updates with business rules
+            // Apply updates using domain methods
             if (!string.IsNullOrWhiteSpace(name))
-                employee.Name = name;
-            if (!string.IsNullOrWhiteSpace(position))
-                employee.Position = position;
-            if (!string.IsNullOrWhiteSpace(status))
-                employee.Status = status;
+                employee.UpdateProfile(name, position);
+            else if (!string.IsNullOrWhiteSpace(position))
+                employee.UpdateProfile(employee.Name, position);
 
-            employee.UpdatedAt = DateTime.UtcNow;
+            if (!string.IsNullOrWhiteSpace(status))
+                employee.ChangeStatus(status);
 
             return Task.CompletedTask;
         }
@@ -76,9 +58,7 @@ namespace VehicleShowroomManagement.Domain.Services
             if (string.IsNullOrWhiteSpace(status))
                 throw new ArgumentException("Status is required", nameof(status));
 
-            employee.Status = status;
-            employee.UpdatedAt = DateTime.UtcNow;
-
+            employee.ChangeStatus(status);
             return Task.CompletedTask;
         }
 

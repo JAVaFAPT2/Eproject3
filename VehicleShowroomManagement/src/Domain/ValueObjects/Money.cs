@@ -1,59 +1,28 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 
 namespace VehicleShowroomManagement.Domain.ValueObjects
 {
     /// <summary>
-    /// Money value object representing monetary values
+    /// Money value object with validation and operations
     /// </summary>
-    [ComplexType]
-    public class Money : IEquatable<Money>
+    public record Money
     {
-        [Column(TypeName = "decimal(12,2)")]
-        public decimal Amount { get; private set; }
-
-        [Column(TypeName = "nvarchar(3)")]
-        public string Currency { get; private set; } = "USD";
-
-        // Required for Entity Framework
-        protected Money() { }
+        public decimal Amount { get; }
+        public string Currency { get; }
 
         public Money(decimal amount, string currency = "USD")
         {
             if (amount < 0)
                 throw new ArgumentException("Amount cannot be negative", nameof(amount));
 
-            Amount = Math.Round(amount, 2);
-            Currency = currency.ToUpper();
-        }
+            if (string.IsNullOrWhiteSpace(currency))
+                throw new ArgumentException("Currency cannot be null or empty", nameof(currency));
 
-        public override bool Equals(object? obj)
-        {
-            return obj is Money money && Equals(money);
-        }
+            if (currency.Length != 3)
+                throw new ArgumentException("Currency must be a 3-letter code", nameof(currency));
 
-        public bool Equals(Money? other)
-        {
-            if (other is null)
-                return false;
-
-            return Amount == other.Amount && Currency == other.Currency;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Amount, Currency);
-        }
-
-        public static bool operator ==(Money? left, Money? right)
-        {
-            return EqualityComparer<Money>.Default.Equals(left, right);
-        }
-
-        public static bool operator !=(Money? left, Money? right)
-        {
-            return !(left == right);
+            Amount = decimal.Round(amount, 2, MidpointRounding.AwayFromZero);
+            Currency = currency.ToUpperInvariant();
         }
 
         public static Money operator +(Money left, Money right)
@@ -72,6 +41,24 @@ namespace VehicleShowroomManagement.Domain.ValueObjects
             return new Money(left.Amount - right.Amount, left.Currency);
         }
 
+        public static Money operator *(Money money, decimal multiplier)
+        {
+            return new Money(money.Amount * multiplier, money.Currency);
+        }
+
+        public static Money operator *(decimal multiplier, Money money)
+        {
+            return money * multiplier;
+        }
+
+        public static Money operator /(Money money, decimal divisor)
+        {
+            if (divisor == 0)
+                throw new DivideByZeroException("Cannot divide by zero");
+
+            return new Money(money.Amount / divisor, money.Currency);
+        }
+
         public static bool operator >(Money left, Money right)
         {
             if (left.Currency != right.Currency)
@@ -88,30 +75,16 @@ namespace VehicleShowroomManagement.Domain.ValueObjects
             return left.Amount < right.Amount;
         }
 
+        public static implicit operator decimal(Money money) => money.Amount;
+
         public override string ToString()
         {
-            return $"{Amount:F2} {Currency}";
+            return $"{Amount:C} {Currency}";
         }
 
-        public Money Add(Money other)
+        public string ToString(string format)
         {
-            if (Currency != other.Currency)
-                throw new InvalidOperationException("Cannot add money with different currencies");
-
-            return new Money(Amount + other.Amount, Currency);
-        }
-
-        public Money Subtract(Money other)
-        {
-            if (Currency != other.Currency)
-                throw new InvalidOperationException("Cannot subtract money with different currencies");
-
-            return new Money(Amount - other.Amount, Currency);
-        }
-
-        public Money Multiply(decimal factor)
-        {
-            return new Money(Amount * factor, Currency);
+            return Amount.ToString(format, CultureInfo.InvariantCulture);
         }
 
         public Money ApplyDiscount(decimal discountPercentage)

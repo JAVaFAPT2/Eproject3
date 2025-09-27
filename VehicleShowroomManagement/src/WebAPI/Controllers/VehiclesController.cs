@@ -1,16 +1,13 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediatR;
-using VehicleShowroomManagement.Application.Common.DTOs;
-using VehicleShowroomManagement.Application.Vehicles.Commands;
-using VehicleShowroomManagement.Application.Vehicles.Queries;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using VehicleShowroomManagement.Application.Features.Vehicles.Commands.CreateVehicle;
+using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
     /// <summary>
-    /// Vehicles controller for vehicle inventory management
+    /// API Controller for vehicle management operations
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -25,144 +22,35 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get all vehicles with optional filtering and search
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> GetVehicles(
-            [FromQuery] string? searchTerm,
-            [FromQuery] string? status,
-            [FromQuery] string? brand,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
-        {
-            try
-            {
-                var query = new GetVehiclesQuery(searchTerm, status, brand, pageNumber, pageSize);
-                var result = await _mediator.Send(query);
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Get vehicle by ID
-        /// </summary>
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetVehicle(string id)
-        {
-            try
-            {
-                var query = new GetVehicleByIdQuery(id);
-                var result = await _mediator.Send(query);
-
-                if (result == null)
-                {
-                    return NotFound(new { message = "Vehicle not found" });
-                }
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Create new vehicle
+        /// Creates a new vehicle
         /// </summary>
         [HttpPost]
         [Authorize(Roles = "Dealer,Admin")]
         public async Task<IActionResult> CreateVehicle([FromBody] CreateVehicleRequest request)
         {
-            try
-            {
-                var command = new CreateVehicleCommand(
-                    request.ModelNumber,
-                    request.Name,
-                    request.Brand,
-                    request.Price,
-                    request.Status,
-                    request.RegistrationNumber,
-                    request.RegistrationDate,
-                    request.ExternalId);
+            var command = new CreateVehicleCommand(
+                request.VehicleId,
+                request.ModelNumber,
+                request.PurchasePrice,
+                request.ExternalNumber,
+                request.Vin,
+                request.LicensePlate,
+                request.ReceiptDate);
 
-                var result = await _mediator.Send(command);
-
-                return CreatedAtAction(nameof(GetVehicle), new { id = result.Id }, result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var vehicleId = await _mediator.Send(command);
+            
+            return CreatedAtAction(nameof(GetVehicle), new { id = vehicleId }, 
+                new { id = vehicleId, message = "Vehicle created successfully" });
         }
 
         /// <summary>
-        /// Update vehicle
+        /// Gets a vehicle by ID
         /// </summary>
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> UpdateVehicle(string id, [FromBody] UpdateVehicleRequest request)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetVehicle(string id)
         {
-            try
-            {
-                var command = new UpdateVehicleCommand(
-                    id,
-                    request.Price,
-                    request.Status);
-
-                await _mediator.Send(command);
-
-                return Ok(new { message = "Vehicle updated successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Soft delete vehicle (set deleted_at)
-        /// </summary>
-        [HttpPost("{id}")]
-        [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> DeleteVehicle(string id)
-        {
-            try
-            {
-                var command = new DeleteVehicleCommand(id);
-                await _mediator.Send(command);
-
-                return Ok(new { message = "Vehicle deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Soft delete multiple vehicles (set deleted_at)
-        /// </summary>
-        [HttpPost]
-        [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> DeleteVehicles([FromBody] DeleteVehiclesRequest request)
-        {
-            try
-            {
-                var command = new DeleteVehiclesCommand(request.Ids);
-                await _mediator.Send(command);
-
-                return Ok(new { message = "Vehicles deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            // TODO: Implement GetVehicleByIdQuery
+            return Ok(new { message = "Vehicle retrieval not implemented yet" });
         }
     }
 
@@ -171,30 +59,12 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     /// </summary>
     public class CreateVehicleRequest
     {
+        public string VehicleId { get; set; } = string.Empty;
         public string ModelNumber { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string Brand { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public string Status { get; set; } = "AVAILABLE";
-        public string RegistrationNumber { get; set; } = string.Empty;
-        public DateTime RegistrationDate { get; set; }
-        public string ExternalId { get; set; } = string.Empty;
-    }
-
-    /// <summary>
-    /// Request model for updating a vehicle
-    /// </summary>
-    public class UpdateVehicleRequest
-    {
-        public decimal Price { get; set; }
-        public string Status { get; set; } = string.Empty;
-    }
-
-    /// <summary>
-    /// Request model for deleting multiple vehicles
-    /// </summary>
-    public class DeleteVehiclesRequest
-    {
-        public List<string> Ids { get; set; } = new List<string>();
+        public decimal PurchasePrice { get; set; }
+        public string? ExternalNumber { get; set; }
+        public string? Vin { get; set; }
+        public string? LicensePlate { get; set; }
+        public DateTime? ReceiptDate { get; set; }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using MediatR;
 
 namespace VehicleShowroomManagement.Domain.Events
@@ -7,12 +6,15 @@ namespace VehicleShowroomManagement.Domain.Events
     /// Base class for all domain events
     /// Implements INotification for MediatR integration
     /// </summary>
-    public abstract class DomainEvent : INotification
+    public abstract record DomainEvent : INotification
     {
-        public DateTime OccurredOn { get; protected set; } = DateTime.UtcNow;
+        public Guid Id { get; init; } = Guid.NewGuid();
+        public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+        public string EventType { get; init; } = string.Empty;
 
         protected DomainEvent()
         {
+            EventType = GetType().Name;
         }
     }
 }
