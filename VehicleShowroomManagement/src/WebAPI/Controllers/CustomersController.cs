@@ -1,57 +1,75 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediatR;
-using VehicleShowroomManagement.Application.Users.Queries;
+using VehicleShowroomManagement.Application.Features.Customers.Commands.CreateCustomer;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
     /// <summary>
-    /// Customers controller for customer management
+    /// API Controller for customer management operations
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class CustomersController(IMediator mediator) : ControllerBase
+    public class CustomersController : ControllerBase
     {
-        /// <summary>
-        /// Get all customers
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> GetCustomers(
-            [FromQuery] string? searchTerm,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
-        {
-            try
-            {
-                var query = new GetCustomersQuery(searchTerm, pageNumber, pageSize);
-                var result = await mediator.Send(query);
+        private readonly IMediator _mediator;
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+        public CustomersController(IMediator mediator)
+        {
+            _mediator = mediator;
         }
 
         /// <summary>
-        /// Get orders by customer
+        /// Creates a new customer
         /// </summary>
-        [HttpGet("{customerId}/orders")]
-        public async Task<IActionResult> GetCustomerOrders(string customerId)
+        [HttpPost]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerRequest request)
         {
-            try
-            {
-                var query = new GetCustomerOrdersQuery(customerId);
-                var result = await mediator.Send(query);
+            var command = new CreateCustomerCommand(
+                request.CustomerId,
+                request.FirstName,
+                request.LastName,
+                request.Email,
+                request.Phone,
+                request.Street,
+                request.City,
+                request.State,
+                request.ZipCode,
+                request.Cccd);
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var customerId = await _mediator.Send(command);
+            
+            return CreatedAtAction(nameof(GetCustomer), new { id = customerId }, 
+                new { id = customerId, message = "Customer created successfully" });
         }
+
+        /// <summary>
+        /// Gets a customer by ID
+        /// </summary>
+        [HttpGet("{id}")]
+        public Task<IActionResult> GetCustomer(string id)
+        {
+            // TODO: Implement GetCustomerByIdQuery when needed
+            return Task.FromResult<IActionResult>(Ok(new { message = "Customer retrieval not implemented yet" }));
+        }
+    }
+
+    /// <summary>
+    /// Request model for creating a customer
+    /// </summary>
+    public class CreateCustomerRequest
+    {
+        public string CustomerId { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string? Email { get; set; }
+        public string? Phone { get; set; }
+        public string? Street { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? ZipCode { get; set; }
+        public string? Cccd { get; set; }
     }
 }

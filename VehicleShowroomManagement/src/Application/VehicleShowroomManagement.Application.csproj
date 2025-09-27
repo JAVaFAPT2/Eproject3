@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="FluentValidation" Version="11.9.2" />
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
@@ -31,50 +31,5 @@
     <ProjectReference Include="..\Domain\VehicleShowroomManagement.Domain.csproj" />
   </ItemGroup>
 
-  <!-- Temporarily exclude legacy handlers that don't match new domain model -->
-  <ItemGroup>
-    <Compile Remove="Auth\Handlers\**" />
-    <Compile Remove="Dashboard\Handlers\**" />
-    <Compile Remove="Email\**" />
-    <Compile Remove="GoodsReceipts\Handlers\**" />
-    <Compile Remove="Images\**" />
-    <Compile Remove="Orders\Handlers\**" />
-    <Compile Remove="PurchaseOrders\Handlers\**" />
-    <Compile Remove="Reports\Handlers\**" />
-    <Compile Remove="Returns\Handlers\**" />
-    <Compile Remove="ServiceOrders\Handlers\**" />
-    <Compile Remove="Users\Handlers\**" />
-    <Compile Remove="Users\Queries\**" />
-    <Compile Remove="VehicleRegistrations\Handlers\**" />
-    <Compile Remove="Vehicles\Handlers\**" />
-    <EmbeddedResource Remove="Auth\Handlers\**" />
-    <EmbeddedResource Remove="Dashboard\Handlers\**" />
-    <EmbeddedResource Remove="Email\**" />
-    <EmbeddedResource Remove="GoodsReceipts\Handlers\**" />
-    <EmbeddedResource Remove="Images\**" />
-    <EmbeddedResource Remove="Orders\Handlers\**" />
-    <EmbeddedResource Remove="PurchaseOrders\Handlers\**" />
-    <EmbeddedResource Remove="Reports\Handlers\**" />
-    <EmbeddedResource Remove="Returns\Handlers\**" />
-    <EmbeddedResource Remove="ServiceOrders\Handlers\**" />
-    <EmbeddedResource Remove="Users\Handlers\**" />
-    <EmbeddedResource Remove="Users\Queries\**" />
-    <EmbeddedResource Remove="VehicleRegistrations\Handlers\**" />
-    <EmbeddedResource Remove="Vehicles\Handlers\**" />
-    <None Remove="Auth\Handlers\**" />
-    <None Remove="Dashboard\Handlers\**" />
-    <None Remove="Email\**" />
-    <None Remove="GoodsReceipts\Handlers\**" />
-    <None Remove="Images\**" />
-    <None Remove="Orders\Handlers\**" />
-    <None Remove="PurchaseOrders\Handlers\**" />
-    <None Remove="Reports\Handlers\**" />
-    <None Remove="Returns\Handlers\**" />
-    <None Remove="ServiceOrders\Handlers\**" />
-    <None Remove="Users\Handlers\**" />
-    <None Remove="Users\Queries\**" />
-    <None Remove="VehicleRegistrations\Handlers\**" />
-    <None Remove="Vehicles\Handlers\**" />
-  </ItemGroup>
 
 </Project>

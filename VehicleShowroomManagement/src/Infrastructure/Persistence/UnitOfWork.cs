@@ -21,7 +21,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         {
             // In MongoDB, changes are automatically saved when operations are performed
             // This method is here for consistency with the interface
-            return 1;
+            return await Task.FromResult(1);
         }
 
         public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)

@@ -2,9 +2,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using VehicleShowroomManagement.Application.Common.Interfaces;
+using VehicleShowroomManagement.Domain.Entities;
+using VehicleShowroomManagement.Domain.Services;
 using VehicleShowroomManagement.Infrastructure.Persistence;
 using VehicleShowroomManagement.Infrastructure.Repositories;
-using VehicleShowroomManagement.Infrastructure.Services;
+using InfrastructurePasswordService = VehicleShowroomManagement.Infrastructure.Services.PasswordService;
 
 namespace VehicleShowroomManagement.WebAPI.Extensions
 {
@@ -38,17 +40,22 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
 
             services.AddSingleton<IMongoDatabase>(database);
             services.AddSingleton<IMongoClient>(client);
+            services.AddScoped<VehicleShowroomDbContext>();
 
             // Repository Registration
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IVehicleRepository, VehicleRepository>();
+            services.AddScoped<IRepository<Vehicle>>(provider => new MongoRepository<Vehicle>(provider.GetRequiredService<VehicleShowroomDbContext>(), "vehicles"));
+            services.AddScoped<IRepository<Customer>>(provider => new MongoRepository<Customer>(provider.GetRequiredService<VehicleShowroomDbContext>(), "customers"));
+            services.AddScoped<IRepository<Employee>>(provider => new MongoRepository<Employee>(provider.GetRequiredService<VehicleShowroomDbContext>(), "employees"));
+            services.AddScoped<IRepository<SalesOrder>>(provider => new MongoRepository<SalesOrder>(provider.GetRequiredService<VehicleShowroomDbContext>(), "salesorders"));
             // TODO: Add other repositories as they are implemented
 
             // Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Domain Services
-            services.AddScoped<IPasswordService, PasswordService>();
+            services.AddScoped<IPasswordService, InfrastructurePasswordService>();
             // TODO: Add other domain services as they are implemented
 
             return services;

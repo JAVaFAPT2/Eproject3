@@ -1,9 +1,10 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Interfaces;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
+using VehicleShowroomManagement.Application.Common.Interfaces;
 
 namespace VehicleShowroomManagement.Infrastructure.Persistence
 {
@@ -14,7 +15,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
     public class VehicleShowroomDbContext : IUnitOfWork
     {
         private readonly IMongoDatabase _database;
-        private IClientSessionHandle _session;
+        private IClientSessionHandle? _session;
 
         public VehicleShowroomDbContext(IMongoDatabase database)
         {
@@ -40,47 +41,41 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         }
 
         // IUnitOfWork implementation
-        public int SaveChangesAsync()
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            // In MongoDB, changes are automatically saved when operations are performed
+            // This method is here for consistency with the interface
+            return await Task.FromResult(1);
+        }
+
+        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
         {
             if (_session == null)
             {
-                throw new InvalidOperationException("No active session. Call BeginTransactionAsync() first.");
+                var client = _database.Client;
+                _session = await client.StartSessionAsync(cancellationToken: cancellationToken);
+                _session.StartTransaction();
             }
-
-            // In MongoDB, changes are automatically saved
-            // We just need to ensure the session is still active
-            return 1;
         }
 
-        public async Task BeginTransactionAsync()
+        public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
         {
-            var client = _database.Client;
-            _session = await client.StartSessionAsync();
-            _session.StartTransaction();
-        }
-
-        public async Task CommitTransactionAsync()
-        {
-            if (_session == null)
+            if (_session != null)
             {
-                throw new InvalidOperationException("No active session.");
+                await _session.CommitTransactionAsync(cancellationToken);
+                _session.Dispose();
+                _session = null;
             }
-
-            await _session.CommitTransactionAsync();
-            _session.Dispose();
-            _session = null;
         }
 
-        public async Task RollbackTransactionAsync()
+        public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
         {
-            if (_session == null)
+            if (_session != null)
             {
-                throw new InvalidOperationException("No active session.");
+                await _session.AbortTransactionAsync(cancellationToken);
+                _session.Dispose();
+                _session = null;
             }
-
-            await _session.AbortTransactionAsync();
-            _session.Dispose();
-            _session = null;
         }
 
         public void Dispose()

@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using VehicleShowroomManagement.Domain.Interfaces;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
+using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Infrastructure.Persistence;
 
 namespace VehicleShowroomManagement.Infrastructure.Repositories
@@ -25,38 +26,44 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
             _collection = _context.GetDatabase().GetCollection<T>(collectionName.ToLower());
         }
 
-        public IMongoQueryable<T> GetAllQueryable()
-        {
-            return _collection.AsQueryable();
-        }
-
-        public async Task<IEnumerable<T>> GetAllAsync()
-        {
-            return await _collection.Find(_ => true).ToListAsync();
-        }
-
-        public async Task<T?> GetByIdAsync(string id)
+        public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             var filter = Builders<T>.Filter.Eq("_id", id);
-            return await _collection.Find(filter).FirstOrDefaultAsync();
+            return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _collection.Find(predicate).FirstOrDefaultAsync();
+            return await _collection.Find(_ => true).ToListAsync(cancellationToken);
         }
 
-        public async Task AddAsync(T entity)
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            await _collection.InsertOneAsync(entity);
+            return await _collection.Find(predicate).ToListAsync(cancellationToken);
         }
 
-        public async Task AddRangeAsync(IEnumerable<T> entities)
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            await _collection.InsertManyAsync(entities);
+            return await _collection.Find(predicate).FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return await _collection.Find(predicate).AnyAsync(cancellationToken);
+        }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return (int)await _collection.CountDocumentsAsync(predicate, cancellationToken: cancellationToken);
+        }
+
+        public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
+        {
+            await _collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
+            return entity;
+        }
+
+        public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
             // For MongoDB, we need to get the ID from the entity
             var idProperty = typeof(T).GetProperty("Id");
@@ -72,18 +79,16 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
             }
 
             var filter = Builders<T>.Filter.Eq("_id", id);
-            await _collection.ReplaceOneAsync(filter, entity);
+            await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
         }
 
-        public async Task UpdateRangeAsync(IEnumerable<T> entities)
+        public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
-            foreach (var entity in entities)
-            {
-                await UpdateAsync(entity);
-            }
+            var filter = Builders<T>.Filter.Eq("_id", id);
+            await _collection.DeleteOneAsync(filter, cancellationToken);
         }
 
-        public async Task RemoveAsync(T entity)
+        public async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
         {
             // For MongoDB, we need to get the ID from the entity
             var idProperty = typeof(T).GetProperty("Id");
@@ -98,39 +103,7 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
                 throw new InvalidOperationException("Entity must have a valid Id");
             }
 
-            var filter = Builders<T>.Filter.Eq("_id", id);
-            await _collection.DeleteOneAsync(filter);
-        }
-
-        public async Task RemoveRangeAsync(IEnumerable<T> entities)
-        {
-            var ids = entities.Select(e =>
-            {
-                var idProperty = typeof(T).GetProperty("Id");
-                return idProperty?.GetValue(e)?.ToString();
-            }).Where(id => !string.IsNullOrEmpty(id)).ToList();
-
-            if (ids.Any())
-            {
-                var filter = Builders<T>.Filter.In("_id", ids);
-                await _collection.DeleteManyAsync(filter);
-            }
-        }
-
-        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _collection.Find(predicate).AnyAsync();
-        }
-
-        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
-        {
-            return (int)await _collection.CountDocumentsAsync(predicate);
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            // MongoDB saves changes immediately, but we need to implement Unit of Work
-            _context.SaveChangesAsync();
+            await DeleteAsync(id, cancellationToken);
         }
     }
 }

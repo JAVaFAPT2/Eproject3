@@ -57,23 +57,27 @@
             },
             "ClosedXML": {
               "target": "Package",
-              "version": "[0.102.1, )"
+              "version": "[0.104.2, )"
             },
             "CloudinaryDotNet": {
               "target": "Package",
-              "version": "[1.21.0, )"
+              "version": "[1.26.2, )"
             },
             "FluentValidation": {
               "target": "Package",
-              "version": "[11.7.1, )"
+              "version": "[11.9.2, )"
             },
             "MailKit": {
               "target": "Package",
-              "version": "[4.3.0, )"
+              "version": "[4.8.0, )"
             },
             "MediatR": {
               "target": "Package",
-              "version": "[12.1.1, )"
+              "version": "[12.4.1, )"
+            },
+            "Microsoft.AspNetCore.Http.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
             },
             "Microsoft.Extensions.Configuration.Abstractions": {
               "target": "Package",
@@ -81,15 +85,23 @@
             },
             "Microsoft.Extensions.DependencyInjection.Abstractions": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )"
             },
             "Microsoft.IdentityModel.Tokens": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.1.2, )"
             },
             "MimeKit": {
               "target": "Package",
-              "version": "[4.3.0, )"
+              "version": "[4.8.0, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[2.29.0, )"
             },
             "RazorEngineCore": {
               "target": "Package",
@@ -97,7 +109,7 @@
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.1.2, )"
             }
           },
           "imports": [
@@ -252,23 +264,23 @@
             },
             "MediatR": {
               "target": "Package",
-              "version": "[12.1.1, )"
+              "version": "[12.4.1, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.8, )"
             },
             "Microsoft.Extensions.DependencyInjection.Abstractions": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.2, )"
             },
             "Microsoft.IdentityModel.Tokens": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.1.2, )"
             },
             "MongoDB.Driver": {
               "target": "Package",
-              "version": "[2.22.0, )"
+              "version": "[2.29.0, )"
             },
             "Scrutor": {
               "target": "Package",
@@ -276,7 +288,7 @@
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.1.2, )"
             }
           },
           "imports": [

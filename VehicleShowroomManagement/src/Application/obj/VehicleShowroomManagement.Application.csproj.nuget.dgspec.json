@@ -49,7 +49,7 @@
           "dependencies": {
             "AutoMapper": {
               "target": "Package",
-              "version": "[13.0.1, )"
+              "version": "[12.0.1, )"
             },
             "BCrypt.Net-Next": {
               "target": "Package",
