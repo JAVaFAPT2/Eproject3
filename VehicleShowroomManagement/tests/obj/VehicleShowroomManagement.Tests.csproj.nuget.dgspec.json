@@ -66,6 +66,14 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.102.1, )"
+            },
+            "CloudinaryDotNet": {
+              "target": "Package",
+              "version": "[1.21.0, )"
+            },
             "FluentValidation": {
               "target": "Package",
               "version": "[11.7.1, )"
@@ -367,6 +375,18 @@
             "AutoMapper.Extensions.Microsoft.DependencyInjection": {
               "target": "Package",
               "version": "[12.0.1, )"
+            },
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.102.1, )"
+            },
+            "CloudinaryDotNet": {
+              "target": "Package",
+              "version": "[1.21.0, )"
+            },
+            "EPPlus": {
+              "target": "Package",
+              "version": "[7.0.2, )"
             },
             "FluentValidation.AspNetCore": {
               "target": "Package",

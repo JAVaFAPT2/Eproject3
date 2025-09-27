@@ -1,5 +1,8 @@
 using System.Reflection;
+using CloudinaryDotNet;
 using MongoDB.Driver;
+using VehicleShowroomManagement.Application.Images.Services;
+using VehicleShowroomManagement.Application.Reports.Services;
 using VehicleShowroomManagement.Application.Users.Queries;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Services;
@@ -69,6 +72,11 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
             services.AddScoped<IRepository<Payment>>(sp => new MongoRepository<Payment>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Payments"));
             services.AddScoped<IRepository<ServiceOrder>>(sp => new MongoRepository<ServiceOrder>(sp.GetRequiredService<VehicleShowroomDbContext>(), "ServiceOrders"));
             services.AddScoped<IRepository<ReturnRequest>>(sp => new MongoRepository<ReturnRequest>(sp.GetRequiredService<VehicleShowroomDbContext>(), "ReturnRequests"));
+            services.AddScoped<IRepository<PurchaseOrder>>(sp => new MongoRepository<PurchaseOrder>(sp.GetRequiredService<VehicleShowroomDbContext>(), "PurchaseOrders"));
+            services.AddScoped<IRepository<GoodsReceipt>>(sp => new MongoRepository<GoodsReceipt>(sp.GetRequiredService<VehicleShowroomDbContext>(), "GoodsReceipts"));
+            services.AddScoped<IRepository<VehicleRegistration>>(sp => new MongoRepository<VehicleRegistration>(sp.GetRequiredService<VehicleShowroomDbContext>(), "VehicleRegistrations"));
+            services.AddScoped<IRepository<Allotment>>(sp => new MongoRepository<Allotment>(sp.GetRequiredService<VehicleShowroomDbContext>(), "Allotments"));
+            services.AddScoped<IRepository<WaitingList>>(sp => new MongoRepository<WaitingList>(sp.GetRequiredService<VehicleShowroomDbContext>(), "WaitingLists"));
 
             // Register domain services
             services.AddScoped<IPricingService, PricingService>();
@@ -77,6 +85,12 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
 
             // Register query services
             services.AddScoped<IUserQueryService, UserQueryService>();
+
+            // Register image upload service
+            services.AddScoped<IImageUploadService, CloudinaryImageUploadService>();
+
+            // Register Excel export service
+            services.AddScoped<IExcelExportService, ExcelExportService>();
 
             // Register Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

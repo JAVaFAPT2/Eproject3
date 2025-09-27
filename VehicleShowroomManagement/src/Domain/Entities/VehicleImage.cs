@@ -36,6 +36,20 @@ namespace VehicleShowroomManagement.Domain.Entities
         [Required]
         public int FileSize { get; set; } // in bytes
 
+        [StringLength(255)]
+        [Column(TypeName = "nvarchar(255)")]
+        public string PublicId { get; set; } = string.Empty; // Cloudinary public ID
+
+        [StringLength(255)]
+        [Column(TypeName = "nvarchar(255)")]
+        public string OriginalFileName { get; set; } = string.Empty;
+
+        [StringLength(100)]
+        [Column(TypeName = "nvarchar(100)")]
+        public string ContentType { get; set; } = string.Empty;
+
+        public bool IsPrimary { get; set; } = false; // Primary image for vehicle
+
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
