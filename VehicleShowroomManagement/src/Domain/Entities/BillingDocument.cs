@@ -14,6 +14,10 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
+        [BsonElement("billNumber")]
+        [BsonRequired]
+        public string BillNumber { get; set; } = string.Empty;
+
         [BsonElement("billId")]
         [BsonRequired]
         public string BillId { get; set; } = string.Empty;
@@ -48,6 +52,32 @@ namespace VehicleShowroomManagement.Domain.Entities
 
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
+
+        // Private constructor for MongoDB
+        private BillingDocument() { }
+
+        public BillingDocument(string billNumber, string salesOrderId, string employeeId, DateTime billDate, decimal amount)
+        {
+            if (string.IsNullOrWhiteSpace(billNumber))
+                throw new ArgumentException("Bill number cannot be null or empty", nameof(billNumber));
+
+            if (string.IsNullOrWhiteSpace(salesOrderId))
+                throw new ArgumentException("Sales order ID cannot be null or empty", nameof(salesOrderId));
+
+            if (string.IsNullOrWhiteSpace(employeeId))
+                throw new ArgumentException("Employee ID cannot be null or empty", nameof(employeeId));
+
+            if (amount < 0)
+                throw new ArgumentException("Amount cannot be negative", nameof(amount));
+
+            BillNumber = billNumber;
+            SalesOrderId = salesOrderId;
+            EmployeeId = employeeId;
+            BillDate = billDate;
+            Amount = amount;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
 
         // Domain Methods
         public void UpdateAmount(decimal amount)

@@ -80,6 +80,64 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
+        // Private constructor for MongoDB
+        private PurchaseOrder() { }
+
+        public PurchaseOrder(
+            string orderNumber,
+            string modelNumber,
+            string name,
+            string brand,
+            decimal price,
+            int quantity,
+            decimal totalAmount,
+            string? supplierId,
+            string? supplierName,
+            string? notes,
+            DateTime? expectedDeliveryDate,
+            string createdBy)
+        {
+            if (string.IsNullOrWhiteSpace(orderNumber))
+                throw new ArgumentException("Order number cannot be null or empty", nameof(orderNumber));
+
+            if (string.IsNullOrWhiteSpace(modelNumber))
+                throw new ArgumentException("Model number cannot be null or empty", nameof(modelNumber));
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name cannot be null or empty", nameof(name));
+
+            if (string.IsNullOrWhiteSpace(brand))
+                throw new ArgumentException("Brand cannot be null or empty", nameof(brand));
+
+            if (price < 0)
+                throw new ArgumentException("Price cannot be negative", nameof(price));
+
+            if (quantity <= 0)
+                throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
+
+            if (totalAmount < 0)
+                throw new ArgumentException("Total amount cannot be negative", nameof(totalAmount));
+
+            if (string.IsNullOrWhiteSpace(createdBy))
+                throw new ArgumentException("Created by cannot be null or empty", nameof(createdBy));
+
+            OrderNumber = orderNumber;
+            ModelNumber = modelNumber;
+            Name = name;
+            Brand = brand;
+            Price = price;
+            Quantity = quantity;
+            TotalAmount = totalAmount;
+            SupplierId = supplierId;
+            SupplierName = supplierName;
+            Notes = notes;
+            ExpectedDeliveryDate = expectedDeliveryDate;
+            CreatedBy = createdBy;
+            OrderDate = DateTime.UtcNow;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         // Domain Methods
         public void SubmitOrder()
         {

@@ -60,4 +60,55 @@ namespace VehicleShowroomManagement.Domain.Events
             TotalAmount = totalAmount;
         }
     }
+
+    /// <summary>
+    /// Purchase order created domain event
+    /// </summary>
+    public record PurchaseOrderCreatedEvent : DomainEvent
+    {
+        public string PurchaseOrderId { get; init; }
+        public string OrderNumber { get; init; }
+        public string ModelNumber { get; init; }
+        public decimal TotalAmount { get; init; }
+
+        public PurchaseOrderCreatedEvent(string purchaseOrderId, string orderNumber)
+        {
+            PurchaseOrderId = purchaseOrderId;
+            OrderNumber = orderNumber;
+        }
+    }
+
+    /// <summary>
+    /// Service order created domain event
+    /// </summary>
+    public record ServiceOrderCreatedEvent : DomainEvent
+    {
+        public string ServiceOrderId { get; init; }
+        public string ServiceOrderNumber { get; init; }
+        public string SalesOrderId { get; init; }
+        public decimal Cost { get; init; }
+
+        public ServiceOrderCreatedEvent(string serviceOrderId, string serviceOrderNumber)
+        {
+            ServiceOrderId = serviceOrderId;
+            ServiceOrderNumber = serviceOrderNumber;
+        }
+    }
+
+    /// <summary>
+    /// Billing document created domain event
+    /// </summary>
+    public record BillingDocumentCreatedEvent : DomainEvent
+    {
+        public string BillingDocumentId { get; init; }
+        public string BillNumber { get; init; }
+        public string SalesOrderId { get; init; }
+        public decimal Amount { get; init; }
+
+        public BillingDocumentCreatedEvent(string billingDocumentId, string billNumber)
+        {
+            BillingDocumentId = billingDocumentId;
+            BillNumber = billNumber;
+        }
+    }
 }

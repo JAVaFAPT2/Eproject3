@@ -45,11 +45,35 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
             // Repository Registration
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IVehicleRepository, VehicleRepository>();
+
+            // Core entities
             services.AddScoped<IRepository<Vehicle>>(provider => new MongoRepository<Vehicle>(provider.GetRequiredService<VehicleShowroomDbContext>(), "vehicles"));
             services.AddScoped<IRepository<Customer>>(provider => new MongoRepository<Customer>(provider.GetRequiredService<VehicleShowroomDbContext>(), "customers"));
             services.AddScoped<IRepository<Employee>>(provider => new MongoRepository<Employee>(provider.GetRequiredService<VehicleShowroomDbContext>(), "employees"));
             services.AddScoped<IRepository<SalesOrder>>(provider => new MongoRepository<SalesOrder>(provider.GetRequiredService<VehicleShowroomDbContext>(), "salesorders"));
-            // TODO: Add other repositories as they are implemented
+
+            // Purchase Management
+            services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
+            services.AddScoped<IPurchaseOrderLineRepository, PurchaseOrderLineRepository>();
+            services.AddScoped<IGoodsReceiptRepository, GoodsReceiptRepository>();
+            services.AddScoped<ISupplierRepository, SupplierRepository>();
+
+            // Service Management
+            services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
+            services.AddScoped<IBillingDocumentRepository, BillingDocumentRepository>();
+
+            // Advanced Features
+            services.AddScoped<IVehicleRegistrationRepository, VehicleRegistrationRepository>();
+            services.AddScoped<IWaitingListRepository, WaitingListRepository>();
+            services.AddScoped<IAllotmentRepository, AllotmentRepository>();
+            services.AddScoped<IReturnRequestRepository, ReturnRequestRepository>();
+
+            // Financial
+            services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+
+            // Media
+            services.AddScoped<IVehicleImageRepository, VehicleImageRepository>();
 
             // Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

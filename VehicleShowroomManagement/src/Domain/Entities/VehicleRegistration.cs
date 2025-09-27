@@ -139,6 +139,83 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
+        // Private constructor for MongoDB
+        private VehicleRegistration() { }
+
+        public VehicleRegistration(
+            string vehicleId,
+            string vin,
+            string registrationNumber,
+            DateTime registrationDate,
+            string registrationAuthority,
+            string registrationState,
+            string registrationCity,
+            string ownerName,
+            string ownerAddress,
+            string? ownerPhone = null,
+            string? ownerEmail = null,
+            string vehicleType = "Car",
+            string fuelType = "Petrol",
+            string? engineNumber = null,
+            string? chassisNumber = null,
+            int manufacturingYear = 2024,
+            int? manufacturingMonth = null,
+            int? seatingCapacity = null,
+            decimal? grossWeight = null,
+            decimal? unladenWeight = null,
+            DateTime? expiryDate = null,
+            string createdBy = "")
+        {
+            if (string.IsNullOrWhiteSpace(vehicleId))
+                throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
+
+            if (string.IsNullOrWhiteSpace(vin))
+                throw new ArgumentException("VIN cannot be null or empty", nameof(vin));
+
+            if (string.IsNullOrWhiteSpace(registrationNumber))
+                throw new ArgumentException("Registration number cannot be null or empty", nameof(registrationNumber));
+
+            if (string.IsNullOrWhiteSpace(registrationAuthority))
+                throw new ArgumentException("Registration authority cannot be null or empty", nameof(registrationAuthority));
+
+            if (string.IsNullOrWhiteSpace(registrationState))
+                throw new ArgumentException("Registration state cannot be null or empty", nameof(registrationState));
+
+            if (string.IsNullOrWhiteSpace(registrationCity))
+                throw new ArgumentException("Registration city cannot be null or empty", nameof(registrationCity));
+
+            if (string.IsNullOrWhiteSpace(ownerName))
+                throw new ArgumentException("Owner name cannot be null or empty", nameof(ownerName));
+
+            if (string.IsNullOrWhiteSpace(ownerAddress))
+                throw new ArgumentException("Owner address cannot be null or empty", nameof(ownerAddress));
+
+            VehicleId = vehicleId;
+            VIN = vin;
+            RegistrationNumber = registrationNumber;
+            RegistrationDate = registrationDate;
+            ExpiryDate = expiryDate;
+            RegistrationAuthority = registrationAuthority;
+            RegistrationState = registrationState;
+            RegistrationCity = registrationCity;
+            OwnerName = ownerName;
+            OwnerAddress = ownerAddress;
+            OwnerPhone = ownerPhone;
+            OwnerEmail = ownerEmail;
+            VehicleType = vehicleType;
+            FuelType = fuelType;
+            EngineNumber = engineNumber;
+            ChassisNumber = chassisNumber;
+            ManufacturingYear = manufacturingYear;
+            ManufacturingMonth = manufacturingMonth;
+            SeatingCapacity = seatingCapacity;
+            GrossWeight = grossWeight;
+            UnladenWeight = unladenWeight;
+            CreatedBy = createdBy;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         // Domain Methods
         public void ActivateRegistration()
         {

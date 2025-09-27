@@ -8,30 +8,37 @@
 - **Approach**: Domain-Driven Design with embedded documents
 
 ### 1.2 Design Principles
-- Document-oriented data modeling
+- Document-oriented data modeling (No inheritance/sub-classing)
+- Composition over inheritance following DDD principles
 - Embedded documents for related data
 - ObjectId primary keys
 - MongoDB indexes for optimal query performance
 - Audit fields for data tracking
 - Flexible schema design
+- Each entity is a separate aggregate root
 
 ## 2. Entity Relationship Diagram (ERD)
 
 ```
-    EMPLOYEE ||--o{ SALES_ORDER : handles
-    SUPPLIER ||--o{ PURCHASE_ORDER : supplies
-    PURCHASE_ORDER ||--o{ PURCHASE_ORDER_LINE : has
-    PURCHASE_ORDER ||--o{ GOODS_RECEIPT : received_via
-    GOODS_RECEIPT ||--o{ VEHICLE : creates
-    VEHICLE_MODEL ||--o{ VEHICLE : instance_of
-    CUSTOMER ||--o{ SALES_ORDER : places
-    CUSTOMER ||--o{ WAITING_LIST : on
-    SALES_ORDER ||--|| VEHICLE : assigns
-    SALES_ORDER ||--|| SERVICE_ORDER : requires
-    SALES_ORDER ||--|| BILLING_DOCUMENT : generates
-    VEHICLE ||--o{ ALLOTMENT : assigned_via
-    CUSTOMER ||--o{ ALLOTMENT : assigned_to
-    WAITING_LIST ||--o{ VEHICLE_MODEL : requests
+    EMPLOYEE --o{ SALES_ORDER : handles
+    SUPPLIER --o{ PURCHASE_ORDER : supplies
+    PURCHASE_ORDER --o{ PURCHASE_ORDER_LINE : has
+    PURCHASE_ORDER --o{ GOODS_RECEIPT : received_via
+    GOODS_RECEIPT --o{ VEHICLE : creates
+    VEHICLE_MODEL --o{ VEHICLE : instance_of
+    CUSTOMER --o{ SALES_ORDER : places
+    CUSTOMER --o{ WAITING_LIST : on
+    SALES_ORDER --|| VEHICLE : assigns
+    SALES_ORDER --|| SERVICE_ORDER : requires
+    SALES_ORDER --|| BILLING_DOCUMENT : generates
+    VEHICLE --o{ ALLOTMENT : assigned_via
+    CUSTOMER --o{ ALLOTMENT : assigned_to
+    WAITING_LIST --o{ VEHICLE_MODEL : requests
+    VEHICLE --o{ VEHICLE_REGISTRATION : has
+    VEHICLE --o{ VEHICLE_IMAGE : has
+    SALES_ORDER --o{ INVOICE : generates
+    INVOICE --o{ PAYMENT : has
+    SALES_ORDER --o{ RETURN_REQUEST : may_have
 
     EMPLOYEE {
         string EmployeeID PK

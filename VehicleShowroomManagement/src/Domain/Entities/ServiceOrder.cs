@@ -16,6 +16,10 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
+        [BsonElement("serviceOrderNumber")]
+        [BsonRequired]
+        public string ServiceOrderNumber { get; set; } = string.Empty;
+
         [BsonElement("serviceOrderId")]
         [BsonRequired]
         public string ServiceOrderId { get; set; } = string.Empty;
@@ -50,6 +54,36 @@ namespace VehicleShowroomManagement.Domain.Entities
 
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
+
+        // Private constructor for MongoDB
+        private ServiceOrder() { }
+
+        public ServiceOrder(string serviceOrderNumber, string salesOrderId, string employeeId, DateTime serviceDate, string description, decimal cost, string? notes = null)
+        {
+            if (string.IsNullOrWhiteSpace(serviceOrderNumber))
+                throw new ArgumentException("Service order number cannot be null or empty", nameof(serviceOrderNumber));
+
+            if (string.IsNullOrWhiteSpace(salesOrderId))
+                throw new ArgumentException("Sales order ID cannot be null or empty", nameof(salesOrderId));
+
+            if (string.IsNullOrWhiteSpace(employeeId))
+                throw new ArgumentException("Employee ID cannot be null or empty", nameof(employeeId));
+
+            if (string.IsNullOrWhiteSpace(description))
+                throw new ArgumentException("Description cannot be null or empty", nameof(description));
+
+            if (cost < 0)
+                throw new ArgumentException("Cost cannot be negative", nameof(cost));
+
+            ServiceOrderNumber = serviceOrderNumber;
+            SalesOrderId = salesOrderId;
+            EmployeeId = employeeId;
+            ServiceDate = serviceDate;
+            Description = description;
+            Cost = cost;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
 
         // Domain Methods
         public void UpdateCost(decimal cost)

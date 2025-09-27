@@ -54,4 +54,20 @@ namespace VehicleShowroomManagement.Domain.Events
             SalePrice = salePrice;
         }
     }
+
+    /// <summary>
+    /// Vehicle registration created domain event
+    /// </summary>
+    public record VehicleRegistrationCreatedEvent : DomainEvent
+    {
+        public string VehicleRegistrationId { get; init; }
+        public string RegistrationNumber { get; init; }
+        public string VehicleId { get; init; }
+
+        public VehicleRegistrationCreatedEvent(string vehicleRegistrationId, string registrationNumber)
+        {
+            VehicleRegistrationId = vehicleRegistrationId;
+            RegistrationNumber = registrationNumber;
+        }
+    }
 }
