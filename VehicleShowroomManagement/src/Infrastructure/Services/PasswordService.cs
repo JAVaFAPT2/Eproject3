@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
-using VehicleShowroomManagement.Application.Common.Interfaces;
+using VehicleShowroomManagement.Domain.Services;
 
 namespace VehicleShowroomManagement.Infrastructure.Services
 {

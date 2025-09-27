@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using BCrypt.Net;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
+using VehicleShowroomManagement.Domain.Enums;
+using VehicleShowroomManagement.Application.Common.Interfaces;
 
 namespace VehicleShowroomManagement.Infrastructure.Persistence
 {
@@ -20,66 +21,46 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             var services = scope.ServiceProvider;
 
             var employeeRepository = services.GetRequiredService<IRepository<Employee>>();
-            var roleRepository = services.GetRequiredService<IRepository<Role>>();
 
             // Check if data already exists
-            var existingRoles = await roleRepository.CountAsync(r => !r.IsDeleted);
-            if (existingRoles > 0)
+            var existingEmployees = await employeeRepository.CountAsync(e => !e.IsDeleted);
+            if (existingEmployees > 0)
             {
                 return; // Data already seeded
             }
 
-            // Seed roles
-            var hrRole = new Role
-            {
-                Id = ObjectId.GenerateNewId().ToString(),
-                RoleName = "HR",
-                Description = "Human Resources - manages employees and user accounts",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsDeleted = false
-            };
-
-            var dealerRole = new Role
-            {
-                Id = ObjectId.GenerateNewId().ToString(),
-                RoleName = "Dealer",
-                Description = "Vehicle Dealer - manages sales, inventory, and customer relations",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsDeleted = false
-            };
-
-            var adminRole = new Role
-            {
-                Id = ObjectId.GenerateNewId().ToString(),
-                RoleName = "Admin",
-                Description = "System Administrator - full system access",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsDeleted = false
-            };
-
-            await roleRepository.AddRangeAsync(new[] { hrRole, dealerRole, adminRole });
-            await roleRepository.SaveChangesAsync();
-
-            // Seed default admin employee
-            var adminEmployee = new Employee
-            {
-                Id = ObjectId.GenerateNewId().ToString(),
-                EmployeeId = "ADMIN001",
-                Name = "System Administrator",
-                Role = "Admin",
-                Position = "System Administrator",
-                HireDate = DateTime.UtcNow,
-                Status = "Active",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsDeleted = false
-            };
+            // Seed default admin employee using proper constructor
+            var adminEmployee = new Employee(
+                employeeId: "ADMIN001",
+                name: "System Administrator", 
+                role: UserRole.Admin,
+                position: "System Administrator",
+                hireDate: DateTime.UtcNow,
+                salary: 100000m);
 
             await employeeRepository.AddAsync(adminEmployee);
-            await employeeRepository.SaveChangesAsync();
+
+            // Seed default HR employee
+            var hrEmployee = new Employee(
+                employeeId: "HR001",
+                name: "HR Manager",
+                role: UserRole.HR,
+                position: "Human Resources Manager",
+                hireDate: DateTime.UtcNow,
+                salary: 75000m);
+
+            await employeeRepository.AddAsync(hrEmployee);
+
+            // Seed default Dealer employee
+            var dealerEmployee = new Employee(
+                employeeId: "DEALER001",
+                name: "Sales Manager",
+                role: UserRole.Dealer,
+                position: "Senior Sales Representative",
+                hireDate: DateTime.UtcNow,
+                salary: 65000m);
+
+            await employeeRepository.AddAsync(dealerEmployee);
 
             Console.WriteLine("MongoDB database seeded successfully!");
         }

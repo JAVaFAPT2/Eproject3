@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "u5R30J2OZMRWI2y8jysmSNYH3lMh2P9nUj4hLMjYoiQ=",
+  "Source": "VehicleShowroomManagement.WebAPI",
+  "BasePath": "_content/VehicleShowroomManagement.WebAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

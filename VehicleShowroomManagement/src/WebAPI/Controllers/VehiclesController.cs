@@ -2,6 +2,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.Vehicles.Commands.CreateVehicle;
+using VehicleShowroomManagement.Application.Features.Vehicles.Commands.UpdateVehicleStatus;
+using VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVehicleById;
+using VehicleShowroomManagement.Application.Features.Vehicles.Queries.SearchVehicles;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -47,10 +50,56 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a vehicle by ID
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetVehicle(string id)
+        public async Task<ActionResult<VehicleDto>> GetVehicle(string id)
         {
-            // TODO: Implement GetVehicleByIdQuery
-            return Ok(new { message = "Vehicle retrieval not implemented yet" });
+            var query = new GetVehicleByIdQuery(id);
+            var vehicle = await _mediator.Send(query);
+
+            if (vehicle == null)
+                return NotFound(new { message = "Vehicle not found" });
+
+            return Ok(vehicle);
+        }
+
+        /// <summary>
+        /// Searches vehicles with filters - critical for showroom operations
+        /// </summary>
+        [HttpGet("search")]
+        public async Task<ActionResult<SearchVehiclesResult>> SearchVehicles(
+            [FromQuery] string? searchTerm = null,
+            [FromQuery] VehicleStatus? status = null,
+            [FromQuery] string? modelNumber = null,
+            [FromQuery] string? brand = null,
+            [FromQuery] decimal? minPrice = null,
+            [FromQuery] decimal? maxPrice = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var query = new SearchVehiclesQuery(
+                searchTerm,
+                status,
+                modelNumber,
+                brand,
+                minPrice,
+                maxPrice,
+                pageNumber,
+                pageSize);
+
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Updates vehicle status - for inventory management
+        /// </summary>
+        [HttpPut("{id}/status")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> UpdateVehicleStatus(string id, [FromBody] UpdateVehicleStatusRequest request)
+        {
+            var command = new UpdateVehicleStatusCommand(id, request.Status);
+            await _mediator.Send(command);
+            
+            return Ok(new { message = "Vehicle status updated successfully" });
         }
     }
 
@@ -66,5 +115,13 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public string? Vin { get; set; }
         public string? LicensePlate { get; set; }
         public DateTime? ReceiptDate { get; set; }
+    }
+
+    /// <summary>
+    /// Request model for updating vehicle status
+    /// </summary>
+    public class UpdateVehicleStatusRequest
+    {
+        public VehicleStatus Status { get; set; }
     }
 }

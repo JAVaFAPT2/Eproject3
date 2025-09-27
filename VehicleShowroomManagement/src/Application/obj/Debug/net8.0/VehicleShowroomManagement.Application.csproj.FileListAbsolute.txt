@@ -10,3 +10,13 @@ C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/src/Applicat
 /workspace/VehicleShowroomManagement/src/Application/obj/Debug/net8.0/VehicleShowroomManagement.Application.AssemblyInfo.cs
 /workspace/VehicleShowroomManagement/src/Application/obj/Debug/net8.0/VehicleShowroomManagement.Application.csproj.CoreCompileInputs.cache
 /workspace/VehicleShowroomManagement/src/Application/obj/Debug/net8.0/VehicleShowroomManagement.Application.sourcelink.json
+/workspace/VehicleShowroomManagement/src/Application/bin/Debug/net8.0/VehicleShowroomManagement.Application.deps.json
+/workspace/VehicleShowroomManagement/src/Application/bin/Debug/net8.0/VehicleShowroomManagement.Application.dll
+/workspace/VehicleShowroomManagement/src/Application/bin/Debug/net8.0/VehicleShowroomManagement.Application.pdb
+/workspace/VehicleShowroomManagement/src/Application/bin/Debug/net8.0/VehicleShowroomManagement.Domain.dll
+/workspace/VehicleShowroomManagement/src/Application/bin/Debug/net8.0/VehicleShowroomManagement.Domain.pdb
+/workspace/VehicleShowroomManagement/src/Application/obj/Debug/net8.0/VehicleS.DF805461.Up2Date
+/workspace/VehicleShowroomManagement/src/Application/obj/Debug/net8.0/VehicleShowroomManagement.Application.dll
+/workspace/VehicleShowroomManagement/src/Application/obj/Debug/net8.0/refint/VehicleShowroomManagement.Application.dll
+/workspace/VehicleShowroomManagement/src/Application/obj/Debug/net8.0/VehicleShowroomManagement.Application.pdb
+/workspace/VehicleShowroomManagement/src/Application/obj/Debug/net8.0/ref/VehicleShowroomManagement.Application.dll
