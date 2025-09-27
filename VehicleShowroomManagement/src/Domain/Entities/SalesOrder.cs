@@ -1,7 +1,7 @@
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Enums;
-
 using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities

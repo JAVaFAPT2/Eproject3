@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using VehicleShowroomManagement.Domain.Interfaces;
 using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Infrastructure.Persistence;
 
@@ -15,7 +14,7 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
     /// <summary>
     /// Generic MongoDB repository implementation
     /// </summary>
-    public class MongoRepository<T> : IRepository<T> where T : class, IEntity
+    public class MongoRepository<T> : IRepository<T> where T : class
     {
         protected readonly VehicleShowroomDbContext _context;
         protected readonly IMongoCollection<T> _collection;
