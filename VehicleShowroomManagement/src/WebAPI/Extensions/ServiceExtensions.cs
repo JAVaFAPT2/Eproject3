@@ -65,6 +65,8 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
             services.AddScoped<IRepository<WaitingList>>(provider => new MongoRepository<WaitingList>(provider.GetRequiredService<VehicleShowroomDbContext>(), "waitinglist"));
             services.AddScoped<IRepository<Appointment>>(provider => new MongoRepository<Appointment>(provider.GetRequiredService<VehicleShowroomDbContext>(), "appointments"));
             services.AddScoped<IRepository<DealerAvailability>>(provider => new MongoRepository<DealerAvailability>(provider.GetRequiredService<VehicleShowroomDbContext>(), "dealeravailability"));
+            services.AddScoped<IRepository<OrderStatusHistory>>(provider => new MongoRepository<OrderStatusHistory>(provider.GetRequiredService<VehicleShowroomDbContext>(), "orderstatushistory"));
+            services.AddScoped<IRepository<OrderNote>>(provider => new MongoRepository<OrderNote>(provider.GetRequiredService<VehicleShowroomDbContext>(), "ordernotes"));
 
             // Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

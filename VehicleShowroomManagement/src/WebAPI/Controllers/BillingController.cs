@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VehicleShowroomManagement.WebAPI.Models.Billing;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -49,14 +50,33 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Creates a new invoice
+        /// Creates a new invoice for sales or service orders
         /// </summary>
         [HttpPost("invoices")]
         [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> CreateInvoice([FromBody] object request)
+        public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequest request)
         {
+            // Validate that either SalesOrderId or ServiceOrderId is provided
+            if (string.IsNullOrEmpty(request.SalesOrderId) && string.IsNullOrEmpty(request.ServiceOrderId))
+            {
+                return BadRequest(new { message = "Either SalesOrderId or ServiceOrderId must be provided" });
+            }
+
+            if (!string.IsNullOrEmpty(request.SalesOrderId) && !string.IsNullOrEmpty(request.ServiceOrderId))
+            {
+                return BadRequest(new { message = "Only one of SalesOrderId or ServiceOrderId should be provided" });
+            }
+
             await Task.CompletedTask;
-            return Ok(new { message = "Invoice created successfully" });
+            var invoiceId = Guid.NewGuid().ToString();
+            
+            return CreatedAtAction(nameof(GetInvoice), new { id = invoiceId }, 
+                new { 
+                    id = invoiceId, 
+                    message = "Invoice created successfully",
+                    invoiceType = request.InvoiceType,
+                    orderId = request.ServiceOrderId ?? request.SalesOrderId
+                });
         }
 
         /// <summary>
@@ -64,10 +84,15 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpPost("invoices/{id}/payment")]
         [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> ProcessPayment(string id, [FromBody] object request)
+        public async Task<IActionResult> ProcessPayment(string id, [FromBody] ProcessPaymentRequest request)
         {
             await Task.CompletedTask;
-            return Ok(new { message = "Payment processed successfully" });
+            return Ok(new { 
+                message = "Payment processed successfully",
+                invoiceId = id,
+                amount = request.Amount,
+                paymentMethod = request.PaymentMethod.ToString()
+            });
         }
 
         /// <summary>
@@ -75,10 +100,15 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpPost("credit/apply")]
         [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> ApplyCredit([FromBody] object request)
+        public async Task<IActionResult> ApplyCredit([FromBody] ApplyCreditRequest request)
         {
             await Task.CompletedTask;
-            return Ok(new { message = "Credit applied successfully" });
+            return Ok(new { 
+                message = "Credit applied successfully",
+                customerId = request.CustomerId,
+                amount = request.Amount,
+                reason = request.Reason
+            });
         }
 
         /// <summary>

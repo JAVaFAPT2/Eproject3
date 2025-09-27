@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VehicleShowroomManagement.WebAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b0716c7ea8a91ff7cd72ab2559d930c31feda80")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d1248c7c47b0d07334a52351ceeaa1eb4314086")]
 [assembly: System.Reflection.AssemblyProductAttribute("VehicleShowroomManagement.WebAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VehicleShowroomManagement.WebAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

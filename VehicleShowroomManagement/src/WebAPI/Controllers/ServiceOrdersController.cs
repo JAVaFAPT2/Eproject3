@@ -69,7 +69,43 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> StartServiceOrder(string id, [FromBody] object request)
         {
             await Task.CompletedTask;
-            return Ok(new { message = "Service order started successfully" });
+            return Ok(new { 
+                message = "Service order started successfully",
+                serviceOrderId = id,
+                status = "InProgress",
+                startedAt = DateTime.UtcNow
+            });
+        }
+
+        /// <summary>
+        /// Completes a service order and prepares for invoicing
+        /// </summary>
+        [HttpPut("{id}/complete")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> CompleteServiceOrder(string id, [FromBody] object request)
+        {
+            await Task.CompletedTask;
+            return Ok(new { 
+                message = "Service order completed successfully",
+                serviceOrderId = id,
+                status = "Completed",
+                readyForInvoicing = true,
+                completedAt = DateTime.UtcNow
+            });
+        }
+
+        /// <summary>
+        /// Updates service order status
+        /// </summary>
+        [HttpPut("{id}/status")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> UpdateServiceOrderStatus(string id, [FromBody] object request)
+        {
+            await Task.CompletedTask;
+            return Ok(new { 
+                message = "Service order status updated successfully",
+                serviceOrderId = id
+            });
         }
     }
 }
