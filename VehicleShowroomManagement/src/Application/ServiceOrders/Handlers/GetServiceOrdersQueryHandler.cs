@@ -2,7 +2,6 @@ using MediatR;
 using VehicleShowroomManagement.Application.ServiceOrders.DTOs;
 using VehicleShowroomManagement.Application.ServiceOrders.Queries;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
 
 namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
 {

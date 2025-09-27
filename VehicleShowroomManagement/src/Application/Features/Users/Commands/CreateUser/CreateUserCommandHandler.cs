@@ -3,6 +3,7 @@ using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Events;
 using VehicleShowroomManagement.Domain.ValueObjects;
+using VehicleShowroomManagement.Domain.Services;
 
 namespace VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser
 {

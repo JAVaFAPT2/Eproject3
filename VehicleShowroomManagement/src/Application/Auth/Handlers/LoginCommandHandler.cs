@@ -10,7 +10,6 @@ using VehicleShowroomManagement.Application.Auth.Commands;
 using VehicleShowroomManagement.Application.Common.DTOs;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Services;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
 
 namespace VehicleShowroomManagement.Application.Auth.Handlers
 {

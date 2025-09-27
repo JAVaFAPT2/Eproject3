@@ -2,7 +2,6 @@ using MediatR;
 using VehicleShowroomManagement.Application.Images.Commands;
 using VehicleShowroomManagement.Application.Images.Services;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
 
 namespace VehicleShowroomManagement.Application.Images.Handlers
 {

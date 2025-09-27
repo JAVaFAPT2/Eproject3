@@ -1,7 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.PurchaseOrders.Commands;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
 
 namespace VehicleShowroomManagement.Application.PurchaseOrders.Handlers
 {

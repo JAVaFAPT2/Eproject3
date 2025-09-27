@@ -2,7 +2,6 @@ using MediatR;
 using VehicleShowroomManagement.Application.Auth.Commands;
 using VehicleShowroomManagement.Application.Email.Commands;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
 
 namespace VehicleShowroomManagement.Application.Auth.Handlers
 {

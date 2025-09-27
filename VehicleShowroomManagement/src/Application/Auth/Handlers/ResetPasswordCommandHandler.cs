@@ -1,8 +1,7 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Auth.Commands;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Domain.Services;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
+using DomainPasswordService = VehicleShowroomManagement.Domain.Services.IPasswordService;
 
 namespace VehicleShowroomManagement.Application.Auth.Handlers
 {
@@ -11,7 +10,7 @@ namespace VehicleShowroomManagement.Application.Auth.Handlers
     /// </summary>
     public class ResetPasswordCommandHandler(
         IRepository<Employee> employeeRepository,
-        IPasswordService passwordService)
+        DomainPasswordService passwordService)
         : IRequestHandler<ResetPasswordCommand>
     {
         public Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)

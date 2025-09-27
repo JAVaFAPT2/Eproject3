@@ -1,1 +1,10 @@
-global using VehicleShowroomManagement.Infrastructure.Interfaces;
+global using VehicleShowroomManagement.Application.Common.Interfaces;
+global using VehicleShowroomManagement.Domain.Interfaces;
+global using VehicleShowroomManagement.Domain.Entities;
+global using VehicleShowroomManagement.Domain.ValueObjects;
+global using VehicleShowroomManagement.Domain.Enums;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.AspNetCore.Http;
+global using MediatR;
+global using MongoDB.Driver;
+global using MongoDB.Bson;

@@ -1,7 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.ServiceOrders.Commands;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
 
 namespace VehicleShowroomManagement.Application.ServiceOrders.Handlers
 {

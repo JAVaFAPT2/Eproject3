@@ -1,7 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.GoodsReceipts.Commands;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Infrastructure.Interfaces;
 
 namespace VehicleShowroomManagement.Application.GoodsReceipts.Handlers
 {
