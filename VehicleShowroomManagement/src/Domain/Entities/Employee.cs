@@ -1,7 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Enums;
-using VehicleShowroomManagement.Domain.Interfaces;
 using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -10,7 +9,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// Employee aggregate root representing system employees (HR, Dealers)
     /// This is separate from User for HR management purposes
     /// </summary>
-    public class Employee : IEntity, IAuditableEntity, ISoftDelete
+    public class Employee
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

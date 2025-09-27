@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -10,7 +10,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// ServiceOrder entity representing vehicle service orders
     /// Manages pre-delivery services and maintenance
     /// </summary>
-    public class ServiceOrder : IEntity, IAuditableEntity, ISoftDelete
+    public class ServiceOrder 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

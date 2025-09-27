@@ -1,14 +1,14 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
     /// Purchase order line representing a line in a purchase order
     /// </summary>
-    public class PurchaseOrderLine : IEntity, IAuditableEntity, ISoftDelete
+    public class PurchaseOrderLine 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

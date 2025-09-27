@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -10,7 +10,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// Role entity for role-based access control
     /// Defines permissions and access levels for different user types
     /// </summary>
-    public class Role : IEntity, IAuditableEntity, ISoftDelete
+    public class Role 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

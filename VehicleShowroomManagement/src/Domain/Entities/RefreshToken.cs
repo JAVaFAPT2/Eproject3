@@ -1,14 +1,14 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
     /// RefreshToken entity for managing JWT refresh tokens
     /// </summary>
-    public class RefreshToken : IEntity, IAuditableEntity, ISoftDelete
+    public class RefreshToken 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

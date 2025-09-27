@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// SalesOrderItem entity representing individual items in a sales order
     /// Each item represents a vehicle being sold
     /// </summary>
-    public class SalesOrderItem : IEntity, IAuditableEntity, ISoftDelete
+    public class SalesOrderItem 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
