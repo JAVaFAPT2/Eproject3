@@ -60,10 +60,11 @@ namespace VehicleShowroomManagement.WebAPI.Extensions
             services.AddScoped<IRepository<Payment>>(provider => new MongoRepository<Payment>(provider.GetRequiredService<VehicleShowroomDbContext>(), "payments"));
             services.AddScoped<IRepository<VehicleImage>>(provider => new MongoRepository<VehicleImage>(provider.GetRequiredService<VehicleShowroomDbContext>(), "vehicleimages"));
             services.AddScoped<IRepository<RefreshToken>>(provider => new MongoRepository<RefreshToken>(provider.GetRequiredService<VehicleShowroomDbContext>(), "refreshtokens"));
-            services.AddScoped<IRepository<PasswordResetToken>>(provider => new MongoRepository<PasswordResetToken>(provider.GetRequiredService<VehicleShowroomDbContext>(), "passwordresettokens"));
             services.AddScoped<IRepository<Supplier>>(provider => new MongoRepository<Supplier>(provider.GetRequiredService<VehicleShowroomDbContext>(), "suppliers"));
             services.AddScoped<IRepository<Allotment>>(provider => new MongoRepository<Allotment>(provider.GetRequiredService<VehicleShowroomDbContext>(), "allotments"));
             services.AddScoped<IRepository<WaitingList>>(provider => new MongoRepository<WaitingList>(provider.GetRequiredService<VehicleShowroomDbContext>(), "waitinglist"));
+            services.AddScoped<IRepository<Appointment>>(provider => new MongoRepository<Appointment>(provider.GetRequiredService<VehicleShowroomDbContext>(), "appointments"));
+            services.AddScoped<IRepository<DealerAvailability>>(provider => new MongoRepository<DealerAvailability>(provider.GetRequiredService<VehicleShowroomDbContext>(), "dealeravailability"));
 
             // Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -5,6 +5,7 @@ using System.Security.Claims;
 using VehicleShowroomManagement.Application.Features.Profile.Queries.GetProfile;
 using VehicleShowroomManagement.Application.Features.Profile.Commands.UpdateProfile;
 using VehicleShowroomManagement.Application.Features.Profile.Commands.ChangePassword;
+using VehicleShowroomManagement.WebAPI.Models.Profile;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -86,25 +87,5 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
             return Ok(new { message = "Password changed successfully" });
         }
-    }
-
-    /// <summary>
-    /// Request model for updating profile
-    /// </summary>
-    public class UpdateProfileRequest
-    {
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string? Phone { get; set; }
-    }
-
-    /// <summary>
-    /// Request model for changing password
-    /// </summary>
-    public class ChangePasswordRequest
-    {
-        public string CurrentPassword { get; set; } = string.Empty;
-        public string NewPassword { get; set; } = string.Empty;
     }
 }

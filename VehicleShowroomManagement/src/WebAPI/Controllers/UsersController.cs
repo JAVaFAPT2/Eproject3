@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser;
 using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserProfile;
 using VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById;
+using VehicleShowroomManagement.WebAPI.Models.Users;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -78,29 +79,5 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             
             return Ok(new { message = "User profile updated successfully" });
         }
-    }
-
-    /// <summary>
-    /// Request model for creating a user
-    /// </summary>
-    public class CreateUserRequest
-    {
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public UserRole Role { get; set; }
-        public string? Phone { get; set; }
-    }
-
-    /// <summary>
-    /// Request model for updating user profile
-    /// </summary>
-    public class UpdateUserProfileRequest
-    {
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string? Phone { get; set; }
     }
 }

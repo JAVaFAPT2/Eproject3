@@ -6,6 +6,7 @@ using VehicleShowroomManagement.Application.Features.SalesOrders.Commands.Update
 using VehicleShowroomManagement.Application.Features.SalesOrders.Queries.GetOrderById;
 using VehicleShowroomManagement.Application.Features.SalesOrders.Queries.GetOrders;
 using VehicleShowroomManagement.Application.Features.SalesOrders.Commands.PrintOrder;
+using VehicleShowroomManagement.WebAPI.Models.SalesOrders;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -103,26 +104,5 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
             return File(result.Content, result.ContentType, result.FileName);
         }
-    }
-
-    /// <summary>
-    /// Request model for creating a sales order
-    /// </summary>
-    public class CreateSalesOrderRequest
-    {
-        public string OrderNumber { get; set; } = string.Empty;
-        public string CustomerId { get; set; } = string.Empty;
-        public string VehicleId { get; set; } = string.Empty;
-        public string SalesPersonId { get; set; } = string.Empty;
-        public decimal TotalAmount { get; set; }
-        public PaymentMethod PaymentMethod { get; set; }
-    }
-
-    /// <summary>
-    /// Request model for updating order status
-    /// </summary>
-    public class UpdateOrderStatusRequest
-    {
-        public OrderStatus Status { get; set; }
     }
 }

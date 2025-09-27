@@ -300,3 +300,17 @@ C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/src/WebAPI/o
 C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/src/WebAPI/obj/Debug/net8.0/VehicleShowroomManagement.WebAPI.pdb
 C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/src/WebAPI/obj/Debug/net8.0/VehicleShowroomManagement.WebAPI.genruntimeconfig.cache
 C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/src/WebAPI/obj/Debug/net8.0/ref/VehicleShowroomManagement.WebAPI.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.barcodes.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.bouncy-castle-connector.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.forms.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.io.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.kernel.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.layout.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.pdfa.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.pdfua.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.sign.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.styledxmlparser.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.svg.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.commons.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/itext.html2pdf.dll
+/workspace/VehicleShowroomManagement/src/WebAPI/bin/Debug/net8.0/Microsoft.DotNet.PlatformAbstractions.dll

@@ -6,6 +6,7 @@ using VehicleShowroomManagement.Application.Features.Auth.Commands.ForgotPasswor
 using VehicleShowroomManagement.Application.Features.Auth.Commands.ResetPassword;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.RefreshToken;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.RevokeToken;
+using VehicleShowroomManagement.WebAPI.Models.Auth;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -92,47 +93,5 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
             return Ok(new { message = "Token revoked successfully" });
         }
-    }
-
-    /// <summary>
-    /// Request model for login
-    /// </summary>
-    public class LoginRequest
-    {
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
-
-    /// <summary>
-    /// Request model for forgot password
-    /// </summary>
-    public class ForgotPasswordRequest
-    {
-        public string Email { get; set; } = string.Empty;
-    }
-
-    /// <summary>
-    /// Request model for reset password
-    /// </summary>
-    public class ResetPasswordRequest
-    {
-        public string Token { get; set; } = string.Empty;
-        public string NewPassword { get; set; } = string.Empty;
-    }
-
-    /// <summary>
-    /// Request model for refresh token
-    /// </summary>
-    public class RefreshTokenRequest
-    {
-        public string RefreshToken { get; set; } = string.Empty;
-    }
-
-    /// <summary>
-    /// Request model for revoke token
-    /// </summary>
-    public class RevokeTokenRequest
-    {
-        public string RefreshToken { get; set; } = string.Empty;
     }
 }

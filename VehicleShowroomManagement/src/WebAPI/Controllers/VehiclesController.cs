@@ -8,7 +8,9 @@ using VehicleShowroomManagement.Application.Features.Vehicles.Commands.BulkDelet
 using VehicleShowroomManagement.Application.Features.Vehicles.Commands.UpdateVehicleStatus;
 using VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVehicleById;
 using VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVehicles;
+using GetVehicleByIdVehicleDto = VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVehicleById.VehicleDto;
 using VehicleShowroomManagement.Application.Features.Vehicles.Queries.SearchVehicles;
+using VehicleShowroomManagement.WebAPI.Models.Vehicles;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -54,7 +56,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a vehicle by ID
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<ActionResult<VehicleDto>> GetVehicle(string id)
+        public async Task<ActionResult<GetVehicleByIdVehicleDto>> GetVehicle(string id)
         {
             var query = new GetVehicleByIdQuery(id);
             var vehicle = await _mediator.Send(query);
@@ -168,49 +170,5 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             
             return Ok(new { message = "Vehicle status updated successfully" });
         }
-    }
-
-    /// <summary>
-    /// Request model for creating a vehicle
-    /// </summary>
-    public class CreateVehicleRequest
-    {
-        public string VehicleId { get; set; } = string.Empty;
-        public string ModelNumber { get; set; } = string.Empty;
-        public decimal PurchasePrice { get; set; }
-        public string? ExternalNumber { get; set; }
-        public string? Vin { get; set; }
-        public string? LicensePlate { get; set; }
-        public DateTime? ReceiptDate { get; set; }
-    }
-
-    /// <summary>
-    /// Request model for updating vehicle
-    /// </summary>
-    public class UpdateVehicleRequest
-    {
-        public string ModelNumber { get; set; } = string.Empty;
-        public decimal PurchasePrice { get; set; }
-        public string? ExternalNumber { get; set; }
-        public string? Vin { get; set; }
-        public string? LicensePlate { get; set; }
-        public string? Color { get; set; }
-        public int Mileage { get; set; }
-    }
-
-    /// <summary>
-    /// Request model for updating vehicle status
-    /// </summary>
-    public class UpdateVehicleStatusRequest
-    {
-        public VehicleStatus Status { get; set; }
-    }
-
-    /// <summary>
-    /// Request model for bulk delete vehicles
-    /// </summary>
-    public class BulkDeleteVehiclesRequest
-    {
-        public List<string> VehicleIds { get; set; } = new List<string>();
     }
 }

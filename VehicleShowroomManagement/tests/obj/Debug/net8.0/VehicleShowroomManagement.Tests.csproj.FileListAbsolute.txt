@@ -462,3 +462,17 @@ C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/tests/obj/De
 C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/tests/obj/Debug/net8.0/VehicleShowroomManagement.Tests.pdb
 C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/tests/obj/Debug/net8.0/VehicleShowroomManagement.Tests.genruntimeconfig.cache
 C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/tests/obj/Debug/net8.0/ref/VehicleShowroomManagement.Tests.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.barcodes.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.bouncy-castle-connector.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.forms.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.io.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.kernel.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.layout.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.pdfa.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.pdfua.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.sign.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.styledxmlparser.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.svg.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.commons.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.html2pdf.dll
+/workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/Microsoft.DotNet.PlatformAbstractions.dll
