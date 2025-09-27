@@ -1,22 +1,19 @@
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VehicleShowroomManagement.Application.Users.Commands;
-using VehicleShowroomManagement.Application.Common.DTOs;
-using VehicleShowroomManagement.Application.Users.Queries;
+using VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser;
+using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserProfile;
+using VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById;
+using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
     /// <summary>
     /// API Controller for user management operations
-    /// Supports role-based access control
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // Require authentication for all endpoints
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -27,52 +24,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Gets all users with optional filtering
-        /// </summary>
-        [HttpGet]
-        [Authorize(Roles = "HR,Admin")] // Only HR and Admin can view all users
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers(
-            [FromQuery] string? searchTerm,
-            [FromQuery] int? roleId,
-            [FromQuery] bool? isActive,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
-        {
-            var query = new GetUsersQuery(searchTerm, roleId, isActive, pageNumber, pageSize);
-            var users = await _mediator.Send(query);
-            return Ok(users);
-        }
-
-        /// <summary>
-        /// Gets a user by ID
-        /// </summary>
-        [HttpGet("{id}")]
-        [Authorize(Roles = "HR,Admin")] // Only HR and Admin can view specific users
-        public async Task<ActionResult<UserDto>> GetUser(string id)
-        {
-            try
-            {
-                var query = new GetUserByIdQuery(id);
-                var user = await _mediator.Send(query);
-
-                if (user == null)
-                {
-                    return NotFound(new { message = "User not found" });
-                }
-
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
         /// Creates a new user
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "HR,Admin")] // Only HR and Admin can create users
+        [Authorize(Roles = "HR,Admin")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             var command = new CreateUserCommand(
@@ -81,85 +36,47 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.Password,
                 request.FirstName,
                 request.LastName,
-                request.RoleId);
+                request.Role,
+                request.Phone);
 
             var userId = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetUser), new { id = userId }, new { id = userId, message = "User created successfully" });
+            
+            return CreatedAtAction(nameof(GetUser), new { id = userId }, 
+                new { id = userId, message = "User created successfully" });
         }
 
         /// <summary>
-        /// Updates a user
+        /// Gets a user by ID
         /// </summary>
-        [HttpPut("{id}")]
-        [Authorize(Roles = "HR,Admin")] // Only HR and Admin can update users
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserRequest request)
+        [HttpGet("{id}")]
+        [Authorize(Roles = "HR,Admin")]
+        public async Task<ActionResult<UserDto>> GetUser(string id)
         {
-            try
-            {
-                var command = new UpdateUserCommand(
-                    id,
-                    request.FirstName,
-                    request.LastName,
-                    request.Email,
-                    null, // phone
-                    null, // salary
-                    request.RoleId.ToString(),
-                    request.IsActive);
+            var query = new GetUserByIdQuery(id);
+            var user = await _mediator.Send(query);
 
-                await _mediator.Send(command);
-                return Ok(new { message = "User updated successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            if (user == null)
+                return NotFound(new { message = "User not found" });
+
+            return Ok(user);
         }
 
         /// <summary>
-        /// Deletes a user
+        /// Updates user profile
         /// </summary>
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")] // Only Admin can delete users
-        public async Task<IActionResult> DeleteUser(string id)
+        [HttpPut("{id}/profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserProfile(string id, [FromBody] UpdateUserProfileRequest request)
         {
-            try
-            {
-                var command = new DeleteUserCommand(id);
-                await _mediator.Send(command);
+            var command = new UpdateUserProfileCommand(
+                id,
+                request.FirstName,
+                request.LastName,
+                request.Phone);
 
-                return Ok(new { message = "User deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Gets current user profile
-        /// </summary>
-        [HttpGet("profile")]
-        [Authorize] // Any authenticated user can view their own profile
-        public async Task<IActionResult> GetProfile()
-        {
-            try
-            {
-                // Get current user ID from JWT token claims
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return Unauthorized(new { message = "Invalid token" });
-                }
-
-                var query = new GetUserProfileQuery(userId);
-                var profile = await _mediator.Send(query);
-
-                return Ok(profile);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            await _mediator.Send(command);
+            
+            return Ok(new { message = "User profile updated successfully" });
         }
     }
 
@@ -173,18 +90,17 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public string Password { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public int RoleId { get; set; }
+        public UserRole Role { get; set; }
+        public string? Phone { get; set; }
     }
 
     /// <summary>
-    /// Request model for updating a user
+    /// Request model for updating user profile
     /// </summary>
-    public class UpdateUserRequest
+    public class UpdateUserProfileRequest
     {
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Email { get; set; }
-        public int RoleId { get; set; }
-        public bool? IsActive { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string? Phone { get; set; }
     }
 }

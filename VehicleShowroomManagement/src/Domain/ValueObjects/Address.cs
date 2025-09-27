@@ -1,90 +1,52 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.RegularExpressions;
 
 namespace VehicleShowroomManagement.Domain.ValueObjects
 {
     /// <summary>
-    /// Address value object representing a physical address
+    /// Address value object with validation
     /// </summary>
-    [ComplexType]
-    public class Address : IEquatable<Address>
+    public record Address
     {
-        [Required]
-        [StringLength(255)]
-        public string Street { get; private set; }
+        public string Street { get; }
+        public string City { get; }
+        public string State { get; }
+        public string ZipCode { get; }
+        public string Country { get; }
 
-        [Required]
-        [StringLength(50)]
-        public string City { get; private set; }
-
-        [Required]
-        [StringLength(50)]
-        public string State { get; private set; }
-
-        [StringLength(10)]
-        public string? ZipCode { get; private set; }
-
-        // Required for Entity Framework
-        protected Address()
+        public Address(string street, string city, string state, string zipCode, string country = "USA")
         {
-            Street = string.Empty;
-            City = string.Empty;
-            State = string.Empty;
+            if (string.IsNullOrWhiteSpace(street))
+                throw new ArgumentException("Street cannot be null or empty", nameof(street));
+            
+            if (string.IsNullOrWhiteSpace(city))
+                throw new ArgumentException("City cannot be null or empty", nameof(city));
+            
+            if (string.IsNullOrWhiteSpace(state))
+                throw new ArgumentException("State cannot be null or empty", nameof(state));
+            
+            if (string.IsNullOrWhiteSpace(zipCode))
+                throw new ArgumentException("Zip code cannot be null or empty", nameof(zipCode));
+
+            if (!IsValidZipCode(zipCode))
+                throw new ArgumentException("Invalid zip code format", nameof(zipCode));
+
+            Street = street.Trim();
+            City = city.Trim();
+            State = state.Trim().ToUpperInvariant();
+            ZipCode = zipCode.Trim();
+            Country = string.IsNullOrWhiteSpace(country) ? "USA" : country.Trim();
         }
 
-        public Address(string street, string city, string state, string? zipCode = null)
+        private static bool IsValidZipCode(string zipCode)
         {
-            Street = street;
-            City = city;
-            State = state;
-            ZipCode = zipCode;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is Address address && Equals(address);
-        }
-
-        public bool Equals(Address? other)
-        {
-            if (other is null)
-                return false;
-
-            return Street == other.Street &&
-                   City == other.City &&
-                   State == other.State &&
-                   ZipCode == other.ZipCode;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Street, City, State, ZipCode);
-        }
-
-        public static bool operator ==(Address? left, Address? right)
-        {
-            return EqualityComparer<Address>.Default.Equals(left, right);
-        }
-
-        public static bool operator !=(Address? left, Address? right)
-        {
-            return !(left == right);
+            // US ZIP code pattern: 12345 or 12345-6789
+            var zipRegex = new Regex(@"^\d{5}(-\d{4})?$");
+            return zipRegex.IsMatch(zipCode);
         }
 
         public override string ToString()
         {
-            var address = $"{Street}, {City}, {State}";
-            if (!string.IsNullOrEmpty(ZipCode))
-                address += $" {ZipCode}";
-
-            return address;
-        }
-
-        public Address Update(string street, string city, string state, string? zipCode = null)
-        {
-            return new Address(street, city, state, zipCode);
+            return $"{Street}, {City}, {State} {ZipCode}, {Country}";
         }
     }
 }

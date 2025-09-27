@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using VehicleShowroomManagement.Domain.Enums;
 using VehicleShowroomManagement.Domain.Interfaces;
+using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
-    /// Vehicle entity representing vehicles in the showroom inventory
-    /// Core entity for the vehicle showroom management system
+    /// Vehicle aggregate root representing vehicles in the showroom inventory
     /// </summary>
     public class Vehicle : IEntity, IAuditableEntity, ISoftDelete
     {
@@ -18,30 +17,41 @@ namespace VehicleShowroomManagement.Domain.Entities
 
         [BsonElement("vehicleId")]
         [BsonRequired]
-        public string VehicleId { get; set; } = string.Empty;
+        public string VehicleId { get; private set; } = string.Empty;
 
         [BsonElement("modelNumber")]
         [BsonRequired]
-        public string ModelNumber { get; set; } = string.Empty;
+        public string ModelNumber { get; private set; } = string.Empty;
 
         [BsonElement("externalNumber")]
-        public string? ExternalNumber { get; set; }
+        public string? ExternalNumber { get; private set; }
 
-        [BsonElement("registrationData")]
-        public RegistrationData? RegistrationData { get; set; }
+        [BsonElement("vin")]
+        public string? Vin { get; private set; }
+
+        [BsonElement("licensePlate")]
+        public string? LicensePlate { get; private set; }
+
+        [BsonElement("registrationDate")]
+        public DateTime? RegistrationDate { get; private set; }
+
+        [BsonElement("expiryDate")]
+        public DateTime? ExpiryDate { get; private set; }
 
         [BsonElement("status")]
-        public string Status { get; set; } = "Available"; // Available, Sold, InService, Reserved
+        public VehicleStatus Status { get; private set; } = VehicleStatus.Available;
 
         [BsonElement("purchasePrice")]
-        [BsonRequired]
-        public decimal PurchasePrice { get; set; }
+        public decimal PurchasePrice { get; private set; }
+
+        [BsonElement("salePrice")]
+        public decimal? SalePrice { get; private set; }
 
         [BsonElement("photos")]
-        public List<string> Photos { get; set; } = new List<string>();
+        public List<string> Photos { get; private set; } = new List<string>();
 
         [BsonElement("receiptDate")]
-        public DateTime ReceiptDate { get; set; } = DateTime.UtcNow;
+        public DateTime ReceiptDate { get; private set; } = DateTime.UtcNow;
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -55,59 +65,109 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("deletedAt")]
         public DateTime? DeletedAt { get; set; }
 
-        // Domain Methods
-        public void UpdateVehicleInfo(string modelNumber, decimal purchasePrice, List<string> photos)
+        // Private constructor for MongoDB
+        private Vehicle() { }
+
+        public Vehicle(string vehicleId, string modelNumber, decimal purchasePrice, string? externalNumber = null, Vin? vin = null, string? licensePlate = null, DateTime? receiptDate = null)
         {
+            if (string.IsNullOrWhiteSpace(vehicleId))
+                throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
+
+            if (string.IsNullOrWhiteSpace(modelNumber))
+                throw new ArgumentException("Model number cannot be null or empty", nameof(modelNumber));
+
+            if (purchasePrice < 0)
+                throw new ArgumentException("Purchase price cannot be negative", nameof(purchasePrice));
+
+            VehicleId = vehicleId;
             ModelNumber = modelNumber;
             PurchasePrice = purchasePrice;
-            Photos = photos ?? new List<string>();
+            ExternalNumber = externalNumber;
+            Vin = vin?.Value;
+            LicensePlate = licensePlate;
+            ReceiptDate = receiptDate ?? DateTime.UtcNow;
+            CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UpdateRegistrationData(string vin, string licensePlate, DateTime registrationDate, DateTime expiryDate)
+        // Domain methods
+        public void UpdateStatus(VehicleStatus status)
         {
-            RegistrationData = new RegistrationData
-            {
-                VIN = vin,
-                LicensePlate = licensePlate,
-                RegistrationDate = registrationDate,
-                ExpiryDate = expiryDate
-            };
+            Status = status;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void MarkAsSold()
+        public void UpdatePurchasePrice(decimal price)
         {
-            Status = "Sold";
+            if (price < 0)
+                throw new ArgumentException("Purchase price cannot be negative", nameof(price));
+
+            PurchasePrice = price;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void MarkAsAvailable()
+        public void SetSalePrice(decimal? price)
         {
-            Status = "Available";
+            if (price.HasValue && price < 0)
+                throw new ArgumentException("Sale price cannot be negative", nameof(price));
+
+            SalePrice = price;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void MarkAsInService()
+        public void UpdateRegistrationInfo(Vin vin, string? licensePlate = null, DateTime? registrationDate = null, DateTime? expiryDate = null)
         {
-            Status = "InService";
+            Vin = vin.Value;
+            LicensePlate = licensePlate;
+            RegistrationDate = registrationDate;
+            ExpiryDate = expiryDate;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void AddPhoto(string photoUrl)
+        {
+            if (string.IsNullOrWhiteSpace(photoUrl))
+                throw new ArgumentException("Photo URL cannot be null or empty", nameof(photoUrl));
+
+            Photos.Add(photoUrl);
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void RemovePhoto(string photoUrl)
+        {
+            Photos.Remove(photoUrl);
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Sell(decimal salePrice)
+        {
+            if (salePrice < 0)
+                throw new ArgumentException("Sale price cannot be negative", nameof(salePrice));
+
+            if (Status != VehicleStatus.Available && Status != VehicleStatus.Reserved)
+                throw new InvalidOperationException("Only available or reserved vehicles can be sold");
+
+            Status = VehicleStatus.Sold;
+            SalePrice = salePrice;
             UpdatedAt = DateTime.UtcNow;
         }
 
         public void Reserve()
         {
-            Status = "Reserved";
+            if (Status != VehicleStatus.Available)
+                throw new InvalidOperationException("Only available vehicles can be reserved");
+
+            Status = VehicleStatus.Reserved;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public bool IsAvailableForSale()
+        public void MakeAvailable()
         {
-            return Status == "Available";
-        }
+            if (Status == VehicleStatus.Sold)
+                throw new InvalidOperationException("Sold vehicles cannot be made available");
 
-        public bool CanBeServiced()
-        {
-            return Status != "InService";
+            Status = VehicleStatus.Available;
+            UpdatedAt = DateTime.UtcNow;
         }
 
         public void SoftDelete()
@@ -123,27 +183,16 @@ namespace VehicleShowroomManagement.Domain.Entities
             DeletedAt = null;
             UpdatedAt = DateTime.UtcNow;
         }
-    }
 
-    /// <summary>
-    /// Registration data embedded in Vehicle entity
-    /// </summary>
-    public class RegistrationData
-    {
-        [BsonElement("vin")]
-        [BsonRequired]
-        public string VIN { get; set; } = string.Empty;
+        // Computed properties
+        public bool IsAvailable => Status == VehicleStatus.Available;
 
-        [BsonElement("licensePlate")]
-        [BsonRequired]
-        public string LicensePlate { get; set; } = string.Empty;
+        public bool IsSold => Status == VehicleStatus.Sold;
 
-        [BsonElement("registrationDate")]
-        [BsonRequired]
-        public DateTime RegistrationDate { get; set; }
+        public bool IsReserved => Status == VehicleStatus.Reserved;
 
-        [BsonElement("expiryDate")]
-        [BsonRequired]
-        public DateTime ExpiryDate { get; set; }
+        public bool IsInService => Status == VehicleStatus.InService;
+
+        public bool IsRegistered => !string.IsNullOrEmpty(Vin) && RegistrationDate.HasValue;
     }
 }
