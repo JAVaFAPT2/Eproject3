@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -10,7 +10,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// GoodsReceipt entity representing vehicle goods receipt
     /// Manages the process of receiving vehicles with unique identification numbers
     /// </summary>
-    public class GoodsReceipt : IEntity, IAuditableEntity, ISoftDelete
+    public class GoodsReceipt 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

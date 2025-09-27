@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
     /// Invoice entity representing billing documents for sales orders
     /// </summary>
-    public class Invoice : IEntity, IAuditableEntity, ISoftDelete
+    public class Invoice 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

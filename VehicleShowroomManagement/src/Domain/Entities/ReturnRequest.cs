@@ -1,14 +1,14 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
     /// Return request entity for vehicle return requests
     /// </summary>
-    public class ReturnRequest : IEntity, IAuditableEntity, ISoftDelete
+    public class ReturnRequest 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

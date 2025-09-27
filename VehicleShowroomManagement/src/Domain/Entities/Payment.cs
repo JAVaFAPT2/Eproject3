@@ -1,14 +1,14 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
     /// Payment entity representing payments made against invoices
     /// </summary>
-    public class Payment : IEntity, IAuditableEntity, ISoftDelete
+    public class Payment 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

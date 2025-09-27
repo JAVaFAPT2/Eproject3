@@ -1,6 +1,6 @@
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
 using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -8,7 +8,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// <summary>
     /// Customer aggregate root for customer management
     /// </summary>
-    public class Customer : IEntity, IAuditableEntity, ISoftDelete
+    public class Customer
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

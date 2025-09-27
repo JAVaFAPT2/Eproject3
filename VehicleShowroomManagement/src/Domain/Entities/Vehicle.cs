@@ -1,7 +1,8 @@
+using System;
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Enums;
-using VehicleShowroomManagement.Domain.Interfaces;
 using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -9,7 +10,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// <summary>
     /// Vehicle aggregate root representing vehicles in the showroom inventory
     /// </summary>
-    public class Vehicle : IEntity, IAuditableEntity, ISoftDelete
+    public class Vehicle
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

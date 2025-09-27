@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -10,7 +9,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// PurchaseOrder entity representing vehicle purchase orders from company
     /// Manages the process of purchasing vehicles from the manufacturer
     /// </summary>
-    public class PurchaseOrder : IEntity, IAuditableEntity, ISoftDelete
+    public class PurchaseOrder
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

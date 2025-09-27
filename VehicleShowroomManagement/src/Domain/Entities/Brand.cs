@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
     /// Brand entity representing vehicle manufacturers
     /// </summary>
-    public class Brand : IEntity, IAuditableEntity, ISoftDelete
+    public class Brand
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

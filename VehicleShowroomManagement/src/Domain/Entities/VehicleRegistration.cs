@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// VehicleRegistration entity representing vehicle registration data
     /// Manages vehicle registration information and documentation
     /// </summary>
-    public class VehicleRegistration : IEntity, IAuditableEntity, ISoftDelete
+    public class VehicleRegistration 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

@@ -1,12 +1,10 @@
-using VehicleShowroomManagement.Domain.Interfaces;
-
 namespace VehicleShowroomManagement.Application.Common.Interfaces
 {
     /// <summary>
     /// Generic repository interface for data access operations
     /// </summary>
     /// <typeparam name="TEntity">The entity type</typeparam>
-    public interface IRepository<TEntity> where TEntity : class, IEntity
+    public interface IRepository<TEntity> where TEntity : class
     {
         Task<TEntity?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
         Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);

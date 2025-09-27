@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// WaitingList entity representing customer waiting list details
     /// Manages customer waiting list for specific vehicle models or types
     /// </summary>
-    public class WaitingList : IEntity, IAuditableEntity, ISoftDelete
+    public class WaitingList 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

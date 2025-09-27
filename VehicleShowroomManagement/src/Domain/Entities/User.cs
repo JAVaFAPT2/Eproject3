@@ -1,7 +1,8 @@
+using System;
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Enums;
-using VehicleShowroomManagement.Domain.Interfaces;
 using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities
@@ -9,7 +10,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// <summary>
     /// User aggregate root for authentication and authorization
     /// </summary>
-    public class User : IEntity, IAuditableEntity, ISoftDelete
+    public class User
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

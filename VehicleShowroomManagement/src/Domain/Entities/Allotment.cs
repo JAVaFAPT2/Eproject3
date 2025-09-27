@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// Allotment entity representing vehicle allotment details
     /// Manages vehicle allocation to customers and sales representatives
     /// </summary>
-    public class Allotment : IEntity, IAuditableEntity, ISoftDelete
+    public class Allotment 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

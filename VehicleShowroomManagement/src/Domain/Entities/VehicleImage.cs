@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using VehicleShowroomManagement.Domain.Interfaces;
+
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     /// VehicleImage entity representing images associated with vehicles
     /// Manages vehicle photographs and image optimization
     /// </summary>
-    public class VehicleImage : IEntity, IAuditableEntity, ISoftDelete
+    public class VehicleImage 
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
