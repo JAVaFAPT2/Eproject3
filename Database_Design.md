@@ -92,6 +92,48 @@
 │ UpdatedAt       │    │ UpdatedAt       │ │ CreatedAt       │
 └─────────────────┘    └─────────────────┘    │ UpdatedAt       │
                                              └─────────────────┘
+
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│PurchaseOrders   │    │  GoodsReceipts  │    │VehicleRegistrations│
+├─────────────────┤    ├─────────────────┤    ├─────────────────┤
+│ PurchaseOrderId(PK)│ │ GoodsReceiptId(PK)│ │ VehicleRegId(PK)│
+│ OrderNumber     │    │ ReceiptNumber   │    │ RegistrationNumber│
+│ OrderDate       │    │ PurchaseOrderId(FK)│ │ VehicleId (FK)  │
+│ SupplierId (FK) │    │ ReceiptDate     │    │ VIN             │
+│ ModelNumber     │    │ VehicleId (FK)  │    │ CustomerId (FK) │
+│ Name            │    │ VIN             │    │ RegistrationDate│
+│ Brand           │    │ ManufacturerVIN │    │ ExpiryDate      │
+│ Price           │    │ Status          │    │ IssuingAuthority│
+│ Quantity        │    │ Notes           │    │ Status          │
+│ TotalAmount     │    │ CreatedAt       │    │ OwnerName       │
+│ Status          │    │ UpdatedAt       │    │ OwnerAddress    │
+│ Notes           │    │ IsDeleted       │    │ CreatedAt       │
+│ CreatedAt       │    │ DeletedAt       │    │ UpdatedAt       │
+│ UpdatedAt       │    └─────────────────┘    │ IsDeleted       │
+│ IsDeleted       │                           │ DeletedAt       │
+│ DeletedAt       │                           └─────────────────┘
+└─────────────────┘
+
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Allotments    │    │  WaitingLists   │    │   ModelInfo     │
+├─────────────────┤    ├─────────────────┤    ├─────────────────┤
+│ AllotmentId (PK)│    │ WaitingListId(PK)│   │ ModelId (PK)    │
+│ AllotmentNumber │    │ RequestNumber   │    │ ModelName       │
+│ VehicleId (FK)  │    │ CustomerId (FK) │    │ ModelNumber     │
+│ CustomerId (FK) │    │ RequestedVehicleModelId│ BrandId (FK)   │
+│ AllotmentDate   │    │ RequestedVehicleBrandId│ EngineType     │
+│ ExpiryDate      │    │ PreferredColor  │    │ Transmission    │
+│ Status          │    │ MinPrice        │    │ FuelType        │
+│ AllotmentType   │    │ MaxPrice        │    │ SeatingCapacity │
+│ ReservationAmount│   │ RequestDate     │    │ CreatedAt       │
+│ Notes           │    │ Priority        │    │ UpdatedAt       │
+│ CreatedAt       │    │ Status          │    │ IsDeleted       │
+│ UpdatedAt       │    │ Notes           │    │ DeletedAt       │
+│ IsDeleted       │    │ CreatedAt       │    └─────────────────┘
+│ DeletedAt       │    │ UpdatedAt       │
+└─────────────────┘    │ IsDeleted       │
+                      │ DeletedAt       │
+                      └─────────────────┘
 ```
 
 ## 3. Document Structure
@@ -442,9 +484,113 @@
   "imageType": "Exterior",
   "fileName": "honda-civic-1.jpg",
   "fileSize": 2048576,
+  "publicId": "vehicle-showroom/abc123",
+  "originalFileName": "honda-civic-1.jpg",
+  "contentType": "image/jpeg",
+  "isPrimary": true,
   "uploadedAt": "2024-01-01T00:00:00Z",
   "createdAt": "2024-01-01T00:00:00Z",
   "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false
+}
+```
+
+#### PurchaseOrders Collection
+```json
+{
+  "_id": "ObjectId",
+  "orderNumber": "PO-20240101-001",
+  "orderDate": "2024-01-01T00:00:00Z",
+  "supplierId": "ObjectId",
+  "modelNumber": "CAMRY2024",
+  "name": "Toyota Camry 2024",
+  "brand": "Toyota",
+  "price": 25000.00,
+  "quantity": 5,
+  "totalAmount": 125000.00,
+  "status": "Pending",
+  "notes": "Urgent delivery required",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "isDeleted": false
+}
+```
+
+#### GoodsReceipts Collection
+```json
+{
+  "_id": "ObjectId",
+  "receiptNumber": "GR-20240101-001",
+  "purchaseOrderId": "ObjectId",
+  "receiptDate": "2024-01-15T00:00:00Z",
+  "vehicleId": "ObjectId",
+  "vin": "1HGCM82633A123456",
+  "manufacturerVIN": "MFG-123456789",
+  "status": "Accepted",
+  "notes": "Vehicle in excellent condition",
+  "createdAt": "2024-01-15T00:00:00Z",
+  "updatedAt": "2024-01-15T00:00:00Z",
+  "isDeleted": false
+}
+```
+
+#### VehicleRegistrations Collection
+```json
+{
+  "_id": "ObjectId",
+  "registrationNumber": "ABC-123456",
+  "vehicleId": "ObjectId",
+  "vin": "1HGCM82633A123456",
+  "customerId": "ObjectId",
+  "registrationDate": "2024-01-20T00:00:00Z",
+  "expiryDate": "2025-01-20T00:00:00Z",
+  "issuingAuthority": "DMV",
+  "status": "Active",
+  "ownerName": "John Doe",
+  "ownerAddress": "123 Main St, City, State 12345",
+  "createdAt": "2024-01-20T00:00:00Z",
+  "updatedAt": "2024-01-20T00:00:00Z",
+  "isDeleted": false
+}
+```
+
+#### Allotments Collection
+```json
+{
+  "_id": "ObjectId",
+  "allotmentNumber": "ALL-20240101-001",
+  "vehicleId": "ObjectId",
+  "customerId": "ObjectId",
+  "allotmentDate": "2024-01-10T00:00:00Z",
+  "expiryDate": "2024-01-25T00:00:00Z",
+  "status": "Active",
+  "allotmentType": "Reservation",
+  "reservationAmount": 5000.00,
+  "notes": "Customer requested specific color",
+  "salesPersonId": "ObjectId",
+  "createdAt": "2024-01-10T00:00:00Z",
+  "updatedAt": "2024-01-10T00:00:00Z",
+  "isDeleted": false
+}
+```
+
+#### WaitingLists Collection
+```json
+{
+  "_id": "ObjectId",
+  "requestNumber": "WL-20240101-001",
+  "customerId": "ObjectId",
+  "requestedVehicleModelId": "ObjectId",
+  "requestedVehicleBrandId": "ObjectId",
+  "preferredColor": "Blue",
+  "minPrice": 20000.00,
+  "maxPrice": 30000.00,
+  "requestDate": "2024-01-05T00:00:00Z",
+  "priority": "High",
+  "status": "Waiting",
+  "notes": "Customer prefers automatic transmission",
+  "createdAt": "2024-01-05T00:00:00Z",
+  "updatedAt": "2024-01-05T00:00:00Z",
   "isDeleted": false
 }
 ```
@@ -496,6 +642,55 @@ db.brands.createIndex({ "isDeleted": 1 });
 // Models collection indexes
 db.models.createIndex({ "modelName": 1, "brandId": 1 }, { unique: true });
 db.models.createIndex({ "isDeleted": 1 });
+
+// PurchaseOrders collection indexes
+db.purchaseOrders.createIndex({ "orderNumber": 1 }, { unique: true });
+db.purchaseOrders.createIndex({ "supplierId": 1 });
+db.purchaseOrders.createIndex({ "status": 1 });
+db.purchaseOrders.createIndex({ "orderDate": 1 });
+db.purchaseOrders.createIndex({ "isDeleted": 1 });
+
+// GoodsReceipts collection indexes
+db.goodsReceipts.createIndex({ "receiptNumber": 1 }, { unique: true });
+db.goodsReceipts.createIndex({ "purchaseOrderId": 1 });
+db.goodsReceipts.createIndex({ "vehicleId": 1 });
+db.goodsReceipts.createIndex({ "vin": 1 }, { unique: true });
+db.goodsReceipts.createIndex({ "status": 1 });
+db.goodsReceipts.createIndex({ "isDeleted": 1 });
+
+// VehicleRegistrations collection indexes
+db.vehicleRegistrations.createIndex({ "registrationNumber": 1 }, { unique: true });
+db.vehicleRegistrations.createIndex({ "vehicleId": 1 });
+db.vehicleRegistrations.createIndex({ "vin": 1 });
+db.vehicleRegistrations.createIndex({ "customerId": 1 });
+db.vehicleRegistrations.createIndex({ "status": 1 });
+db.vehicleRegistrations.createIndex({ "expiryDate": 1 });
+db.vehicleRegistrations.createIndex({ "isDeleted": 1 });
+
+// Allotments collection indexes
+db.allotments.createIndex({ "allotmentNumber": 1 }, { unique: true });
+db.allotments.createIndex({ "vehicleId": 1 });
+db.allotments.createIndex({ "customerId": 1 });
+db.allotments.createIndex({ "status": 1 });
+db.allotments.createIndex({ "allotmentDate": 1 });
+db.allotments.createIndex({ "expiryDate": 1 });
+db.allotments.createIndex({ "isDeleted": 1 });
+
+// WaitingLists collection indexes
+db.waitingLists.createIndex({ "requestNumber": 1 }, { unique: true });
+db.waitingLists.createIndex({ "customerId": 1 });
+db.waitingLists.createIndex({ "requestedVehicleModelId": 1 });
+db.waitingLists.createIndex({ "requestedVehicleBrandId": 1 });
+db.waitingLists.createIndex({ "status": 1 });
+db.waitingLists.createIndex({ "priority": 1 });
+db.waitingLists.createIndex({ "requestDate": 1 });
+db.waitingLists.createIndex({ "isDeleted": 1 });
+
+// VehicleImages collection indexes
+db.vehicleImages.createIndex({ "vehicleId": 1 });
+db.vehicleImages.createIndex({ "imageType": 1 });
+db.vehicleImages.createIndex({ "isPrimary": 1 });
+db.vehicleImages.createIndex({ "isDeleted": 1 });
 ```
 
 ## 5. Domain-Driven Design Mapping
@@ -764,6 +959,12 @@ db.createCollection("models");
 db.createCollection("vehicles");
 db.createCollection("vehicleImages");
 db.createCollection("customers");
+db.createCollection("suppliers");
+db.createCollection("purchaseOrders");
+db.createCollection("goodsReceipts");
+db.createCollection("vehicleRegistrations");
+db.createCollection("allotments");
+db.createCollection("waitingLists");
 db.createCollection("salesOrders");
 db.createCollection("salesOrderItems");
 db.createCollection("invoices");

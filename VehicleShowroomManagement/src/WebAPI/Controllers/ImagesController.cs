@@ -27,7 +27,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         [Authorize(Roles = "Dealer,Admin")]
         public async Task<IActionResult> UploadVehicleImage([FromForm] UploadVehicleImageCommand command)
         {
-            if (command.ImageFile == null || command.ImageFile.Length == 0)
+            if (command.ImageFile.Length == 0)
                 return BadRequest(new { message = "No image file provided" });
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
