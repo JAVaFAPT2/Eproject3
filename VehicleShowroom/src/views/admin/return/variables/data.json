@@ -1,0 +1,4 @@
+[
+  { "id": "1", "returnId": "RET-001", "orderId": "ORD-001", "reason": "Defective Engine", "status": "Approved" },
+  { "id": "2", "returnId": "RET-002", "orderId": "ORD-002", "reason": "Color mismatch", "status": "Pending" }
+]

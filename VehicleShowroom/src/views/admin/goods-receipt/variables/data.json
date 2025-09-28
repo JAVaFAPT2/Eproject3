@@ -1,0 +1,4 @@
+[
+  { "id": "1", "receiptNumber": "GR-001", "vehicleId": "VEH001", "receivedDate": "2024-01-15", "status": "Accepted" },
+  { "id": "2", "receiptNumber": "GR-002", "vehicleId": "VEH002", "receivedDate": "2024-01-20", "status": "Pending" }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1",
+    "type": "Stock Report",
+    "generatedAt": "2025-09-01T00:00:00Z",
+    "summary": "120 vehicles available",
+    "fileUrl": "https://example.com/stock-report.pdf"
+  },
+  {
+    "id": "2",
+    "type": "Sales Summary",
+    "generatedAt": "2025-09-10T00:00:00Z",
+    "summary": "45 vehicles sold in September",
+    "fileUrl": "https://example.com/sales-summary.pdf"
+  }
+]
