@@ -13,13 +13,13 @@ import {
   InputRightElement,
   Text,
   useColorModeValue,
-  useToast,
 } from '@chakra-ui/react';
 import DefaultAuth from 'layouts/auth/Default';
 import illustration from 'assets/img/auth/auth.png';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import AuthService from 'services/AuthService';
+import { useShowToast } from 'utils/helper';
 
 function SignUp() {
   const textColor = useColorModeValue('navy.700', 'white');
@@ -28,7 +28,7 @@ function SignUp() {
   const brandStars = useColorModeValue('brand.500', 'brand.400');
 
   const navigate = useNavigate();
-  const toast = useToast();
+  const { showToast } = useShowToast();
 
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState('');
@@ -37,16 +37,6 @@ function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleShowPassword = () => setShowPassword(!showPassword);
-
-  const showToast = (title, status) => {
-    toast({
-      title,
-      status,
-      duration: 3000,
-      isClosable: true,
-      position: 'bottom-right',
-    });
-  };
 
   const handleEmailPasswordSignUp = async () => {
     if (password !== confirmPassword) {
@@ -75,7 +65,7 @@ function SignUp() {
         justifyContent="center"
         mb={{ base: '30px', md: '60px' }}
         px={{ base: '25px', md: '0px' }}
-        mt={{ base: '40px', md: '5vh' }}
+        mt={{ base: '40px', md: '10vh' }}
         flexDirection="column"
       >
         <Box me="auto">

@@ -1,18 +1,11 @@
-import ApiClient from "api/ApiClient";
-import ApiUrl from "constant/ApiUrl";
+import ApiClient from 'api/ApiClient';
+import { ApiUrl } from 'constant/ApiUrl';
 
-class DashboardService {
-  static async getTopEmployees({ month, year, limit = 3 }) {
-    try {
-      const res = await ApiClient.get(ApiUrl.ADMIN_DASHBOARD_TOP_EMPLOYEES, {
-        params: { month, year, limit },
-      });
-      return res.data;
-    } catch (err) {
-      console.error("Error fetching top employees:", err);
-      throw err;
-    }
-  }
-}
+const DashboardService = {
+  getRevenue: () => ApiClient.get(ApiUrl.DASHBOARD.REVENUE),
+  getCustomer: () => ApiClient.get(ApiUrl.DASHBOARD.CUSTOMER),
+  getTopVehicles: () => ApiClient.get(ApiUrl.DASHBOARD.TOP_VEHICLES),
+  getRecentOrders: () => ApiClient.get(ApiUrl.DASHBOARD.RECENT_ORDERS),
+};
 
 export default DashboardService;

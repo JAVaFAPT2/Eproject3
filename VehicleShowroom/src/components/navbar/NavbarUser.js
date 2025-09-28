@@ -6,7 +6,7 @@ import {
   IconButton,
   useDisclosure,
 } from '@chakra-ui/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SearchBar } from 'components/navbar/searchBar/SearchBar';
 import NavbarLinks from 'components/navbar/NavbarLinks';
 import { SearchIcon, CloseIcon } from '@chakra-ui/icons';
@@ -14,7 +14,6 @@ import logo from 'assets/img/auth/auth.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MdMenu } from 'react-icons/md';
 import MegaMenu from 'components/navbar/megaMenu/MegaMenu';
-import CategoryService from 'services/CategoryService';
 import { useNavigate } from 'react-router-dom';
 
 const MotionFlex = motion(Flex);
@@ -30,18 +29,6 @@ export default function NavbarUser() {
   const [isMegaMenuOpen, setMegaMenuOpen] = useState(false);
 
   const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await CategoryService.getCategories(0, 50, '');
-        setCategories(res.content || []);
-      } catch (err) {
-        console.error('Failed to load categories:', err);
-      }
-    };
-    fetchCategories();
-  }, []);
 
   return (
     <Flex

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import UserService from 'services/UserService';
+import ProfileService from 'services/ProfileService';
 import AuthService from 'services/AuthService';
 
 const UserContext = createContext();
@@ -16,7 +16,7 @@ export const UserProvider = ({ children }) => {
         setUser(null);
         return;
       }
-      const res = await UserService.getProfile();
+      const res = await ProfileService.getProfile();
       setUser(res);
     } catch (err) {
       if (

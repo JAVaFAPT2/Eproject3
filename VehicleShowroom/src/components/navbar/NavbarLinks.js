@@ -11,19 +11,18 @@ import {
   Text,
   useColorMode,
   useColorModeValue,
-  useToast,
 } from '@chakra-ui/react';
 import { IoMdMoon, IoMdSunny, IoMdCart } from 'react-icons/io';
 import React, { useState } from 'react';
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
 import { useNavigate } from 'react-router-dom';
 import AuthService from 'services/AuthService';
-import EmployeeService from 'services/EmployeeService';
 import { useUser } from 'contexts/UserContext';
 import CartSidebar from 'components/sidebar/CartSidebar';
 import { MdLogin } from 'react-icons/md';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import routes from 'routes.js';
+import { useShowToast } from 'utils/helper';
 
 export default function NavbarLinks() {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -34,46 +33,22 @@ export default function NavbarLinks() {
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+
   const { user } = useUser();
   const navigate = useNavigate();
-  const toast = useToast();
-
-  const role = AuthService.getRole();
-  const isGoogleAvatar = user?.avatarUrl?.startsWith('http');
+  const { showToast } = useShowToast();
 
   const handleLogout = async () => {
-    if (role?.name === 'EMPLOYEE') {
-      await EmployeeService.checkOut();
-      toast({
-        title: 'Logout success! Check-out recorded.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-        position: 'bottom-right',
-      });
-    } else {
-      toast({
-        title: 'Logout success!',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-        position: 'bottom-right',
-      });
-    }
-
+    showToast('Logout success!', 'success');
     AuthService.logout();
     navigate('/auth/sign-in');
   };
 
-  // Filter cho Sidebar
-  const filteredRoutes = routes.filter((route) => {
-    if (route.hideInSidebar) return false;
-    if (route.role && route.role !== role) return false;
-    return true;
-  });
+  const filteredRoutes = routes.filter((route) => !route.hideInSidebar);
 
   return (
     <Flex align="center" gap="10px">
+      {/* Sidebar toggle for mobile */}
       <SidebarResponsive routes={filteredRoutes} />
 
       {/* Cart toggle */}
@@ -123,13 +98,7 @@ export default function NavbarLinks() {
             <Avatar
               _hover={{ cursor: 'pointer' }}
               name={user?.fullName || user?.email?.split('@')[0] || 'User'}
-              src={
-                isGoogleAvatar
-                  ? user?.avatarUrl
-                  : user?.avatarUrl
-                  ? user?.avatarUrl
-                  : ''
-              }
+              src={user?.avatarUrl || ''}
               size="sm"
               w="40px"
               h="40px"
@@ -152,16 +121,6 @@ export default function NavbarLinks() {
             </PopoverHeader>
             <PopoverBody>
               <Flex direction="column" gap={2}>
-                {role === 'ADMIN' && (
-                  <Button
-                    variant="ghost"
-                    justifyContent="flex-start"
-                    size="sm"
-                    onClick={() => navigate('/admin')}
-                  >
-                    Go to Admin
-                  </Button>
-                )}
                 <Button
                   variant="ghost"
                   justifyContent="flex-start"

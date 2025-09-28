@@ -1,142 +1,54 @@
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../firebase/firebase';
 import ApiClient from 'api/ApiClient';
-import ApiUrl from 'constant/ApiUrl';
-import { jwtDecode } from 'jwt-decode';
+import { ApiUrl } from 'constant/ApiUrl';
 
-class AuthService {
-  constructor() {
-    this.keepLoggedIn = false;
-  }
+const TOKEN_KEY = 'accessToken';
+const REFRESH_KEY = 'refreshToken';
+const KEEP_LOGIN_KEY = 'keepLogin';
 
-  setKeepLoggedIn(value) {
-    this.keepLoggedIn = value;
-  }
+const AuthService = {
+  async login(credentials, keepLogin = false) {
+    const res = await ApiClient.post(ApiUrl.AUTH.LOGIN, credentials);
+    const { token, refreshToken } = res.data;
 
-  saveTokens(accessToken, refreshToken) {
-    this.removeTokens();
-    if (this.keepLoggedIn) {
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-    } else {
-      sessionStorage.setItem('accessToken', accessToken);
-      sessionStorage.setItem('refreshToken', refreshToken);
-    }
-  }
+    const storage = keepLogin ? localStorage : sessionStorage;
+    storage.setItem(TOKEN_KEY, token);
+    storage.setItem(REFRESH_KEY, refreshToken);
 
-  getAccessToken() {
-    return (
-      localStorage.getItem('accessToken') ||
-      sessionStorage.getItem('accessToken')
-    );
-  }
+    localStorage.setItem(KEEP_LOGIN_KEY, keepLogin ? 'true' : 'false');
 
-  getRefreshToken() {
-    return (
-      localStorage.getItem('refreshToken') ||
-      sessionStorage.getItem('refreshToken')
-    );
-  }
-
-  removeTokens() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
-  }
-
-  async emailLogin({ email, password, keepLoggedIn }) {
-    this.setKeepLoggedIn(keepLoggedIn);
-
-    // ❌ Không gửi keepLoggedIn lên BE nữa
-    const response = await ApiClient.post(ApiUrl.AUTH_LOGIN, {
-      email,
-      password,
-    });
-
-    const { accessToken, refreshToken } = response.data;
-    this.saveTokens(accessToken, refreshToken);
-    return response.data;
-  }
-
-  async googleLogin({ keepLoggedIn }) {
-    this.setKeepLoggedIn(keepLoggedIn);
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const idToken = await result.user.getIdToken();
-
-    // ❌ Không gửi keepLoggedIn lên BE
-    const response = await ApiClient.post(ApiUrl.AUTH_SOCIAL_LOGIN, {
-      idToken,
-      provider: 'GOOGLE',
-    });
-
-    const { accessToken, refreshToken } = response.data;
-    this.saveTokens(accessToken, refreshToken);
-    return response.data;
-  }
-
-  async signUp({ fullName, email, password }) {
-    return ApiClient.post(ApiUrl.AUTH_REGISTER, {
-      fullName,
-      email,
-      password,
-    });
-  }
-
-  async getProfile() {
-    try {
-      const response = await ApiClient.get(ApiUrl.PROFILE);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      throw error;
-    }
-  }
-
-  async logout() {
-    this.removeTokens();
-  }
+    return res.data;
+  },
 
   async refreshToken() {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) throw new Error('No refresh token available');
+    const keepLogin = localStorage.getItem(KEEP_LOGIN_KEY) === 'true';
+    const storage = keepLogin ? localStorage : sessionStorage;
 
-    const response = await ApiClient.post(ApiUrl.AUTH_REFRESH, {
+    const refreshToken = storage.getItem(REFRESH_KEY);
+    if (!refreshToken) throw new Error('No refresh token found');
+
+    const res = await ApiClient.post(ApiUrl.AUTH.REFRESH_TOKEN, {
       refreshToken,
     });
-    const { accessToken } = response.data;
-    this.saveTokens(accessToken, refreshToken);
-    return accessToken;
-  }
 
-  async forgotPassword(email) {
-    return ApiClient.post(ApiUrl.AUTH_FORGOT_PASSWORD, { email });
-  }
+    storage.setItem(TOKEN_KEY, res.data.token);
+    storage.setItem(REFRESH_KEY, res.data.refreshToken);
 
-  async resetPassword({ token, password }) {
-    return ApiClient.post(ApiUrl.AUTH_RESET_PASSWORD, {
-      token,
-      newPassword: password,
-    });
-  }
+    return res.data.token;
+  },
 
-  getDecodedAccessToken() {
-    const token = this.getAccessToken();
-    if (!token) return null;
-    try {
-      return jwtDecode(token);
-    } catch (error) {
-      console.error('Invalid token', error);
-      return null;
-    }
-  }
+  getAccessToken() {
+    const keepLogin = localStorage.getItem(KEEP_LOGIN_KEY) === 'true';
+    const storage = keepLogin ? localStorage : sessionStorage;
+    return storage.getItem(TOKEN_KEY);
+  },
 
-  getRole() {
-    const decoded = this.getDecodedAccessToken();
-    return decoded?.role || null;
-  }
-}
+  logout() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(REFRESH_KEY);
+    localStorage.removeItem(KEEP_LOGIN_KEY);
+  },
+};
 
-const authService = new AuthService();
-export default authService;
+export default AuthService;

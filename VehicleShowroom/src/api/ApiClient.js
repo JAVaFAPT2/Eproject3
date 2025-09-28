@@ -12,7 +12,7 @@ ApiClient.interceptors.request.use(
   (config) => {
     const token = AuthService.getAccessToken();
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -23,8 +23,8 @@ ApiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
     const hasToken = !!AuthService.getAccessToken();
+
     if (
       (error.response?.status === 401 || error.response?.status === 403) &&
       hasToken &&
@@ -33,10 +33,13 @@ ApiClient.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const newAccessToken = await AuthService.refreshToken();
-        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-        return ApiClient(originalRequest);
-      } catch {
+        if (newAccessToken) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return ApiClient(originalRequest);
+        }
+      } catch (err) {
         AuthService.logout();
+        window.location.href = '/auth/sign-in';
       }
     }
 
