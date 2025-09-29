@@ -12,15 +12,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class CustomersController : ControllerBase
+    public class CustomersController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public CustomersController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Creates a new customer
         /// </summary>
@@ -40,7 +33,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.ZipCode,
                 request.Cccd);
 
-            var customerId = await _mediator.Send(command);
+            var customerId = await mediator.Send(command);
             
             return CreatedAtAction(nameof(GetCustomer), new { id = customerId }, 
                 new { id = customerId, message = "Customer created successfully" });

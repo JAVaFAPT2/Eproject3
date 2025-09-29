@@ -476,3 +476,6 @@ C:/Users/Admin/Documents/GitHub/Eproject3/VehicleShowroomManagement/tests/obj/De
 /workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.commons.dll
 /workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/itext.html2pdf.dll
 /workspace/VehicleShowroomManagement/tests/bin/Debug/net8.0/Microsoft.DotNet.PlatformAbstractions.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\obj\Debug\net8.0\VehicleShowroomManagement.Tests.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\obj\Debug\net8.0\refint\VehicleShowroomManagement.Tests.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\obj\Debug\net8.0\VehicleShowroomManagement.Tests.pdb

@@ -2,10 +2,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.SalesOrders.Commands.CreateSalesOrder;
-using VehicleShowroomManagement.Application.Features.SalesOrders.Commands.UpdateOrderStatus;
 using VehicleShowroomManagement.Application.Features.SalesOrders.Queries.GetOrderById;
 using VehicleShowroomManagement.Application.Features.SalesOrders.Queries.GetOrders;
-using VehicleShowroomManagement.Application.Features.SalesOrders.Commands.PrintOrder;
+using VehicleShowroomManagement.Application.Features.SalesOrders.Commands.StartOrder;
 using VehicleShowroomManagement.WebAPI.Models.SalesOrders;
 using VehicleShowroomManagement.Domain.Enums;
 
@@ -17,15 +16,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class SalesOrdersController : ControllerBase
+    public class SalesOrdersController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public SalesOrdersController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Creates a new sales order - main business process
         /// </summary>
@@ -41,10 +33,28 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.TotalAmount,
                 request.PaymentMethod);
 
-            var salesOrderId = await _mediator.Send(command);
-            
-            return CreatedAtAction(nameof(GetSalesOrder), new { id = salesOrderId }, 
+            var salesOrderId = await mediator.Send(command);
+
+            return CreatedAtAction(nameof(GetSalesOrder), new { id = salesOrderId },
                 new { id = salesOrderId, message = "Sales order created successfully" });
+        }
+
+        /// <summary>
+        /// Starts an order - only updates status, doesn't create full order
+        /// </summary>
+        [HttpPost("start")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> StartOrder([FromBody] StartOrderRequest request)
+        {
+            var command = new StartOrderCommand(
+                request.CustomerId,
+                request.VehicleId,
+                request.InitialStatus);
+
+            var orderId = await mediator.Send(command);
+
+            return CreatedAtAction(nameof(GetSalesOrder), new { id = orderId },
+                new { id = orderId, message = "Order started successfully" });
         }
 
         /// <summary>
@@ -60,7 +70,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             [FromQuery] DateTime? toDate = null)
         {
             var query = new GetOrdersQuery(pageNumber, pageSize, status, customerId, fromDate, toDate);
-            var result = await _mediator.Send(query);
+            var result = await mediator.Send(query);
             return Ok(result);
         }
 
@@ -71,7 +81,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> GetSalesOrder(string id)
         {
             var query = new GetOrderByIdQuery(id);
-            var order = await _mediator.Send(query);
+            var order = await mediator.Send(query);
 
             if (order == null)
                 return NotFound(new { message = "Order not found" });
@@ -159,7 +169,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> PrintOrder(string id)
         {
             await Task.CompletedTask;
-            var content = System.Text.Encoding.UTF8.GetBytes("Sample PDF Content");
+            var content = "Sample PDF Content"u8.ToArray();
             return File(content, "application/pdf", $"Order_{id}.pdf");
         }
     }
