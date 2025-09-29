@@ -8,10 +8,10 @@ using VehicleShowroomManagement.Application.Features.Vehicles.Commands.BulkDelet
 using VehicleShowroomManagement.Application.Features.Vehicles.Commands.UpdateVehicleStatus;
 using VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVehicleById;
 using VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVehicles;
-using GetVehicleByIdVehicleDto = VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVehicleById.VehicleDto;
 using VehicleShowroomManagement.Application.Features.Vehicles.Queries.SearchVehicles;
 using VehicleShowroomManagement.WebAPI.Models.Vehicles;
 using VehicleShowroomManagement.Domain.Enums;
+using VehicleShowroomManagement.Application.Common.DTOs;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -56,7 +56,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a vehicle by ID
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<ActionResult<GetVehicleByIdVehicleDto>> GetVehicle(string id)
+        public async Task<ActionResult<VehicleDto>> GetVehicle(string id)
         {
             var query = new GetVehicleByIdQuery(id);
             var vehicle = await _mediator.Send(query);

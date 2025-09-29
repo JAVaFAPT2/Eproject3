@@ -5,7 +5,6 @@ using VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser;
 using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserProfile;
 using VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById;
 using VehicleShowroomManagement.WebAPI.Models.Users;
-using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -15,15 +14,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class UsersController : ControllerBase
+    public class UsersController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public UsersController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Creates a new user
         /// </summary>
@@ -40,7 +32,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.Role,
                 request.Phone);
 
-            var userId = await _mediator.Send(command);
+            var userId = await mediator.Send(command);
             
             return CreatedAtAction(nameof(GetUser), new { id = userId }, 
                 new { id = userId, message = "User created successfully" });
@@ -54,7 +46,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<ActionResult<UserDto>> GetUser(string id)
         {
             var query = new GetUserByIdQuery(id);
-            var user = await _mediator.Send(query);
+            var user = await mediator.Send(query);
 
             if (user == null)
                 return NotFound(new { message = "User not found" });
@@ -75,7 +67,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.LastName,
                 request.Phone);
 
-            await _mediator.Send(command);
+            await mediator.Send(command);
             
             return Ok(new { message = "User profile updated successfully" });
         }
