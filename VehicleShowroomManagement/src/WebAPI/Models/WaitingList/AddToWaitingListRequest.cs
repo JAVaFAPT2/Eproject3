@@ -1,4 +1,3 @@
-using System;
 
 namespace VehicleShowroomManagement.WebAPI.Models.WaitingList
 {

@@ -1,4 +1,3 @@
-using System;
 
 namespace VehicleShowroomManagement.Application.Common.DTOs
 {

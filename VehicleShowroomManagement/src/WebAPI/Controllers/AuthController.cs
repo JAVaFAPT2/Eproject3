@@ -15,15 +15,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     /// </summary>
     [ApiController]
     [Route("api/auth")]
-    public class AuthController : ControllerBase
+    public class AuthController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public AuthController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Authenticates user and returns JWT token
         /// </summary>
@@ -31,7 +24,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var command = new LoginCommand(request.Username, request.Password);
-            var result = await _mediator.Send(command);
+            var result = await mediator.Send(command);
 
             if (result == null)
                 return Unauthorized(new { message = "Invalid username or password" });
@@ -46,7 +39,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
             var command = new ForgotPasswordCommand(request.Email);
-            await _mediator.Send(command);
+            await mediator.Send(command);
 
             return Ok(new { message = "Password reset instructions have been sent to your email" });
         }
@@ -58,7 +51,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
             var command = new ResetPasswordCommand(request.Token, request.NewPassword);
-            var result = await _mediator.Send(command);
+            var result = await mediator.Send(command);
 
             if (!result)
                 return BadRequest(new { message = "Invalid or expired reset token" });
@@ -73,7 +66,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             var command = new RefreshTokenCommand(request.RefreshToken);
-            var result = await _mediator.Send(command);
+            var result = await mediator.Send(command);
 
             if (result == null)
                 return Unauthorized(new { message = "Invalid refresh token" });
@@ -89,7 +82,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest request)
         {
             var command = new RevokeTokenCommand(request.RefreshToken);
-            await _mediator.Send(command);
+            await mediator.Send(command);
 
             return Ok(new { message = "Token revoked successfully" });
         }

@@ -5,13 +5,5 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVeh
     /// <summary>
     /// Query to get a vehicle by ID
     /// </summary>
-    public record GetVehicleByIdQuery : IRequest<VehicleDto?>
-    {
-        public string VehicleId { get; init; }
-
-        public GetVehicleByIdQuery(string vehicleId)
-        {
-            VehicleId = vehicleId;
-        }
-    }
+    public record GetVehicleByIdQuery(string VehicleId) : IRequest<VehicleDto?>;
 }
