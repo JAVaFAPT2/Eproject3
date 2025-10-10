@@ -53,19 +53,16 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
     }
 
     /// <summary>
-    /// Lightweight vehicle DTO for search results
+    /// Lightweight vehicle DTO for search results (new schema)
     /// </summary>
     public class VehicleSearchDto
     {
-        public string Id { get; set; } = string.Empty;
         public string VehicleId { get; set; } = string.Empty;
         public string ModelNumber { get; set; } = string.Empty;
-        public string? Vin { get; set; }
+        public string? ExternalNumber { get; set; }
         public VehicleStatus Status { get; set; }
         public decimal PurchasePrice { get; set; }
-        public decimal? SalePrice { get; set; }
         public DateTime ReceiptDate { get; set; }
         public bool IsAvailable { get; set; }
-        public bool IsRegistered { get; set; }
     }
 }

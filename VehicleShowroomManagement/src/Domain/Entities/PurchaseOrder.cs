@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
-    /// PurchaseOrder entity representing vehicle purchase orders from company
-    /// Manages the process of purchasing vehicles from the manufacturer
+    /// PurchaseOrder entity for ordering vehicles from suppliers
     /// </summary>
     public class PurchaseOrder
     {
@@ -15,124 +14,79 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("orderNumber")]
+        [BsonElement("createdBy")]
+        [BsonRepresentation(BsonType.ObjectId)]
         [BsonRequired]
-        public string OrderNumber { get; set; } = string.Empty;
-
-        [BsonElement("modelNumber")]
-        [BsonRequired]
-        public string ModelNumber { get; set; } = string.Empty;
-
-        [BsonElement("name")]
-        [BsonRequired]
-        public string Name { get; set; } = string.Empty;
-
-        [BsonElement("brand")]
-        [BsonRequired]
-        public string Brand { get; set; } = string.Empty;
-
-        [BsonElement("price")]
-        [BsonRequired]
-        public decimal Price { get; set; }
-
-        [BsonElement("quantity")]
-        [BsonRequired]
-        public int Quantity { get; set; }
-
-        [BsonElement("totalAmount")]
-        public decimal TotalAmount { get; set; }
-
-        [BsonElement("status")]
-        public string Status { get; set; } = "Draft"; // Draft, Submitted, Approved, Received, Cancelled
+        public string CreatedBy { get; private set; } = string.Empty;
 
         [BsonElement("orderDate")]
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
+        public DateTime OrderDate { get; private set; } = DateTime.UtcNow;
+
+        [BsonElement("totalAmount")]
+        public decimal TotalAmount { get; private set; }
+
+        [BsonElement("status")]
+        public PurchaseOrderStatus Status { get; private set; } = PurchaseOrderStatus.Pending;
 
         [BsonElement("expectedDeliveryDate")]
-        public DateTime? ExpectedDeliveryDate { get; set; }
+        public DateTime? ExpectedDeliveryDate { get; private set; }
 
-        [BsonElement("actualDeliveryDate")]
-        public DateTime? ActualDeliveryDate { get; set; }
+        // Internal constructor for MongoDB
+        internal PurchaseOrder() { }
 
-        [BsonElement("supplierId")]
-        public string? SupplierId { get; set; }
-
-        [BsonElement("supplierName")]
-        public string? SupplierName { get; set; }
-
-        [BsonElement("notes")]
-        public string? Notes { get; set; }
-
-        [BsonElement("createdBy")]
-        [BsonRequired]
-        public string CreatedBy { get; set; } = string.Empty;
-
-        [BsonElement("createdAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        [BsonElement("updatedAt")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        [BsonElement("isDeleted")]
-        public bool IsDeleted { get; set; } = false;
-
-        [BsonElement("deletedAt")]
-        public DateTime? DeletedAt { get; set; }
-
-        // Domain Methods
-        public void SubmitOrder()
+        [BsonConstructor]
+        public PurchaseOrder(string createdBy, decimal totalAmount, DateTime? expectedDeliveryDate = null)
         {
-            Status = "Submitted";
-            UpdatedAt = DateTime.UtcNow;
+            if (string.IsNullOrWhiteSpace(createdBy))
+                throw new ArgumentException("CreatedBy cannot be null or empty", nameof(createdBy));
+
+            if (totalAmount < 0)
+                throw new ArgumentException("Total amount cannot be negative", nameof(totalAmount));
+
+            CreatedBy = createdBy;
+            TotalAmount = totalAmount;
+            ExpectedDeliveryDate = expectedDeliveryDate;
+            OrderDate = DateTime.UtcNow;
         }
 
-        public void ApproveOrder()
+        // Domain methods
+        public void UpdateTotalAmount(decimal totalAmount)
         {
-            Status = "Approved";
-            UpdatedAt = DateTime.UtcNow;
+            if (totalAmount < 0)
+                throw new ArgumentException("Total amount cannot be negative", nameof(totalAmount));
+
+            TotalAmount = totalAmount;
         }
 
-        public void MarkAsReceived()
+        public void UpdateExpectedDeliveryDate(DateTime? expectedDeliveryDate)
         {
-            Status = "Received";
-            ActualDeliveryDate = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
+            ExpectedDeliveryDate = expectedDeliveryDate;
         }
 
-        public void CancelOrder()
+        public void Complete()
         {
-            Status = "Cancelled";
-            UpdatedAt = DateTime.UtcNow;
+            if (Status == PurchaseOrderStatus.Completed)
+                throw new InvalidOperationException("Purchase order is already completed");
+
+            if (Status == PurchaseOrderStatus.Cancelled)
+                throw new InvalidOperationException("Cannot complete a cancelled purchase order");
+
+            Status = PurchaseOrderStatus.Completed;
         }
 
-        public void CalculateTotalAmount()
+        public void Cancel()
         {
-            TotalAmount = Price * Quantity;
-            UpdatedAt = DateTime.UtcNow;
+            if (Status == PurchaseOrderStatus.Completed)
+                throw new InvalidOperationException("Cannot cancel a completed purchase order");
+
+            if (Status == PurchaseOrderStatus.Cancelled)
+                throw new InvalidOperationException("Purchase order is already cancelled");
+
+            Status = PurchaseOrderStatus.Cancelled;
         }
 
-        public bool CanBeModified()
-        {
-            return Status == "Draft" || Status == "Submitted";
-        }
-
-        public bool CanBeCancelled()
-        {
-            return Status != "Received" && Status != "Cancelled";
-        }
-
-        public void SoftDelete()
-        {
-            IsDeleted = true;
-            DeletedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void Restore()
-        {
-            IsDeleted = false;
-            DeletedAt = null;
-            UpdatedAt = DateTime.UtcNow;
-        }
+        // Computed properties
+        public bool CanBeCompleted => Status == PurchaseOrderStatus.Pending;
+        public bool CanBeCancelled => Status == PurchaseOrderStatus.Pending;
     }
 }

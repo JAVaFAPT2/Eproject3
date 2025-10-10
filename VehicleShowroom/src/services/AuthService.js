@@ -48,9 +48,9 @@ class AuthService {
   async emailLogin({ email, password, keepLoggedIn }) {
     this.setKeepLoggedIn(keepLoggedIn);
 
-    // ❌ Không gửi keepLoggedIn lên BE nữa
+    // Backend accepts username or email in the username field
     const response = await ApiClient.post(ApiUrl.AUTH_LOGIN, {
-      email,
+      username: email,  // Send as username (backend accepts email here)
       password,
     });
 
@@ -102,6 +102,7 @@ class AuthService {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) throw new Error('No refresh token available');
 
+    // Note: Backend refresh token endpoint is /auth/refresh-token
     const response = await ApiClient.post(ApiUrl.AUTH_REFRESH, {
       refreshToken,
     });

@@ -1,23 +1,17 @@
 using System;
-using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Enums;
-using VehicleShowroomManagement.Domain.ValueObjects;
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
-    /// Vehicle aggregate root representing vehicles in the showroom inventory
+    /// Vehicle entity representing physical vehicles in inventory
+    /// VehicleId is the primary key (_id in MongoDB)
     /// </summary>
     public class Vehicle
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
-
-        [BsonElement("vehicleId")]
-        [BsonRequired]
         public string VehicleId { get; private set; } = string.Empty;
 
         [BsonElement("modelNumber")]
@@ -27,49 +21,23 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("externalNumber")]
         public string? ExternalNumber { get; private set; }
 
-        [BsonElement("vin")]
-        public string? Vin { get; private set; }
-
-        [BsonElement("licensePlate")]
-        public string? LicensePlate { get; private set; }
-
-        [BsonElement("registrationDate")]
-        public DateTime? RegistrationDate { get; private set; }
-
-        [BsonElement("expiryDate")]
-        public DateTime? ExpiryDate { get; private set; }
+        [BsonElement("registrationData")]
+        public BsonDocument? RegistrationData { get; private set; }
 
         [BsonElement("status")]
-        public VehicleStatus Status { get; private set; } = VehicleStatus.Available;
+        public VehicleStatus Status { get; private set; } = VehicleStatus.InStock;
 
         [BsonElement("purchasePrice")]
         public decimal PurchasePrice { get; private set; }
 
-        [BsonElement("salePrice")]
-        public decimal? SalePrice { get; private set; }
-
-        [BsonElement("photos")]
-        public List<string> Photos { get; private set; } = new List<string>();
-
         [BsonElement("receiptDate")]
         public DateTime ReceiptDate { get; private set; } = DateTime.UtcNow;
 
-        [BsonElement("createdAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // Parameterless constructor for MongoDB deserialization
+        public Vehicle() { }
 
-        [BsonElement("updatedAt")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        [BsonElement("isDeleted")]
-        public bool IsDeleted { get; set; } = false;
-
-        [BsonElement("deletedAt")]
-        public DateTime? DeletedAt { get; set; }
-
-        // Private constructor for MongoDB
-        private Vehicle() { }
-
-        public Vehicle(string vehicleId, string modelNumber, decimal purchasePrice, string? externalNumber = null, Vin? vin = null, string? licensePlate = null, DateTime? receiptDate = null)
+        public Vehicle(string vehicleId, string modelNumber, decimal purchasePrice, 
+            string? externalNumber = null, DateTime? receiptDate = null)
         {
             if (string.IsNullOrWhiteSpace(vehicleId))
                 throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
@@ -84,116 +52,57 @@ namespace VehicleShowroomManagement.Domain.Entities
             ModelNumber = modelNumber;
             PurchasePrice = purchasePrice;
             ExternalNumber = externalNumber;
-            Vin = vin?.Value;
-            LicensePlate = licensePlate;
             ReceiptDate = receiptDate ?? DateTime.UtcNow;
-            CreatedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
         }
 
         // Domain methods
         public void UpdateStatus(VehicleStatus status)
         {
             Status = status;
-            UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UpdatePurchasePrice(decimal price)
+        public void UpdateRegistrationData(BsonDocument registrationData)
         {
-            if (price < 0)
-                throw new ArgumentException("Purchase price cannot be negative", nameof(price));
-
-            PurchasePrice = price;
-            UpdatedAt = DateTime.UtcNow;
+            RegistrationData = registrationData;
         }
 
-        public void SetSalePrice(decimal? price)
+        public void UpdateExternalNumber(string externalNumber)
         {
-            if (price.HasValue && price < 0)
-                throw new ArgumentException("Sale price cannot be negative", nameof(price));
-
-            SalePrice = price;
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void UpdateRegistrationInfo(Vin vin, string? licensePlate = null, DateTime? registrationDate = null, DateTime? expiryDate = null)
-        {
-            Vin = vin.Value;
-            LicensePlate = licensePlate;
-            RegistrationDate = registrationDate;
-            ExpiryDate = expiryDate;
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void AddPhoto(string photoUrl)
-        {
-            if (string.IsNullOrWhiteSpace(photoUrl))
-                throw new ArgumentException("Photo URL cannot be null or empty", nameof(photoUrl));
-
-            Photos.Add(photoUrl);
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void RemovePhoto(string photoUrl)
-        {
-            Photos.Remove(photoUrl);
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void Sell(decimal salePrice)
-        {
-            if (salePrice < 0)
-                throw new ArgumentException("Sale price cannot be negative", nameof(salePrice));
-
-            if (Status != VehicleStatus.Available && Status != VehicleStatus.Reserved)
-                throw new InvalidOperationException("Only available or reserved vehicles can be sold");
-
-            Status = VehicleStatus.Sold;
-            SalePrice = salePrice;
-            UpdatedAt = DateTime.UtcNow;
+            ExternalNumber = externalNumber;
         }
 
         public void Reserve()
         {
-            if (Status != VehicleStatus.Available)
-                throw new InvalidOperationException("Only available vehicles can be reserved");
+            if (Status != VehicleStatus.InStock)
+                throw new InvalidOperationException("Only vehicles in stock can be reserved");
 
             Status = VehicleStatus.Reserved;
-            UpdatedAt = DateTime.UtcNow;
         }
 
-        public void MakeAvailable()
+        public void Sell()
+        {
+            if (Status != VehicleStatus.Reserved && Status != VehicleStatus.InStock)
+                throw new InvalidOperationException("Only reserved or in-stock vehicles can be sold");
+
+            Status = VehicleStatus.Sold;
+        }
+
+        public void SendToService()
+        {
+            Status = VehicleStatus.InService;
+        }
+
+        public void ReturnToStock()
         {
             if (Status == VehicleStatus.Sold)
-                throw new InvalidOperationException("Sold vehicles cannot be made available");
+                throw new InvalidOperationException("Sold vehicles cannot be returned to stock");
 
-            Status = VehicleStatus.Available;
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void SoftDelete()
-        {
-            IsDeleted = true;
-            DeletedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void Restore()
-        {
-            IsDeleted = false;
-            DeletedAt = null;
-            UpdatedAt = DateTime.UtcNow;
+            Status = VehicleStatus.InStock;
         }
 
         // Computed properties
-        public bool IsAvailable => Status == VehicleStatus.Available;
-
+        public bool IsAvailable => Status == VehicleStatus.InStock;
         public bool IsSold => Status == VehicleStatus.Sold;
-
         public bool IsReserved => Status == VehicleStatus.Reserved;
-
-        public bool IsInService => Status == VehicleStatus.InService;
-
-        public bool IsRegistered => !string.IsNullOrEmpty(Vin) && RegistrationDate.HasValue;
     }
 }

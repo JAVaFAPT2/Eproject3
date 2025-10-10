@@ -4,13 +4,12 @@ using VehicleShowroomManagement.Domain.Enums;
 namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.GetPurchaseOrders
 {
     /// <summary>
-    /// Query for getting purchase orders with pagination and filters
+    /// Query for getting purchase orders with pagination and filters (new schema)
     /// </summary>
     public record GetPurchaseOrdersQuery(
         int PageNumber,
         int PageSize,
         PurchaseOrderStatus? Status,
-        string? SupplierId,
         DateTime? FromDate,
         DateTime? ToDate) : IRequest<GetPurchaseOrdersResult>;
 
@@ -27,21 +26,15 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.
     }
 
     /// <summary>
-    /// Purchase order summary DTO
+    /// Purchase order summary DTO (new schema)
     /// </summary>
     public class PurchaseOrderSummaryDto
     {
         public string Id { get; set; } = string.Empty;
-        public string OrderNumber { get; set; } = string.Empty;
-        public string SupplierId { get; set; } = string.Empty;
-        public string SupplierName { get; set; } = string.Empty;
+        public string CreatedBy { get; set; } = string.Empty;
         public DateTime OrderDate { get; set; }
         public DateTime? ExpectedDeliveryDate { get; set; }
-        public DateTime? ActualDeliveryDate { get; set; }
         public decimal TotalAmount { get; set; }
         public string Status { get; set; } = string.Empty;
-        public string? ApprovedBy { get; set; }
-        public DateTime? ApprovalDate { get; set; }
-        public int TotalItems { get; set; }
     }
 }

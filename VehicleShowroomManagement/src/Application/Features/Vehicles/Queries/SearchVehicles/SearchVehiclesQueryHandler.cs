@@ -1,4 +1,6 @@
 using MediatR;
+using VehicleShowroomManagement.Application.Common.Interfaces;
+using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.SearchVehicles
 {
@@ -16,37 +18,33 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
 
         public async Task<SearchVehiclesResult> Handle(SearchVehiclesQuery request, CancellationToken cancellationToken)
         {
-            // Build filter criteria
-            var vehicles = await _vehicleRepository.FindAsync(v => 
-                !v.IsDeleted &&
+            // Build filter criteria (no IsDeleted in new schema, uses DeletedAt)
+            var allVehicles = await _vehicleRepository.GetAllAsync();
+
+            var filteredVehicles = allVehicles.Where(v =>
                 (request.Status == null || v.Status == request.Status) &&
                 (string.IsNullOrEmpty(request.ModelNumber) || v.ModelNumber.Contains(request.ModelNumber)) &&
                 (string.IsNullOrEmpty(request.SearchTerm) || 
                  v.VehicleId.Contains(request.SearchTerm) || 
-                 v.ModelNumber.Contains(request.SearchTerm) ||
-                 (!string.IsNullOrEmpty(v.Vin) && v.Vin.Contains(request.SearchTerm))) &&
+                 v.ModelNumber.Contains(request.SearchTerm)) &&
                 (request.MinPrice == null || v.PurchasePrice >= request.MinPrice) &&
-                (request.MaxPrice == null || v.PurchasePrice <= request.MaxPrice),
-                cancellationToken);
+                (request.MaxPrice == null || v.PurchasePrice <= request.MaxPrice));
 
-            var totalCount = vehicles.Count();
+            var totalCount = filteredVehicles.Count();
             
             // Apply pagination
-            var pagedVehicles = vehicles
+            var pagedVehicles = filteredVehicles
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .Select(v => new VehicleSearchDto
                 {
-                    Id = v.Id,
                     VehicleId = v.VehicleId,
                     ModelNumber = v.ModelNumber,
-                    Vin = v.Vin,
+                    ExternalNumber = v.ExternalNumber,
                     Status = v.Status,
                     PurchasePrice = v.PurchasePrice,
-                    SalePrice = v.SalePrice,
                     ReceiptDate = v.ReceiptDate,
-                    IsAvailable = v.IsAvailable,
-                    IsRegistered = v.IsRegistered
+                    IsAvailable = v.IsAvailable
                 })
                 .ToList();
 

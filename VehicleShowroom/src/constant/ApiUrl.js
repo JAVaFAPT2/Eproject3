@@ -6,7 +6,7 @@ const ApiUrl = {
   AUTH_LOGIN: `${BASE_URL}auth/login`,
   AUTH_SOCIAL_LOGIN: `${BASE_URL}auth/social-login`,
   AUTH_LOGOUT: `${BASE_URL}auth/logout`,
-  AUTH_REFRESH: `${BASE_URL}auth/refresh`,
+  AUTH_REFRESH: `${BASE_URL}auth/refresh-token`,
   AUTH_FORGOT_PASSWORD: `${BASE_URL}auth/forgot-password`,
   AUTH_RESET_PASSWORD: `${BASE_URL}auth/reset-password`,
 
@@ -25,11 +25,11 @@ const ApiUrl = {
   EMPLOYEE_CHECKOUT: `${BASE_URL}employees/check-out`,
 
   // Profile
-  PROFILE: `${BASE_URL}users/profile`,
-  UPDATE_AVATAR: `${BASE_URL}users/update-avatar`,
-  UPDATE_PROFILE: `${BASE_URL}users/update-profile`,
-  CHANGE_PASSWORD: `${BASE_URL}users/change-password`,
-  DELETE_ACCOUNT: `${BASE_URL}users/delete-account`,
+  PROFILE: `${BASE_URL}profile`,
+  UPDATE_AVATAR: `${BASE_URL}profile/update-avatar`,
+  UPDATE_PROFILE: `${BASE_URL}profile`,
+  CHANGE_PASSWORD: `${BASE_URL}profile/change-password`,
+  DELETE_ACCOUNT: `${BASE_URL}profile/delete-account`,
 
   // User
   CARTS: `${BASE_URL}cart`,

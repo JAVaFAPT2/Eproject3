@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Common.Interfaces;
+using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById
 {
@@ -8,30 +9,38 @@ namespace VehicleShowroomManagement.Application.Features.Users.Queries.GetUserBy
     /// </summary>
     public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto?>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Role> _roleRepository;
 
-        public GetUserByIdQueryHandler(IUserRepository userRepository)
+        public GetUserByIdQueryHandler(IRepository<User> userRepository, IRepository<Role> roleRepository)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
         }
 
         public async Task<UserDto?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.UserId);
-            if (user == null)
+
+            if (user == null || user.DeletedAt != null)
                 return null;
+
+            // Get role name
+            var role = await _roleRepository.GetByIdAsync(user.RoleId);
 
             return new UserDto
             {
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                Name = user.Name,
                 Phone = user.Phone,
-                Role = user.Role,
+                Address = user.Address,
+                RoleId = user.RoleId,
+                Role = role?.Name ?? "Unknown",
+                Status = user.Status,
+                HireDate = user.HireDate,
                 IsActive = user.IsActive,
-                EmailConfirmed = user.EmailConfirmed,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
             };

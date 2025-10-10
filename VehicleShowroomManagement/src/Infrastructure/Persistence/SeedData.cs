@@ -2,10 +2,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Bson;
-using BCrypt.Net;
+using MongoDB.Driver;
 using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Domain.Enums;
 using VehicleShowroomManagement.Application.Common.Interfaces;
 
 namespace VehicleShowroomManagement.Infrastructure.Persistence
@@ -20,55 +18,44 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             using var scope = serviceProvider.CreateScope();
             var services = scope.ServiceProvider;
 
-            var employeeRepository = services.GetRequiredService<IRepository<Employee>>();
-
-            // Check if data already exists
-            var existingEmployees = await employeeRepository.CountAsync(e => !e.IsDeleted);
-            if (existingEmployees > 0)
+            var context = services.GetRequiredService<VehicleShowroomDbContext>();
+            
+            // Check if roles already exist
+            var existingRoles = await context.Roles.CountDocumentsAsync(_ => true);
+            if (existingRoles > 0)
             {
                 return; // Data already seeded
             }
 
-            // Seed default admin employee using proper constructor
-            var adminEmployee = new Employee(
-                employeeId: "ADMIN001",
-                name: "System Administrator", 
-                role: UserRole.Admin,
-                position: "System Administrator",
-                hireDate: DateTime.UtcNow,
-                salary: 100000m);
+            // Seed default roles
+            var adminRole = new Role("Admin");
+            var hrRole = new Role("HR");
+            var dealerRole = new Role("Dealer");
+            var customerRole = new Role("Customer");
 
-            await employeeRepository.AddAsync(adminEmployee);
+            await context.Roles.InsertManyAsync(new[] { adminRole, hrRole, dealerRole, customerRole });
 
-            // Seed default HR employee
-            var hrEmployee = new Employee(
-                employeeId: "HR001",
-                name: "HR Manager",
-                role: UserRole.HR,
-                position: "Human Resources Manager",
-                hireDate: DateTime.UtcNow,
-                salary: 75000m);
+            Console.WriteLine("✅ Seeded roles: Admin, HR, Dealer, Customer");
 
-            await employeeRepository.AddAsync(hrEmployee);
+            // Seed default admin user
+            var passwordService = services.GetRequiredService<Domain.Services.IPasswordService>();
+            var adminPasswordHash = passwordService.HashPassword("Admin123!");
 
-            // Seed default Dealer employee
-            var dealerEmployee = new Employee(
-                employeeId: "DEALER001",
-                name: "Sales Manager",
-                role: UserRole.Dealer,
-                position: "Senior Sales Representative",
-                hireDate: DateTime.UtcNow,
-                salary: 65000m);
+            var adminUser = new User(
+                username: "admin",
+                passwordHash: adminPasswordHash,
+                name: "System Administrator",
+                email: "admin@vehicleshowroom.com",
+                roleId: adminRole.Id,
+                phone: "+1234567890",
+                address: "123 Admin Street, City, Country",
+                hireDate: DateTime.UtcNow
+            );
 
-            await employeeRepository.AddAsync(dealerEmployee);
+            await context.Users.InsertOneAsync(adminUser);
 
+            Console.WriteLine("✅ Seeded admin user (username: admin, password: Admin123!)");
             Console.WriteLine("MongoDB database seeded successfully!");
-        }
-
-        private static string HashPassword(string password)
-        {
-            // Use BCrypt for secure password hashing
-            return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
         }
     }
 }

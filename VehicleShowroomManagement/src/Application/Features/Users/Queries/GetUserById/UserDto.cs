@@ -1,24 +1,23 @@
-using VehicleShowroomManagement.Domain.Enums;
-
 namespace VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById
 {
     /// <summary>
-    /// Data Transfer Object for User
+    /// Data Transfer Object for User (unified schema)
     /// </summary>
     public class UserDto
     {
         public string Id { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string? Phone { get; set; }
-        public UserRole Role { get; set; }
+        public string? Address { get; set; }
+        public string RoleId { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime? HireDate { get; set; }
         public bool IsActive { get; set; }
-        public bool EmailConfirmed { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-
-        public string FullName => $"{FirstName} {LastName}";
+        public bool IsEmployee => HireDate.HasValue;
     }
 }

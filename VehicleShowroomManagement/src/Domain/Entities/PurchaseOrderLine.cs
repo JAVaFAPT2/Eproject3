@@ -5,75 +5,73 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
-    /// Purchase order line representing a line in a purchase order
+    /// PurchaseOrderLine entity for line items in a purchase order
     /// </summary>
-    public class PurchaseOrderLine 
+    public class PurchaseOrderLine
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("poLineId")]
-        [BsonRequired]
-        public string PoLineId { get; set; } = string.Empty;
-
         [BsonElement("poId")]
+        [BsonRepresentation(BsonType.ObjectId)]
         [BsonRequired]
-        public string PoId { get; set; } = string.Empty;
+        public string POId { get; private set; } = string.Empty;
 
         [BsonElement("modelNumber")]
         [BsonRequired]
-        public string ModelNumber { get; set; } = string.Empty;
+        public string ModelNumber { get; private set; } = string.Empty;
 
         [BsonElement("quantity")]
         [BsonRequired]
-        public int Quantity { get; set; }
+        public int Quantity { get; private set; }
 
         [BsonElement("pricePerUnit")]
         [BsonRequired]
-        public decimal PricePerUnit { get; set; }
+        public decimal PricePerUnit { get; private set; }
 
-        [BsonElement("createdAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // Internal constructor for MongoDB
+        internal PurchaseOrderLine() { }
 
-        [BsonElement("updatedAt")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        [BsonConstructor]
+        public PurchaseOrderLine(string poId, string modelNumber, int quantity, decimal pricePerUnit)
+        {
+            if (string.IsNullOrWhiteSpace(poId))
+                throw new ArgumentException("PO ID cannot be null or empty", nameof(poId));
 
-        [BsonElement("isDeleted")]
-        public bool IsDeleted { get; set; } = false;
+            if (string.IsNullOrWhiteSpace(modelNumber))
+                throw new ArgumentException("Model number cannot be null or empty", nameof(modelNumber));
 
-        [BsonElement("deletedAt")]
-        public DateTime? DeletedAt { get; set; }
+            if (quantity <= 0)
+                throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
 
-        // Computed Properties
-        [BsonIgnore]
-        public decimal LineTotal => PricePerUnit * Quantity;
+            if (pricePerUnit < 0)
+                throw new ArgumentException("Price per unit cannot be negative", nameof(pricePerUnit));
 
+            POId = poId;
+            ModelNumber = modelNumber;
+            Quantity = quantity;
+            PricePerUnit = pricePerUnit;
+        }
+
+        // Domain methods
         public void UpdateQuantity(int quantity)
         {
+            if (quantity <= 0)
+                throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
+
             Quantity = quantity;
-            UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UpdatePrice(decimal pricePerUnit)
+        public void UpdatePricePerUnit(decimal pricePerUnit)
         {
+            if (pricePerUnit < 0)
+                throw new ArgumentException("Price per unit cannot be negative", nameof(pricePerUnit));
+
             PricePerUnit = pricePerUnit;
-            UpdatedAt = DateTime.UtcNow;
         }
 
-        public void SoftDelete()
-        {
-            IsDeleted = true;
-            DeletedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-        public void Restore()
-        {
-            IsDeleted = false;
-            DeletedAt = null;
-            UpdatedAt = DateTime.UtcNow;
-        }
+        // Computed properties
+        public decimal LineTotal => Quantity * PricePerUnit;
     }
 }
-

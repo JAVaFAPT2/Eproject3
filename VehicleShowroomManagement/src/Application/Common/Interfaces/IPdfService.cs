@@ -8,24 +8,19 @@ namespace VehicleShowroomManagement.Application.Common.Interfaces
     public interface IPdfService
     {
         /// <summary>
-        /// Generates PDF for sales order
+        /// Generates PDF for order (confirmation/data sheet)
         /// </summary>
-        Task<byte[]> GenerateOrderPdfAsync(SalesOrder order, Customer? customer, Vehicle? vehicle, User? salesPerson);
+        Task<byte[]> GenerateOrderPdfAsync(Order order, User? customer, Vehicle? vehicle, User? dealer);
 
         /// <summary>
-        /// Generates PDF for invoice
+        /// Generates PDF for billing document (invoice)
         /// </summary>
-        Task<byte[]> GenerateInvoicePdfAsync(Invoice invoice, Customer? customer, SalesOrder? order);
+        Task<byte[]> GenerateInvoicePdfAsync(BillingDocument billingDocument, User? customer, Order? order);
 
         /// <summary>
         /// Generates PDF for purchase order
         /// </summary>
-        Task<byte[]> GeneratePurchaseOrderPdfAsync(PurchaseOrder purchaseOrder, Supplier? supplier);
-
-        /// <summary>
-        /// Generates PDF for goods receipt
-        /// </summary>
-        Task<byte[]> GenerateGoodsReceiptPdfAsync(GoodsReceipt goodsReceipt, PurchaseOrder? purchaseOrder);
+        Task<byte[]> GeneratePurchaseOrderPdfAsync(PurchaseOrder purchaseOrder);
 
         /// <summary>
         /// Generates Excel report

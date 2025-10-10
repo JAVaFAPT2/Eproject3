@@ -6,33 +6,23 @@ namespace VehicleShowroomManagement.Domain.Enums
     public enum VehicleStatus
     {
         /// <summary>
-        /// Available for sale
+        /// Vehicle is in stock and available for sale
         /// </summary>
-        Available = 1,
+        InStock = 1,
         
         /// <summary>
-        /// Sold to customer
+        /// Vehicle has been sold
         /// </summary>
         Sold = 2,
         
         /// <summary>
-        /// Reserved for specific customer
+        /// Vehicle is reserved for a customer
         /// </summary>
         Reserved = 3,
         
         /// <summary>
-        /// In service/repair
+        /// Vehicle is currently being serviced
         /// </summary>
-        InService = 4,
-        
-        /// <summary>
-        /// Damaged and not available
-        /// </summary>
-        Damaged = 5,
-        
-        /// <summary>
-        /// Returned by customer
-        /// </summary>
-        Returned = 6
+        InService = 4
     }
 }

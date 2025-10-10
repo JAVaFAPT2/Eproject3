@@ -1,16 +1,18 @@
+using MediatR;
 
 namespace VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser
 {
     /// <summary>
-    /// Command to create a new user
+    /// Command to create a new user (unified schema)
     /// </summary>
     public record CreateUserCommand(
         string Username,
         string Email,
         string Password,
-        string FirstName,
-        string LastName,
-        UserRole Role,
-        string? Phone = null)
+        string Name,
+        string RoleId,
+        string? Phone = null,
+        string? Address = null,
+        DateTime? HireDate = null)
         : IRequest<string>;
 }

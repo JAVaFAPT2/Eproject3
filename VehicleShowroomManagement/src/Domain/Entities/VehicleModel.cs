@@ -1,74 +1,68 @@
 using System;
-using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
-    /// VehicleModel entity representing specific vehicle models
+    /// VehicleModel entity representing vehicle models available for purchase
+    /// ModelNumber is the primary key (_id in MongoDB)
     /// </summary>
-    public class VehicleModel 
+    public class VehicleModel
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
-
-        [BsonElement("modelNumber")]
-        [BsonRequired]
-        public string ModelNumber { get; set; } = string.Empty;
+        public string ModelNumber { get; private set; } = string.Empty;
 
         [BsonElement("name")]
         [BsonRequired]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; private set; } = string.Empty;
 
         [BsonElement("brand")]
         [BsonRequired]
-        public string Brand { get; set; } = string.Empty;
+        public string Brand { get; private set; } = string.Empty;
 
-        [BsonElement("basePrice")]
+        [BsonElement("price")]
         [BsonRequired]
-        public decimal BasePrice { get; set; }
+        public decimal Price { get; private set; }
 
-        [BsonElement("createdAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // Parameterless constructor for MongoDB deserialization
+        public VehicleModel() { }
 
-        [BsonElement("updatedAt")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        [BsonElement("isDeleted")]
-        public bool IsDeleted { get; set; } = false;
-
-        [BsonElement("deletedAt")]
-        public DateTime? DeletedAt { get; set; }
-
-        // References to vehicles
-        [BsonElement("vehicleIds")]
-        public List<string> VehicleIds { get; set; } = new List<string>();
-
-        // Domain Methods
-        public void UpdateModel(string name, string brand, decimal basePrice)
+        public VehicleModel(string modelNumber, string name, string brand, decimal price)
         {
+            if (string.IsNullOrWhiteSpace(modelNumber))
+                throw new ArgumentException("Model number cannot be null or empty", nameof(modelNumber));
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name cannot be null or empty", nameof(name));
+
+            if (string.IsNullOrWhiteSpace(brand))
+                throw new ArgumentException("Brand cannot be null or empty", nameof(brand));
+
+            if (price < 0)
+                throw new ArgumentException("Price cannot be negative", nameof(price));
+
+            ModelNumber = modelNumber;
             Name = name;
             Brand = brand;
-            BasePrice = basePrice;
-            UpdatedAt = DateTime.UtcNow;
+            Price = price;
         }
 
-        public void SoftDelete()
+        // Domain methods
+        public void UpdateModel(string name, string brand, decimal price)
         {
-            IsDeleted = true;
-            DeletedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
-        }
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name cannot be null or empty", nameof(name));
 
-        public void Restore()
-        {
-            IsDeleted = false;
-            DeletedAt = null;
-            UpdatedAt = DateTime.UtcNow;
+            if (string.IsNullOrWhiteSpace(brand))
+                throw new ArgumentException("Brand cannot be null or empty", nameof(brand));
+
+            if (price < 0)
+                throw new ArgumentException("Price cannot be negative", nameof(price));
+
+            Name = name;
+            Brand = brand;
+            Price = price;
         }
     }
 }
-

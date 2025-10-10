@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Common.Interfaces;
+using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.Vehicles.Commands.DeleteVehicle
 {
@@ -8,9 +9,9 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Commands.Delet
     /// </summary>
     public class DeleteVehicleCommandHandler : IRequestHandler<DeleteVehicleCommand>
     {
-        private readonly IVehicleRepository _vehicleRepository;
+        private readonly IRepository<Vehicle> _vehicleRepository;
 
-        public DeleteVehicleCommandHandler(IVehicleRepository vehicleRepository)
+        public DeleteVehicleCommandHandler(IRepository<Vehicle> vehicleRepository)
         {
             _vehicleRepository = vehicleRepository;
         }
