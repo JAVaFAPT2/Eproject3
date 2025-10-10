@@ -6,33 +6,28 @@ namespace VehicleShowroomManagement.Domain.Enums
     public enum OrderStatus
     {
         /// <summary>
-        /// Order created but not confirmed
+        /// Order is waiting for vehicle availability
         /// </summary>
-        Pending = 1,
+        Waiting = 1,
         
         /// <summary>
-        /// Order confirmed by dealer
+        /// Vehicle has been reserved for this order
         /// </summary>
-        Confirmed = 2,
+        Reserved = 2,
         
         /// <summary>
-        /// Order is being processed
+        /// Order has been confirmed by customer
         /// </summary>
-        Processing = 3,
+        Confirmed = 3,
         
         /// <summary>
-        /// Order completed successfully
+        /// Order has been completed
         /// </summary>
         Completed = 4,
         
         /// <summary>
-        /// Order cancelled
+        /// Order has been cancelled
         /// </summary>
-        Cancelled = 5,
-        
-        /// <summary>
-        /// Order refunded
-        /// </summary>
-        Refunded = 6
+        Cancelled = 5
     }
 }

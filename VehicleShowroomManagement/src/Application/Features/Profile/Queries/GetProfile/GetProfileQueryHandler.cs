@@ -1,6 +1,7 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Common.DTOs;
 using VehicleShowroomManagement.Application.Common.Interfaces;
+using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.Profile.Queries.GetProfile
 {
@@ -9,30 +10,34 @@ namespace VehicleShowroomManagement.Application.Features.Profile.Queries.GetProf
     /// </summary>
     public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, UserProfileDto?>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Role> _roleRepository;
 
-        public GetProfileQueryHandler(IUserRepository userRepository)
+        public GetProfileQueryHandler(IRepository<User> userRepository, IRepository<Role> roleRepository)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
         }
 
         public async Task<UserProfileDto?> Handle(GetProfileQuery request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.UserId);
-            if (user == null)
+            if (user == null || user.DeletedAt != null)
             {
                 return null;
             }
+
+            var role = await _roleRepository.GetByIdAsync(user.RoleId);
 
             return new UserProfileDto
             {
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                Name = user.Name,
                 Phone = user.Phone,
-                Role = user.Role.ToString(),
+                Address = user.Address,
+                Role = role?.Name ?? "Unknown",
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt

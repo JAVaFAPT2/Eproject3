@@ -1,16 +1,15 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VehicleShowroomManagement.Domain.Enums;
+using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.CreatePurchaseOrder;
+using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.CompletePurchaseOrder;
+using VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Commands.AddPurchaseOrderLine;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
-    /// <summary>
-    /// API Controller for purchase order management
-    /// </summary>
     [ApiController]
-    [Route("api/purchase-orders")]
-    [Authorize]
+    [Route("api/[controller]")]
+    [Authorize(Roles = "Dealer,Admin")]
     public class PurchaseOrdersController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -20,54 +19,57 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             _mediator = mediator;
         }
 
-        /// <summary>
-        /// Gets all purchase orders with pagination and filters
-        /// </summary>
-        [HttpGet]
-        [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> GetPurchaseOrders(
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10,
-            [FromQuery] PurchaseOrderStatus? status = null,
-            [FromQuery] string? supplierId = null,
-            [FromQuery] DateTime? fromDate = null,
-            [FromQuery] DateTime? toDate = null)
-        {
-            await Task.CompletedTask;
-            return Ok(new { message = "Purchase orders endpoint ready", pageNumber, pageSize });
-        }
-
-        /// <summary>
-        /// Gets a purchase order by ID
-        /// </summary>
-        [HttpGet("{id}")]
-        [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> GetPurchaseOrder(string id)
-        {
-            await Task.CompletedTask;
-            return Ok(new { message = $"Purchase order {id} endpoint ready" });
-        }
-
-        /// <summary>
-        /// Creates a new purchase order
-        /// </summary>
         [HttpPost]
-        [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> CreatePurchaseOrder([FromBody] object request)
+        public async Task<IActionResult> CreatePurchaseOrder([FromBody] CreatePurchaseOrderRequest request)
         {
-            await Task.CompletedTask;
-            return Ok(new { message = "Purchase order created successfully" });
+            var command = new CreatePurchaseOrderCommand(
+                request.CreatedBy,
+                request.TotalAmount,
+                request.ExpectedDeliveryDate);
+
+            var poId = await _mediator.Send(command);
+            return CreatedAtAction(nameof(CreatePurchaseOrder), new { id = poId }, 
+                new { id = poId, message = "Purchase order created successfully" });
         }
 
-        /// <summary>
-        /// Approves a purchase order
-        /// </summary>
-        [HttpPut("{id}/approve")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ApprovePurchaseOrder(string id, [FromBody] object request)
+        [HttpPost("{id}/lines")]
+        public async Task<IActionResult> AddPurchaseOrderLine(string id, [FromBody] AddPurchaseOrderLineRequest request)
         {
-            await Task.CompletedTask;
-            return Ok(new { message = "Purchase order approved successfully" });
+            var command = new AddPurchaseOrderLineCommand(
+                id,
+                request.ModelNumber,
+                request.Quantity,
+                request.PricePerUnit);
+
+            var lineId = await _mediator.Send(command);
+            return Ok(new { id = lineId, message = "Purchase order line added successfully" });
         }
+
+        [HttpPost("{id}/complete")]
+        public async Task<IActionResult> CompletePurchaseOrder(string id)
+        {
+            var command = new CompletePurchaseOrderCommand(id);
+            var vehicleIds = await _mediator.Send(command);
+            return Ok(new 
+            { 
+                message = "Purchase order completed successfully", 
+                vehiclesCreated = vehicleIds.Count,
+                vehicleIds 
+            });
+        }
+    }
+
+    public class CreatePurchaseOrderRequest
+    {
+        public string CreatedBy { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
+        public DateTime? ExpectedDeliveryDate { get; set; }
+    }
+
+    public class AddPurchaseOrderLineRequest
+    {
+        public string ModelNumber { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+        public decimal PricePerUnit { get; set; }
     }
 }

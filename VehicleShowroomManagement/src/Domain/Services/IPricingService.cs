@@ -25,9 +25,9 @@ namespace VehicleShowroomManagement.Domain.Services
         bool IsPriceValid(Vehicle vehicle, Money price);
 
         /// <summary>
-        /// Calculates total price for a sales order
+        /// Calculates total price for an order
         /// </summary>
-        Money CalculateOrderTotal(SalesOrder salesOrder);
+        Money CalculateOrderTotal(Order order);
 
         /// <summary>
         /// Applies discount to a price

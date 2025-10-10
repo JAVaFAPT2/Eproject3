@@ -4,28 +4,32 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Linq.Expressions;
 using VehicleShowroomManagement.Application.Common.DTOs;
 using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById;
 using VehicleShowroomManagement.Domain.Services;
+using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
 {
     /// <summary>
-    /// Handler for user login command - production ready
+    /// Handler for user login command - accepts username or email
     /// </summary>
     public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto?>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Role> _roleRepository;
         private readonly IPasswordService _passwordService;
         private readonly IConfiguration _configuration;
 
         public LoginCommandHandler(
-            IUserRepository userRepository,
+            IRepository<User> userRepository,
+            IRepository<Role> roleRepository,
             IPasswordService passwordService,
             IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
             _passwordService = passwordService;
             _configuration = configuration;
         }
@@ -33,26 +37,30 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
         public async Task<LoginResultDto?> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             // Find user by username or email
-            var user = await _userRepository.GetByUsernameAsync(request.Username);
-            if (user == null)
-            {
-                user = await _userRepository.GetByEmailAsync(request.Username);
-            }
+            var users = await _userRepository.FindAsync(u => 
+                (u.Username == request.Username || u.Email == request.Username) && 
+                u.DeletedAt == null);
+
+            var user = users.FirstOrDefault();
 
             if (user == null || !_passwordService.VerifyPassword(request.Password, user.PasswordHash))
             {
                 return null;
             }
 
+            // Get role name
+            var role = await _roleRepository.GetByIdAsync(user.RoleId);
+            var roleName = role?.Name ?? "User";
+
             // Generate JWT token
-            var token = GenerateJwtToken(user);
+            var token = GenerateJwtToken(user, roleName);
             var refreshToken = Guid.NewGuid().ToString();
             var expiresAt = DateTime.UtcNow.AddHours(Convert.ToDouble(_configuration["Jwt:ExpireHours"] ?? "24"));
 
             return new LoginResultDto
             {
                 UserId = user.Id,
-                RoleName = user.Role.ToString(),
+                RoleName = roleName,
                 Token = token,
                 RefreshToken = refreshToken,
                 TokenExpiresAt = expiresAt,
@@ -64,9 +72,8 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
                     Id = user.Id,
                     Username = user.Username,
                     Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Role = user.Role,
+                    Name = user.Name,
+                    Role = roleName,
                     Phone = user.Phone,
                     IsActive = user.IsActive,
                     CreatedAt = user.CreatedAt,
@@ -75,7 +82,7 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
             };
         }
 
-        private string GenerateJwtToken(Domain.Entities.User user)
+        private string GenerateJwtToken(User user, string roleName)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -85,9 +92,8 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToString()),
-                new Claim("FirstName", user.FirstName),
-                new Claim("LastName", user.LastName)
+                new Claim(ClaimTypes.Role, roleName),
+                new Claim("Name", user.Name)
             };
 
             var token = new JwtSecurityToken(

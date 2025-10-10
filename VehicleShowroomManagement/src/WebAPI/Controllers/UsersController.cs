@@ -27,10 +27,11 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.Username,
                 request.Email,
                 request.Password,
-                request.FirstName,
-                request.LastName,
-                request.Role,
-                request.Phone);
+                request.Name,
+                request.RoleId,
+                request.Phone,
+                request.Address,
+                request.HireDate);
 
             var userId = await mediator.Send(command);
             
@@ -63,9 +64,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             var command = new UpdateUserProfileCommand(
                 id,
-                request.FirstName,
-                request.LastName,
-                request.Phone);
+                request.Name,
+                request.Email,
+                request.Phone,
+                request.Address);
 
             await mediator.Send(command);
             

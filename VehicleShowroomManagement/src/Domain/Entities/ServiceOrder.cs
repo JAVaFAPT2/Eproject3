@@ -1,87 +1,116 @@
 using System;
-using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-
+using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
-    /// ServiceOrder entity representing vehicle service orders
-    /// Manages pre-delivery services and maintenance
+    /// ServiceOrder entity for vehicle services
     /// </summary>
-    public class ServiceOrder 
+    public class ServiceOrder
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("serviceOrderId")]
+        [BsonElement("orderId")]
+        [BsonRepresentation(BsonType.ObjectId)]
         [BsonRequired]
-        public string ServiceOrderId { get; set; } = string.Empty;
+        public string OrderId { get; private set; } = string.Empty;
 
-        [BsonElement("salesOrderId")]
+        [BsonElement("createdBy")]
+        [BsonRepresentation(BsonType.ObjectId)]
         [BsonRequired]
-        public string SalesOrderId { get; set; } = string.Empty;
-
-        [BsonElement("employeeId")]
-        [BsonRequired]
-        public string EmployeeId { get; set; } = string.Empty;
+        public string CreatedBy { get; private set; } = string.Empty;
 
         [BsonElement("serviceDate")]
-        public DateTime ServiceDate { get; set; } = DateTime.UtcNow;
+        public DateTime? ServiceDate { get; private set; }
+
+        [BsonElement("appointmentDate")]
+        public DateTime? AppointmentDate { get; private set; }
 
         [BsonElement("description")]
-        [BsonRequired]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; private set; }
 
         [BsonElement("cost")]
-        [BsonRequired]
-        public decimal Cost { get; set; }
+        public decimal Cost { get; private set; }
 
-        [BsonElement("createdAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [BsonElement("type")]
+        public ServiceType Type { get; private set; }
 
-        [BsonElement("updatedAt")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        [BsonElement("status")]
+        public ServiceOrderStatus Status { get; private set; } = ServiceOrderStatus.Scheduled;
 
-        [BsonElement("isDeleted")]
-        public bool IsDeleted { get; set; } = false;
+        // Internal constructor for MongoDB
+        internal ServiceOrder() { }
 
-        [BsonElement("deletedAt")]
-        public DateTime? DeletedAt { get; set; }
-
-        // Domain Methods
-        public void UpdateCost(decimal cost)
+        [BsonConstructor]
+        public ServiceOrder(string orderId, string createdBy, ServiceType type, decimal cost, 
+            DateTime? appointmentDate = null, string? description = null)
         {
+            if (string.IsNullOrWhiteSpace(orderId))
+                throw new ArgumentException("Order ID cannot be null or empty", nameof(orderId));
+
+            if (string.IsNullOrWhiteSpace(createdBy))
+                throw new ArgumentException("CreatedBy cannot be null or empty", nameof(createdBy));
+
+            if (cost < 0)
+                throw new ArgumentException("Cost cannot be negative", nameof(cost));
+
+            OrderId = orderId;
+            CreatedBy = createdBy;
+            Type = type;
             Cost = cost;
-            UpdatedAt = DateTime.UtcNow;
+            AppointmentDate = appointmentDate;
+            Description = description;
         }
 
-        public void UpdateServiceDate(DateTime serviceDate)
+        // Domain methods
+        public void UpdateAppointmentDate(DateTime? appointmentDate)
         {
-            ServiceDate = serviceDate;
-            UpdatedAt = DateTime.UtcNow;
+            AppointmentDate = appointmentDate;
         }
 
-        public void UpdateDescription(string description)
+        public void UpdateDescription(string? description)
         {
             Description = description;
-            UpdatedAt = DateTime.UtcNow;
         }
 
-        public void SoftDelete()
+        public void UpdateCost(decimal cost)
         {
-            IsDeleted = true;
-            DeletedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
+            if (cost < 0)
+                throw new ArgumentException("Cost cannot be negative", nameof(cost));
+
+            Cost = cost;
         }
 
-        public void Restore()
+        public void Complete()
         {
-            IsDeleted = false;
-            DeletedAt = null;
-            UpdatedAt = DateTime.UtcNow;
+            if (Status == ServiceOrderStatus.Completed)
+                throw new InvalidOperationException("Service order is already completed");
+
+            if (Status == ServiceOrderStatus.Cancelled)
+                throw new InvalidOperationException("Cannot complete a cancelled service order");
+
+            Status = ServiceOrderStatus.Completed;
+            ServiceDate = DateTime.UtcNow;
         }
+
+        public void Cancel()
+        {
+            if (Status == ServiceOrderStatus.Completed)
+                throw new InvalidOperationException("Cannot cancel a completed service order");
+
+            if (Status == ServiceOrderStatus.Cancelled)
+                throw new InvalidOperationException("Service order is already cancelled");
+
+            Status = ServiceOrderStatus.Cancelled;
+        }
+
+        // Computed properties
+        public bool IsScheduled => Status == ServiceOrderStatus.Scheduled;
+        public bool IsCompleted => Status == ServiceOrderStatus.Completed;
+        public bool IsCancelled => Status == ServiceOrderStatus.Cancelled;
     }
 }

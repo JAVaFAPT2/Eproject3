@@ -1,64 +1,41 @@
 using System;
-using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-
 
 namespace VehicleShowroomManagement.Domain.Entities
 {
     /// <summary>
     /// Role entity for role-based access control
-    /// Defines permissions and access levels for different user types
     /// </summary>
-    public class Role 
+    public class Role
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("roleName")]
+        [BsonElement("name")]
         [BsonRequired]
-        public string RoleName { get; set; } = string.Empty;
+        public string Name { get; private set; } = string.Empty;
 
-        [BsonElement("description")]
-        public string? Description { get; set; }
+        // Internal constructor for MongoDB
+        internal Role() { }
 
-        [BsonElement("createdAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        [BsonElement("updatedAt")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        [BsonElement("isDeleted")]
-        public bool IsDeleted { get; set; } = false;
-
-        [BsonElement("deletedAt")]
-        public DateTime? DeletedAt { get; set; }
-
-        // References to users with this role
-        [BsonElement("userIds")]
-        public List<string> UserIds { get; set; } = new List<string>();
-
-        // Domain Methods
-        public void UpdateRole(string roleName, string? description)
+        [BsonConstructor]
+        public Role(string name)
         {
-            RoleName = roleName;
-            Description = description;
-            UpdatedAt = DateTime.UtcNow;
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Role name cannot be null or empty", nameof(name));
+
+            Name = name;
         }
 
-        public void SoftDelete()
+        // Domain methods
+        public void UpdateName(string name)
         {
-            IsDeleted = true;
-            DeletedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
-        }
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Role name cannot be null or empty", nameof(name));
 
-        public void Restore()
-        {
-            IsDeleted = false;
-            DeletedAt = null;
-            UpdatedAt = DateTime.UtcNow;
+            Name = name;
         }
     }
 }

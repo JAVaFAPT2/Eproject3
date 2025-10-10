@@ -1,5 +1,3 @@
-using VehicleShowroomManagement.Domain.Enums;
-
 namespace VehicleShowroomManagement.Domain.Events
 {
     /// <summary>
@@ -10,14 +8,14 @@ namespace VehicleShowroomManagement.Domain.Events
         public string UserId { get; init; }
         public string Username { get; init; }
         public string Email { get; init; }
-        public UserRole Role { get; init; }
+        public string RoleId { get; init; }
 
-        public UserCreatedEvent(string userId, string username, string email, UserRole role)
+        public UserCreatedEvent(string userId, string username, string email, string roleId)
         {
             UserId = userId;
             Username = username;
             Email = email;
-            Role = role;
+            RoleId = roleId;
         }
     }
 
@@ -27,14 +25,12 @@ namespace VehicleShowroomManagement.Domain.Events
     public record UserProfileUpdatedEvent : DomainEvent
     {
         public string UserId { get; init; }
-        public string FirstName { get; init; }
-        public string LastName { get; init; }
+        public string Name { get; init; }
 
-        public UserProfileUpdatedEvent(string userId, string firstName, string lastName)
+        public UserProfileUpdatedEvent(string userId, string name)
         {
             UserId = userId;
-            FirstName = firstName;
-            LastName = lastName;
+            Name = name;
         }
     }
 
@@ -44,14 +40,14 @@ namespace VehicleShowroomManagement.Domain.Events
     public record UserRoleChangedEvent : DomainEvent
     {
         public string UserId { get; init; }
-        public UserRole OldRole { get; init; }
-        public UserRole NewRole { get; init; }
+        public string OldRoleId { get; init; }
+        public string NewRoleId { get; init; }
 
-        public UserRoleChangedEvent(string userId, UserRole oldRole, UserRole newRole)
+        public UserRoleChangedEvent(string userId, string oldRoleId, string newRoleId)
         {
             UserId = userId;
-            OldRole = oldRole;
-            NewRole = newRole;
+            OldRoleId = oldRoleId;
+            NewRoleId = newRoleId;
         }
     }
 }

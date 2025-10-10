@@ -6,33 +6,18 @@ namespace VehicleShowroomManagement.Domain.Enums
     public enum PurchaseOrderStatus
     {
         /// <summary>
-        /// Order created but not approved
+        /// Purchase order is pending approval or delivery
         /// </summary>
         Pending = 1,
         
         /// <summary>
-        /// Order approved by admin
+        /// Purchase order has been completed and vehicles created
         /// </summary>
-        Approved = 2,
+        Completed = 2,
         
         /// <summary>
-        /// Order sent to supplier
+        /// Purchase order has been cancelled
         /// </summary>
-        Sent = 3,
-        
-        /// <summary>
-        /// Order received from supplier
-        /// </summary>
-        Received = 4,
-        
-        /// <summary>
-        /// Order completed
-        /// </summary>
-        Completed = 5,
-        
-        /// <summary>
-        /// Order cancelled
-        /// </summary>
-        Cancelled = 6
+        Cancelled = 3
     }
 }

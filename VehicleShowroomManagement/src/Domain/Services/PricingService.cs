@@ -54,10 +54,10 @@ namespace VehicleShowroomManagement.Domain.Services
             return true;
         }
 
-        public Money CalculateOrderTotal(SalesOrder salesOrder)
+        public Money CalculateOrderTotal(Order order)
         {
-            // Calculate total from total amount (new schema)
-            return new Money(salesOrder.TotalAmount);
+            // Calculate total from sale price (new schema)
+            return new Money(order.SalePrice);
         }
 
         public Money ApplyDiscount(Money price, decimal discountPercentage)

@@ -1,7 +1,7 @@
 namespace VehicleShowroomManagement.Domain.Enums
 {
     /// <summary>
-    /// Types of services provided
+    /// Type of service being performed
     /// </summary>
     public enum ServiceType
     {
@@ -16,18 +16,8 @@ namespace VehicleShowroomManagement.Domain.Enums
         Maintenance = 2,
         
         /// <summary>
-        /// Warranty repair service
+        /// Repair service
         /// </summary>
-        WarrantyRepair = 3,
-        
-        /// <summary>
-        /// Customer requested repair
-        /// </summary>
-        CustomerRepair = 4,
-        
-        /// <summary>
-        /// Vehicle detailing and cleaning
-        /// </summary>
-        Detailing = 5
+        Repair = 3
     }
 }

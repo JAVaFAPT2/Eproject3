@@ -1,5 +1,6 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Common.Interfaces;
+using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.Vehicles.Commands.BulkDeleteVehicles
 {
@@ -8,9 +9,9 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Commands.BulkD
     /// </summary>
     public class BulkDeleteVehiclesCommandHandler : IRequestHandler<BulkDeleteVehiclesCommand>
     {
-        private readonly IVehicleRepository _vehicleRepository;
+        private readonly IRepository<Vehicle> _vehicleRepository;
 
-        public BulkDeleteVehiclesCommandHandler(IVehicleRepository vehicleRepository)
+        public BulkDeleteVehiclesCommandHandler(IRepository<Vehicle> vehicleRepository)
         {
             _vehicleRepository = vehicleRepository;
         }

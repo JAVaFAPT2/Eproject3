@@ -1,18 +1,19 @@
 using MediatR;
 using VehicleShowroomManagement.Application.Common.Interfaces;
+using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.Auth.Commands.ForgotPassword
 {
     /// <summary>
-    /// Simplified handler for forgot password command - production ready
+    /// Handler for forgot password command
     /// </summary>
     public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IRepository<User> _userRepository;
         private readonly IEmailService _emailService;
 
         public ForgotPasswordCommandHandler(
-            IUserRepository userRepository,
+            IRepository<User> userRepository,
             IEmailService emailService)
         {
             _userRepository = userRepository;
@@ -21,7 +22,9 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.ForgotPas
 
         public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByEmailAsync(request.Email);
+            var users = await _userRepository.FindAsync(u => u.Email == request.Email && u.DeletedAt == null);
+            var user = users.FirstOrDefault();
+
             if (user == null)
             {
                 // Don't reveal if email exists or not for security
@@ -32,7 +35,7 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.ForgotPas
             var resetToken = Guid.NewGuid().ToString();
 
             // Send password reset email
-            await _emailService.SendPasswordResetEmailAsync(user.Email, user.FirstName, resetToken);
+            await _emailService.SendPasswordResetEmailAsync(user.Email, user.Name, resetToken);
         }
     }
 }

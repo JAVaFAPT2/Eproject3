@@ -1,0 +1,85 @@
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using VehicleShowroomManagement.Application.Features.Orders.Commands.CreateOrder;
+using VehicleShowroomManagement.Application.Features.Orders.Commands.AssignVehicle;
+using VehicleShowroomManagement.Application.Features.Orders.Commands.ConfirmOrder;
+using VehicleShowroomManagement.Application.Features.Orders.Commands.CompleteOrder;
+
+namespace VehicleShowroomManagement.WebAPI.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class OrdersController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+
+        public OrdersController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+        {
+            var command = new CreateOrderCommand(
+                request.CustomerId,
+                request.DealerId,
+                request.ModelNumber,
+                request.SalePrice,
+                request.VehicleId,
+                request.AppointmentDate,
+                request.Note);
+
+            var orderId = await _mediator.Send(command);
+            return CreatedAtAction(nameof(CreateOrder), new { id = orderId }, 
+                new { id = orderId, message = "Order created successfully" });
+        }
+
+        [HttpPost("{id}/assign-vehicle")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> AssignVehicle(string id, [FromBody] AssignVehicleRequest request)
+        {
+            var command = new AssignVehicleCommand(id, request.VehicleId);
+            await _mediator.Send(command);
+            return Ok(new { message = "Vehicle assigned successfully" });
+        }
+
+        [HttpPost("{id}/confirm")]
+        [Authorize(Roles = "Dealer,Admin,Customer")]
+        public async Task<IActionResult> ConfirmOrder(string id)
+        {
+            var command = new ConfirmOrderCommand(id);
+            await _mediator.Send(command);
+            return Ok(new { message = "Order confirmed successfully" });
+        }
+
+        [HttpPost("{id}/complete")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> CompleteOrder(string id)
+        {
+            var command = new CompleteOrderCommand(id);
+            await _mediator.Send(command);
+            return Ok(new { message = "Order completed successfully" });
+        }
+    }
+
+    public class CreateOrderRequest
+    {
+        public string CustomerId { get; set; } = string.Empty;
+        public string DealerId { get; set; } = string.Empty;
+        public string ModelNumber { get; set; } = string.Empty;
+        public decimal SalePrice { get; set; }
+        public string? VehicleId { get; set; }
+        public DateTime? AppointmentDate { get; set; }
+        public string? Note { get; set; }
+    }
+
+    public class AssignVehicleRequest
+    {
+        public string VehicleId { get; set; } = string.Empty;
+    }
+}
+
