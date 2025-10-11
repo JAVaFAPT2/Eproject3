@@ -2,10 +2,10 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "Autofac/8.0.0": {
+      "Autofac/8.4.0": {
         "type": "package",
         "dependencies": {
-          "System.Diagnostics.DiagnosticSource": "7.0.2"
+          "System.Diagnostics.DiagnosticSource": "8.0.1"
         },
         "compile": {
           "lib/net8.0/Autofac.dll": {
@@ -3172,12 +3172,12 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
-          "Autofac": "8.0.0",
+          "Autofac": "8.4.0",
           "Autofac.Extensions.DependencyInjection": "9.0.0",
           "BCrypt.Net-Next": "4.0.3",
           "CloudinaryDotNet": "1.26.2",
           "EPPlus": "7.2.2",
-          "MediatR": "12.4.1",
+          "MediatR": "13.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.8",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",
           "Microsoft.IdentityModel.Tokens": "8.1.2",
@@ -3199,15 +3199,15 @@
     }
   },
   "libraries": {
-    "Autofac/8.0.0": {
-      "sha512": "qxVqJcl3fixxa5aZc9TmIuYTwooI9GCL5RzfUiTZtTlbAF3NcWz7bPeEyJEAyS/0qGhSyGnXeku2eiu/7L+3qw==",
+    "Autofac/8.4.0": {
+      "sha512": "XMWHyO6fXTv8rwCfhm6+64mQS6CyL0rve/hWSODsUrVuEGtq1fjxSOlVTBqCRsW6L8K3OQDskJaPB1boVMI2eQ==",
       "type": "package",
-      "path": "autofac/8.0.0",
+      "path": "autofac/8.4.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "README.md",
-        "autofac.8.0.0.nupkg.sha512",
+        "autofac.8.4.0.nupkg.sha512",
         "autofac.nuspec",
         "icon.png",
         "lib/net6.0/Autofac.dll",
@@ -9919,7 +9919,7 @@
     "net8.0": [
       "AutoMapper >= 12.0.1",
       "AutoMapper.Extensions.Microsoft.DependencyInjection >= 12.0.1",
-      "Autofac >= 8.0.0",
+      "Autofac >= 8.4.0",
       "Autofac.Extensions.DependencyInjection >= 9.0.0",
       "ClosedXML >= 0.104.2",
       "CloudinaryDotNet >= 1.26.2",
@@ -10005,7 +10005,7 @@
           },
           "Autofac": {
             "target": "Package",
-            "version": "[8.0.0, )"
+            "version": "[8.4.0, )"
           },
           "Autofac.Extensions.DependencyInjection": {
             "target": "Package",
@@ -10066,16 +10066,5 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1605",
-      "level": "Error",
-      "message": "Warning As Error: Detected package downgrade: Autofac from 8.4.0 to 8.0.0. Reference the package directly from the project to select a different version. \r\n VehicleShowroomManagement.WebAPI -> VehicleShowroomManagement.Application -> Autofac (>= 8.4.0) \r\n VehicleShowroomManagement.WebAPI -> Autofac (>= 8.0.0)",
-      "libraryId": "Autofac",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  }
 }

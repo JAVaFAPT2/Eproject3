@@ -292,7 +292,7 @@
           "dependencies": {
             "Autofac": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.4.0, )"
             },
             "Autofac.Extensions.DependencyInjection": {
               "target": "Package",
@@ -312,7 +312,7 @@
             },
             "MediatR": {
               "target": "Package",
-              "version": "[12.4.1, )"
+              "version": "[13.0.0, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
@@ -434,7 +434,7 @@
             },
             "Autofac": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.4.0, )"
             },
             "Autofac.Extensions.DependencyInjection": {
               "target": "Package",

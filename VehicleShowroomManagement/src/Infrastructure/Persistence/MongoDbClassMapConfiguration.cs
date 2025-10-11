@@ -1,4 +1,3 @@
-using System;
 using MongoDB.Bson.Serialization;
 using VehicleShowroomManagement.Domain.Entities;
 
