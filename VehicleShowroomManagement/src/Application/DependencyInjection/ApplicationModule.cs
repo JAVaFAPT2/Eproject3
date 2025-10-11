@@ -1,5 +1,4 @@
 using Autofac;
-using MediatR;
 using MediatR.Extensions.Autofac.DependencyInjection;
 using MediatR.Extensions.Autofac.DependencyInjection.Builder;
 using System.Reflection;
@@ -15,8 +14,10 @@ namespace VehicleShowroomManagement.Application.DependencyInjection
         protected override void Load(ContainerBuilder builder)
         {
             // Register MediatR and all command/query handlers from this assembly
+            var applicationAssembly = Assembly.GetExecutingAssembly();
+            
             var configuration = MediatRConfigurationBuilder
-                .Create(Assembly.GetExecutingAssembly().GetName().Name!)
+                .Create(null, applicationAssembly)
                 .WithAllOpenGenericHandlerTypesRegistered()
                 .Build();
 

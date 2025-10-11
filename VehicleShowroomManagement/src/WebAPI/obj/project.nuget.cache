@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "diZzXYLdjIE=",
-  "success": false,
+  "dgSpecHash": "EiZ1wpIOutY=",
+  "success": true,
   "projectFilePath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Admin\\.nuget\\packages\\autofac\\8.0.0\\autofac.8.0.0.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\autofac\\8.4.0\\autofac.8.4.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\autofac.extensions.dependencyinjection\\9.0.0\\autofac.extensions.dependencyinjection.9.0.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
@@ -181,17 +181,5 @@
     "C:\\Users\\Admin\\.nuget\\packages\\system.xml.xmldocument\\4.3.0\\system.xml.xmldocument.4.3.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\zstdsharp.port\\0.7.3\\zstdsharp.port.0.7.3.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1605",
-      "level": "Error",
-      "message": "Warning As Error: Detected package downgrade: Autofac from 8.4.0 to 8.0.0. Reference the package directly from the project to select a different version. \r\n VehicleShowroomManagement.WebAPI -> VehicleShowroomManagement.Application -> Autofac (>= 8.4.0) \r\n VehicleShowroomManagement.WebAPI -> Autofac (>= 8.0.0)",
-      "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj",
-      "filePath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj",
-      "libraryId": "Autofac",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }
