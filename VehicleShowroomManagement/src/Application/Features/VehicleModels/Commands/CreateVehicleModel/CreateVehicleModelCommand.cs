@@ -6,6 +6,8 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Commands.
         string ModelNumber,
         string Name,
         string Brand,
-        decimal Price) : IRequest<string>;
+        decimal Price,
+        string Description,
+        string? ImageUrl = null) : IRequest<string>;
 }
 

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Commands.CreateVehicleModel;
+using VehicleShowroomManagement.Application.Features.VehicleModels.Commands.UpdateVehicleModel;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Queries.GetVehicleModels;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -26,10 +27,31 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.ModelNumber,
                 request.Name,
                 request.Brand,
-                request.Price);
+                request.Price,
+                request.Description,
+                request.ImageUrl);
 
             var result = await _mediator.Send(command);
             return Ok(new { modelNumber = result, message = "Vehicle model created successfully" });
+        }
+
+        /// <summary>
+        /// Update vehicle model
+        /// </summary>
+        [HttpPut("{modelNumber}")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> UpdateVehicleModel(string modelNumber, [FromBody] UpdateVehicleModelRequest request)
+        {
+            var command = new UpdateVehicleModelCommand(
+                modelNumber,
+                request.Name,
+                request.Brand,
+                request.Price,
+                request.Description,
+                request.ImageUrl);
+
+            await _mediator.Send(command);
+            return Ok(new { message = "Vehicle model updated successfully" });
         }
 
         [HttpGet]
@@ -50,6 +72,17 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public string Name { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public decimal Price { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
+    }
+
+    public class UpdateVehicleModelRequest
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Brand { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
     }
 }
 

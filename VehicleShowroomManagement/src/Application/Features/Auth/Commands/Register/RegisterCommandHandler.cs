@@ -3,18 +3,18 @@ using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Domain.Services;
 
-namespace VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser
+namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Register
 {
     /// <summary>
-    /// Handler for creating a new user (unified schema)
+    /// Handler for public user registration
     /// </summary>
-    public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, string>
+    public class RegisterCommandHandler : IRequestHandler<RegisterCommand, string>
     {
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Role> _roleRepository;
         private readonly IPasswordService _passwordService;
 
-        public CreateUserCommandHandler(
+        public RegisterCommandHandler(
             IRepository<User> userRepository,
             IRepository<Role> roleRepository,
             IPasswordService passwordService)
@@ -24,7 +24,7 @@ namespace VehicleShowroomManagement.Application.Features.Users.Commands.CreateUs
             _passwordService = passwordService;
         }
 
-        public async Task<string> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
             // Check if username already exists
             var existingUsers = await _userRepository.FindAsync(u => u.Username == request.Username && u.DeletedAt == null);
@@ -40,47 +40,28 @@ namespace VehicleShowroomManagement.Application.Features.Users.Commands.CreateUs
                 throw new InvalidOperationException("Email already exists");
             }
 
-            // Determine role: use provided RoleId, or auto-assign based on HireDate
-            string roleId;
+            // Find Customer role by name
+            var customerRoles = await _roleRepository.FindAsync(r => r.Name == "Customer");
+            var customerRole = customerRoles.FirstOrDefault();
             
-            if (!string.IsNullOrWhiteSpace(request.RoleId))
+            if (customerRole == null)
             {
-                // Use provided role ID (backward compatibility)
-                var role = await _roleRepository.GetByIdAsync(request.RoleId);
-                if (role == null)
-                {
-                    throw new InvalidOperationException("Role not found");
-                }
-                roleId = request.RoleId;
-            }
-            else
-            {
-                // Auto-assign role based on HireDate
-                string roleName = request.HireDate.HasValue ? "Employee" : "Customer";
-                var roles = await _roleRepository.FindAsync(r => r.Name == roleName);
-                var autoRole = roles.FirstOrDefault();
-                
-                if (autoRole == null)
-                {
-                    throw new InvalidOperationException($"{roleName} role not found in the system");
-                }
-                
-                roleId = autoRole.Id;
+                throw new InvalidOperationException("Customer role not found in the system");
             }
 
             // Hash password
             var passwordHash = _passwordService.HashPassword(request.Password);
 
-            // Create user
+            // Create user with Customer role
             var user = new User(
                 request.Username,
                 passwordHash,
                 request.Name,
                 request.Email,
-                roleId,
+                customerRole.Id,
                 request.Phone,
                 request.Address,
-                request.HireDate);
+                hireDate: null);
 
             // Add to repository
             await _userRepository.AddAsync(user);
@@ -89,3 +70,4 @@ namespace VehicleShowroomManagement.Application.Features.Users.Commands.CreateUs
         }
     }
 }
+

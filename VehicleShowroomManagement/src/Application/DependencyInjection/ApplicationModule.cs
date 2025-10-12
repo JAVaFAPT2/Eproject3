@@ -17,7 +17,7 @@ namespace VehicleShowroomManagement.Application.DependencyInjection
             var applicationAssembly = Assembly.GetExecutingAssembly();
             
             var configuration = MediatRConfigurationBuilder
-                .Create(null, applicationAssembly)
+                .Create("VehicleShowroomManagement.Application", applicationAssembly)
                 .WithAllOpenGenericHandlerTypesRegistered()
                 .Build();
 

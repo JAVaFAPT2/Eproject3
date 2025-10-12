@@ -124,6 +124,10 @@ using (var scope = app.Services.CreateScope())
         // Initialize MongoDB collections with indexes
         await context.InitializeCollectionsAsync();
 
+        // Initialize MongoDB performance indexes
+        var indexInitializer = services.GetRequiredService<MongoDbIndexInitializer>();
+        await indexInitializer.InitializeIndexesAsync();
+
         // Seed initial data
         await SeedData.Initialize(services);
     }
