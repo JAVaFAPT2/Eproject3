@@ -109,6 +109,11 @@ namespace VehicleShowroomManagement.Infrastructure.DependencyInjection
             builder.RegisterType<ExcelService>()
                    .As<IExcelService>()
                    .InstancePerLifetimeScope();
+
+            // MongoDB Index Initializer
+            builder.RegisterType<MongoDbIndexInitializer>()
+                   .AsSelf()
+                   .SingleInstance();
         }
     }
 }

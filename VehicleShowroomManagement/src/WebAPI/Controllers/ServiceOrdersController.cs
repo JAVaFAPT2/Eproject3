@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.CreateServiceOrder;
+using VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.UpdateStatus;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -33,6 +34,23 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             return CreatedAtAction(nameof(CreateServiceOrder), new { id = serviceOrderId }, 
                 new { id = serviceOrderId, message = "Service order created successfully" });
         }
+
+        /// <summary>
+        /// Update service order status
+        /// Auto-creates BillingDocument when status changes to Completed
+        /// </summary>
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateServiceOrderStatus(string id, [FromBody] UpdateServiceOrderStatusRequest request)
+        {
+            var command = new UpdateServiceOrderStatusCommand(id, request.Status);
+            var result = await _mediator.Send(command);
+
+            return Ok(new 
+            { 
+                message = result.Message,
+                billingDocumentId = result.BillingDocumentId
+            });
+        }
     }
 
     public class CreateServiceOrderRequest
@@ -43,5 +61,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public decimal Cost { get; set; }
         public DateTime? AppointmentDate { get; set; }
         public string? Description { get; set; }
+    }
+
+    public class UpdateServiceOrderStatusRequest
+    {
+        public ServiceOrderStatus Status { get; set; }
     }
 }

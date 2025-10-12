@@ -21,14 +21,21 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRequired]
         public string Brand { get; private set; } = string.Empty;
 
-        [BsonElement("price")]
-        [BsonRequired]
-        public decimal Price { get; private set; }
+    [BsonElement("price")]
+    [BsonRequired]
+    public decimal Price { get; private set; }
 
-        // Parameterless constructor for MongoDB deserialization
-        public VehicleModel() { }
+    [BsonElement("description")]
+    [BsonRequired]
+    public string Description { get; private set; } = string.Empty;
 
-        public VehicleModel(string modelNumber, string name, string brand, decimal price)
+    [BsonElement("imageUrl")]
+    public string? ImageUrl { get; private set; }
+
+    // Parameterless constructor for MongoDB deserialization
+    public VehicleModel() { }
+
+    public VehicleModel(string modelNumber, string name, string brand, decimal price, string description, string? imageUrl = null)
         {
             if (string.IsNullOrWhiteSpace(modelNumber))
                 throw new ArgumentException("Model number cannot be null or empty", nameof(modelNumber));
@@ -42,27 +49,37 @@ namespace VehicleShowroomManagement.Domain.Entities
             if (price < 0)
                 throw new ArgumentException("Price cannot be negative", nameof(price));
 
+            if (string.IsNullOrWhiteSpace(description))
+                throw new ArgumentException("Description cannot be null or empty", nameof(description));
+
             ModelNumber = modelNumber;
             Name = name;
             Brand = brand;
             Price = price;
+            Description = description;
+            ImageUrl = imageUrl;
         }
 
-        // Domain methods
-        public void UpdateModel(string name, string brand, decimal price)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name cannot be null or empty", nameof(name));
+    // Domain methods
+    public void UpdateModel(string name, string brand, decimal price, string description, string? imageUrl = null)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Name cannot be null or empty", nameof(name));
 
-            if (string.IsNullOrWhiteSpace(brand))
-                throw new ArgumentException("Brand cannot be null or empty", nameof(brand));
+        if (string.IsNullOrWhiteSpace(brand))
+            throw new ArgumentException("Brand cannot be null or empty", nameof(brand));
 
-            if (price < 0)
-                throw new ArgumentException("Price cannot be negative", nameof(price));
+        if (price < 0)
+            throw new ArgumentException("Price cannot be negative", nameof(price));
 
-            Name = name;
-            Brand = brand;
-            Price = price;
-        }
+        if (string.IsNullOrWhiteSpace(description))
+            throw new ArgumentException("Description cannot be null or empty", nameof(description));
+
+        Name = name;
+        Brand = brand;
+        Price = price;
+        Description = description;
+        ImageUrl = imageUrl;
+    }
     }
 }

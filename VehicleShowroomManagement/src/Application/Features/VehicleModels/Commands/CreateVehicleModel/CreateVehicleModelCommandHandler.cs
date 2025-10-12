@@ -26,7 +26,9 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Commands.
                 request.ModelNumber,
                 request.Name,
                 request.Brand,
-                request.Price);
+                request.Price,
+                request.Description,
+                request.ImageUrl);
 
             await _modelRepository.AddAsync(vehicleModel);
 

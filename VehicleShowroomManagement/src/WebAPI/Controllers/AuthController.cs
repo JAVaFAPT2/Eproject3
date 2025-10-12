@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.Login;
+using VehicleShowroomManagement.Application.Features.Auth.Commands.Register;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.ForgotPassword;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.ResetPassword;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.RefreshToken;
@@ -17,6 +18,27 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [Route("api/auth")]
     public class AuthController(IMediator mediator) : ControllerBase
     {
+        /// <summary>
+        /// Public user registration (Customer role)
+        /// </summary>
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            var command = new RegisterCommand(
+                request.Username,
+                request.Password,
+                request.Email,
+                request.Name,
+                request.Phone,
+                request.Address);
+
+            var userId = await mediator.Send(command);
+
+            return CreatedAtAction(nameof(Register), new { id = userId },
+                new { id = userId, message = "User registered successfully" });
+        }
+
         /// <summary>
         /// Authenticates user and returns JWT token
         /// </summary>

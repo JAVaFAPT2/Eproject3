@@ -97,20 +97,36 @@ namespace VehicleShowroomManagement.Domain.Entities
             ServiceDate = DateTime.UtcNow;
         }
 
-        public void Cancel()
-        {
-            if (Status == ServiceOrderStatus.Completed)
-                throw new InvalidOperationException("Cannot cancel a completed service order");
+    public void Cancel()
+    {
+        if (Status == ServiceOrderStatus.Completed)
+            throw new InvalidOperationException("Cannot cancel a completed service order");
 
-            if (Status == ServiceOrderStatus.Cancelled)
-                throw new InvalidOperationException("Service order is already cancelled");
+        if (Status == ServiceOrderStatus.Cancelled)
+            throw new InvalidOperationException("Service order is already cancelled");
 
-            Status = ServiceOrderStatus.Cancelled;
-        }
-
-        // Computed properties
-        public bool IsScheduled => Status == ServiceOrderStatus.Scheduled;
-        public bool IsCompleted => Status == ServiceOrderStatus.Completed;
-        public bool IsCancelled => Status == ServiceOrderStatus.Cancelled;
+        Status = ServiceOrderStatus.Cancelled;
     }
+
+    public void UpdateStatus(ServiceOrderStatus newStatus)
+    {
+        if (newStatus == ServiceOrderStatus.Completed)
+        {
+            Complete();
+        }
+        else if (newStatus == ServiceOrderStatus.Cancelled)
+        {
+            Cancel();
+        }
+        else
+        {
+            Status = newStatus;
+        }
+    }
+
+    // Computed properties
+    public bool IsScheduled => Status == ServiceOrderStatus.Scheduled;
+    public bool IsCompleted => Status == ServiceOrderStatus.Completed;
+    public bool IsCancelled => Status == ServiceOrderStatus.Cancelled;
+}
 }
