@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "+G2YnVgoWmg=",
+  "dgSpecHash": "qmGrJovlEPI=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\autofac\\8.4.0\\autofac.8.4.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",

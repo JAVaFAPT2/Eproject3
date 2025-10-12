@@ -1,4 +1,0 @@
-[
-  { "id": "1", "registrationNumber": "REG-001", "vehicleId": "VEH001", "ownerName": "John Doe", "status": "Active" },
-  { "id": "2", "registrationNumber": "REG-002", "vehicleId": "VEH002", "ownerName": "Jane Smith", "status": "Inactive" }
-]

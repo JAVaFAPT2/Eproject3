@@ -16,6 +16,7 @@ import CheckEmailNotice from 'views/auth/checkEmailNotice';
 import ResetPassword from 'views/auth/resetPassword';
 import ForgotPassword from 'views/auth/forgotPassword';
 import { RiOrderPlayLine } from 'react-icons/ri';
+import Home from 'views/user/home/home';
 
 const routes = [
   // Admin Routes
@@ -84,6 +85,15 @@ const routes = [
     layout: '/auth',
     path: '/reset-password',
     component: <ResetPassword />,
+    hideInSidebar: true,
+  },
+
+  //User Routes
+  {
+    name: 'Home',
+    layout: '/user',
+    path: '/home',
+    component: <Home />,
     hideInSidebar: true,
   },
 ];

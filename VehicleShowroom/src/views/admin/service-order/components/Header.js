@@ -1,6 +1,6 @@
 import React from 'react';
 import { Flex, Button, Text, useColorModeValue } from '@chakra-ui/react';
-import { SearchBar } from 'components/navbar/searchBar/SearchBar';
+import { SearchBar } from 'components/searchBar/SearchBar';
 
 export default function Header({ search, setSearch, onAdd }) {
   const textColor = useColorModeValue('secondaryGray.900', 'white');

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FxGhdaf7gI0=",
+  "dgSpecHash": "WvTzmaIk6yY=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\tests\\VehicleShowroomManagement.Tests.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\tests\\VehicleShowroomManagement.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\autofac\\8.4.0\\autofac.8.4.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\autofac.extensions.dependencyinjection\\9.0.0\\autofac.extensions.dependencyinjection.9.0.0.nupkg.sha512",

@@ -1,5 +1,5 @@
 import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constant/ApiUrl';
+import ApiUrl from 'constant/ApiUrl';
 
 const DashboardService = {
   getRevenue: () => ApiClient.get(ApiUrl.DASHBOARD.REVENUE),

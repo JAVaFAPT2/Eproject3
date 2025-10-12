@@ -1,5 +1,5 @@
 import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constant/ApiUrl';
+import ApiUrl from 'constant/ApiUrl';
 
 const VehicleService = {
   getAll: (params) => ApiClient.get(ApiUrl.VEHICLES.BASE, { params }),

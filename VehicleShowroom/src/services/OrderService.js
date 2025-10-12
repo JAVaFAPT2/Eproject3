@@ -1,5 +1,5 @@
 import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constant/ApiUrl';
+import  ApiUrl from 'constant/ApiUrl';
 
 const OrderService = {
   getAll: (params) => ApiClient.get(ApiUrl.ORDERS.BASE, { params }),

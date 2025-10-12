@@ -1,5 +1,5 @@
 import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constant/ApiUrl';
+import  ApiUrl  from 'constant/ApiUrl';
 
 const ProfileService = {
   getProfile: () => ApiClient.get(ApiUrl.PROFILE.GET),
