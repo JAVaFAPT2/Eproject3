@@ -21,8 +21,13 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore VehicleShowroomManagement/VehicleShowroomManagement.sln
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build VehicleShowroomManagement/VehicleShowroomManagement.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: |
+        if [ -d "VehicleShowroomManagement/tests" ]; then
+          dotnet test VehicleShowroomManagement/tests/VehicleShowroomManagement.Tests.csproj --configuration Release --no-build --verbosity normal
+        else
+          echo "No tests project found. Skipping tests."
+        fi
