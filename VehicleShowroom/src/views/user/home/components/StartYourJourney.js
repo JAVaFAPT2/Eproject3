@@ -6,45 +6,37 @@ import {
   Flex,
   Button,
   Icon,
-  HStack,
   Container,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
+import VehicleModelService from 'services/VehicleModelService';
 
 const MotionBox = motion(Box);
 
 export default function StartYourJourney() {
   const navigate = useNavigate();
-  const [articles, setArticles] = useState([]);
+  const [models, setModels] = useState([]);
   const [paused, setPaused] = useState(false);
   const bg = useColorModeValue('white', 'navy.900');
 
-  // fetch JSON data
+  // ✅ Fetch data từ VehicleModelService
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch('/JSON/carVideos.json');
-        const data = await res.json();
-        setArticles(data);
+        const data = await VehicleModelService.getAll();
+        setModels(data || []);
       } catch (err) {
-        console.error('Error fetching car videos:', err);
-      } finally {
+        console.error('Error fetching vehicle models:', err);
       }
     }
     fetchData();
   }, []);
 
   return (
-    <Box
-      bg={bg}
-      py={{ base: 20, md: 40 }}
-      maxW="1880px"
-      mx="auto"
-      position="relative"
-    >
+    <Box bg={bg} maxW="1880px" mx={{ base: 10, md: 20 }} position="relative">
       {/* Header */}
       <Container maxW="6xl" textAlign="center" mb={{ base: 10, md: 20 }}>
         <Heading
@@ -54,11 +46,11 @@ export default function StartYourJourney() {
           lineHeight="shorter"
           mb={4}
         >
-          Your Porsche journey starts now.
+          Your journey starts now.
         </Heading>
       </Container>
 
-      {/* Video Articles */}
+      {/* Vehicle Models */}
       <Flex
         overflowX="auto"
         gap={6}
@@ -67,16 +59,15 @@ export default function StartYourJourney() {
         justify="center"
         flexWrap={{ base: 'nowrap', md: 'wrap' }}
       >
-        {articles.map((el, idx) => (
+        {models.map((m, idx) => (
           <MotionBox
-            key={el.id}
+            key={m.modelNumber}
             flex={{ base: '0 0 85%', md: '1 1 45%' }}
             borderRadius="xl"
             overflow="hidden"
             cursor="pointer"
             position="relative"
-            bg="black"
-            onClick={() => navigate(`/models/${el.id}`)}
+            onClick={() => navigate(`/user/models/${m.modelNumber}`)}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -86,55 +77,53 @@ export default function StartYourJourney() {
               ease: 'easeOut',
             }}
           >
-            {/* Masked logo */}
-            <Box
-              position="absolute"
-              top={4}
-              left={4}
-              w={{ base: '100px', md: '140px' }}
-              h="auto"
-              bg="white"
-              maskImage={`url(${el.iconMask})`}
-              maskSize="contain"
-              maskRepeat="no-repeat"
-              maskPosition="center"
-              zIndex={2}
-            />
-
-            {/* Video */}
+            {/* Video / Image Poster */}
             <Box
               position="relative"
               h={{ base: '75vh', md: '45vh' }}
               overflow="hidden"
               borderRadius="xl"
+              bg="black"
             >
-              <video
-                preload="auto"
-                src={el.video}
-                poster={el.poster}
-                autoPlay
-                muted
-                loop
-                playsInline
+              <motion.img
+                src={m.photos?.[0]?.url || '/placeholder-car.png'}
+                alt={m.name}
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                 }}
-              />
-              {/* Gradient overlay */}
-              <Box
-                position="absolute"
-                bottom={0}
-                left={0}
-                right={0}
-                h="50%"
-                bgGradient="linear(to-t, rgba(0,0,0,0.85), transparent)"
-                borderBottomRadius="xl"
+                initial={{ scale: 1.05 }}
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.6 }}
               />
 
-              {/* Text content */}
-              <Box
+              {/* 🔹 Model Name (top center) */}
+              <Flex
+                position="absolute"
+                top={4}
+                left="50%"
+                transform="translateX(-50%)"
+                justify="center"
+                align="center"
+                px={4}
+                py={1}
+                borderRadius="full"
+              >
+                <Text
+                  fontSize={{ base: 'xl', md: '4xl' }}
+                  color="white"
+                  textAlign="center"
+                  fontFamily="'Kaushan Script', cursive"
+                  fontStyle="italic"
+                  fontWeight="600"
+                >
+                  {m.name}
+                </Text>
+              </Flex>
+
+              {/* 🔹 Description & Explore (bottom row) */}
+              <Flex
                 position="absolute"
                 bottom={0}
                 left={0}
@@ -142,29 +131,18 @@ export default function StartYourJourney() {
                 color="white"
                 px={6}
                 py={4}
+                align="center"
+                justify="space-between"
               >
-                {el.tag && (
-                  <HStack mb={2}>
-                    <Box
-                      bg="rgba(255,255,255,0.25)"
-                      backdropFilter="blur(12px)"
-                      borderRadius="md"
-                      px={3}
-                      py={0.5}
-                      fontSize="xs"
-                    >
-                      {el.tag}
-                    </Box>
-                  </HStack>
-                )}
-                <Text fontSize={{ base: 'md', md: 'lg' }} mb={2}>
-                  {el.abouttext}
+                <Text fontSize={{ base: 'sm', md: 'md' }} mb={2}>
+                  {m.description}
                 </Text>
+
                 <Flex align="center" gap={2}>
                   <Text fontWeight="500">Explore</Text>
                   <Icon as={ArrowForwardIcon} boxSize={5} />
                 </Flex>
-              </Box>
+              </Flex>
             </Box>
           </MotionBox>
         ))}
@@ -189,7 +167,7 @@ export default function StartYourJourney() {
           align="center"
           justify="center"
         >
-          {[...Array(6)].map((_, i) => (
+          {models.map((_, i) => (
             <Box
               key={i}
               w={i === 0 ? '30px' : '10px'}
@@ -201,7 +179,7 @@ export default function StartYourJourney() {
           ))}
         </Flex>
 
-        {/* Play/Pause button */}
+        {/* Play/Pause (decorative only) */}
         <Button
           onClick={() => setPaused((p) => !p)}
           rounded="full"
@@ -209,11 +187,6 @@ export default function StartYourJourney() {
           bg="rgba(148,149,153,0.18)"
           _hover={{ bg: 'rgba(148,149,153,0.3)' }}
         >
-          <Icon
-            as={paused ? ArrowForwardIcon : undefined}
-            boxSize={6}
-            color="white"
-          />
           {paused ? (
             <img
               src="https://cdn.ui.porsche.com/porsche-design-system/icons/play.24226d4.svg"

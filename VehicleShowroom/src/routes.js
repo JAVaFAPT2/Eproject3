@@ -15,7 +15,12 @@ import CheckEmailNotice from 'views/auth/checkEmailNotice';
 import ResetPassword from 'views/auth/resetPassword';
 import ForgotPassword from 'views/auth/forgotPassword';
 import { RiOrderPlayLine } from 'react-icons/ri';
-import Home from 'views/user/home/home';
+
+// User Imports
+import Home from 'views/user/home/Home';
+import List from 'views/user/list/List';
+import Detail from 'views/user/detail/Detail';
+import PurchaseOrderPage from 'views/admin/purchase-order';
 
 const routes = [
   // Admin Routes
@@ -34,9 +39,18 @@ const routes = [
     component: <VehiclePage />,
   },
   {
+    name: 'Purchase Order Management',
+    layout: '/admin',
+    path: '/purchase-order-management',
+    icon: (
+      <Icon as={RiOrderPlayLine} width="20px" height="20px" color="inherit" />
+    ),
+    component: <PurchaseOrderPage />,
+  },
+  {
     name: 'Order Management',
     layout: '/admin',
-    path: '/prder-management',
+    path: '/order-management',
     icon: (
       <Icon as={RiOrderPlayLine} width="20px" height="20px" color="inherit" />
     ),
@@ -49,35 +63,30 @@ const routes = [
     layout: '/auth',
     path: '/sign-in',
     component: <SignIn />,
-    hideInSidebar: true,
   },
   {
     name: 'Sign Up',
     layout: '/auth',
     path: '/sign-up',
     component: <SignUp />,
-    hideInSidebar: true,
   },
   {
     name: 'Forgot Password',
     layout: '/auth',
     path: '/forgot-password',
     component: <ForgotPassword />,
-    hideInSidebar: true,
   },
   {
     name: 'Check Email',
     layout: '/auth',
     path: '/check-email',
     component: <CheckEmailNotice />,
-    hideInSidebar: true,
   },
   {
     name: 'Reset Password',
     layout: '/auth',
     path: '/reset-password',
     component: <ResetPassword />,
-    hideInSidebar: true,
   },
 
   //User Routes
@@ -86,7 +95,24 @@ const routes = [
     layout: '/user',
     path: '/home',
     component: <Home />,
-    hideInSidebar: true,
+  },
+  {
+    name: 'Models',
+    layout: '/user',
+    path: '/models',
+    component: <List />,
+  },
+  {
+    name: 'Models',
+    layout: '/user',
+    path: '/models/:model',
+    component: <List />,
+  },
+  {
+    name: 'Detail',
+    layout: '/user',
+    path: '/model/:id',
+    component: <Detail />,
   },
 ];
 

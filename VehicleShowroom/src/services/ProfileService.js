@@ -1,18 +1,21 @@
-import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constants/ApiUrl';
+import { users } from '../mockData/users.js';
+import { simulateDelay } from './utils.js';
 
 const ProfileService = {
-  get() {
-    return ApiClient.get(ApiUrl.PROFILE.GET).then((r) => r.data);
+  getProfile: (userId) => simulateDelay(users.find((u) => u.userId === userId)),
+
+  updateProfile: (userId, data) => {
+    const i = users.findIndex((u) => u.userId === userId);
+    if (i >= 0) users[i] = { ...users[i], ...data, updatedAt: new Date().toISOString() };
+    return simulateDelay({ message: 'Profile updated successfully' });
   },
-  update(payload) {
-    return ApiClient.put(ApiUrl.PROFILE.UPDATE, payload).then((r) => r.data);
-  },
-  changePassword({ currentPassword, newPassword }) {
-    return ApiClient.post(ApiUrl.PROFILE.CHANGE_PASSWORD, {
-      currentPassword,
-      newPassword,
-    }).then((r) => r.data);
+
+  changePassword: (userId, { currentPassword, newPassword }) => {
+    const user = users.find((u) => u.userId === userId);
+    if (!user || user.passwordHash !== currentPassword)
+      return simulateDelay({ message: 'Invalid current password' });
+    user.passwordHash = newPassword;
+    return simulateDelay({ message: 'Password changed successfully' });
   },
 };
 

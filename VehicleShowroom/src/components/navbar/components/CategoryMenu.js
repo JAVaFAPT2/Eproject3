@@ -3,14 +3,12 @@ import {
   Box,
   Flex,
   Grid,
-  Image,
   Text,
-  Tag,
   IconButton,
   Button,
   Spinner,
   useColorModeValue,
-  Divider,
+  Image,
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CloseIcon } from '@chakra-ui/icons';
@@ -19,6 +17,7 @@ import VehicleModelService from 'services/VehicleModelService';
 import { MdLogin } from 'react-icons/md';
 
 const MotionBox = motion(Box);
+const MotionImage = motion(Image);
 
 export default function CategoryMenu({ isVisible, closeHandler }) {
   const [models, setModels] = useState([]);
@@ -27,16 +26,13 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
   const bg = useColorModeValue('whiteAlpha.900', 'gray.800');
   const navigate = useNavigate();
 
-  // ✅ Fetch vehicle models from API
+  // ✅ Fetch vehicle models
   useEffect(() => {
     async function fetchModels() {
       try {
         setLoading(true);
-        const data = await VehicleModelService.getAll({
-          pageNumber: 1,
-          pageSize: 20,
-        });
-        setModels(data.models || []);
+        const data = await VehicleModelService.getAll();
+        setModels(data || []);
       } catch (err) {
         console.error('Error fetching vehicle models:', err);
         setError('Failed to load models');
@@ -128,33 +124,24 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                 </Flex>
               )}
 
-              {/* 🔹 Grid of models */}
+              {/* 🔹 List of models (1 per row) */}
               {!loading && !error && (
-                <Grid
-                  templateColumns={{
-                    base: '1fr',
-                    sm: 'repeat(2, 1fr)',
-                    md: 'repeat(2, 1fr)',
-                  }}
-                  gap={6}
-                  pb={10}
-                >
+                <Grid templateColumns="1fr" gap={6} pb={10}>
                   {models.map((m) => (
                     <MotionBox
                       key={m.modelNumber}
                       borderRadius="xl"
                       overflow="hidden"
                       p={4}
-                      shadow="md"
                       transition="all 0.25s ease"
-                      whileHover={{ y: -6 }}
+                      _hover={{ backgroundColor: 'white' }}
                     >
                       <NavLink
-                        to={`/models/${m.modelNumber}`}
+                        to={`/user/models/${m.modelNumber}`}
                         onClick={closeHandler}
                       >
                         <Text
-                          fontSize="lg"
+                          fontSize="2xl"
                           fontWeight="semibold"
                           mb={3}
                           _hover={{ textDecoration: 'underline' }}
@@ -166,37 +153,29 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                           position="relative"
                           overflow="hidden"
                           borderRadius="md"
-                          mb={3}
+                          mb={2}
                         >
-                          <Image
-                            src={m.imageUrl || '/placeholder-car.png'}
+                          <MotionImage
+                            src={m.photos?.[0]?.url || '/placeholder-car.png'}
                             alt={m.name}
-                            objectFit="cover"
+                            objectFit="contain"
                             w="100%"
                             h="180px"
-                            transition="transform 0.3s ease"
-                            _hover={{ transform: 'scale(1.05)' }}
+                            transition={{
+                              duration: 0.2,
+                              ease: 'easeOut',
+                            }}
+                            whileHover={{ x: 8 }}
                           />
                         </Box>
                       </NavLink>
-
-                      <Flex mt={2} flexWrap="wrap" gap={2}>
-                        <Tag colorScheme="gray" fontSize="sm" px={3} py={1}>
-                          {m.brand}
-                        </Tag>
-                        <Tag colorScheme="blue" fontSize="sm" px={3} py={1}>
-                          ${m.price?.toLocaleString() || 'N/A'}
-                        </Tag>
-                      </Flex>
                     </MotionBox>
                   ))}
                 </Grid>
               )}
             </Box>
 
-            {/* 🔹 Fixed Footer (Divider + Button) */}
             <Box
-              borderTopWidth="1px"
               px={{ base: 6, md: 10 }}
               py={4}
               bg="transparent"

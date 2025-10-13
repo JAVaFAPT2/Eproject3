@@ -1,10 +1,17 @@
-import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constants/ApiUrl';
+import { documentOutputs } from '../mockData/documentOutputs.js';
+import { simulateDelay } from './utils.js';
 
 const DocumentOutputService = {
-  generate({ entityType, entityId, fileType }) {
-    return ApiClient.post(ApiUrl.DOCUMENT_OUTPUTS.GENERATE, { entityType, entityId, fileType })
-      .then(r => r.data);
+  getAll: () => simulateDelay(documentOutputs),
+
+  generate: (data) => {
+    const newDoc = {
+      documentId: `d${documentOutputs.length + 1}`,
+      ...data,
+      createdAt: new Date().toISOString(),
+    };
+    documentOutputs.push(newDoc);
+    return simulateDelay({ message: 'Document generated successfully', data: newDoc });
   },
 };
 

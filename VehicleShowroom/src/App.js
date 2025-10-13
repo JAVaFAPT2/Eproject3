@@ -10,7 +10,6 @@ import { UserProvider } from 'contexts/UserContext';
 
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
-
   return (
     <ChakraProvider theme={currentTheme}>
       <UserProvider>

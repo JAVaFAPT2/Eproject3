@@ -1,38 +1,71 @@
-import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constants/ApiUrl';
+import { vehicles } from '../mockData/vehicles.js';
+import { vehicleSpecs } from '../mockData/vehicleSpecs.js';
+import { vehiclePhotos } from '../mockData/vehiclePhotos.js';
+import { simulateDelay } from './utils.js';
 
 const VehicleService = {
-  create(payload) {
-    return ApiClient.post(ApiUrl.VEHICLES.BASE, payload).then((r) => r.data);
+  getAll: (filter = {}) => {
+    let data = vehicles.map((v) => {
+      const specs = vehicleSpecs.filter((s) => s.vehicleId === v.vehicleId);
+      const photos = vehiclePhotos.filter(
+        (p) =>
+          p.vehicleId === v.vehicleId ||
+          p.vehicleModelId?.toLowerCase() ===
+            v.modelNumber?.replace(/\d+/g, '').toLowerCase(),
+      );
+
+      return {
+        ...v,
+        specs,
+        photos,
+      };
+    });
+
+    // ✅ áp dụng bộ lọc cơ bản
+    if (filter.status) data = data.filter((v) => v.status === filter.status);
+
+    if (filter.modelNumber)
+      data = data.filter((v) => v.modelNumber === filter.modelNumber);
+
+    return simulateDelay(data);
   },
-  getById(id) {
-    return ApiClient.get(ApiUrl.VEHICLES.BY_ID(id)).then((r) => r.data);
-  },
-  getAll(params) {
-    return ApiClient.get(ApiUrl.VEHICLES.BASE, { params }).then((r) => r.data);
-  },
-  search(params) {
-    return ApiClient.get(ApiUrl.VEHICLES.SEARCH, { params }).then(
-      (r) => r.data,
+
+  getById: (id) => {
+    const v = vehicles.find((x) => x.vehicleId === id);
+    if (!v) return simulateDelay(null);
+
+    const specs = vehicleSpecs.filter((s) => s.vehicleId === v.vehicleId);
+    const photos = vehiclePhotos.filter(
+      (p) =>
+        p.vehicleId === v.vehicleId ||
+        p.vehicleModelId?.toLowerCase() ===
+          v.modelNumber?.replace(/\d+/g, '').toLowerCase(),
     );
+
+    return simulateDelay({ ...v, specs, photos });
   },
-  update(id, payload) {
-    return ApiClient.put(ApiUrl.VEHICLES.BY_ID(id), payload).then(
-      (r) => r.data,
-    );
+
+  create: (data) => {
+    vehicles.push(data);
+    return simulateDelay({ message: 'Vehicle created successfully' });
   },
-  updateStatus(id, { status }) {
-    return ApiClient.put(ApiUrl.VEHICLES.STATUS(id), { status }).then(
-      (r) => r.data,
-    );
+
+  update: (id, data) => {
+    const i = vehicles.findIndex((v) => v.vehicleId === id);
+    if (i >= 0) vehicles[i] = { ...vehicles[i], ...data };
+    return simulateDelay({ message: 'Vehicle updated successfully' });
   },
-  remove(id) {
-    return ApiClient.delete(ApiUrl.VEHICLES.BY_ID(id)).then((r) => r.data);
+
+  updateStatus: (id, status) => {
+    const v = vehicles.find((x) => x.vehicleId === id);
+    if (v) v.status = status;
+    return simulateDelay({ message: 'Vehicle status updated successfully' });
   },
-  bulkDelete(vehicleIds) {
-    return ApiClient.post(ApiUrl.VEHICLES.BULK_DELETE, { vehicleIds }).then(
-      (r) => r.data,
-    );
+
+  delete: (id) => {
+    const i = vehicles.findIndex((v) => v.vehicleId === id);
+    if (i >= 0) vehicles.splice(i, 1);
+    return simulateDelay({ message: 'Vehicle deleted successfully' });
   },
 };
 

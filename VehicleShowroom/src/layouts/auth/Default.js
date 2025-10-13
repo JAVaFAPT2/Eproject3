@@ -64,24 +64,13 @@ function AuthIllustration(props) {
               left={0}
               w="100%"
               h="100%"
-              bg="linear-gradient(to bottom right, #4facfe, #7366ff, #d633ff, #ff6a00)"
-              borderBottomLeftRadius={{ lg: '120px', xl: '200px' }}
-              zIndex={0}
-            />
-
-            <Flex
-              position="absolute"
-              top={200}
-              left={200}
-              w="50%"
-              h="50%"
               bgImage={`url(${illustrationBackground})`}
               bgSize="cover"
               bgPosition="center"
-              zIndex={1}
               justify="center"
-              align="end"
-              display={{ lg: 'none', xl: 'flex' }}
+              align="center"
+              display={{ base: 'flex', lg: 'flex', xl: 'flex' }}
+              borderBottomLeftRadius={{ lg: '120px', xl: '200px' }}
             />
           </Flex>
         </Box>

@@ -34,9 +34,8 @@ export default function UserLayout() {
     <Box minH="100vh" bg={bgColor}>
       {/* 🔹 Header hiển thị trong Portal để không bị che */}
       <Portal>
-        <Box position="fixed" top="0" left="0" w="100%" zIndex="999">
+        <Box w="100%">
           <NavbarUser
-            styl={false}
             toggleCategory={() => setIsCategoryOpen((prev) => !prev)}
             isCategoryOpen={isCategoryOpen}
             modl={true}

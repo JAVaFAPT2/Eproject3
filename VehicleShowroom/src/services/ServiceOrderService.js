@@ -1,14 +1,20 @@
-import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constants/ApiUrl';
+import { serviceOrders } from '../mockData/serviceOrders.js';
+import { simulateDelay } from './utils.js';
 
 const ServiceOrderService = {
-  create(payload) {
-    // { orderId, createdBy, type, cost, appointmentDate, description }
-    return ApiClient.post(ApiUrl.SERVICE_ORDERS.BASE, payload).then(r => r.data);
+  getAll: () => simulateDelay(serviceOrders),
+  getById: (id) => simulateDelay(serviceOrders.find((s) => s.serviceOrderId === id)),
+
+  create: (data) => {
+    const newSO = { ...data, serviceOrderId: `so${serviceOrders.length + 1}` };
+    serviceOrders.push(newSO);
+    return simulateDelay({ message: 'Service order created successfully', data: newSO });
   },
-  updateStatus(id, status) {
-    // status: 1 Scheduled, 2 Completed, 3 Cancelled
-    return ApiClient.put(ApiUrl.SERVICE_ORDERS.STATUS(id), { status }).then(r => r.data);
+
+  updateStatus: (id, status) => {
+    const s = serviceOrders.find((x) => x.serviceOrderId === id);
+    if (s) s.status = status;
+    return simulateDelay({ message: 'Service order status updated successfully' });
   },
 };
 

@@ -1,12 +1,19 @@
-import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constants/ApiUrl';
+import { billingDocuments } from '../mockData/billingDocuments.js';
+import { simulateDelay } from './utils.js';
 
 const BillingDocumentService = {
-  create(payload) {
-    // { orderId, createdBy, amount, appointmentDate }
-    return ApiClient.post(ApiUrl.BILLING_DOCUMENTS.BASE, payload).then(
-      (r) => r.data,
-    );
+  getAll: () => simulateDelay(billingDocuments),
+
+  create: (data) => {
+    const newDoc = { ...data, billId: `b${billingDocuments.length + 1}` };
+    billingDocuments.push(newDoc);
+    return simulateDelay({ message: 'Billing document created successfully', data: newDoc });
+  },
+
+  updateStatus: (id, status) => {
+    const b = billingDocuments.find((x) => x.billId === id);
+    if (b) b.status = status;
+    return simulateDelay({ message: 'Billing document updated successfully' });
   },
 };
 

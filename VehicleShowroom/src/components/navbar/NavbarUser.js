@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Box,
   Flex,
@@ -7,27 +7,21 @@ import {
   Image,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import CategoryMenu from 'components/navbar/components/CategoryMenu';
-import Svg from 'components/navbar/components/Svg';
-import Picture from 'components/navbar/components/Picture';
 import { CloseIcon } from '@chakra-ui/icons';
 
-export default function NavbarUser({ toggleCategory, isCategoryOpen, styl, modl }) {
+export default function NavbarUser({ toggleCategory, isCategoryOpen, modl }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const isDesktop = useBreakpointValue({ base: false, md: true });
-  const [profileIcon, setProfileIcon] = useState(null);
 
-  useEffect(() => {
-    const updateProfileIcon = () => {
-      setProfileIcon(isDesktop ? <Svg styl={styl} /> : <Picture styl={styl} />);
-    };
-    updateProfileIcon();
-  }, [isDesktop, styl]);
+  const isHome = location.pathname === '/user/home';
 
   return (
     <>
       <CategoryMenu isVisible={isCategoryOpen} closeHandler={toggleCategory} />
+
       <Box
         as="header"
         position={modl ? 'absolute' : 'relative'}
@@ -35,29 +29,29 @@ export default function NavbarUser({ toggleCategory, isCategoryOpen, styl, modl 
         w="100%"
         zIndex={100}
         bg={
-          styl
-            ? 'transparent'
-            : 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)'
+          isHome
+            ? 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)'
+            : 'transparent'
         }
       >
         <Flex
           align="center"
           justify="space-between"
           px={{ base: 4, md: 10 }}
-          h={{ base: '72px', md: '148px' }}
-          color={styl ? 'black' : 'white'}
+          h={'100px'}
+          color={isHome ? 'white' : 'black'}
         >
           {/* Menu button */}
           <Button
             variant="ghost"
-            color={styl ? 'black' : 'white'}
+            color={isHome ? 'white' : 'black'}
             fontSize="md"
             leftIcon={
               <Image
                 src="https://cdn.ui.porsche.com/porsche-design-system/icons/menu-lines.e332216.svg"
                 w="24px"
                 h="24px"
-                filter={!styl ? 'invert(1)' : 'none'}
+                filter={isHome ? 'invert(1)' : 'none'}
               />
             }
             onClick={toggleCategory}
@@ -70,10 +64,12 @@ export default function NavbarUser({ toggleCategory, isCategoryOpen, styl, modl 
           {/* Logo */}
           <Box
             cursor="pointer"
-            maxW={{ base: '30px', md: '100px' }}
             onClick={() => navigate('/')}
+            color={isHome ? 'white' : 'black'}
+            fontWeight={'600'}
+            fontSize={'2xl'}
           >
-            {profileIcon}
+            Car Showroom
           </Box>
 
           {/* Profile / Close icon */}
@@ -85,7 +81,7 @@ export default function NavbarUser({ toggleCategory, isCategoryOpen, styl, modl 
               isCategoryOpen ? (
                 <CloseIcon
                   boxSize="24px"
-                  filter={modl ? 'invert(1)' : 'none'}
+                  filter={isHome ? 'invert(1)' : 'none'}
                   display={{ base: 'none', md: 'block' }}
                 />
               ) : (
@@ -93,7 +89,7 @@ export default function NavbarUser({ toggleCategory, isCategoryOpen, styl, modl 
                   src="https://cdn.ui.porsche.com/porsche-design-system/icons/user.c18dabe.svg"
                   w="24px"
                   h="24px"
-                  filter={!styl ? 'invert(1)' : 'none'}
+                  filter={isHome ? 'invert(1)' : 'none'}
                 />
               )
             }

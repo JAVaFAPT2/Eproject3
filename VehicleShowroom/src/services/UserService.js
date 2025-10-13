@@ -1,22 +1,41 @@
-import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constants/ApiUrl';
+import { users } from '../mockData/users.js';
+import { simulateDelay } from './utils.js';
 
 const UserService = {
-  // GET /api/users?searchTerm&roleId&pageNumber&pageSize
-  getAll(params) {
-    return ApiClient.get(ApiUrl.USERS.BASE, { params }).then((r) => r.data);
+  getAll: (filter = {}) => {
+    let data = [...users];
+    if (filter.roleId) data = data.filter((u) => u.roleId === filter.roleId);
+    if (filter.searchTerm)
+      data = data.filter((u) =>
+        u.name.toLowerCase().includes(filter.searchTerm.toLowerCase())
+      );
+    return simulateDelay(data);
   },
-  getById(id) {
-    return ApiClient.get(ApiUrl.USERS.BY_ID(id)).then((r) => r.data);
+
+  getById: (id) => simulateDelay(users.find((u) => u.userId === id)),
+
+  create: (data) => {
+    const newUser = {
+      userId: `u${users.length + 1}`,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: 'Active',
+    };
+    users.push(newUser);
+    return simulateDelay({ message: 'User created successfully', data: newUser });
   },
-  create(payload) {
-    return ApiClient.post(ApiUrl.USERS.BASE, payload).then((r) => r.data);
+
+  update: (id, data) => {
+    const i = users.findIndex((u) => u.userId === id);
+    if (i >= 0) users[i] = { ...users[i], ...data };
+    return simulateDelay({ message: 'User updated successfully' });
   },
-  update(id, payload) {
-    return ApiClient.put(ApiUrl.USERS.BY_ID(id), payload).then((r) => r.data);
-  },
-  remove(id) {
-    return ApiClient.delete(ApiUrl.USERS.BY_ID(id)).then((r) => r.data);
+
+  delete: (id) => {
+    const i = users.findIndex((u) => u.userId === id);
+    if (i >= 0) users.splice(i, 1);
+    return simulateDelay({ message: 'User deleted successfully' });
   },
 };
 

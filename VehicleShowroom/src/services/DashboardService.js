@@ -1,18 +1,23 @@
-import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constants/ApiUrl';
+import { orders } from '../mockData/orders.js';
+import { vehicleModels } from '../mockData/vehicleModels.js';
+import { simulateDelay } from './utils.js';
 
 const DashboardService = {
-  getRevenue() {
-    return ApiClient.get(ApiUrl.DASHBOARD.REVENUE).then(r => r.data);
-  },
-  getCustomer() {
-    return ApiClient.get(ApiUrl.DASHBOARD.CUSTOMER).then(r => r.data);
-  },
-  getTopVehicles() {
-    return ApiClient.get(ApiUrl.DASHBOARD.TOP_VEHICLES).then(r => r.data);
-  },
-  getRecentOrders() {
-    return ApiClient.get(ApiUrl.DASHBOARD.RECENT_ORDERS).then(r => r.data);
+  getRevenue: () => {
+    const totalRevenue = orders.reduce((a, b) => a + b.salePrice, 0);
+    return simulateDelay({
+      totalRevenue,
+      monthlyRevenue: totalRevenue / 12,
+      yearlyRevenue: totalRevenue,
+      revenueGrowth: 15.5,
+      topSellingModels: vehicleModels.map((v) => ({
+        modelNumber: v.modelNumber,
+        name: v.name,
+        brand: v.brand,
+        totalSold: 5,
+        revenue: v.price * 5,
+      })),
+    });
   },
 };
 

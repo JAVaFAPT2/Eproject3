@@ -1,22 +1,32 @@
-import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constants/ApiUrl';
+import { orders } from '../mockData/orders.js';
+import { simulateDelay } from './utils.js';
 
 const OrderService = {
-  create(payload) {
-    // { customerId, dealerId, modelNumber, salePrice, vehicleId, appointmentDate, note }
-    return ApiClient.post(ApiUrl.ORDERS.BASE, payload).then(r => r.data);
+  getAll: (filter = {}) => {
+    let data = [...orders];
+    if (filter.status) data = data.filter((o) => o.status === filter.status);
+    if (filter.customerId) data = data.filter((o) => o.customerId === filter.customerId);
+    return simulateDelay(data);
   },
-  getById(id) {
-    return ApiClient.get(ApiUrl.ORDERS.BY_ID(id)).then(r => r.data);
+
+  getById: (id) => simulateDelay(orders.find((o) => o.orderId === id)),
+
+  create: (data) => {
+    const newOrder = { ...data, orderId: `o${orders.length + 1}` };
+    orders.push(newOrder);
+    return simulateDelay({ message: 'Order created successfully', data: newOrder });
   },
-  assignVehicle(id, vehicleId) {
-    return ApiClient.post(ApiUrl.ORDERS.ASSIGN_VEHICLE(id), { vehicleId }).then(r => r.data);
+
+  assignVehicle: (id, vehicleId) => {
+    const o = orders.find((x) => x.orderId === id);
+    if (o) o.vehicleId = vehicleId;
+    return simulateDelay({ message: 'Vehicle assigned successfully' });
   },
-  confirm(id) {
-    return ApiClient.post(ApiUrl.ORDERS.CONFIRM(id)).then(r => r.data);
-  },
-  complete(id) {
-    return ApiClient.post(ApiUrl.ORDERS.COMPLETE(id)).then(r => r.data);
+
+  updateStatus: (id, status) => {
+    const o = orders.find((x) => x.orderId === id);
+    if (o) o.status = status;
+    return simulateDelay({ message: 'Order status updated successfully' });
   },
 };
 
