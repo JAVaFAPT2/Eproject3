@@ -8,8 +8,6 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: ASPNETCORE_URLS
-        value: http://+:10000
       - key: ConnectionStrings__MongoDB
         fromDatabase:
           name: vehicleshowroom-db

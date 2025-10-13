@@ -20,8 +20,18 @@ if (File.Exists(envFile))
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure URLs explicitly - this ensures the app always runs on the specified ports
-builder.WebHost.UseUrls("http://localhost:8090", "https://localhost:8091");
+// Configure URLs based on environment
+if (builder.Environment.IsProduction())
+{
+    // In production, use the port provided by the hosting platform (Render uses PORT env var)
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+else
+{
+    // In development, use localhost with both HTTP and HTTPS
+    builder.WebHost.UseUrls("http://localhost:8090", "https://localhost:8091");
+}
 
 // Configure Autofac as the service provider factory
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
