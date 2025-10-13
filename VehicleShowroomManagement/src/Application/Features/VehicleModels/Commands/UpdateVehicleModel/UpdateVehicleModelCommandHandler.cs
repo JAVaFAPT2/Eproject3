@@ -1,30 +1,16 @@
 namespace VehicleShowroomManagement.Application.Features.VehicleModels.Commands.UpdateVehicleModel
 {
-    /// <summary>
-    /// Handler for updating vehicle model
-    /// </summary>
     public class UpdateVehicleModelCommandHandler(IRepository<VehicleModel> modelRepository) : IRequestHandler<UpdateVehicleModelCommand>
     {
-        private readonly IRepository<VehicleModel> _modelRepository = modelRepository;
-
         public async Task Handle(UpdateVehicleModelCommand request, CancellationToken cancellationToken)
         {
-            // Fetch existing vehicle model
-            var vehicleModel = await _modelRepository.GetByIdAsync(request.ModelNumber, cancellationToken);
-            if (vehicleModel == null)
-            {
-                throw new InvalidOperationException("Vehicle model not found");
-            }
+            var model = await modelRepository.GetByIdAsync(request.ModelNumber, cancellationToken)
+                ?? throw new KeyNotFoundException($"Vehicle model {request.ModelNumber} not found");
 
-            // Update using domain method
-            vehicleModel.UpdateModel(
-                request.Name,
-                request.Brand,
-                request.Price,
-                request.Description,
-                request.ImageUrl);
-
-            await _modelRepository.UpdateAsync(vehicleModel, cancellationToken);
+            model.UpdateModel(request.Name, request.Price, request.Description);
+            model.SetHierarchy(request.ParentId, request.Level);
+            model.SetSlug(request.Slug);
+            await modelRepository.UpdateAsync(model, cancellationToken);
         }
     }
 }

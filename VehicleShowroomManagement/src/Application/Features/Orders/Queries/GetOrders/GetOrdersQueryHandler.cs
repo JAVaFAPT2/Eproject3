@@ -40,7 +40,7 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrder
             {
                 Id = order.Id,
                 CustomerId = order.CustomerId,
-                DealerId = order.DealerId,
+                DealerId = order.DealerId ?? string.Empty,
                 ModelNumber = order.ModelNumber,
                 SalePrice = order.SalePrice,
                 VehicleId = order.VehicleId,

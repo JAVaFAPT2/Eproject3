@@ -355,7 +355,7 @@ Content-Type: application/json
 ```
 
 ### **13. PUT /api/users/{id}**
-**Update User**
+**Update Active status only**
 
 ```bash
 # Request
@@ -364,16 +364,12 @@ Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
-  "name": "John Doe Updated",
-  "email": "john.updated@showroom.com",
-  "phone": "+1987654321",
-  "address": "789 New St",
-  "roleId": "507f1f77bcf86cd799439012"
+  "isActive": true
 }
 
 # Response (200 OK)
 {
-  "message": "User updated successfully"
+  "message": "User active status updated successfully"
 }
 ```
 
@@ -1698,3 +1694,54 @@ POST /api/orders/{orderId}/complete
 ---
 
 **Happy API Testing! 🎉**
+
+---
+
+## ✅ Latest Updates: Variant Model Hierarchy (Level-2) and Flow Changes
+
+This section supplements existing docs to reflect the new variant (Level-2) model structure and simplified flows. Earlier sections remain valid unless overridden here.
+
+### Vehicle Models (Variants)
+- Create (multipart):
+  - POST `/api/vehicle-models`
+  - Parts:
+    - `data` (application/json): `{ modelNumber, name, price, description, parentId, level=2, slug }`
+    - `files`: repeated images (optional)
+- Get by slug:
+  - GET `/api/vehicle-models/slug/{slug}`
+- Search Level-2 variants:
+  - GET `/api/vehicle-models/search?parentModelNumber=911&seats=4&fuelType=petrol&pageNumber=1&pageSize=10`
+
+### Photos (Model-only)
+- Upload to model:
+  - POST `/api/vehicle-models/{modelNumber}/photos/upload` (multipart `files`)
+
+### Vehicles
+- Create vehicle (no receiptDate; licensePlate assigned later):
+  - POST `/api/vehicles` with `{ vehicleId, modelNumber, purchasePrice, externalNumber?, vin?, licensePlate? }`
+- Get vehicles by variant slug:
+  - GET `/api/vehicles/slug/{slug}?pageNumber=1&pageSize=10`
+  - Response: `{ model: {...}, vehicles: { ...paged... } }`
+
+### Purchase Orders
+- Create PO (no expectedDeliveryDate): POST `/api/purchase-orders` `{ createdBy, totalAmount }`
+- Add lines (Level-2 model only): POST `/api/purchase-orders/{id}/lines` `{ modelNumber, quantity, pricePerUnit }`
+- Complete PO: POST `/api/purchase-orders/{id}/complete` (auto-creates Vehicles)
+
+### Orders
+- Create (customers allowed): POST `/api/orders` `{ customerId, modelNumber, salePrice }`
+- Assign vehicle by variant: POST `/api/orders/{id}/assign-vehicle` `{ vehicleId? }`
+  - If `vehicleId` omitted, backend auto-picks first available vehicle of the order’s Level-2 model.
+
+### Service Orders
+- Update status and set license plate when Completed:
+  - PUT `/api/service-orders/{id}/status` `{ status, licensePlate? }`
+  - On `Completed`, if `licensePlate` provided, vehicle gets updated.
+
+### Billing Documents
+- Removed. Payment is considered complete at service completion.
+
+### Dashboard
+- Overview: GET `/api/dashboard/overview` → `{ profit, employees, customersPurchased, completedOrders, level2Models, vehicles }`
+- Top vehicles (by Level-2 model): GET `/api/dashboard/top-vehicles?top=10`
+- Recent orders: GET `/api/dashboard/recent-orders?limit=10`

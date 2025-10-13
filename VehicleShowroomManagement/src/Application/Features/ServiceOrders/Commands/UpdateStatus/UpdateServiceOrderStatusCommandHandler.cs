@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.
     public class UpdateServiceOrderStatusCommandHandler(
         IRepository<ServiceOrder> serviceOrderRepository,
         IRepository<Order> orderRepository,
-        IRepository<BillingDocument> billingDocumentRepository) : IRequestHandler<UpdateServiceOrderStatusCommand, UpdateServiceOrderStatusResult>
+        IRepository<Vehicle> vehicleRepository) : IRequestHandler<UpdateServiceOrderStatusCommand, UpdateServiceOrderStatusResult>
     {
 
         public async Task<UpdateServiceOrderStatusResult> Handle(UpdateServiceOrderStatusCommand request, CancellationToken cancellationToken)
@@ -27,22 +27,19 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.
                 Message = "Service order status updated successfully"
             };
 
-            // If status is Completed, auto-create BillingDocument
-            if (request.Status != ServiceOrderStatus.Completed) return result;
-            // Fetch related order to get sale price
-            var order = await orderRepository.GetByIdAsync(serviceOrder.OrderId, cancellationToken) ?? throw new ArgumentException("Related order not found");
-
-            // Create billing document with order's sale price
-            var billingDocument = new BillingDocument(
-                orderId: serviceOrder.OrderId,
-                createdBy: serviceOrder.CreatedBy,
-                amount: order.SalePrice,
-                appointmentDate: order.AppointmentDate);
-
-            await billingDocumentRepository.AddAsync(billingDocument, cancellationToken);
-
-            result.BillingDocumentId = billingDocument.Id;
-            result.Message = "Service order completed and billing document created successfully";
+            // If status is Completed, set vehicle license plate
+            if (request.Status == ServiceOrderStatus.Completed)
+            {
+                var order = await orderRepository.GetByIdAsync(serviceOrder.OrderId, cancellationToken) ?? throw new ArgumentException("Related order not found");
+                if (string.IsNullOrEmpty(order.VehicleId)) throw new InvalidOperationException("Order has no assigned vehicle");
+                var vehicle = await vehicleRepository.GetByIdAsync(order.VehicleId, cancellationToken) ?? throw new ArgumentException("Vehicle not found");
+                if (!string.IsNullOrWhiteSpace(request.LicensePlate))
+                {
+                    vehicle.SetLicensePlate(request.LicensePlate);
+                    await vehicleRepository.UpdateAsync(vehicle, cancellationToken);
+                }
+                result.Message = "Service order completed and vehicle license plate set";
+            }
 
             return result;
         }

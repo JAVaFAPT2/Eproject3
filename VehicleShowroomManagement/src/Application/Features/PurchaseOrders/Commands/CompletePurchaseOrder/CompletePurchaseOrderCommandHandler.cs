@@ -33,9 +33,7 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands
                     var vehicle = new Vehicle(
                         vehicleId,
                         line.ModelNumber,
-                        line.PricePerUnit,
-                        null, // ExternalNumber
-                        DateTime.UtcNow);
+                        line.PricePerUnit);
 
                     await vehicleRepository.AddAsync(vehicle, cancellationToken);
                     createdVehicleIds.Add(vehicleId);

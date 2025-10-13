@@ -15,6 +15,7 @@ using VehicleShowroomManagement.WebAPI.Models.Vehicles;
 using VehicleShowroomManagement.Domain.Enums;
 using VehicleShowroomManagement.Application.Common.DTOs;
 using VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.AddVehiclePhoto;
+using VehicleShowroomManagement.Application.Features.VehicleModels.Queries.GetVehicleModelBySlug;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -38,9 +39,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.ModelNumber,
                 request.PurchasePrice,
                 request.ExternalNumber,
-                request.Vin,
-                request.LicensePlate,
-                request.ReceiptDate);
+                request.Vin);
 
             var vehicleId = await mediator.Send(command);
             
@@ -83,9 +82,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.ModelNumber,
                 request.PurchasePrice,
                 request.ExternalNumber,
-                request.Vin,
-                request.LicensePlate,
-                request.ReceiptDate);
+                request.Vin);
 
             var vehicleId = await mediator.Send(createCommand);
 
@@ -97,7 +94,6 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                     if (file is not { Length: not 0 }) continue;
                     var upload = await cloudinaryService.UploadImageAsync(file, "vehicles");
                     var addPhotoCommand = new AddVehiclePhotoCommand(
-                        vehicleId,
                         request.ModelNumber,
                         upload.SecureUrl);
                     await mediator.Send(addPhotoCommand);
@@ -121,6 +117,30 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 return NotFound(new { message = "Vehicle not found" });
 
             return Ok(vehicle);
+        }
+
+        /// <summary>
+        /// Gets vehicles by Level-2 model slug (variant)
+        /// </summary>
+        [HttpGet("slug/{slug}")]
+        public async Task<IActionResult> GetVehiclesByModelSlug(string slug,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var model = await mediator.Send(new GetVehicleModelBySlugQuery(slug));
+            if (model is null) return NotFound(new { message = "Vehicle model not found" });
+
+            var result = await mediator.Send(new SearchVehiclesQuery(
+                searchTerm: null,
+                status: null,
+                modelNumber: model.ModelNumber,
+                brand: null,
+                minPrice: null,
+                maxPrice: null,
+                pageNumber: pageNumber,
+                pageSize: pageSize));
+
+            return Ok(new { model, vehicles = result });
         }
 
         /// <summary>

@@ -10,7 +10,5 @@ namespace VehicleShowroomManagement.Application.Common.DTOs
         public string LastName { get; set; } = lastName;
         public string Email { get; set; } = email;
         public string? Phone { get; set; } = phone;
-
-        public string FullName => $"{FirstName} {LastName}";
     }
 }

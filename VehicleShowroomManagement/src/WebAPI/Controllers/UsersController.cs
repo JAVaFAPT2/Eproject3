@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser;
 using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserProfile;
+using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserActive;
 using VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById;
 using VehicleShowroomManagement.Application.Features.Users.Queries.GetUsersByRole;
 using VehicleShowroomManagement.WebAPI.Models.Users;
@@ -91,6 +92,19 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             await mediator.Send(command);
             
             return Ok(new { message = "User profile updated successfully" });
+        }
+
+        /// <summary>
+        /// Updates user's active status only
+        /// </summary>
+        [HttpPut("{id}")]
+        [Authorize(Roles = "HR,Admin")]
+        public async Task<IActionResult> UpdateUserActive(string id, [FromBody] UpdateUserActiveRequest request)
+        {
+            var command = new UpdateUserActiveCommand(id, request.IsActive);
+            await mediator.Send(command);
+
+            return Ok(new { message = "User active status updated successfully" });
         }
     }
 }

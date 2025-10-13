@@ -56,18 +56,16 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
         /// <summary>
         /// Update service order status
-        /// Auto-creates BillingDocument when status changes to Completed
         /// </summary>
         [HttpPut("{id}/status")]
         public async Task<IActionResult> UpdateServiceOrderStatus(string id, [FromBody] UpdateServiceOrderStatusRequest request)
         {
-            var command = new UpdateServiceOrderStatusCommand(id, request.Status);
+            var command = new UpdateServiceOrderStatusCommand(id, request.Status, request.LicensePlate);
             var result = await _mediator.Send(command);
 
             return Ok(new 
             { 
-                message = result.Message,
-                billingDocumentId = result.BillingDocumentId
+                message = result.Message
             });
         }
     }
@@ -85,5 +83,6 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     public class UpdateServiceOrderStatusRequest
     {
         public ServiceOrderStatus Status { get; set; }
+        public string? LicensePlate { get; set; }
     }
 }

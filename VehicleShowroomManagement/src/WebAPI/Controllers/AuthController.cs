@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.Login;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.Register;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.ForgotPassword;

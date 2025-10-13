@@ -5,6 +5,7 @@ using VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetRevenu
 using VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetCustomerAnalytics;
 using VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetTopVehicles;
 using VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetRecentOrders;
+using VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetOverview;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -16,6 +17,15 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [Authorize]
     public class DashboardController(IMediator mediator) : ControllerBase
     {
+    /// <summary>
+    /// Gets overview metrics
+    /// </summary>
+    [HttpGet("overview")]
+    public async Task<IActionResult> GetOverview()
+    {
+        var result = await mediator.Send(new GetOverviewQuery());
+        return Ok(result);
+    }
     /// <summary>
     /// Gets revenue analytics data
     /// </summary>

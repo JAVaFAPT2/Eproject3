@@ -8,9 +8,10 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Commands.
     public record UpdateVehicleModelCommand(
         string ModelNumber,
         string Name,
-        string Brand,
         decimal Price,
         string Description,
-        string? ImageUrl = null) : IRequest;
+        string? ParentId = null,
+        int Level = 1,
+        string? Slug = null) : IRequest;
 }
 

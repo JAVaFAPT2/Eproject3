@@ -1,4 +1,3 @@
-using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Enums;
@@ -21,8 +20,7 @@ namespace VehicleShowroomManagement.Domain.Entities
 
         [BsonElement("dealerId")]
         [BsonRepresentation(BsonType.ObjectId)]
-        [BsonRequired]
-        public string DealerId { get; private set; } = string.Empty;
+        public string? DealerId { get; private set; }
 
         [BsonElement("modelNumber")]
         [BsonRequired]
@@ -62,14 +60,10 @@ namespace VehicleShowroomManagement.Domain.Entities
     internal Order() { }
 
         [BsonConstructor]
-        public Order(string customerId, string dealerId, string modelNumber, decimal salePrice, 
-            string? vehicleId = null, DateTime? appointmentDate = null, string? note = null)
+        public Order(string customerId, string? dealerId, string modelNumber, decimal salePrice)
         {
             if (string.IsNullOrWhiteSpace(customerId))
                 throw new ArgumentException("Customer ID cannot be null or empty", nameof(customerId));
-
-            if (string.IsNullOrWhiteSpace(dealerId))
-                throw new ArgumentException("Dealer ID cannot be null or empty", nameof(dealerId));
 
             if (string.IsNullOrWhiteSpace(modelNumber))
                 throw new ArgumentException("Model number cannot be null or empty", nameof(modelNumber));
@@ -77,17 +71,14 @@ namespace VehicleShowroomManagement.Domain.Entities
             if (salePrice < 0)
                 throw new ArgumentException("Sale price cannot be negative", nameof(salePrice));
 
-        CustomerId = customerId;
-        DealerId = dealerId;
-        ModelNumber = modelNumber;
-        VehicleId = vehicleId;
-        SalePrice = salePrice;
-        AppointmentDate = appointmentDate;
-        Note = note;
-        OrderDate = DateTime.UtcNow;
-        Status = string.IsNullOrEmpty(vehicleId) ? OrderStatus.Waiting : OrderStatus.Reserved;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
+            CustomerId = customerId;
+            DealerId = dealerId;
+            ModelNumber = modelNumber;
+            SalePrice = salePrice;
+            OrderDate = DateTime.UtcNow;
+            Status = OrderStatus.Waiting;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
     }
 
     // Domain methods

@@ -12,12 +12,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("vehicleId")]
+        [BsonElement("modelNumber")]
         [BsonRequired]
-        public string VehicleId { get; private set; } = string.Empty;
-
-        [BsonElement("vehicleModelId")]
-        public string? VehicleModelId { get; private set; }
+        public string ModelNumber { get; private set; } = string.Empty;
 
         [BsonElement("url")]
         [BsonRequired]
@@ -33,16 +30,15 @@ namespace VehicleShowroomManagement.Domain.Entities
         internal VehiclePhoto() { }
 
         [BsonConstructor]
-        public VehiclePhoto(string vehicleId, string? vehicleModelId, string url, int displayOrder = 0, string? caption = null)
+        public VehiclePhoto(string modelNumber, string url, int displayOrder = 0, string? caption = null)
         {
-            if (string.IsNullOrWhiteSpace(vehicleId) && string.IsNullOrWhiteSpace(vehicleModelId))
-                throw new ArgumentException("Either Vehicle ID or Vehicle Model ID must be provided");
+            if (string.IsNullOrWhiteSpace(modelNumber))
+                throw new ArgumentException("ModelNumber cannot be null or empty", nameof(modelNumber));
 
             if (string.IsNullOrWhiteSpace(url))
                 throw new ArgumentException("URL cannot be null or empty", nameof(url));
 
-            VehicleId = vehicleId;
-            VehicleModelId = vehicleModelId;
+            ModelNumber = modelNumber;
             Url = url;
             DisplayOrder = displayOrder;
             Caption = caption;

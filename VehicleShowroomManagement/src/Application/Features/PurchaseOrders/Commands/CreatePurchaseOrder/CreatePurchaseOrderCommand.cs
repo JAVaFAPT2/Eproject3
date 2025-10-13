@@ -4,7 +4,6 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands
 {
     public record CreatePurchaseOrderCommand(
         string CreatedBy,
-        decimal TotalAmount,
-        DateTime? ExpectedDeliveryDate = null) : IRequest<string>;
+        decimal TotalAmount) : IRequest<string>;
 }
 
