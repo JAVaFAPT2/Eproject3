@@ -21,15 +21,22 @@ if (File.Exists(envFile))
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure URLs based on environment
-if (builder.Environment.IsProduction())
+var environmentName = builder.Environment.EnvironmentName;
+var isProduction = builder.Environment.IsProduction();
+Console.WriteLine($"Environment: {environmentName}, IsProduction: {isProduction}");
+
+if (isProduction)
 {
     // In production, use the port provided by the hosting platform (Render uses PORT env var)
     var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
-    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+    var urls = $"http://0.0.0.0:{port}";
+    Console.WriteLine($"Production URLs: {urls}");
+    builder.WebHost.UseUrls(urls);
 }
 else
 {
     // In development, use localhost with both HTTP and HTTPS
+    Console.WriteLine("Development URLs: http://localhost:8090, https://localhost:8091");
     builder.WebHost.UseUrls("http://localhost:8090", "https://localhost:8091");
 }
 
