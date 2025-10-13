@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using MongoDB.Driver;
 using VehicleShowroomManagement.Domain.Entities;
 using VehicleShowroomManagement.Application.Common.Interfaces;
@@ -13,34 +8,28 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
     /// MongoDB database context for Vehicle Showroom Management System
     /// Implements Unit of Work pattern
     /// </summary>
-    public class VehicleShowroomDbContext : IUnitOfWork
+    public class VehicleShowroomDbContext(IMongoDatabase database) : IUnitOfWork
     {
-        private readonly IMongoDatabase _database;
         private IClientSessionHandle? _session;
 
-        public VehicleShowroomDbContext(IMongoDatabase database)
-        {
-            _database = database;
-        }
-
         // MongoDB Collections with uppercase naming
-        public IMongoCollection<Role> Roles => _database.GetCollection<Role>("ROLE");
-        public IMongoCollection<User> Users => _database.GetCollection<User>("USER");
-        public IMongoCollection<VehicleModel> VehicleModels => _database.GetCollection<VehicleModel>("VEHICLE_MODEL");
-        public IMongoCollection<Vehicle> Vehicles => _database.GetCollection<Vehicle>("VEHICLE");
-        public IMongoCollection<VehiclePhoto> VehiclePhotos => _database.GetCollection<VehiclePhoto>("VEHICLE_PHOTO");
-        public IMongoCollection<VehicleSpec> VehicleSpecs => _database.GetCollection<VehicleSpec>("VEHICLE_SPEC");
-        public IMongoCollection<PurchaseOrder> PurchaseOrders => _database.GetCollection<PurchaseOrder>("PURCHASE_ORDER");
-        public IMongoCollection<PurchaseOrderLine> PurchaseOrderLines => _database.GetCollection<PurchaseOrderLine>("PURCHASE_ORDER_LINE");
-        public IMongoCollection<Order> Orders => _database.GetCollection<Order>("ORDER");
-        public IMongoCollection<ServiceOrder> ServiceOrders => _database.GetCollection<ServiceOrder>("SERVICE_ORDER");
-        public IMongoCollection<BillingDocument> BillingDocuments => _database.GetCollection<BillingDocument>("BILLING_DOCUMENT");
-        public IMongoCollection<DocumentOutput> DocumentOutputs => _database.GetCollection<DocumentOutput>("DOCUMENT_OUTPUT");
+        public IMongoCollection<Role> Roles => database.GetCollection<Role>("ROLE");
+        public IMongoCollection<User> Users => database.GetCollection<User>("USER");
+        public IMongoCollection<VehicleModel> VehicleModels => database.GetCollection<VehicleModel>("VEHICLE_MODEL");
+        public IMongoCollection<Vehicle> Vehicles => database.GetCollection<Vehicle>("VEHICLE");
+        public IMongoCollection<VehiclePhoto> VehiclePhotos => database.GetCollection<VehiclePhoto>("VEHICLE_PHOTO");
+        public IMongoCollection<VehicleSpec> VehicleSpecs => database.GetCollection<VehicleSpec>("VEHICLE_SPEC");
+        public IMongoCollection<PurchaseOrder> PurchaseOrders => database.GetCollection<PurchaseOrder>("PURCHASE_ORDER");
+        public IMongoCollection<PurchaseOrderLine> PurchaseOrderLines => database.GetCollection<PurchaseOrderLine>("PURCHASE_ORDER_LINE");
+        public IMongoCollection<Order> Orders => database.GetCollection<Order>("ORDER");
+        public IMongoCollection<ServiceOrder> ServiceOrders => database.GetCollection<ServiceOrder>("SERVICE_ORDER");
+        public IMongoCollection<BillingDocument> BillingDocuments => database.GetCollection<BillingDocument>("BILLING_DOCUMENT");
+        public IMongoCollection<DocumentOutput> DocumentOutputs => database.GetCollection<DocumentOutput>("DOCUMENT_OUTPUT");
 
         // Helper methods
         public IMongoDatabase GetDatabase()
         {
-            return _database;
+            return database;
         }
 
         // IUnitOfWork implementation
@@ -55,7 +44,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         {
             if (_session == null)
             {
-                var client = _database.Client;
+                var client = database.Client;
                 _session = await client.StartSessionAsync(cancellationToken: cancellationToken);
                 _session.StartTransaction();
             }

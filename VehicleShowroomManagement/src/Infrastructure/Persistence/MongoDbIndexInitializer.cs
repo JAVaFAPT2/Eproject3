@@ -5,14 +5,9 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
     /// <summary>
     /// Service to initialize MongoDB indexes for optimal performance
     /// </summary>
-    public class MongoDbIndexInitializer
+    public class MongoDbIndexInitializer(VehicleShowroomDbContext context)
     {
-        private readonly IMongoDatabase _database;
-
-        public MongoDbIndexInitializer(VehicleShowroomDbContext context)
-        {
-            _database = context.GetDatabase();
-        }
+        private readonly IMongoDatabase _database = context.GetDatabase();
 
         /// <summary>
         /// Creates all necessary indexes for the application
@@ -48,7 +43,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             try
             {
                 // Check existing indexes
-                var existingIndexes = await collection.Indexes.List().ToListAsync();
+                var existingIndexes = await (await collection.Indexes.ListAsync()).ToListAsync();
                 var existingIndexNames = existingIndexes.Select(idx => idx["name"].AsString).ToHashSet();
 
                 // Only create indexes that don't exist
@@ -101,7 +96,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                 }
                 else
                 {
-                    Console.WriteLine($"ℹ️ All USER indexes already exist, skipping creation");
+                    Console.WriteLine("ℹ️ All USER indexes already exist, skipping creation");
                 }
             }
             catch (Exception ex)
@@ -116,7 +111,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
 
             try
             {
-                var existingIndexes = await collection.Indexes.List().ToListAsync();
+                var existingIndexes = await (await collection.Indexes.ListAsync()).ToListAsync();
                 var existingIndexNames = existingIndexes.Select(idx => idx["name"].AsString).ToHashSet();
                 var indexesToCreate = new List<CreateIndexModel<MongoDB.Bson.BsonDocument>>();
 
@@ -161,7 +156,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                 }
                 else
                 {
-                    Console.WriteLine($"ℹ️ All VEHICLE indexes already exist, skipping creation");
+                    Console.WriteLine("ℹ️ All VEHICLE indexes already exist, skipping creation");
                 }
             }
             catch (Exception ex)
@@ -176,7 +171,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
 
             try
             {
-                var existingIndexes = await collection.Indexes.List().ToListAsync();
+                var existingIndexes = await (await collection.Indexes.ListAsync()).ToListAsync();
                 var existingIndexNames = existingIndexes.Select(idx => idx["name"].AsString).ToHashSet();
                 var indexesToCreate = new List<CreateIndexModel<MongoDB.Bson.BsonDocument>>();
 
@@ -203,7 +198,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                 }
                 else
                 {
-                    Console.WriteLine($"ℹ️ All VEHICLE_MODEL indexes already exist, skipping creation");
+                    Console.WriteLine("ℹ️ All VEHICLE_MODEL indexes already exist, skipping creation");
                 }
             }
             catch (Exception ex)
@@ -218,7 +213,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             
             try
             {
-                var existingIndexes = await collection.Indexes.List().ToListAsync();
+                var existingIndexes = await (await collection.Indexes.ListAsync()).ToListAsync();
                 var existingIndexNames = existingIndexes.Select(idx => idx["name"].AsString).ToHashSet();
                 var indexesToCreate = new List<CreateIndexModel<MongoDB.Bson.BsonDocument>>();
 
@@ -269,7 +264,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                 }
                 else
                 {
-                    Console.WriteLine($"ℹ️ All ORDER indexes already exist, skipping creation");
+                    Console.WriteLine("ℹ️ All ORDER indexes already exist, skipping creation");
                 }
             }
             catch (Exception ex)
@@ -283,7 +278,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             try
             {
                 var collection = _database.GetCollection<MongoDB.Bson.BsonDocument>("SERVICE_ORDER");
-                var existingIndexes = await collection.Indexes.List().ToListAsync();
+                var existingIndexes = await (await collection.Indexes.ListAsync()).ToListAsync();
                 var existingIndexNames = existingIndexes.Select(idx => idx["name"].AsString).ToHashSet();
                 var indexesToCreate = new List<CreateIndexModel<MongoDB.Bson.BsonDocument>>();
 
@@ -315,7 +310,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                 }
                 else
                 {
-                    Console.WriteLine($"ℹ️ All SERVICE_ORDER indexes already exist, skipping creation");
+                    Console.WriteLine("ℹ️ All SERVICE_ORDER indexes already exist, skipping creation");
                 }
             }
             catch (Exception ex)
@@ -329,7 +324,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             try
             {
                 var collection = _database.GetCollection<MongoDB.Bson.BsonDocument>("BILLING_DOCUMENT");
-                var existingIndexes = await collection.Indexes.List().ToListAsync();
+                var existingIndexes = await (await collection.Indexes.ListAsync()).ToListAsync();
                 var existingIndexNames = existingIndexes.Select(idx => idx["name"].AsString).ToHashSet();
                 var indexesToCreate = new List<CreateIndexModel<MongoDB.Bson.BsonDocument>>();
 
@@ -368,7 +363,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                 }
                 else
                 {
-                    Console.WriteLine($"ℹ️ All BILLING_DOCUMENT indexes already exist, skipping creation");
+                    Console.WriteLine("ℹ️ All BILLING_DOCUMENT indexes already exist, skipping creation");
                 }
             }
             catch (Exception ex)
@@ -382,7 +377,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             try
             {
                 var collection = _database.GetCollection<MongoDB.Bson.BsonDocument>("PURCHASE_ORDER");
-                var existingIndexes = await collection.Indexes.List().ToListAsync();
+                var existingIndexes = await (await collection.Indexes.ListAsync()).ToListAsync();
                 var existingIndexNames = existingIndexes.Select(idx => idx["name"].AsString).ToHashSet();
                 var indexesToCreate = new List<CreateIndexModel<MongoDB.Bson.BsonDocument>>();
 
@@ -414,7 +409,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                 }
                 else
                 {
-                    Console.WriteLine($"ℹ️ All PURCHASE_ORDER indexes already exist, skipping creation");
+                    Console.WriteLine("ℹ️ All PURCHASE_ORDER indexes already exist, skipping creation");
                 }
             }
             catch (Exception ex)
