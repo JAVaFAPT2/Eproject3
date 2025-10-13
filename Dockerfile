@@ -7,24 +7,21 @@ EXPOSE 10000
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy solution file first
-COPY ["VehicleShowroomManagement/VehicleShowroomManagement.sln", "VehicleShowroomManagement/"]
-
 # Copy project files
 COPY ["VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj", "VehicleShowroomManagement/src/WebAPI/"]
 COPY ["VehicleShowroomManagement/src/Application/VehicleShowroomManagement.Application.csproj", "VehicleShowroomManagement/src/Application/"]
 COPY ["VehicleShowroomManagement/src/Domain/VehicleShowroomManagement.Domain.csproj", "VehicleShowroomManagement/src/Domain/"]
 COPY ["VehicleShowroomManagement/src/Infrastructure/VehicleShowroomManagement.Infrastructure.csproj", "VehicleShowroomManagement/src/Infrastructure/"]
 
-# Restore dependencies using solution file
-RUN dotnet restore "VehicleShowroomManagement/VehicleShowroomManagement.sln"
+# Restore dependencies using WebAPI project
+RUN dotnet restore "VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj"
 
 # Copy all source code
 COPY . .
 
-# Build the application from solution
+# Build the WebAPI application
 WORKDIR /src
-RUN dotnet build "VehicleShowroomManagement/VehicleShowroomManagement.sln" -c Release -o /app/build --no-restore
+RUN dotnet build "VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj" -c Release -o /app/build --no-restore
 
 # Publish the application
 FROM build AS publish
