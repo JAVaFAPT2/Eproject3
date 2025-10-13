@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.Login;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.Register;
 using VehicleShowroomManagement.Application.Features.Auth.Commands.ForgotPassword;
@@ -48,7 +49,29 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             if (result == null)
                 return Unauthorized(new { message = "Invalid username or password" });
 
-            return Ok(result);
+            // Set HttpOnly refresh token cookie
+            if (!string.IsNullOrWhiteSpace(result.RefreshToken))
+            {
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Path = "/",
+                    Expires = result.RefreshTokenExpiresAt
+                };
+                Response.Cookies.Append("refreshToken", result.RefreshToken, cookieOptions);
+            }
+
+            // Optionally omit refresh token from body (kept for backward compatibility)
+            return Ok(new
+            {
+                result.UserId,
+                result.RoleName,
+                token = result.Token,
+                tokenExpiresAt = result.TokenExpiresAt,
+                user = result.User
+            });
         }
 
         /// <summary>
@@ -84,13 +107,34 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
-            var command = new RefreshTokenCommand(request.RefreshToken);
+            // Prefer refresh token from HttpOnly cookie
+            var cookieRt = Request.Cookies["refreshToken"];
+            var rt = string.IsNullOrWhiteSpace(cookieRt) ? request.RefreshToken : cookieRt;
+            var command = new RefreshTokenCommand(rt);
             var result = await mediator.Send(command);
 
             if (result == null)
                 return Unauthorized(new { message = "Invalid refresh token" });
 
-            return Ok(result);
+            // Rotate refresh token if provided by handler
+            if (!string.IsNullOrWhiteSpace(result.RefreshToken))
+            {
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Path = "/",
+                    Expires = result.RefreshTokenExpiresAt
+                };
+                Response.Cookies.Append("refreshToken", result.RefreshToken, cookieOptions);
+            }
+
+            return Ok(new
+            {
+                token = result.Token,
+                tokenExpiresAt = result.TokenExpiresAt
+            });
         }
 
         /// <summary>
@@ -100,8 +144,21 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest request)
         {
-            var command = new RevokeTokenCommand(request.RefreshToken);
+            // Prefer cookie value; fallback to body
+            var cookieRt = Request.Cookies["refreshToken"];
+            var rt = string.IsNullOrWhiteSpace(cookieRt) ? request.RefreshToken : cookieRt;
+            var command = new RevokeTokenCommand(rt);
             await mediator.Send(command);
+
+            // Clear HttpOnly cookie
+            Response.Cookies.Append("refreshToken", string.Empty, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddDays(-1)
+            });
 
             return Ok(new { message = "Token revoked successfully" });
         }

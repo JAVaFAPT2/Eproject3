@@ -30,7 +30,7 @@
 ## 🔐 **Authentication APIs** (`/api/auth`)
 
 ### **1. POST /api/auth/login**
-**User Login - Returns JWT Token**
+**User Login - Returns Access Token, sets HttpOnly Refresh Cookie**
 
 ```bash
 # Request
@@ -45,13 +45,14 @@ Content-Type: application/json
 # Response (200 OK)
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "base64-encoded-refresh-token",
   "tokenExpiresAt": "2024-01-02T00:00:00Z",
-  "refreshTokenExpiresAt": "2024-01-08T00:00:00Z",
   "userId": "507f1f77bcf86cd799439011",
   "role": "Admin",
   "message": "Login successful"
 }
+
+# Cookie (Set-Cookie)
+# refreshToken=<opaque>; HttpOnly; Secure; SameSite=Lax; Path=/; Expires=...
 ```
 
 ### **2. POST /api/auth/forgot-password**
@@ -92,27 +93,22 @@ Content-Type: application/json
 ```
 
 ### **4. POST /api/auth/refresh-token**
-**Refresh JWT Token**
+**Refresh Access Token using HttpOnly Cookie**
 
 ```bash
 # Request
 POST /api/auth/refresh-token
-Content-Type: application/json
-
-{
-  "refreshToken": "base64-encoded-refresh-token"
-}
+# Refresh token is read from HttpOnly cookie; body optional
 
 # Response (200 OK)
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "new-base64-encoded-refresh-token",
   "tokenExpiresAt": "2024-01-02T00:00:00Z",
-  "refreshTokenExpiresAt": "2024-01-08T00:00:00Z",
-  "userId": "507f1f77bcf86cd799439011",
-  "role": "Admin",
   "message": "Token refreshed successfully"
 }
+
+# Cookie (Set-Cookie)
+# refreshToken may be rotated and re-set with new expiration
 ```
 
 ### **5. POST /api/auth/register**
@@ -143,23 +139,22 @@ Content-Type: application/json
 ```
 
 ### **6. POST /api/auth/revoke-token**
-**Revoke Refresh Token (Logout)**
+**Revoke Refresh Token (Logout) and Clear Cookie**
 *Requires Authentication*
 
 ```bash
 # Request
 POST /api/auth/revoke-token
 Authorization: Bearer <jwt-token>
-Content-Type: application/json
-
-{
-  "refreshToken": "base64-encoded-refresh-token"
-}
+# Refresh token is read from HttpOnly cookie; body optional
 
 # Response (200 OK)
 {
   "message": "Token revoked successfully"
 }
+
+# Cookie (Set-Cookie)
+# refreshToken is cleared (Max-Age=0 / expired)
 ```
 
 ---
@@ -537,6 +532,37 @@ Authorization: Bearer <jwt-token>
 }
 ```
 
+### **16.1 POST /api/vehicles/with-media**
+**Create Vehicle with Photos (multipart)** *(Dealer/Admin only)*
+
+```bash
+# Request
+POST /api/vehicles/with-media
+Authorization: Bearer <jwt-token>
+Content-Type: multipart/form-data
+
+# Parts
+- data: application/json (CreateVehicleRequest JSON)
+- files: one or more image files (repeat key "files")
+
+# Example (curl)
+curl -X POST /api/vehicles/with-media \
+  -H "Authorization: Bearer <jwt>" \
+  -F 'data={"vehicleId":"VEH-2024-001","modelNumber":"CAMRY2024","purchasePrice":26000};type=application/json' \
+  -F "files=@img1.jpg" -F "files=@img2.jpg"
+
+# Response (201 Created)
+{
+  "id": "507f1f77bcf86cd799439011",
+  "message": "Vehicle created successfully with media"
+}
+
+# Notes:
+# - Backend uploads images and creates photo records linked to the vehicle
+# - Photos are also linked to the vehicle model via modelNumber (vehicleModelId)
+# - To retrieve photo URLs immediately, call GET /api/vehicles/{id}/photos
+```
+
 ### **18. GET /api/vehicles**
 **Get All Vehicles with Pagination**
 
@@ -680,6 +706,31 @@ Content-Type: application/json
 {
   "message": "2 vehicles deleted successfully"
 }
+```
+
+### **23. POST /api/vehicles/{vehicleId}/photos/upload**
+**Upload Photos for a Vehicle (multipart)** *(Dealer/Admin only)*
+
+```bash
+# Request
+POST /api/vehicles/{vehicleId}/photos/upload
+Authorization: Bearer <jwt-token>
+Content-Type: multipart/form-data
+
+# Parts
+- files: one or more image files (repeat key "files")
+
+# Response (200 OK)
+{
+  "message": "Photos uploaded successfully",
+  "items": [
+    { "id": "507f1f77bcf86cd79943a111", "url": "https://res.cloudinary.com/..." }
+  ]
+}
+
+# Notes:
+# - Images are uploaded and photo records created.
+# - Each photo links to the vehicle and may include vehicleModelId in queries.
 ```
 
 ---
@@ -1307,6 +1358,18 @@ graph TD
   "receiptDate": "DateTime (optional)",
   "createdAt": "DateTime",
   "updatedAt": "DateTime"
+}
+```
+
+### **VehiclePhoto**
+```json
+{
+  "id": "ObjectId",
+  "vehicleId": "string (FK)",
+  "vehicleModelId": "string (nullable, FK)",
+  "url": "string (required)",
+  "displayOrder": "int",
+  "caption": "string (nullable)"
 }
 ```
 

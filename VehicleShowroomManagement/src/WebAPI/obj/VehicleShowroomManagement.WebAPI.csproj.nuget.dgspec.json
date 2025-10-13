@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj": {}
+    "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj": {
+    "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj",
         "projectName": "VehicleShowroomManagement.Application",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj",
+        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\obj\\",
+        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -26,14 +26,15 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj"
+              "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj"
               }
             }
           }
@@ -48,7 +49,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -143,18 +144,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj": {
+    "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj",
         "projectName": "VehicleShowroomManagement.Domain",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj",
+        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\obj\\",
+        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -169,6 +170,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -187,7 +189,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -230,18 +232,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj": {
+    "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj",
         "projectName": "VehicleShowroomManagement.Infrastructure",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj",
+        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -256,17 +258,18 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj"
+              "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj"
               },
-              "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj"
+              "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj"
               }
             }
           }
@@ -281,7 +284,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -360,18 +363,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj": {
+    "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj",
+        "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj",
         "projectName": "VehicleShowroomManagement.WebAPI",
-        "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj",
+        "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\obj\\",
+        "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -386,20 +389,21 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj"
+              "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Application\\VehicleShowroomManagement.Application.csproj"
               },
-              "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj"
+              "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj"
               },
-              "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj"
+              "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj"
               }
             }
           }
@@ -414,7 +418,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -488,7 +492,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
