@@ -1,143 +1,47 @@
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '../firebase/firebase';
-import ApiClient from 'api/ApiClient';
-import ApiUrl from 'constant/ApiUrl';
-import { jwtDecode } from 'jwt-decode';
+import { users } from '../mockData/users.js';
+import { roles } from '../mockData/roles.js';
+import { simulateDelay, simulateReject } from './utils.js';
 
-class AuthService {
-  constructor() {
-    this.keepLoggedIn = false;
-  }
+let currentToken = null;
 
-  setKeepLoggedIn(value) {
-    this.keepLoggedIn = value;
-  }
-
-  saveTokens(accessToken, refreshToken) {
-    this.removeTokens();
-    if (this.keepLoggedIn) {
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-    } else {
-      sessionStorage.setItem('accessToken', accessToken);
-      sessionStorage.setItem('refreshToken', refreshToken);
-    }
-  }
-
-  getAccessToken() {
-    return (
-      localStorage.getItem('accessToken') ||
-      sessionStorage.getItem('accessToken')
+const AuthService = {
+  login: async ({ username, password }) => {
+    const user = users.find(
+      (u) => u.username === username && u.passwordHash === password
     );
-  }
+    if (!user) return simulateReject({ message: 'Invalid credentials' });
 
-  getRefreshToken() {
-    return (
-      localStorage.getItem('refreshToken') ||
-      sessionStorage.getItem('refreshToken')
-    );
-  }
+    const token = `token-${user.userId}`;
+    currentToken = token;
 
-  removeTokens() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
-  }
-
-  async emailLogin({ email, password, keepLoggedIn }) {
-    this.setKeepLoggedIn(keepLoggedIn);
-
-    // Backend accepts username or email in the username field
-    const response = await ApiClient.post(ApiUrl.AUTH_LOGIN, {
-      username: email,  // Send as username (backend accepts email here)
-      password,
-    });
-
-    const { accessToken, refreshToken } = response.data;
-    this.saveTokens(accessToken, refreshToken);
-    return response.data;
-  }
-
-  async googleLogin({ keepLoggedIn }) {
-    this.setKeepLoggedIn(keepLoggedIn);
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const idToken = await result.user.getIdToken();
-
-    // ❌ Không gửi keepLoggedIn lên BE
-    const response = await ApiClient.post(ApiUrl.AUTH_SOCIAL_LOGIN, {
-      idToken,
-      provider: 'GOOGLE',
-    });
-
-    const { accessToken, refreshToken } = response.data;
-    this.saveTokens(accessToken, refreshToken);
-    return response.data;
-  }
-
-  async signUp({ fullName, email, password }) {
-    return ApiClient.post(ApiUrl.AUTH_REGISTER, {
-      fullName,
-      email,
-      password,
-    });
-  }
-
-  async getProfile() {
-    try {
-      const response = await ApiClient.get(ApiUrl.PROFILE);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      throw error;
-    }
-  }
-
-  async logout() {
-    this.removeTokens();
-  }
-
-  async refreshToken() {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) throw new Error('No refresh token available');
-
-    // Note: Backend refresh token endpoint is /auth/refresh-token
-    const response = await ApiClient.post(ApiUrl.AUTH_REFRESH, {
-      refreshToken,
-    });
-    const { accessToken } = response.data;
-    this.saveTokens(accessToken, refreshToken);
-    return accessToken;
-  }
-
-  async forgotPassword(email) {
-    return ApiClient.post(ApiUrl.AUTH_FORGOT_PASSWORD, { email });
-  }
-
-  async resetPassword({ token, password }) {
-    return ApiClient.post(ApiUrl.AUTH_RESET_PASSWORD, {
+    return simulateDelay({
       token,
-      newPassword: password,
+      refreshToken: `refresh-${user.userId}`,
+      tokenExpiresAt: new Date(Date.now() + 3600_000).toISOString(),
+      refreshTokenExpiresAt: new Date(Date.now() + 7 * 86400_000).toISOString(),
+      userId: user.userId,
+      role: roles.find((r) => r.roleId === user.roleId)?.name || 'Unknown',
+      message: 'Login successful',
     });
-  }
+  },
 
-  getDecodedAccessToken() {
-    const token = this.getAccessToken();
-    if (!token) return null;
-    try {
-      return jwtDecode(token);
-    } catch (error) {
-      console.error('Invalid token', error);
-      return null;
-    }
-  }
+  register: async (data) => {
+    const newUser = {
+      userId: `u${users.length + 1}`,
+      ...data,
+      roleId: roles.find((r) => r.name === 'Customer')?.roleId,
+      status: 'Active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    users.push(newUser);
+    return simulateDelay({ id: newUser.userId, message: 'User registered successfully' });
+  },
 
-  getRole() {
-    const decoded = this.getDecodedAccessToken();
-    return decoded?.role || null;
-  }
-}
+  refreshToken: async () =>
+    simulateDelay({ token: currentToken || 'mock-token', message: 'Token refreshed successfully' }),
 
-const authService = new AuthService();
-export default authService;
+  logout: async () => simulateDelay({ message: 'Logged out' }),
+};
+
+export default AuthService;

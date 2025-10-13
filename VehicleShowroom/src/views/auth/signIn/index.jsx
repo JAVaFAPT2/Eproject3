@@ -14,17 +14,13 @@ import {
   InputRightElement,
   Text,
   useColorModeValue,
-  useToast,
 } from '@chakra-ui/react';
-import { HSeparator } from 'components/separator/Separator';
 import DefaultAuth from 'layouts/auth/Default';
 import illustration from 'assets/img/auth/auth.png';
-import { FcGoogle } from 'react-icons/fc';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import AuthService from 'services/AuthService';
-import RoleService from 'services/RoleService';
-import EmployeeService from 'services/EmployeeService';
+import { useShowToast } from 'utils/helper';
 
 function SignIn() {
   const textColor = useColorModeValue('navy.700', 'white');
@@ -33,70 +29,27 @@ function SignIn() {
   const textColorBrand = useColorModeValue('brand.500', 'white');
   const brandStars = useColorModeValue('brand.500', 'brand.400');
 
-  const googleBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.200');
-  const googleText = useColorModeValue('navy.700', 'white');
-  const googleHover = useColorModeValue(
-    { bg: 'gray.200' },
-    { bg: 'whiteAlpha.300' },
-  );
-  const googleActive = useColorModeValue(
-    { bg: 'secondaryGray.300' },
-    { bg: 'whiteAlpha.200' },
-  );
-
   const navigate = useNavigate();
-  const toast = useToast();
+  const { showToast } = useShowToast();
 
   const [show, setShow] = useState(false);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
 
   const handleClick = () => setShow(!show);
 
-  const showToast = (title, status) => {
-    toast({
-      title,
-      status,
-      duration: 3000,
-      isClosable: true,
-      position: 'bottom-right',
-    });
-  };
-
-  const handleEmailPasswordLogin = async () => {
+  const handleLogin = async () => {
     try {
-      await AuthService.emailLogin({
-        email,
-        password,
-        keepLoggedIn,
-      });
-      const user = await AuthService.getProfile();
-      const roles = await RoleService.getRoles();
-      const userRole = roles.find((r) => r.id === user.roleId);
-
-      if (userRole?.name === 'EMPLOYEE') {
-        await EmployeeService.checkIn();
-        showToast('Login success! Check-in recorded.', 'success');
-      } else {
-        showToast('Login success!', 'success');
-      }
-
-      setTimeout(() => navigate('/'), 1500);
+      await AuthService.login({ username, password });
+      showToast('Login successful', 'success');
+      setTimeout(() => navigate('/'), 1200);
     } catch (error) {
-      console.error('Email login failed:', error);
-      showToast('Email login failed', 'error');
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    try {
-      await AuthService.googleLogin({ keepLoggedIn });
-      showToast('Google login success!', 'success');
-      setTimeout(() => navigate('/'), 1500);
-    } catch (error) {
-      console.error('Google login failed:', error);
-      showToast('Google login failed', 'error');
+      console.error('Login failed:', error);
+      showToast(
+        error.response?.data?.message || 'Login failed. Please try again.',
+        'error',
+      );
     }
   };
 
@@ -112,7 +65,7 @@ function SignIn() {
         justifyContent="center"
         mb={{ base: '30px', md: '60px' }}
         px={{ base: '25px', md: '0px' }}
-        mt={{ base: '40px', md: '5vh' }}
+        mt={{ base: '40px', md: '10vh' }}
         flexDirection="column"
       >
         <Box me="auto">
@@ -141,34 +94,7 @@ function SignIn() {
           me="auto"
           mb={{ base: '20px', md: 'auto' }}
         >
-          <Button
-            fontSize="sm"
-            me="0px"
-            mb="26px"
-            py="15px"
-            h="50px"
-            borderRadius="16px"
-            bg={googleBg}
-            color={googleText}
-            fontWeight="500"
-            _hover={googleHover}
-            _active={googleActive}
-            _focus={googleActive}
-            onClick={handleGoogleLogin}
-          >
-            <Icon as={FcGoogle} w="20px" h="20px" me="10px" />
-            Sign in with Google
-          </Button>
-
-          <Flex align="center" mb="25px">
-            <HSeparator />
-            <Text color="gray.400" mx="14px">
-              or
-            </Text>
-            <HSeparator />
-          </Flex>
-
-          {/* Form đăng nhập bằng email/password */}
+          {/* Form đăng nhập bằng username/password */}
           <FormControl>
             <FormLabel
               display="flex"
@@ -178,19 +104,19 @@ function SignIn() {
               color={textColor}
               mb="8px"
             >
-              Email<Text color={brandStars}>*</Text>
+              Username<Text color={brandStars}>*</Text>
             </FormLabel>
             <Input
               isRequired
               variant="auth"
               fontSize="sm"
-              type="email"
-              placeholder="mail@simmmple.com"
+              type="text"
+              placeholder="Enter username"
               mb="24px"
               fontWeight="500"
               size="lg"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <FormLabel
               ms="4px"
@@ -261,7 +187,7 @@ function SignIn() {
               w="100%"
               h="50"
               mb="24px"
-              onClick={handleEmailPasswordLogin}
+              onClick={handleLogin}
             >
               Sign In
             </Button>

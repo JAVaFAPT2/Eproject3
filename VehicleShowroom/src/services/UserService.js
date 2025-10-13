@@ -1,107 +1,42 @@
-import ApiClient from 'api/ApiClient';
-import ApiUrl from 'constant/ApiUrl';
+import { users } from '../mockData/users.js';
+import { simulateDelay } from './utils.js';
 
-class UserService {
-  static async getProfile() {
-    try {
-      const res = await ApiClient.get(ApiUrl.PROFILE);
-      const user = res.data;
+const UserService = {
+  getAll: (filter = {}) => {
+    let data = [...users];
+    if (filter.roleId) data = data.filter((u) => u.roleId === filter.roleId);
+    if (filter.searchTerm)
+      data = data.filter((u) =>
+        u.name.toLowerCase().includes(filter.searchTerm.toLowerCase())
+      );
+    return simulateDelay(data);
+  },
 
-      const addressParts = user.address
-        ? user.address.split(',').map((p) => p.trim())
-        : [];
-      return {
-        ...user,
-        addressStreet: addressParts[0] || '',
-        addressWard: addressParts[1] || '',
-        addressDistrict: addressParts[2] || '',
-        addressCity: addressParts[3] || '',
-      };
-    } catch (err) {
-      console.error('Error fetching profile:', err);
-      throw err;
-    }
-  }
+  getById: (id) => simulateDelay(users.find((u) => u.userId === id)),
 
-  static async updateProfile(data) {
-    try {
-      const address = [
-        data.addressStreet,
-        data.addressWard,
-        data.addressDistrict,
-        data.addressCity,
-      ]
-        .filter(Boolean)
-        .join(', ');
-      const payload = { ...data, address };
-      delete payload.addressStreet;
-      delete payload.addressWard;
-      delete payload.addressDistrict;
-      delete payload.addressCity;
+  create: (data) => {
+    const newUser = {
+      userId: `u${users.length + 1}`,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: 'Active',
+    };
+    users.push(newUser);
+    return simulateDelay({ message: 'User created successfully', data: newUser });
+  },
 
-      const res = await ApiClient.put(ApiUrl.UPDATE_PROFILE, payload);
-      return res.data;
-    } catch (err) {
-      console.error('Error updating profile:', err);
-      throw err;
-    }
-  }
+  update: (id, data) => {
+    const i = users.findIndex((u) => u.userId === id);
+    if (i >= 0) users[i] = { ...users[i], ...data };
+    return simulateDelay({ message: 'User updated successfully' });
+  },
 
-  static async updateAvatar(file) {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await ApiClient.put(ApiUrl.UPDATE_AVATAR, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return res.data; 
-  } catch (err) {
-    console.error("Error updating avatar:", err);
-    throw err;
-  }
-}
-
-
-  static async changePassword({ oldPassword, newPassword }) {
-    try {
-      const res = await ApiClient.post(ApiUrl.CHANGE_PASSWORD, {
-        oldPassword,
-        newPassword,
-      });
-      return res.data;
-    } catch (err) {
-      console.error('Error changing password:', err);
-      throw err;
-    }
-  }
-
-  static async deleteAccount() {
-    try {
-      const res = await ApiClient.delete(ApiUrl.DELETE_ACCOUNT);
-      return res.data;
-    } catch (err) {
-      console.error('Error deleting account:', err);
-      throw err;
-    }
-  }
-
-  static async getUsers({ page = 0, size = 20, keyword, roleId }) {
-    try {
-      const response = await ApiClient.get(ApiUrl.ADMIN_USERS, {
-        params: {
-          page,
-          size,
-          keyword,
-          roleId,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      throw error;
-    }
-  }
-}
+  delete: (id) => {
+    const i = users.findIndex((u) => u.userId === id);
+    if (i >= 0) users.splice(i, 1);
+    return simulateDelay({ message: 'User deleted successfully' });
+  },
+};
 
 export default UserService;

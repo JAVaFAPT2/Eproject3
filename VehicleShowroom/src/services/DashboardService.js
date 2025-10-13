@@ -1,18 +1,24 @@
-import ApiClient from "api/ApiClient";
-import ApiUrl from "constant/ApiUrl";
+import { orders } from '../mockData/orders.js';
+import { vehicleModels } from '../mockData/vehicleModels.js';
+import { simulateDelay } from './utils.js';
 
-class DashboardService {
-  static async getTopEmployees({ month, year, limit = 3 }) {
-    try {
-      const res = await ApiClient.get(ApiUrl.ADMIN_DASHBOARD_TOP_EMPLOYEES, {
-        params: { month, year, limit },
-      });
-      return res.data;
-    } catch (err) {
-      console.error("Error fetching top employees:", err);
-      throw err;
-    }
-  }
-}
+const DashboardService = {
+  getRevenue: () => {
+    const totalRevenue = orders.reduce((a, b) => a + b.salePrice, 0);
+    return simulateDelay({
+      totalRevenue,
+      monthlyRevenue: totalRevenue / 12,
+      yearlyRevenue: totalRevenue,
+      revenueGrowth: 15.5,
+      topSellingModels: vehicleModels.map((v) => ({
+        modelNumber: v.modelNumber,
+        name: v.name,
+        brand: v.brand,
+        totalSold: 5,
+        revenue: v.price * 5,
+      })),
+    });
+  },
+};
 
 export default DashboardService;

@@ -6,7 +6,6 @@ import Navbar from 'components/navbar/NavbarAdmin.js';
 import Footer from 'components/footer/FooterAdmin.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
-import AuthService from 'services/AuthService';
 import PrivateRoute from 'components/auth/PrivateRoute';
 
 export default function Dashboard(props) {
@@ -16,26 +15,16 @@ export default function Dashboard(props) {
   const { onOpen } = useDisclosure();
   const location = useLocation();
 
-  const role = AuthService.getRole();
+  const filteredRoutes = routes.filter((route) => !route.hideInSidebar);
 
-  // Filter cho Sidebar
-  const filteredRoutes = routes.filter((route) => {
-    if (route.hideInSidebar) return false;
-    if (route.role && route.role !== role) return false;
-    return true;
-  });
-
-  // Hàm lấy route hiện tại
+  // Get current active route name
   const getActiveRoute = (routes, pathname) => {
     for (let route of routes) {
-      if (route.collapse) {
+      if (route.collapse || route.category) {
         const active = getActiveRoute(route.items, pathname);
         if (active) return active;
-      } else if (route.category) {
-        const active = getActiveRoute(route.items, pathname);
-        if (active) return active;
-      } else {
-        if (route.layout + route.path === pathname) return route;
+      } else if (route.layout + route.path === pathname) {
+        return route;
       }
     }
     return null;
@@ -43,11 +32,10 @@ export default function Dashboard(props) {
 
   const activeRoute = getActiveRoute(routes, location.pathname);
 
-  // Render routes
+  // Render all routes
   const getRoutesComponents = (routes) =>
     routes.map((route, key) => {
       if (route.hideInSidebar) return null;
-      if (route.role && route.role !== role) return null;
 
       if (route.layout === '/admin') {
         const element =
@@ -56,7 +44,6 @@ export default function Dashboard(props) {
           ) : (
             route.component
           );
-
         return <Route path={route.path} element={element} key={key} />;
       }
       if (route.collapse || route.category) {
@@ -77,14 +64,14 @@ export default function Dashboard(props) {
           overflow="auto"
           position="relative"
           maxHeight="100%"
-          w={{ base: '100%', xl: 'calc( 100% - 290px )' }}
+          w={{ base: '100%', xl: 'calc(100% - 290px)' }}
         >
           <Portal>
             <Box>
               <Navbar
                 onOpen={onOpen}
                 logoText="Horizon UI Dashboard PRO"
-                brandText={activeRoute?.name || 'Default Brand Text'}
+                brandText={activeRoute?.name || 'Dashboard'}
                 secondary={activeRoute?.secondary || false}
                 message={activeRoute?.messageNavbar || ''}
                 fixed={fixed}

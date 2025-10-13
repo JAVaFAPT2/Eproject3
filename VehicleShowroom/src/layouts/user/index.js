@@ -1,57 +1,58 @@
-import React from 'react';
-import { Box, Portal, useDisclosure, useColorModeValue } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Box, Portal, useColorModeValue } from '@chakra-ui/react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import NavbarUser from 'components/navbar/NavbarUser';
 import Footer from 'components/footer/FooterAdmin.js';
 import routes from 'routes.js';
 import PrivateRoute from 'components/auth/PrivateRoute';
+import NavbarUser from 'components/navbar/NavbarUser';
 
 export default function UserLayout() {
   const bgColor = useColorModeValue('white', 'navy.800');
-  const { isOpen, onToggle } = useDisclosure();
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
-  const getRoutesComponents = (routes) =>
-    routes.map((route, key) => {
-      if (route.role === 'ADMIN') return null;
+  /** Lấy danh sách Route component trong nhóm layout="/user" */
+  const renderUserRoutes = (routes) =>
+    routes.flatMap((route, key) => {
       if (route.collapse || route.category) {
-        return getRoutesComponents(route.items);
+        return renderUserRoutes(route.items || []);
       }
-      if (route.layout === '/user' || !route.role) {
-        return (
-          <Route
-            key={key}
-            path={route.path}
-            element={
-              route.private ? (
-                <PrivateRoute>{route.component}</PrivateRoute>
-              ) : (
-                route.component
-              )
-            }
-          />
+
+      if (route.layout === '/user') {
+        const element = route.private ? (
+          <PrivateRoute>{route.component}</PrivateRoute>
+        ) : (
+          route.component
         );
+
+        return <Route key={key} path={route.path} element={element} />;
       }
-      return null;
+
+      return [];
     });
 
   return (
     <Box minH="100vh" bg={bgColor}>
-      {/* Navbar */}
+      {/* 🔹 Header hiển thị trong Portal để không bị che */}
       <Portal>
-        <Box>
-          <NavbarUser isOpen={isOpen} onToggle={onToggle} />
+        <Box w="100%">
+          <NavbarUser
+            toggleCategory={() => setIsCategoryOpen((prev) => !prev)}
+            isCategoryOpen={isCategoryOpen}
+            modl={true}
+          />
         </Box>
       </Portal>
 
-      {/* Nội dung chính */}
-      <Box mx="auto" pt="75px" minH="100vh">
+      {/* 🔹 Main Content */}
+      <Box mx="auto" pb="60px" minH="100vh">
         <Routes>
-          {getRoutesComponents(routes)}
+          {renderUserRoutes(routes)}
+          {/* Redirect fallback */}
           <Route path="/" element={<Navigate to="/user/home" replace />} />
         </Routes>
       </Box>
 
-      {/* Footer */}
+      {/* 🔹 Footer chung */}
       <Footer />
     </Box>
   );

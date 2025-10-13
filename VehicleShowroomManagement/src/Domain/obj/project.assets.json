@@ -323,11 +323,19 @@
   "project": {
     "version": "1.0.0",
     "restore": {
+<<<<<<< HEAD
+      "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj",
+      "projectName": "VehicleShowroomManagement.Domain",
+      "projectPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj",
+      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\obj\\",
+=======
       "projectUniqueName": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj",
       "projectName": "VehicleShowroomManagement.Domain",
       "projectPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\VehicleShowroomManagement.Domain.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\Admin\\Documents\\GitHub\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\obj\\",
+>>>>>>> main
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -342,7 +350,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -361,7 +368,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net8.0": {
@@ -404,7 +411,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

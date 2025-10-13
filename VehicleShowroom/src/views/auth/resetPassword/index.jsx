@@ -11,65 +11,41 @@ import {
   Input,
   Text,
   useColorModeValue,
-  useToast,
 } from '@chakra-ui/react';
 import DefaultAuth from 'layouts/auth/Default';
 import illustration from 'assets/img/auth/auth.png';
 import AuthService from 'services/AuthService';
+import { useShowToast } from 'utils/helper';
 
 function ResetPassword() {
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
-  const toast = useToast();
+  const { showToast } = useShowToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token'); 
+  const token = searchParams.get('token');
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleResetPassword = async () => {
     if (!password || !confirmPassword) {
-      toast({
-        title: 'Please fill in all fields',
-        status: 'warning',
-        duration: 3000,
-        isClosable: true,
-        position: 'bottom-right',
-      });
+      showToast('Please fill in all fields', 'warning');
       return;
     }
 
     if (password !== confirmPassword) {
-      toast({
-        title: 'Passwords do not match',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'bottom-right',
-      });
+      showToast('Passwords do not match', 'error');
       return;
     }
 
     try {
       await AuthService.resetPassword({ token, password });
-      toast({
-        title: 'Password reset successfully!',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-        position: 'bottom-right',
-      });
+      showToast('Password reset successfully!', 'success');
       navigate('/auth/sign-in');
     } catch (error) {
       console.error(error);
-      toast({
-        title: 'Failed to reset password',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'bottom-right',
-      });
+      showToast('Failed to reset password', 'error');
     }
   };
 

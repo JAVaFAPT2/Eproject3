@@ -13,13 +13,13 @@ import {
   InputRightElement,
   Text,
   useColorModeValue,
-  useToast,
 } from '@chakra-ui/react';
 import DefaultAuth from 'layouts/auth/Default';
 import illustration from 'assets/img/auth/auth.png';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import AuthService from 'services/AuthService';
+import { useShowToast } from 'utils/helper';
 
 function SignUp() {
   const textColor = useColorModeValue('navy.700', 'white');
@@ -28,38 +28,41 @@ function SignUp() {
   const brandStars = useColorModeValue('brand.500', 'brand.400');
 
   const navigate = useNavigate();
-  const toast = useToast();
+  const { showToast } = useShowToast();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
 
   const handleShowPassword = () => setShowPassword(!showPassword);
 
-  const showToast = (title, status) => {
-    toast({
-      title,
-      status,
-      duration: 3000,
-      isClosable: true,
-      position: 'bottom-right',
-    });
-  };
-
-  const handleEmailPasswordSignUp = async () => {
+  const handleSignUp = async () => {
     if (password !== confirmPassword) {
       showToast('Passwords do not match', 'error');
       return;
     }
     try {
-      await AuthService.signUp({ fullName, email, password });
+      await AuthService.register({
+        username,
+        password,
+        email,
+        name,
+        phone,
+        address,
+      });
       showToast('Account created successfully!', 'success');
       setTimeout(() => navigate('/auth/sign-in'), 1500);
     } catch (error) {
       console.error('Sign up failed:', error);
-      showToast('Sign up failed. Please try again.', 'error');
+      showToast(
+        error.response?.data?.message || 'Sign up failed. Please try again.',
+        'error',
+      );
     }
   };
 
@@ -75,7 +78,7 @@ function SignUp() {
         justifyContent="center"
         mb={{ base: '30px', md: '60px' }}
         px={{ base: '25px', md: '0px' }}
-        mt={{ base: '40px', md: '5vh' }}
+        mt={{ base: '40px', md: '10vh' }}
         flexDirection="column"
       >
         <Box me="auto">
@@ -113,6 +116,28 @@ function SignUp() {
               color={textColor}
               mb="8px"
             >
+              Username<Text color={brandStars}>*</Text>
+            </FormLabel>
+            <Input
+              isRequired
+              variant="auth"
+              fontSize="sm"
+              type="text"
+              placeholder="Your full name"
+              mb="24px"
+              size="lg"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+
+            <FormLabel
+              display="flex"
+              ms="4px"
+              fontSize="sm"
+              fontWeight="500"
+              color={textColor}
+              mb="8px"
+            >
               Full Name<Text color={brandStars}>*</Text>
             </FormLabel>
             <Input
@@ -123,8 +148,8 @@ function SignUp() {
               placeholder="Your full name"
               mb="24px"
               size="lg"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
 
             <FormLabel
@@ -147,6 +172,50 @@ function SignUp() {
               size="lg"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <FormLabel
+              display="flex"
+              ms="4px"
+              fontSize="sm"
+              fontWeight="500"
+              color={textColor}
+              mb="8px"
+            >
+              Phone Number<Text color={brandStars}>*</Text>
+            </FormLabel>
+            <Input
+              isRequired
+              variant="auth"
+              fontSize="sm"
+              type="text"
+              placeholder="Your full name"
+              mb="24px"
+              size="lg"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+
+            <FormLabel
+              display="flex"
+              ms="4px"
+              fontSize="sm"
+              fontWeight="500"
+              color={textColor}
+              mb="8px"
+            >
+              Address<Text color={brandStars}>*</Text>
+            </FormLabel>
+            <Input
+              isRequired
+              variant="auth"
+              fontSize="sm"
+              type="text"
+              placeholder="Your full name"
+              mb="24px"
+              size="lg"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
             />
 
             <FormLabel
@@ -208,7 +277,7 @@ function SignUp() {
               w="100%"
               h="50"
               my="24px"
-              onClick={handleEmailPasswordSignUp}
+              onClick={handleSignUp}
             >
               Sign Up
             </Button>

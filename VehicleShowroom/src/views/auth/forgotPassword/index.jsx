@@ -11,39 +11,27 @@ import {
   Input,
   Text,
   useColorModeValue,
-  useToast,
 } from '@chakra-ui/react';
 import DefaultAuth from 'layouts/auth/Default';
 import illustration from 'assets/img/auth/auth.png';
 import AuthService from 'services/AuthService';
+import { useShowToast } from 'utils/helper';
 
 function ForgotPassword() {
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
-  const toast = useToast();
+  const { showToast } = useShowToast();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
 
   const handleForgotPassword = async () => {
     try {
       await AuthService.forgotPassword(email);
-      toast({
-        title: 'Password reset email sent!',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-        position: 'bottom-right',
-      });
+      showToast('Password reset email sent!', 'success');
       navigate('/auth/check-email');
     } catch (error) {
       console.error(error);
-      toast({
-        title: 'Failed to send email',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'bottom-right',
-      });
+      showToast('Failed to send email', 'error');
     }
   };
 
@@ -66,7 +54,8 @@ function ForgotPassword() {
             Forgot Password
           </Heading>
           <Text color={textColorSecondary} mb="24px">
-            Enter your email address and we’ll send you a link to reset your password.
+            Enter your email address and we’ll send you a link to reset your
+            password.
           </Text>
           <FormControl>
             <FormLabel color={textColor}>Email</FormLabel>

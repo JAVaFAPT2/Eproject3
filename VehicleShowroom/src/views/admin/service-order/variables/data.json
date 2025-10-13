@@ -1,0 +1,4 @@
+[
+  { "id": "1", "serviceId": "SRV-001", "vehicleId": "VEH001", "serviceType": "PreDelivery", "status": "Completed" },
+  { "id": "2", "serviceId": "SRV-002", "vehicleId": "VEH002", "serviceType": "Maintenance", "status": "Pending" }
+]
