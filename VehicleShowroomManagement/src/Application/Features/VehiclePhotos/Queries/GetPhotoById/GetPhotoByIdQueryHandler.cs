@@ -1,33 +1,25 @@
-using MediatR;
 using VehicleShowroomManagement.Application.Common.DTOs;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.VehiclePhotos.Queries.GetPhotoById
 {
     /// <summary>
     /// Handler for getting a photo by ID
     /// </summary>
-    public class GetPhotoByIdQueryHandler : IRequestHandler<GetPhotoByIdQuery, VehiclePhotoDto?>
+    public class GetPhotoByIdQueryHandler(IRepository<VehiclePhoto> photoRepository) : IRequestHandler<GetPhotoByIdQuery, VehiclePhotoDto?>
     {
-        private readonly IRepository<VehiclePhoto> _photoRepository;
-
-        public GetPhotoByIdQueryHandler(IRepository<VehiclePhoto> photoRepository)
-        {
-            _photoRepository = photoRepository;
-        }
 
         public async Task<VehiclePhotoDto?> Handle(GetPhotoByIdQuery request, CancellationToken cancellationToken)
         {
-            var photo = await _photoRepository.GetByIdAsync(request.PhotoId);
+            var photo = await photoRepository.GetByIdAsync(request.PhotoId, cancellationToken);
             
-            if (photo == null)
+            if (photo is null)
                 return null;
 
             return new VehiclePhotoDto
             {
                 Id = photo.Id,
                 VehicleId = photo.VehicleId,
+                VehicleModelId = photo.VehicleModelId,
                 Url = photo.Url,
                 DisplayOrder = photo.DisplayOrder,
                 Caption = photo.Caption

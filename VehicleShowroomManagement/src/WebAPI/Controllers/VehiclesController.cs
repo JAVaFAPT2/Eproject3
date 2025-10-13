@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Application.Features.Vehicles.Commands.CreateVehicle;
 using VehicleShowroomManagement.Application.Features.Vehicles.Commands.UpdateVehicle;
 using VehicleShowroomManagement.Application.Features.Vehicles.Commands.DeleteVehicle;
@@ -12,6 +14,7 @@ using VehicleShowroomManagement.Application.Features.Vehicles.Queries.SearchVehi
 using VehicleShowroomManagement.WebAPI.Models.Vehicles;
 using VehicleShowroomManagement.Domain.Enums;
 using VehicleShowroomManagement.Application.Common.DTOs;
+using VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.AddVehiclePhoto;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -21,15 +24,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class VehiclesController : ControllerBase
+    public class VehiclesController(IMediator mediator, ICloudinaryService cloudinaryService) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public VehiclesController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Creates a new vehicle
         /// </summary>
@@ -46,10 +42,70 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.LicensePlate,
                 request.ReceiptDate);
 
-            var vehicleId = await _mediator.Send(command);
+            var vehicleId = await mediator.Send(command);
             
             return CreatedAtAction(nameof(GetVehicle), new { id = vehicleId }, 
                 new { id = vehicleId, message = "Vehicle created successfully" });
+        }
+
+        /// <summary>
+        /// Creates a new vehicle with optional media uploads.
+        /// Expects multipart/form-data with part "data" (JSON of CreateVehicleRequest) and optional repeated part "files".
+        /// </summary>
+        [HttpPost("with-media")]
+        [Authorize(Roles = "Dealer,Admin")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateVehicleWithMedia(
+            [FromForm] string data,
+            [FromForm] List<IFormFile>? files)
+        {
+            if (string.IsNullOrWhiteSpace(data))
+                return BadRequest(new { message = "Missing 'data' part" });
+
+            CreateVehicleRequest? request;
+            try
+            {
+                request = JsonSerializer.Deserialize<CreateVehicleRequest>(data, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch (JsonException)
+            {
+                return BadRequest(new { message = "Invalid JSON in 'data' part" });
+            }
+
+            if (request is null)
+                return BadRequest(new { message = "Invalid or empty 'data'" });
+
+            var createCommand = new CreateVehicleCommand(
+                request.VehicleId,
+                request.ModelNumber,
+                request.PurchasePrice,
+                request.ExternalNumber,
+                request.Vin,
+                request.LicensePlate,
+                request.ReceiptDate);
+
+            var vehicleId = await mediator.Send(createCommand);
+
+            if (files is not null && files.Count > 0)
+            {
+                // Upload each file and create photo records
+                foreach (var file in files)
+                {
+                    if (file is not { Length: not 0 }) continue;
+                    var upload = await cloudinaryService.UploadImageAsync(file, "vehicles");
+                    var addPhotoCommand = new AddVehiclePhotoCommand(
+                        vehicleId,
+                        request.ModelNumber,
+                        upload.SecureUrl);
+                    await mediator.Send(addPhotoCommand);
+                }
+            }
+
+            return CreatedAtAction(nameof(GetVehicle), new { id = vehicleId },
+                new { id = vehicleId, message = "Vehicle created successfully with media" });
         }
 
         /// <summary>
@@ -59,9 +115,9 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<ActionResult<VehicleDto>> GetVehicle(string id)
         {
             var query = new GetVehicleByIdQuery(id);
-            var vehicle = await _mediator.Send(query);
+            var vehicle = await mediator.Send(query);
 
-            if (vehicle == null)
+            if (vehicle is null)
                 return NotFound(new { message = "Vehicle not found" });
 
             return Ok(vehicle);
@@ -78,7 +134,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             [FromQuery] string? brand = null)
         {
             var query = new GetVehiclesQuery(pageNumber, pageSize, status, brand);
-            var result = await _mediator.Send(query);
+            var result = await mediator.Send(query);
             return Ok(result);
         }
 
@@ -106,7 +162,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 pageNumber,
                 pageSize);
 
-            var result = await _mediator.Send(query);
+            var result = await mediator.Send(query);
             return Ok(result);
         }
 
@@ -127,7 +183,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.Color,
                 request.Mileage);
 
-            await _mediator.Send(command);
+            await mediator.Send(command);
             
             return Ok(new { message = "Vehicle updated successfully" });
         }
@@ -140,7 +196,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> DeleteVehicle(string id)
         {
             var command = new DeleteVehicleCommand(id);
-            await _mediator.Send(command);
+            await mediator.Send(command);
             
             return Ok(new { message = "Vehicle deleted successfully" });
         }
@@ -153,7 +209,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> BulkDeleteVehicles([FromBody] BulkDeleteVehiclesRequest request)
         {
             var command = new BulkDeleteVehiclesCommand(request.VehicleIds);
-            await _mediator.Send(command);
+            await mediator.Send(command);
             
             return Ok(new { message = $"{request.VehicleIds.Count} vehicles deleted successfully" });
         }
@@ -166,7 +222,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> UpdateVehicleStatus(string id, [FromBody] UpdateVehicleStatusRequest request)
         {
             var command = new UpdateVehicleStatusCommand(id, request.Status);
-            await _mediator.Send(command);
+            await mediator.Send(command);
             
             return Ok(new { message = "Vehicle status updated successfully" });
         }
