@@ -31,25 +31,38 @@ function SignUp() {
   const { showToast } = useShowToast();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
 
   const handleShowPassword = () => setShowPassword(!showPassword);
 
-  const handleEmailPasswordSignUp = async () => {
+  const handleSignUp = async () => {
     if (password !== confirmPassword) {
       showToast('Passwords do not match', 'error');
       return;
     }
     try {
-      await AuthService.signUp({ fullName, email, password });
+      await AuthService.register({
+        username,
+        password,
+        email,
+        name,
+        phone,
+        address,
+      });
       showToast('Account created successfully!', 'success');
       setTimeout(() => navigate('/auth/sign-in'), 1500);
     } catch (error) {
       console.error('Sign up failed:', error);
-      showToast('Sign up failed. Please try again.', 'error');
+      showToast(
+        error.response?.data?.message || 'Sign up failed. Please try again.',
+        'error',
+      );
     }
   };
 
@@ -103,6 +116,28 @@ function SignUp() {
               color={textColor}
               mb="8px"
             >
+              Username<Text color={brandStars}>*</Text>
+            </FormLabel>
+            <Input
+              isRequired
+              variant="auth"
+              fontSize="sm"
+              type="text"
+              placeholder="Your full name"
+              mb="24px"
+              size="lg"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+
+            <FormLabel
+              display="flex"
+              ms="4px"
+              fontSize="sm"
+              fontWeight="500"
+              color={textColor}
+              mb="8px"
+            >
               Full Name<Text color={brandStars}>*</Text>
             </FormLabel>
             <Input
@@ -113,8 +148,8 @@ function SignUp() {
               placeholder="Your full name"
               mb="24px"
               size="lg"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
 
             <FormLabel
@@ -137,6 +172,50 @@ function SignUp() {
               size="lg"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <FormLabel
+              display="flex"
+              ms="4px"
+              fontSize="sm"
+              fontWeight="500"
+              color={textColor}
+              mb="8px"
+            >
+              Phone Number<Text color={brandStars}>*</Text>
+            </FormLabel>
+            <Input
+              isRequired
+              variant="auth"
+              fontSize="sm"
+              type="text"
+              placeholder="Your full name"
+              mb="24px"
+              size="lg"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+
+            <FormLabel
+              display="flex"
+              ms="4px"
+              fontSize="sm"
+              fontWeight="500"
+              color={textColor}
+              mb="8px"
+            >
+              Address<Text color={brandStars}>*</Text>
+            </FormLabel>
+            <Input
+              isRequired
+              variant="auth"
+              fontSize="sm"
+              type="text"
+              placeholder="Your full name"
+              mb="24px"
+              size="lg"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
             />
 
             <FormLabel
@@ -198,7 +277,7 @@ function SignUp() {
               w="100%"
               h="50"
               my="24px"
-              onClick={handleEmailPasswordSignUp}
+              onClick={handleSignUp}
             >
               Sign Up
             </Button>

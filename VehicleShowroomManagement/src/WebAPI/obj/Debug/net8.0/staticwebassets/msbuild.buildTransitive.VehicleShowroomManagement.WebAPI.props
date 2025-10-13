@@ -1,3 +1,3 @@
 ﻿<Project>
-  <Import Project="../buildMultiTargeting/VehicleShowroomManagement.WebAPI.props" />
+  <Import Project="..\buildMultiTargeting\VehicleShowroomManagement.WebAPI.props" />
 </Project>

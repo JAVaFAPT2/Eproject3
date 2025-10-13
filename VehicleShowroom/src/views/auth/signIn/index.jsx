@@ -33,20 +33,23 @@ function SignIn() {
   const { showToast } = useShowToast();
 
   const [show, setShow] = useState(false);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
 
   const handleClick = () => setShow(!show);
 
-  const handleEmailPasswordLogin = async () => {
+  const handleLogin = async () => {
     try {
-      await AuthService.login({ email, password }, keepLoggedIn);
+      await AuthService.login({ username, password });
       showToast('Login successful', 'success');
-      setTimeout(() => navigate('/'), 1500);
+      setTimeout(() => navigate('/'), 1200);
     } catch (error) {
-      console.error('Email login failed:', error);
-      showToast('Email login failed', 'error');
+      console.error('Login failed:', error);
+      showToast(
+        error.response?.data?.message || 'Login failed. Please try again.',
+        'error',
+      );
     }
   };
 
@@ -91,7 +94,7 @@ function SignIn() {
           me="auto"
           mb={{ base: '20px', md: 'auto' }}
         >
-          {/* Form đăng nhập bằng email/password */}
+          {/* Form đăng nhập bằng username/password */}
           <FormControl>
             <FormLabel
               display="flex"
@@ -101,19 +104,19 @@ function SignIn() {
               color={textColor}
               mb="8px"
             >
-              Email<Text color={brandStars}>*</Text>
+              Username<Text color={brandStars}>*</Text>
             </FormLabel>
             <Input
               isRequired
               variant="auth"
               fontSize="sm"
-              type="email"
-              placeholder="mail@simmmple.com"
+              type="text"
+              placeholder="Enter username"
               mb="24px"
               fontWeight="500"
               size="lg"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <FormLabel
               ms="4px"
@@ -184,7 +187,7 @@ function SignIn() {
               w="100%"
               h="50"
               mb="24px"
-              onClick={handleEmailPasswordLogin}
+              onClick={handleLogin}
             >
               Sign In
             </Button>

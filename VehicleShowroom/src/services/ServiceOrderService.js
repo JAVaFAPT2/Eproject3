@@ -1,10 +1,15 @@
 import ApiClient from 'api/ApiClient';
-import { ApiUrl } from 'constant/ApiUrl';
+import { ApiUrl } from 'constants/ApiUrl';
 
 const ServiceOrderService = {
-  getAll: (params) => ApiClient.get(ApiUrl.SERVICE_ORDERS.BASE, { params }),
-  create: (data) => ApiClient.post(ApiUrl.SERVICE_ORDERS.BASE, data),
-  start: (id) => ApiClient.put(ApiUrl.SERVICE_ORDERS.START(id)),
+  create(payload) {
+    // { orderId, createdBy, type, cost, appointmentDate, description }
+    return ApiClient.post(ApiUrl.SERVICE_ORDERS.BASE, payload).then(r => r.data);
+  },
+  updateStatus(id, status) {
+    // status: 1 Scheduled, 2 Completed, 3 Cancelled
+    return ApiClient.put(ApiUrl.SERVICE_ORDERS.STATUS(id), { status }).then(r => r.data);
+  },
 };
 
 export default ServiceOrderService;

@@ -1,10 +1,19 @@
 import ApiClient from 'api/ApiClient';
-import  ApiUrl  from 'constant/ApiUrl';
+import { ApiUrl } from 'constants/ApiUrl';
 
 const ProfileService = {
-  getProfile: () => ApiClient.get(ApiUrl.PROFILE.GET),
-  updateProfile: (data) => ApiClient.put(ApiUrl.PROFILE.UPDATE, data),
-  changePassword: (data) => ApiClient.post(ApiUrl.PROFILE.CHANGE_PASSWORD, data),
+  get() {
+    return ApiClient.get(ApiUrl.PROFILE.GET).then((r) => r.data);
+  },
+  update(payload) {
+    return ApiClient.put(ApiUrl.PROFILE.UPDATE, payload).then((r) => r.data);
+  },
+  changePassword({ currentPassword, newPassword }) {
+    return ApiClient.post(ApiUrl.PROFILE.CHANGE_PASSWORD, {
+      currentPassword,
+      newPassword,
+    }).then((r) => r.data);
+  },
 };
 
 export default ProfileService;

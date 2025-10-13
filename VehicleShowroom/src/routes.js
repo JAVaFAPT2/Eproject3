@@ -1,11 +1,10 @@
 import React from 'react';
 
 import { Icon } from '@chakra-ui/react';
-import { MdPerson, MdHome, MdCardTravel } from 'react-icons/md';
+import { MdHome, MdCardTravel } from 'react-icons/md';
 
 // Admin Imports
 import Dashboard from 'views/admin/dashboard';
-import EmployeePage from 'views/admin/employee';
 import VehiclePage from 'views/admin/vehicle';
 import OrderPage from 'views/admin/order';
 
@@ -26,13 +25,6 @@ const routes = [
     path: '/dashboard',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: <Dashboard />,
-  },
-  {
-    name: 'Employee Management',
-    layout: '/admin',
-    path: '/employee-management',
-    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
-    component: <EmployeePage />,
   },
   {
     name: 'Vehicle Management',
