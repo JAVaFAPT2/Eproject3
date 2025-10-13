@@ -7,9 +7,13 @@ EXPOSE 10000
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Create NuGet.Config to disable fallback folders
+# Create NuGet.Config with proper package sources
 RUN echo '<?xml version="1.0" encoding="utf-8"?>' > NuGet.Config && \
     echo '<configuration>' >> NuGet.Config && \
+    echo '  <packageSources>' >> NuGet.Config && \
+    echo '    <clear />' >> NuGet.Config && \
+    echo '    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />' >> NuGet.Config && \
+    echo '  </packageSources>' >> NuGet.Config && \
     echo '  <config>' >> NuGet.Config && \
     echo '    <add key="globalPackagesFolder" value="/tmp/nuget-packages" />' >> NuGet.Config && \
     echo '  </config>' >> NuGet.Config && \
