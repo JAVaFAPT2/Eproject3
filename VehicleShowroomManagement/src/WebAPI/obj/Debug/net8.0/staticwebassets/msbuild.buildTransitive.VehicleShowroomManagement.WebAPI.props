@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\buildMultiTargeting\VehicleShowroomManagement.WebAPI.props" />
-</Project>
