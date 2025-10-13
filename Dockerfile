@@ -29,12 +29,12 @@ RUN dotnet restore "VehicleShowroomManagement/src/WebAPI/VehicleShowroomManageme
 
 # Build the WebAPI application
 WORKDIR /src
-RUN dotnet build "VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj" -c Release -o /app/build --no-restore --configfile NuGet.Config
+RUN dotnet build "VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj" -c Release --no-restore --configfile NuGet.Config
 
 # Publish the application
 FROM build AS publish
 WORKDIR /src
-RUN dotnet publish "VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false --no-build
+RUN dotnet publish "VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false --no-restore
 
 # Final stage/image
 FROM base AS final
