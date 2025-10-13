@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: vehicleshowroom-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
+      - key: ConnectionStrings__MongoDB
+        fromDatabase:
+          name: vehicleshowroom-db
+          property: connectionString
+      - key: Jwt__Key
+        generateValue: true
+      - key: Jwt__Issuer
+        value: VehicleShowroomAPI
+      - key: Jwt__Audience
+        value: VehicleShowroomClient
+      - key: EmailSettings__SmtpHost
+        value: smtp.gmail.com
+      - key: EmailSettings__SmtpPort
+        value: 587
+      - key: EmailSettings__SmtpUsername
+        sync: false
+      - key: EmailSettings__SmtpPassword
+        sync: false
+      - key: EmailSettings__FromEmail
+        value: noreply@vehicleshowroom.com
+      - key: EmailSettings__FromName
+        value: Vehicle Showroom Management
+      - key: CloudinarySettings__CloudName
+        sync: false
+      - key: CloudinarySettings__ApiKey
+        sync: false
+      - key: CloudinarySettings__ApiSecret
+        sync: false
+
+databases:
+  - name: vehicleshowroom-db
+    plan: free
+    databaseName: vehicleshowroom
+    user: vehicleshowroom_user

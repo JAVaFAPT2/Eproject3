@@ -1,4 +1,4 @@
-name: build
+name: Build and Test
 
 on:
   push:
@@ -32,4 +32,9 @@ jobs:
           else
             echo "No tests project found. Skipping tests."
           fi
+
+      - name: Docker Build Test
+        run: |
+          docker build -t vehicleshowroom-test .
+          echo "Docker build successful"
 
