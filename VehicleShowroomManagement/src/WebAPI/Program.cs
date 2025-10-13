@@ -8,8 +8,20 @@ using VehicleShowroomManagement.Application.DependencyInjection;
 using VehicleShowroomManagement.Infrastructure.DependencyInjection;
 using VehicleShowroomManagement.Infrastructure.Persistence;
 using VehicleShowroomManagement.WebAPI.DependencyInjection;
+using DotNetEnv;
+
+// Load .env file if it exists (look in project root)
+var projectRoot = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../.."));
+var envFile = Path.Combine(projectRoot, ".env");
+if (File.Exists(envFile))
+{
+    Env.Load(envFile);
+}
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure URLs explicitly - this ensures the app always runs on the specified ports
+builder.WebHost.UseUrls("http://localhost:8090", "https://localhost:8091");
 
 // Configure Autofac as the service provider factory
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());

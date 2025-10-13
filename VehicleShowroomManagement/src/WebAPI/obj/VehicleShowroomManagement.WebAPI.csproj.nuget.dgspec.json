@@ -448,6 +448,10 @@
               "target": "Package",
               "version": "[1.26.2, )"
             },
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
             "EPPlus": {
               "target": "Package",
               "version": "[7.4.2, )"
