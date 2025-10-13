@@ -7,25 +7,29 @@ EXPOSE 10000
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
+# Copy solution file first
+COPY ["VehicleShowroomManagement/VehicleShowroomManagement.sln", "VehicleShowroomManagement/"]
+
 # Copy project files
 COPY ["VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj", "VehicleShowroomManagement/src/WebAPI/"]
 COPY ["VehicleShowroomManagement/src/Application/VehicleShowroomManagement.Application.csproj", "VehicleShowroomManagement/src/Application/"]
 COPY ["VehicleShowroomManagement/src/Domain/VehicleShowroomManagement.Domain.csproj", "VehicleShowroomManagement/src/Domain/"]
 COPY ["VehicleShowroomManagement/src/Infrastructure/VehicleShowroomManagement.Infrastructure.csproj", "VehicleShowroomManagement/src/Infrastructure/"]
 
-# Restore dependencies
-RUN dotnet restore "VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj"
+# Restore dependencies using solution file
+RUN dotnet restore "VehicleShowroomManagement/VehicleShowroomManagement.sln"
 
 # Copy all source code
 COPY . .
 
-# Build the application
-WORKDIR "/src/VehicleShowroomManagement/src/WebAPI"
-RUN dotnet build "VehicleShowroomManagement.WebAPI.csproj" -c Release -o /app/build
+# Build the application from solution
+WORKDIR /src
+RUN dotnet build "VehicleShowroomManagement/VehicleShowroomManagement.sln" -c Release -o /app/build --no-restore
 
 # Publish the application
 FROM build AS publish
-RUN dotnet publish "VehicleShowroomManagement.WebAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false
+WORKDIR /src
+RUN dotnet publish "VehicleShowroomManagement/src/WebAPI/VehicleShowroomManagement.WebAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false --no-build
 
 # Final stage/image
 FROM base AS final
