@@ -1,5 +1,3 @@
-using MediatR;
-
 namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Register
 {
     /// <summary>
@@ -8,10 +6,7 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Register
     public record RegisterCommand(
         string Username,
         string Password,
-        string Email,
-        string Name,
-        string? Phone = null,
-        string? Address = null)
+        string Email)
         : IRequest<string>;
 }
 

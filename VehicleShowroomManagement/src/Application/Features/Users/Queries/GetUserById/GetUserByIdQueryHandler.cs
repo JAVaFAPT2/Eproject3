@@ -1,32 +1,19 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-
 namespace VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById
 {
     /// <summary>
     /// Handler for getting user by ID
     /// </summary>
-    public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto?>
+    public class GetUserByIdQueryHandler(IRepository<User> userRepository, IRepository<Role> roleRepository) : IRequestHandler<GetUserByIdQuery, UserDto?>
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IRepository<Role> _roleRepository;
-
-        public GetUserByIdQueryHandler(IRepository<User> userRepository, IRepository<Role> roleRepository)
-        {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
-        }
-
         public async Task<UserDto?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.UserId);
+            var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
-            if (user == null || user.DeletedAt != null)
+            if (user is not { DeletedAt: null })
                 return null;
 
             // Get role name
-            var role = await _roleRepository.GetByIdAsync(user.RoleId);
+            var role = await roleRepository.GetByIdAsync(user.RoleId, cancellationToken);
 
             return new UserDto
             {

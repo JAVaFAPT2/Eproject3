@@ -27,40 +27,58 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRequired]
         public FileType FileType { get; private set; }
 
-        [BsonElement("fileUrl")]
-        [BsonRequired]
-        public string FileUrl { get; private set; } = string.Empty;
+    [BsonElement("fileUrl")]
+    [BsonRequired]
+    public string FileUrl { get; private set; } = string.Empty;
 
-        [BsonElement("createdAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [BsonElement("filePath")]
+    public string FilePath { get; private set; } = string.Empty;
 
-        // Internal constructor for MongoDB
-        internal DocumentOutput() { }
+    [BsonElement("fileName")]
+    public string FileName { get; private set; } = string.Empty;
 
-        [BsonConstructor]
-        public DocumentOutput(EntityType entityType, string entityId, FileType fileType, string fileUrl)
-        {
-            if (string.IsNullOrWhiteSpace(entityId))
-                throw new ArgumentException("Entity ID cannot be null or empty", nameof(entityId));
+    [BsonElement("createdAt")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-            if (string.IsNullOrWhiteSpace(fileUrl))
-                throw new ArgumentException("File URL cannot be null or empty", nameof(fileUrl));
+    [BsonElement("updatedAt")]
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-            EntityType = entityType;
-            EntityId = entityId;
-            FileType = fileType;
-            FileUrl = fileUrl;
-            CreatedAt = DateTime.UtcNow;
-        }
+    // Internal constructor for MongoDB
+    internal DocumentOutput() { }
 
-        // Domain methods
-        public void UpdateFileUrl(string fileUrl)
-        {
-            if (string.IsNullOrWhiteSpace(fileUrl))
-                throw new ArgumentException("File URL cannot be null or empty", nameof(fileUrl));
+    [BsonConstructor]
+    public DocumentOutput(EntityType entityType, string entityId, FileType fileType, string fileUrl)
+    {
+        if (string.IsNullOrWhiteSpace(entityId))
+            throw new ArgumentException("Entity ID cannot be null or empty", nameof(entityId));
 
-            FileUrl = fileUrl;
-        }
+        if (string.IsNullOrWhiteSpace(fileUrl))
+            throw new ArgumentException("File URL cannot be null or empty", nameof(fileUrl));
+
+        EntityType = entityType;
+        EntityId = entityId;
+        FileType = fileType;
+        FileUrl = fileUrl;
+        
+        // Extract file path and name from URL
+        FilePath = fileUrl;
+        FileName = System.IO.Path.GetFileName(fileUrl);
+        
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    // Domain methods
+    public void UpdateFileUrl(string fileUrl)
+    {
+        if (string.IsNullOrWhiteSpace(fileUrl))
+            throw new ArgumentException("File URL cannot be null or empty", nameof(fileUrl));
+
+        FileUrl = fileUrl;
+        FilePath = fileUrl;
+        FileName = System.IO.Path.GetFileName(fileUrl);
+        UpdatedAt = DateTime.UtcNow;
+    }
     }
 }
 

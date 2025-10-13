@@ -1,25 +1,13 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Domain.Enums;
-
 namespace VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetRevenueAnalytics
 {
     /// <summary>
     /// Handler for get revenue analytics query (updated for new Order schema)
     /// </summary>
-    public class GetRevenueAnalyticsQueryHandler : IRequestHandler<GetRevenueAnalyticsQuery, RevenueAnalyticsResult>
+    public class GetRevenueAnalyticsQueryHandler(IRepository<Order> orderRepository) : IRequestHandler<GetRevenueAnalyticsQuery, RevenueAnalyticsResult>
     {
-        private readonly IRepository<Order> _orderRepository;
-
-        public GetRevenueAnalyticsQueryHandler(IRepository<Order> orderRepository)
-        {
-            _orderRepository = orderRepository;
-        }
-
         public async Task<RevenueAnalyticsResult> Handle(GetRevenueAnalyticsQuery request, CancellationToken cancellationToken)
         {
-            var allOrders = await _orderRepository.GetAllAsync();
+            var allOrders = await orderRepository.GetAllAsync(cancellationToken);
             
             // Filter completed orders
             var completedOrders = allOrders.Where(o => o.Status == OrderStatus.Completed).ToList();

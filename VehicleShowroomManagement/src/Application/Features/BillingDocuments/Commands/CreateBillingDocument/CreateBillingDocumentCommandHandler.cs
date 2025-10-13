@@ -1,26 +1,13 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-
 namespace VehicleShowroomManagement.Application.Features.BillingDocuments.Commands.CreateBillingDocument
 {
-    public class CreateBillingDocumentCommandHandler : IRequestHandler<CreateBillingDocumentCommand, string>
+    public class CreateBillingDocumentCommandHandler(
+        IRepository<BillingDocument> billingDocumentRepository,
+        IRepository<Order> orderRepository) : IRequestHandler<CreateBillingDocumentCommand, string>
     {
-        private readonly IRepository<BillingDocument> _billingDocumentRepository;
-        private readonly IRepository<Order> _orderRepository;
-
-        public CreateBillingDocumentCommandHandler(
-            IRepository<BillingDocument> billingDocumentRepository,
-            IRepository<Order> orderRepository)
-        {
-            _billingDocumentRepository = billingDocumentRepository;
-            _orderRepository = orderRepository;
-        }
-
         public async Task<string> Handle(CreateBillingDocumentCommand request, CancellationToken cancellationToken)
         {
             // Verify order exists
-            var order = await _orderRepository.GetByIdAsync(request.OrderId);
+            var order = await orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
             if (order == null)
             {
                 throw new InvalidOperationException("Order not found");
@@ -32,7 +19,7 @@ namespace VehicleShowroomManagement.Application.Features.BillingDocuments.Comman
                 request.Amount,
                 request.AppointmentDate);
 
-            await _billingDocumentRepository.AddAsync(billingDocument);
+            await billingDocumentRepository.AddAsync(billingDocument, cancellationToken);
 
             return billingDocument.Id;
         }

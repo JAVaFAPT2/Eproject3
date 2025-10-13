@@ -28,10 +28,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             var command = new RegisterCommand(
                 request.Username,
                 request.Password,
-                request.Email,
-                request.Name,
-                request.Phone,
-                request.Address);
+                request.Email);
 
             var userId = await mediator.Send(command);
 

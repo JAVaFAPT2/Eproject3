@@ -1,24 +1,15 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-
 namespace VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.UpdateVehiclePhoto
 {
     /// <summary>
     /// Handler for updating a vehicle photo
     /// </summary>
-    public class UpdateVehiclePhotoCommandHandler : IRequestHandler<UpdateVehiclePhotoCommand>
+    public class UpdateVehiclePhotoCommandHandler(IRepository<VehiclePhoto> photoRepository) : IRequestHandler<UpdateVehiclePhotoCommand>
     {
-        private readonly IRepository<VehiclePhoto> _photoRepository;
-
-        public UpdateVehiclePhotoCommandHandler(IRepository<VehiclePhoto> photoRepository)
-        {
-            _photoRepository = photoRepository;
-        }
+        private readonly IRepository<VehiclePhoto> _photoRepository = photoRepository;
 
         public async Task Handle(UpdateVehiclePhotoCommand request, CancellationToken cancellationToken)
         {
-            var photo = await _photoRepository.GetByIdAsync(request.PhotoId);
+            var photo = await _photoRepository.GetByIdAsync(request.PhotoId, cancellationToken);
             if (photo == null)
             {
                 throw new KeyNotFoundException($"Photo with ID {request.PhotoId} not found");
@@ -39,7 +30,7 @@ namespace VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.
                 photo.UpdateCaption(request.Caption);
             }
 
-            await _photoRepository.UpdateAsync(photo);
+            await _photoRepository.UpdateAsync(photo, cancellationToken);
         }
     }
 }

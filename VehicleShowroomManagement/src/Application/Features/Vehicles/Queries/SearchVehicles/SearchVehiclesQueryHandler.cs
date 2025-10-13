@@ -1,25 +1,16 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-
 namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.SearchVehicles
 {
     /// <summary>
     /// Handler for searching vehicles - critical for showroom staff to find vehicles quickly
     /// </summary>
-    public class SearchVehiclesQueryHandler : IRequestHandler<SearchVehiclesQuery, SearchVehiclesResult>
+    public class SearchVehiclesQueryHandler(IRepository<Vehicle> vehicleRepository) : IRequestHandler<SearchVehiclesQuery, SearchVehiclesResult>
     {
-        private readonly IRepository<Vehicle> _vehicleRepository;
-
-        public SearchVehiclesQueryHandler(IRepository<Vehicle> vehicleRepository)
-        {
-            _vehicleRepository = vehicleRepository;
-        }
+        private readonly IRepository<Vehicle> _vehicleRepository = vehicleRepository;
 
         public async Task<SearchVehiclesResult> Handle(SearchVehiclesQuery request, CancellationToken cancellationToken)
         {
             // Build filter criteria (no IsDeleted in new schema, uses DeletedAt)
-            var allVehicles = await _vehicleRepository.GetAllAsync();
+            var allVehicles = await _vehicleRepository.GetAllAsync(cancellationToken);
 
             var filteredVehicles = allVehicles.Where(v =>
                 (request.Status == null || v.Status == request.Status) &&
@@ -28,9 +19,9 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
                  v.VehicleId.Contains(request.SearchTerm) || 
                  v.ModelNumber.Contains(request.SearchTerm)) &&
                 (request.MinPrice == null || v.PurchasePrice >= request.MinPrice) &&
-                (request.MaxPrice == null || v.PurchasePrice <= request.MaxPrice));
+                (request.MaxPrice == null || v.PurchasePrice <= request.MaxPrice)).ToList();
 
-            var totalCount = filteredVehicles.Count();
+            var totalCount = filteredVehicles.Count;
             
             // Apply pagination
             var pagedVehicles = filteredVehicles

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.DocumentOutputs.Commands.GenerateDocument;
+using VehicleShowroomManagement.Application.Features.DocumentOutputs.Queries.GetDocumentOutputs;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -18,6 +19,24 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             _mediator = mediator;
         }
 
+        /// <summary>
+        /// Gets all document outputs with pagination
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetDocumentOutputs(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? entityType = null,
+            [FromQuery] string? entityId = null)
+        {
+            var query = new GetDocumentOutputsQuery(pageNumber, pageSize, entityType, entityId);
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Generates a document output
+        /// </summary>
         [HttpPost("generate")]
         public async Task<IActionResult> GenerateDocument([FromBody] GenerateDocumentRequest request)
         {

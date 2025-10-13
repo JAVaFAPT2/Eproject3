@@ -5,6 +5,7 @@ using VehicleShowroomManagement.Application.Features.Orders.Commands.CreateOrder
 using VehicleShowroomManagement.Application.Features.Orders.Commands.AssignVehicle;
 using VehicleShowroomManagement.Application.Features.Orders.Commands.ConfirmOrder;
 using VehicleShowroomManagement.Application.Features.Orders.Commands.CompleteOrder;
+using VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrders;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -20,6 +21,24 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             _mediator = mediator;
         }
 
+        /// <summary>
+        /// Gets all orders with pagination
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetOrders(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? status = null,
+            [FromQuery] string? customerId = null)
+        {
+            var query = new GetOrdersQuery(pageNumber, pageSize, status, customerId);
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Creates a new order
+        /// </summary>
         [HttpPost]
         [Authorize(Roles = "Dealer,Admin")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
