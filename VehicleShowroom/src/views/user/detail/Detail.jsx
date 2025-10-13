@@ -68,7 +68,7 @@ export default function Detail() {
   };
 
   return (
-    <Box maxW="7xl" mx="auto" p={6} pt="180px">
+    <Box maxW="7xl" mx="auto" p={6} pt="220px">
       {/* Ảnh chính */}
       <Image
         src={mainPhoto}
