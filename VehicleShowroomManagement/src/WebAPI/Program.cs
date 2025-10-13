@@ -9,6 +9,7 @@ using VehicleShowroomManagement.Infrastructure.DependencyInjection;
 using VehicleShowroomManagement.Infrastructure.Persistence;
 using VehicleShowroomManagement.WebAPI.DependencyInjection;
 using DotNetEnv;
+using Microsoft.AspNetCore.DataProtection;
 
 // Load .env file if it exists (look in project root)
 var projectRoot = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../.."));
@@ -23,20 +24,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure URLs based on environment
 var environmentName = builder.Environment.EnvironmentName;
 var isProduction = builder.Environment.IsProduction();
-Console.WriteLine($"Environment: {environmentName}, IsProduction: {isProduction}");
+var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+Console.WriteLine($"Environment: {environmentName}, IsProduction: {isProduction}, IsDocker: {isDocker}");
 
-if (isProduction)
+if (isProduction || isDocker)
 {
-    // In production, use the port provided by the hosting platform (Render uses PORT env var)
+    // In production or Docker, use HTTP only (no SSL certificates needed)
     var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
     var urls = $"http://0.0.0.0:{port}";
-    Console.WriteLine($"Production URLs: {urls}");
+    Console.WriteLine($"Production/Docker URLs: {urls}");
     builder.WebHost.UseUrls(urls);
 }
 else
 {
-    // In development, use localhost with both HTTP and HTTPS
-    Console.WriteLine("Development URLs: http://localhost:8090, https://localhost:8091");
+    // In local development (non-Docker), use localhost with both HTTP and HTTPS
+    Console.WriteLine("Local Development URLs: http://localhost:8090, https://localhost:8091");
     builder.WebHost.UseUrls("http://localhost:8090", "https://localhost:8091");
 }
 
@@ -51,6 +53,14 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
     containerBuilder.RegisterModule(new InfrastructureModule(builder.Configuration));
     containerBuilder.RegisterModule<WebApiModule>();
 });
+
+// Configure Data Protection for containerized environments
+if (builder.Environment.IsProduction() || isDocker)
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("VehicleShowroomManagement")
+        .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+}
 
 // Add services to the container
 builder.Services.AddControllers();
