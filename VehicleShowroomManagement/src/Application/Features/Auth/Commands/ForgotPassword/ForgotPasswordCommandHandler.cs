@@ -1,6 +1,3 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.Auth.Commands.ForgotPassword
 {
@@ -35,7 +32,7 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.ForgotPas
             var resetToken = Guid.NewGuid().ToString();
 
             // Send password reset email
-            await _emailService.SendPasswordResetEmailAsync(user.Email, user.Name, resetToken);
+            await _emailService.SendPasswordResetEmailAsync(user.Email, user.Name ?? user.Username, resetToken);
         }
     }
 }

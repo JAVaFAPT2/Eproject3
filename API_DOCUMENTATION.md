@@ -1,9 +1,10 @@
 # 🚀 **Vehicle Showroom Management System - Complete API Reference**
 
-> **Last Updated**: After Complete Refactoring  
+> **Last Updated**: January 2025 - All Warnings Fixed + Features Implemented  
 > **Architecture**: Clean Architecture + DDD + CQRS  
 > **Backend**: .NET 8 Web API + MongoDB  
-> **Authentication**: JWT Bearer Tokens
+> **Authentication**: JWT Bearer Tokens  
+> **Code Quality**: 0 Warnings | 100% Interface-Based Architecture
 
 ---
 
@@ -126,10 +127,7 @@ Content-Type: application/json
 {
   "username": "newcustomer",
   "password": "Customer123!",
-  "email": "customer@example.com",
-  "name": "John Customer",
-  "phone": "+1234567890",
-  "address": "123 Customer St"
+  "email": "customer@example.com"
 }
 
 # Response (201 Created)
@@ -138,7 +136,10 @@ Content-Type: application/json
   "message": "User registered successfully"
 }
 
-# Note: Automatically assigns "Customer" role to new registrations
+# Note: 
+# - Automatically assigns "Customer" role to new registrations
+# - Name, Phone, Address can be updated later via profile endpoint
+# - Simplified registration requires only username, email, password
 ```
 
 ### **6. POST /api/auth/revoke-token**
@@ -241,36 +242,45 @@ Content-Type: application/json
 *Requires Authentication - HR/Admin roles*
 
 ### **10. GET /api/users**
-**Get All Users**
+**Get Users by Role Name**
 
 ```bash
-# Request
-GET /api/users?searchTerm=john&roleId=507f1f77bcf86cd799439012&pageNumber=1&pageSize=10
+# Request - Get all employees
+GET /api/users?roleName=Employee
+Authorization: Bearer <jwt-token>
+
+# Request - Get all customers  
+GET /api/users?roleName=Customer
 Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
-{
-  "users": [
-{
-  "id": "507f1f77bcf86cd799439011",
-      "username": "john_doe",
-  "name": "John Doe",
-      "email": "john@showroom.com",
-      "phone": "+1234567890",
-      "address": "123 Main St",
-      "roleId": "507f1f77bcf86cd799439012",
-      "roleName": "Dealer",
-  "status": "Active",
-      "hireDate": "2024-01-01T00:00:00Z",
+[
+  {
+    "id": "507f1f77bcf86cd799439011",
+    "username": "john_doe",
+    "name": "John Doe",
+    "email": "john@showroom.com",
+    "phone": "+1234567890",
+    "address": "123 Main St",
+    "roleId": "507f1f77bcf86cd799439012",
+    "role": "Employee",
+    "status": "Active",
+    "hireDate": "2024-01-01T00:00:00Z",
+    "isActive": true,
     "createdAt": "2024-01-01T00:00:00Z",
     "updatedAt": "2024-01-01T00:00:00Z"
   }
-  ],
-  "totalCount": 1,
-  "pageNumber": 1,
-  "pageSize": 10,
-  "totalPages": 1
+]
+
+# Error Response (400 Bad Request)
+{
+  "message": "roleName parameter is required"
 }
+
+# Note: 
+# - Frontend passes roleName (e.g., "Employee", "Customer") instead of MongoDB ObjectId
+# - Returns filtered list of users by role
+# - Excludes deleted users automatically
 ```
 
 ### **11. GET /api/users/{id}**
@@ -919,7 +929,47 @@ Content-Type: application/json
 *Invoice and billing management*  
 *Requires Dealer/Admin role*
 
-### **33. POST /api/billing-documents**
+### **33. GET /api/billing-documents**
+**Get Billing Documents with Pagination**
+
+```bash
+# Request
+GET /api/billing-documents?pageNumber=1&pageSize=10&status=Unpaid&orderId=507f1f77bcf86cd799439050
+Authorization: Bearer <jwt-token>
+
+# Response (200 OK)
+{
+  "billingDocuments": [
+    {
+      "id": "507f1f77bcf86cd799439070",
+      "orderId": "507f1f77bcf86cd799439050",
+      "createdBy": "507f1f77bcf86cd799439011",
+      "amount": 28000.00,
+      "appointmentDate": "2024-02-15T10:00:00Z",
+      "status": "Unpaid",
+      "createdAt": "2024-01-01T10:00:00Z",
+      "updatedAt": "2024-01-01T10:00:00Z",
+      "isUnpaid": true,
+      "isPartiallyPaid": false,
+      "isPaid": false
+    }
+  ],
+  "totalCount": 45,
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalPages": 5
+}
+
+# Query Parameters:
+# - pageNumber: Page number (default: 1)
+# - pageSize: Items per page (default: 10)
+# - status: Filter by status (Unpaid, PartiallyPaid, Paid)
+# - orderId: Filter by order ID
+```
+
+---
+
+### **34. POST /api/billing-documents**
 **Create Billing Document**
 
 ```bash
@@ -947,12 +997,89 @@ Content-Type: application/json
 
 ---
 
+### **35. PATCH /api/billing-documents/{id}/amount**
+**Update Billing Document Amount**
+
+```bash
+# Request
+PATCH /api/billing-documents/507f1f77bcf86cd799439070/amount
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "amount": 30000.00
+}
+
+# Response (200 OK)
+{
+  "message": "Billing document amount updated successfully"
+}
+
+# Domain Validation:
+# - Amount cannot be negative
+```
+
+---
+
+### **36. PATCH /api/billing-documents/{id}/appointment-date**
+**Update Billing Document Appointment Date**
+
+```bash
+# Request
+PATCH /api/billing-documents/507f1f77bcf86cd799439070/appointment-date
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "appointmentDate": "2024-02-20T14:00:00Z"
+}
+
+# Response (200 OK)
+{
+  "message": "Billing document appointment date updated successfully"
+}
+
+# Allows null to clear appointment date
+```
+
+---
+
+### **37. PATCH /api/billing-documents/{id}/status**
+**Update Billing Document Status**
+
+```bash
+# Request
+PATCH /api/billing-documents/507f1f77bcf86cd799439070/status
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "status": "Paid"
+}
+
+# Response (200 OK)
+{
+  "message": "Billing document status updated successfully"
+}
+
+# Status Values (enum):
+# - Unpaid = 1
+# - PartiallyPaid = 2
+# - Paid = 3
+
+# Domain Rules:
+# - Cannot change status from Paid to PartiallyPaid
+# - Uses domain methods: MarkAsPaid(), MarkAsPartiallyPaid(), MarkAsUnpaid()
+```
+
+---
+
 ## 📄 **Document Output APIs** (`/api/document-outputs`)
 
 *Generate PDF/Excel documents*  
 *Requires Dealer/Admin role*
 
-### **34. POST /api/document-outputs/generate**
+### **38. POST /api/document-outputs/generate**
 **Generate Document**
 
 ```bash
@@ -993,7 +1120,7 @@ Content-Type: application/json
 *Analytics and reporting*  
 *Requires Authentication*
 
-### **35. GET /api/dashboard/revenue**
+### **39. GET /api/dashboard/revenue**
 **Get Revenue Analytics**
 
 ```bash
@@ -1140,7 +1267,7 @@ graph TD
   "id": "ObjectId",
   "username": "string (required)",
   "passwordHash": "string (required)",
-  "name": "string (required)",
+  "name": "string (nullable, optional during registration)",
   "email": "string (required)",
   "phone": "string (optional)",
   "address": "string (optional)",
@@ -1374,6 +1501,9 @@ All collections use **UPPERCASE** naming convention:
 - 🆕 **VehicleModel Update**: PUT `/api/vehicle-models/{modelNumber}` endpoint
 - 🆕 **Database Indexing**: Performance indexes on all collections for optimal query speed
 - 🆕 **Memory Optimization**: Single imageUrl field per VehicleModel (not collection)
+- 🆕 **Simplified Registration**: Registration now requires only username, email, password
+- 🆕 **GetUsersByRole API**: New endpoint to fetch users filtered by role name
+- 🆕 **Flexible User Profile**: Name field is nullable, can be updated via profile endpoint
 
 ### **Performance & Scalability**
 The system now includes comprehensive MongoDB indexing on:
@@ -1410,7 +1540,35 @@ POST /api/auth/refresh-token
 }
 ```
 
-### **2. Create First Vehicle**
+### **2. User Registration & Management**
+```bash
+# 1. Customer self-registration (simplified)
+POST /api/auth/register
+{
+  "username": "newcustomer",
+  "email": "customer@example.com",
+  "password": "Customer123!"
+}
+
+# 2. Get all employees for management screen
+GET /api/users?roleName=Employee
+Authorization: Bearer <jwt-token>
+
+# 3. Get all customers for management screen
+GET /api/users?roleName=Customer
+Authorization: Bearer <jwt-token>
+
+# 4. Update user profile (after registration)
+PUT /api/users/{id}/profile
+{
+  "name": "John Customer",
+  "email": "john@example.com",
+  "phone": "+1234567890",
+  "address": "123 Customer St"
+}
+```
+
+### **3. Create First Vehicle**
 ```bash
 # 1. Create vehicle model
 POST /api/vehicle-models
@@ -1440,7 +1598,7 @@ POST /api/purchase-orders/{poId}/lines
 POST /api/purchase-orders/{poId}/complete
 ```
 
-### **3. Process Customer Order**
+### **4. Process Customer Order**
 ```bash
 # 1. Create order
 POST /api/orders

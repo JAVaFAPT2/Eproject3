@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.CreateServiceOrder;
 using VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.UpdateStatus;
+using VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.GetServiceOrders;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -19,6 +20,24 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             _mediator = mediator;
         }
 
+        /// <summary>
+        /// Gets all service orders with pagination
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetServiceOrders(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? status = null,
+            [FromQuery] string? orderId = null)
+        {
+            var query = new GetServiceOrdersQuery(pageNumber, pageSize, status, orderId);
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Creates a new service order
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> CreateServiceOrder([FromBody] CreateServiceOrderRequest request)
         {

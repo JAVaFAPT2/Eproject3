@@ -1,29 +1,20 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-
 namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.GetPurchaseOrders
 {
-    public class GetPurchaseOrdersQueryHandler : IRequestHandler<GetPurchaseOrdersQuery, GetPurchaseOrdersResult>
+    public class GetPurchaseOrdersQueryHandler(IRepository<PurchaseOrder> purchaseOrderRepository) : IRequestHandler<GetPurchaseOrdersQuery, GetPurchaseOrdersResult>
     {
-        private readonly IRepository<PurchaseOrder> _purchaseOrderRepository;
-
-        public GetPurchaseOrdersQueryHandler(IRepository<PurchaseOrder> purchaseOrderRepository)
-        {
-            _purchaseOrderRepository = purchaseOrderRepository;
-        }
+        private readonly IRepository<PurchaseOrder> _purchaseOrderRepository = purchaseOrderRepository;
 
         public async Task<GetPurchaseOrdersResult> Handle(GetPurchaseOrdersQuery request, CancellationToken cancellationToken)
         {
-            var allPOs = await _purchaseOrderRepository.GetAllAsync();
+            var allPOs = await _purchaseOrderRepository.GetAllAsync(cancellationToken);
 
             // Apply filters
             var filtered = allPOs.Where(po =>
                 (request.Status == null || po.Status == request.Status) &&
                 (request.FromDate == null || po.OrderDate >= request.FromDate) &&
-                (request.ToDate == null || po.OrderDate <= request.ToDate));
+                (request.ToDate == null || po.OrderDate <= request.ToDate)).ToList();
 
-            var totalCount = filtered.Count();
+            var totalCount = filtered.Count;
             
             // Apply pagination
             var pagedPOs = filtered

@@ -1,4 +1,3 @@
-using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Enums;
@@ -34,11 +33,17 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRequired]
         public decimal Amount { get; private set; }
 
-        [BsonElement("status")]
-        public BillingStatus Status { get; private set; } = BillingStatus.Unpaid;
+    [BsonElement("status")]
+    public BillingStatus Status { get; private set; } = BillingStatus.Unpaid;
 
-        // Internal constructor for MongoDB
-        internal BillingDocument() { }
+    [BsonElement("createdAt")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [BsonElement("updatedAt")]
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    // Internal constructor for MongoDB
+    internal BillingDocument() { }
 
         [BsonConstructor]
         public BillingDocument(string orderId, string createdBy, decimal amount, DateTime? appointmentDate = null)
@@ -57,39 +62,46 @@ namespace VehicleShowroomManagement.Domain.Entities
             Amount = amount;
             AppointmentDate = appointmentDate;
             BillDate = DateTime.UtcNow;
+            CreatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
         }
 
-        // Domain methods
-        public void UpdateAmount(decimal amount)
-        {
-            if (amount < 0)
-                throw new ArgumentException("Amount cannot be negative", nameof(amount));
+    // Domain methods
+    public void UpdateAmount(decimal amount)
+    {
+        if (amount < 0)
+            throw new ArgumentException("Amount cannot be negative", nameof(amount));
 
-            Amount = amount;
-        }
+        Amount = amount;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void UpdateAppointmentDate(DateTime? appointmentDate)
-        {
-            AppointmentDate = appointmentDate;
-        }
+    public void UpdateAppointmentDate(DateTime? appointmentDate)
+    {
+        AppointmentDate = appointmentDate;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void MarkAsPartiallyPaid()
-        {
-            if (Status == BillingStatus.Paid)
-                throw new InvalidOperationException("Cannot change status of a fully paid billing document");
+    public void MarkAsPartiallyPaid()
+    {
+        if (Status == BillingStatus.Paid)
+            throw new InvalidOperationException("Cannot change status of a fully paid billing document");
 
-            Status = BillingStatus.PartiallyPaid;
-        }
+        Status = BillingStatus.PartiallyPaid;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void MarkAsPaid()
-        {
-            Status = BillingStatus.Paid;
-        }
+    public void MarkAsPaid()
+    {
+        Status = BillingStatus.Paid;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void MarkAsUnpaid()
-        {
-            Status = BillingStatus.Unpaid;
-        }
+    public void MarkAsUnpaid()
+    {
+        Status = BillingStatus.Unpaid;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
         // Computed properties
         public bool IsUnpaid => Status == BillingStatus.Unpaid;

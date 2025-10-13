@@ -4,58 +4,42 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Linq.Expressions;
 using VehicleShowroomManagement.Application.Common.DTOs;
-using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Domain.Services;
-using VehicleShowroomManagement.Domain.Entities;
 
 namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
 {
     /// <summary>
     /// Handler for user login command - accepts username or email
     /// </summary>
-    public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto?>
+    public class LoginCommandHandler(
+        IRepository<User> userRepository,
+        IRepository<Role> roleRepository,
+        IPasswordService passwordService,
+        IConfiguration configuration) : IRequestHandler<LoginCommand, LoginResultDto?>
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IRepository<Role> _roleRepository;
-        private readonly IPasswordService _passwordService;
-        private readonly IConfiguration _configuration;
-
-        public LoginCommandHandler(
-            IRepository<User> userRepository,
-            IRepository<Role> roleRepository,
-            IPasswordService passwordService,
-            IConfiguration configuration)
-        {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
-            _passwordService = passwordService;
-            _configuration = configuration;
-        }
-
         public async Task<LoginResultDto?> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             // Find user by username or email
-            var users = await _userRepository.FindAsync(u => 
+            var users = await userRepository.FindAsync(u => 
                 (u.Username == request.Username || u.Email == request.Username) && 
-                u.DeletedAt == null);
+                u.DeletedAt == null, cancellationToken);
 
             var user = users.FirstOrDefault();
 
-            if (user == null || !_passwordService.VerifyPassword(request.Password, user.PasswordHash))
+            if (user == null || !passwordService.VerifyPassword(request.Password, user.PasswordHash))
             {
                 return null;
             }
 
             // Get role name
-            var role = await _roleRepository.GetByIdAsync(user.RoleId);
+            var role = await roleRepository.GetByIdAsync(user.RoleId, cancellationToken);
             var roleName = role?.Name ?? "User";
 
             // Generate JWT token
             var token = GenerateJwtToken(user, roleName);
             var refreshToken = Guid.NewGuid().ToString();
-            var expiresAt = DateTime.UtcNow.AddHours(Convert.ToDouble(_configuration["Jwt:ExpireHours"] ?? "24"));
+            var expiresAt = DateTime.UtcNow.AddHours(Convert.ToDouble(configuration["Jwt:ExpireHours"] ?? "24"));
 
             return new LoginResultDto
             {
@@ -72,7 +56,7 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
                     Id = user.Id,
                     Username = user.Username,
                     Email = user.Email,
-                    Name = user.Name,
+                    Name = user.Name ?? string.Empty,
                     Role = roleName,
                     Phone = user.Phone,
                     IsActive = user.IsActive,
@@ -84,7 +68,7 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
 
         private string GenerateJwtToken(User user, string roleName)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
@@ -93,14 +77,14 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, roleName),
-                new Claim("Name", user.Name)
+                new Claim("Name", user.Name ?? string.Empty)
             };
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: configuration["Jwt:Issuer"],
+                audience: configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(Convert.ToDouble(_configuration["Jwt:ExpireHours"] ?? "24")),
+                expires: DateTime.UtcNow.AddHours(Convert.ToDouble(configuration["Jwt:ExpireHours"] ?? "24")),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

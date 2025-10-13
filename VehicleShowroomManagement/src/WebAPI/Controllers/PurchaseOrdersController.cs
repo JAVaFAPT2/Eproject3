@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.CreatePurchaseOrder;
 using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.CompletePurchaseOrder;
+using VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.GetPurchaseOrders;
 using VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Commands.AddPurchaseOrderLine;
+using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -19,6 +21,31 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             _mediator = mediator;
         }
 
+    /// <summary>
+    /// Gets all purchase orders with pagination
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> GetPurchaseOrders(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? status = null,
+        [FromQuery] DateTime? fromDate = null,
+        [FromQuery] DateTime? toDate = null)
+    {
+        PurchaseOrderStatus? statusEnum = null;
+        if (!string.IsNullOrEmpty(status) && Enum.TryParse<PurchaseOrderStatus>(status, true, out var parsedStatus))
+        {
+            statusEnum = parsedStatus;
+        }
+
+        var query = new GetPurchaseOrdersQuery(pageNumber, pageSize, statusEnum, fromDate, toDate);
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+        /// <summary>
+        /// Creates a new purchase order
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> CreatePurchaseOrder([FromBody] CreatePurchaseOrderRequest request)
         {

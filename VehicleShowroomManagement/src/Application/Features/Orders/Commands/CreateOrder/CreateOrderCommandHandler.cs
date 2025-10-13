@@ -1,29 +1,18 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-
 namespace VehicleShowroomManagement.Application.Features.Orders.Commands.CreateOrder
 {
-    public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, string>
+    public class CreateOrderCommandHandler(
+        IRepository<Order> orderRepository,
+        IRepository<Vehicle> vehicleRepository,
+        IRepository<VehicleModel> modelRepository) : IRequestHandler<CreateOrderCommand, string>
     {
-        private readonly IRepository<Order> _orderRepository;
-        private readonly IRepository<Vehicle> _vehicleRepository;
-        private readonly IRepository<VehicleModel> _modelRepository;
-
-        public CreateOrderCommandHandler(
-            IRepository<Order> orderRepository,
-            IRepository<Vehicle> vehicleRepository,
-            IRepository<VehicleModel> modelRepository)
-        {
-            _orderRepository = orderRepository;
-            _vehicleRepository = vehicleRepository;
-            _modelRepository = modelRepository;
-        }
+        private readonly IRepository<Order> _orderRepository = orderRepository;
+        private readonly IRepository<Vehicle> _vehicleRepository = vehicleRepository;
+        private readonly IRepository<VehicleModel> _modelRepository = modelRepository;
 
         public async Task<string> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             // Verify model exists
-            var models = await _modelRepository.FindAsync(vm => vm.ModelNumber == request.ModelNumber);
+            var models = await _modelRepository.FindAsync(vm => vm.ModelNumber == request.ModelNumber, cancellationToken);
             if (!models.Any())
             {
                 throw new InvalidOperationException("Vehicle model not found");
@@ -32,7 +21,7 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.CreateO
             // If vehicle ID provided, verify it exists and is available
             if (!string.IsNullOrEmpty(request.VehicleId))
             {
-                var vehicles = await _vehicleRepository.FindAsync(v => v.VehicleId == request.VehicleId);
+                var vehicles = await _vehicleRepository.FindAsync(v => v.VehicleId == request.VehicleId, cancellationToken);
                 var vehicle = vehicles.FirstOrDefault();
 
                 if (vehicle == null)
@@ -40,14 +29,14 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.CreateO
                     throw new InvalidOperationException("Vehicle not found");
                 }
 
-                if (vehicle.Status != Domain.Enums.VehicleStatus.InStock)
+                if (vehicle.Status != VehicleStatus.InStock)
                 {
                     throw new InvalidOperationException("Vehicle is not available");
                 }
 
                 // Reserve the vehicle
                 vehicle.Reserve();
-                await _vehicleRepository.UpdateAsync(vehicle);
+                await _vehicleRepository.UpdateAsync(vehicle, cancellationToken);
             }
 
             var order = new Order(
@@ -59,7 +48,7 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.CreateO
                 request.AppointmentDate,
                 request.Note);
 
-            await _orderRepository.AddAsync(order);
+            await _orderRepository.AddAsync(order, cancellationToken);
 
             return order.Id;
         }

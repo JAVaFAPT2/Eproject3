@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser;
 using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserProfile;
 using VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById;
+using VehicleShowroomManagement.Application.Features.Users.Queries.GetUsersByRole;
 using VehicleShowroomManagement.WebAPI.Models.Users;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -37,6 +38,24 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             
             return CreatedAtAction(nameof(GetUser), new { id = userId }, 
                 new { id = userId, message = "User created successfully" });
+        }
+
+        /// <summary>
+        /// Gets all users filtered by role name
+        /// </summary>
+        [HttpGet]
+        [Authorize(Roles = "HR,Admin")]
+        public async Task<ActionResult<List<UserDto>>> GetUsers([FromQuery] string? roleName = null)
+        {
+            if (string.IsNullOrEmpty(roleName))
+            {
+                return BadRequest(new { message = "roleName parameter is required" });
+            }
+
+            var query = new GetUsersByRoleQuery(roleName);
+            var users = await mediator.Send(query);
+
+            return Ok(users);
         }
 
         /// <summary>

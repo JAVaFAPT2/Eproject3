@@ -22,8 +22,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         public string PasswordHash { get; private set; } = string.Empty;
 
         [BsonElement("name")]
-        [BsonRequired]
-        public string Name { get; private set; } = string.Empty;
+        public string? Name { get; private set; }
 
         [BsonElement("email")]
         [BsonRequired]
@@ -59,7 +58,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         internal User() { }
 
         [BsonConstructor]
-        public User(string username, string passwordHash, string name, string email, string roleId, 
+        public User(string username, string passwordHash, string? name, string email, string roleId, 
             string? phone = null, string? address = null, DateTime? hireDate = null)
         {
             if (string.IsNullOrWhiteSpace(username))
@@ -68,8 +67,7 @@ namespace VehicleShowroomManagement.Domain.Entities
             if (string.IsNullOrWhiteSpace(passwordHash))
                 throw new ArgumentException("Password hash cannot be null or empty", nameof(passwordHash));
 
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name cannot be null or empty", nameof(name));
+            // Name can be null - will be set via profile update later
 
             if (string.IsNullOrWhiteSpace(email))
                 throw new ArgumentException("Email cannot be null or empty", nameof(email));
@@ -90,11 +88,8 @@ namespace VehicleShowroomManagement.Domain.Entities
         }
 
         // Domain methods
-        public void UpdateProfile(string name, string email, string? phone = null, string? address = null)
+        public void UpdateProfile(string? name, string email, string? phone = null, string? address = null)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name cannot be null or empty", nameof(name));
-
             if (string.IsNullOrWhiteSpace(email))
                 throw new ArgumentException("Email cannot be null or empty", nameof(email));
 

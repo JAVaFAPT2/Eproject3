@@ -56,6 +56,36 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
             return (int)await _collection.CountDocumentsAsync(predicate, cancellationToken: cancellationToken);
         }
 
+    public async Task<int> CountAsync(IQueryable<T> queryable, CancellationToken cancellationToken = default)
+    {
+        // Cast to IMongoQueryable to access MongoDB async extensions
+        if (queryable is IMongoQueryable<T> mongoQueryable)
+        {
+            return await mongoQueryable.CountAsync(cancellationToken);
+        }
+        
+        // Fallback: convert to list and count (less efficient)
+        var list = queryable.ToList();
+        return list.Count;
+    }
+
+    public async Task<IEnumerable<T>> GetPagedAsync(IQueryable<T> queryable, int skip, int take, CancellationToken cancellationToken = default)
+    {
+        // Cast to IMongoQueryable to access MongoDB async extensions
+        if (queryable is IMongoQueryable<T> mongoQueryable)
+        {
+            return await mongoQueryable.Skip(skip).Take(take).ToListAsync(cancellationToken);
+        }
+        
+        // Fallback: use synchronous operations (less efficient)
+        return queryable.Skip(skip).Take(take).ToList();
+    }
+
+        public IQueryable<T> AsQueryable()
+        {
+            return _collection.AsQueryable();
+        }
+
         public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
         {
             await _collection.InsertOneAsync(entity, cancellationToken: cancellationToken);

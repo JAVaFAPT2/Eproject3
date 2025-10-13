@@ -49,11 +49,17 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("reservationFrom")]
         public DateTime? ReservationFrom { get; private set; }
 
-        [BsonElement("reservationTo")]
-        public DateTime? ReservationTo { get; private set; }
+    [BsonElement("reservationTo")]
+    public DateTime? ReservationTo { get; private set; }
 
-        // Internal constructor for MongoDB
-        internal Order() { }
+    [BsonElement("createdAt")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [BsonElement("updatedAt")]
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    // Internal constructor for MongoDB
+    internal Order() { }
 
         [BsonConstructor]
         public Order(string customerId, string dealerId, string modelNumber, decimal salePrice, 
@@ -71,79 +77,88 @@ namespace VehicleShowroomManagement.Domain.Entities
             if (salePrice < 0)
                 throw new ArgumentException("Sale price cannot be negative", nameof(salePrice));
 
-            CustomerId = customerId;
-            DealerId = dealerId;
-            ModelNumber = modelNumber;
-            VehicleId = vehicleId;
-            SalePrice = salePrice;
-            AppointmentDate = appointmentDate;
-            Note = note;
-            OrderDate = DateTime.UtcNow;
-            Status = string.IsNullOrEmpty(vehicleId) ? OrderStatus.Waiting : OrderStatus.Reserved;
-        }
+        CustomerId = customerId;
+        DealerId = dealerId;
+        ModelNumber = modelNumber;
+        VehicleId = vehicleId;
+        SalePrice = salePrice;
+        AppointmentDate = appointmentDate;
+        Note = note;
+        OrderDate = DateTime.UtcNow;
+        Status = string.IsNullOrEmpty(vehicleId) ? OrderStatus.Waiting : OrderStatus.Reserved;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        // Domain methods
-        public void AssignVehicle(string vehicleId)
-        {
-            if (string.IsNullOrWhiteSpace(vehicleId))
-                throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
+    // Domain methods
+    public void AssignVehicle(string vehicleId)
+    {
+        if (string.IsNullOrWhiteSpace(vehicleId))
+            throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
 
-            if (Status != OrderStatus.Waiting)
-                throw new InvalidOperationException("Only waiting orders can have vehicles assigned");
+        if (Status != OrderStatus.Waiting)
+            throw new InvalidOperationException("Only waiting orders can have vehicles assigned");
 
-            VehicleId = vehicleId;
-            Status = OrderStatus.Reserved;
-            ReservationFrom = DateTime.UtcNow;
-        }
+        VehicleId = vehicleId;
+        Status = OrderStatus.Reserved;
+        ReservationFrom = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void Confirm()
-        {
-            if (Status != OrderStatus.Reserved)
-                throw new InvalidOperationException("Only reserved orders can be confirmed");
+    public void Confirm()
+    {
+        if (Status != OrderStatus.Reserved)
+            throw new InvalidOperationException("Only reserved orders can be confirmed");
 
-            if (string.IsNullOrEmpty(VehicleId))
-                throw new InvalidOperationException("Cannot confirm order without assigned vehicle");
+        if (string.IsNullOrEmpty(VehicleId))
+            throw new InvalidOperationException("Cannot confirm order without assigned vehicle");
 
-            Status = OrderStatus.Confirmed;
-        }
+        Status = OrderStatus.Confirmed;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void Complete()
-        {
-            if (Status != OrderStatus.Confirmed)
-                throw new InvalidOperationException("Only confirmed orders can be completed");
+    public void Complete()
+    {
+        if (Status != OrderStatus.Confirmed)
+            throw new InvalidOperationException("Only confirmed orders can be completed");
 
-            Status = OrderStatus.Completed;
-        }
+        Status = OrderStatus.Completed;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void Cancel()
-        {
-            if (Status == OrderStatus.Completed)
-                throw new InvalidOperationException("Cannot cancel a completed order");
+    public void Cancel()
+    {
+        if (Status == OrderStatus.Completed)
+            throw new InvalidOperationException("Cannot cancel a completed order");
 
-            if (Status == OrderStatus.Cancelled)
-                throw new InvalidOperationException("Order is already cancelled");
+        if (Status == OrderStatus.Cancelled)
+            throw new InvalidOperationException("Order is already cancelled");
 
-            Status = OrderStatus.Cancelled;
-        }
+        Status = OrderStatus.Cancelled;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void UpdateAppointmentDate(DateTime? appointmentDate)
-        {
-            AppointmentDate = appointmentDate;
-        }
+    public void UpdateAppointmentDate(DateTime? appointmentDate)
+    {
+        AppointmentDate = appointmentDate;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void UpdateNote(string? note)
-        {
-            Note = note;
-        }
+    public void UpdateNote(string? note)
+    {
+        Note = note;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-        public void SetReservationPeriod(DateTime from, DateTime to)
-        {
-            if (from >= to)
-                throw new ArgumentException("Reservation 'from' date must be before 'to' date");
+    public void SetReservationPeriod(DateTime from, DateTime to)
+    {
+        if (from >= to)
+            throw new ArgumentException("Reservation 'from' date must be before 'to' date");
 
-            ReservationFrom = from;
-            ReservationTo = to;
-        }
+        ReservationFrom = from;
+        ReservationTo = to;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
         // Computed properties
         public bool IsWaiting => Status == OrderStatus.Waiting;

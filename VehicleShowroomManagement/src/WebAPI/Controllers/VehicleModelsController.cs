@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Commands.CreateVehicleModel;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Commands.UpdateVehicleModel;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Queries.GetVehicleModels;
+using VehicleShowroomManagement.Application.Features.VehicleModels.Queries.GetVehicleModelById;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -54,6 +55,24 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             return Ok(new { message = "Vehicle model updated successfully" });
         }
 
+        /// <summary>
+        /// Gets a vehicle model by model number
+        /// </summary>
+        [HttpGet("{modelNumber}")]
+        public async Task<IActionResult> GetVehicleModel(string modelNumber)
+        {
+            var query = new GetVehicleModelByIdQuery(modelNumber);
+            var result = await _mediator.Send(query);
+            
+            if (result == null)
+                return NotFound(new { message = "Vehicle model not found" });
+                
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Gets all vehicle models with pagination
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetVehicleModels(
             [FromQuery] int pageNumber = 1,

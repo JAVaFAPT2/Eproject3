@@ -34,7 +34,7 @@ namespace VehicleShowroomManagement.Application.Features.Profile.Queries.GetProf
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                Name = user.Name,
+                Name = user.Name ?? string.Empty,
                 Phone = user.Phone,
                 Address = user.Address,
                 Role = role?.Name ?? "Unknown",
