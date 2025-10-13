@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.AddVehiclePhoto;
 using VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.UpdateVehiclePhoto;
 using VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.DeleteVehiclePhoto;
@@ -20,10 +22,12 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     public class VehiclePhotosController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public VehiclePhotosController(IMediator mediator)
+        public VehiclePhotosController(IMediator mediator, ICloudinaryService cloudinaryService)
         {
             _mediator = mediator;
+            _cloudinaryService = cloudinaryService;
         }
 
         /// <summary>
@@ -61,6 +65,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             var command = new AddVehiclePhotoCommand(
                 vehicleId,
+                request.VehicleModelId,
                 request.Url,
                 request.DisplayOrder,
                 request.Caption);
@@ -69,6 +74,30 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
             return CreatedAtAction(nameof(GetPhoto), new { photoId }, 
                 new { id = photoId, message = "Photo added successfully" });
+        }
+
+        /// <summary>
+        /// Uploads one or more photo files to a vehicle. Expects multipart/form-data with repeated part "files".
+        /// </summary>
+        [HttpPost("upload")]
+        [Authorize(Roles = "Dealer,Admin")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadVehiclePhotos(string vehicleId, [FromForm] List<IFormFile> files)
+        {
+            if (files == null || files.Count == 0)
+                return BadRequest(new { message = "No files provided" });
+
+            var created = new List<object>();
+            foreach (var file in files)
+            {
+                if (file == null || file.Length == 0) continue;
+                var upload = await _cloudinaryService.UploadImageAsync(file, "vehicles");
+                var cmd = new AddVehiclePhotoCommand(vehicleId, null, upload.SecureUrl, 0, null);
+                var id = await _mediator.Send(cmd);
+                created.Add(new { id, url = upload.SecureUrl });
+            }
+
+            return Ok(new { message = "Photos uploaded successfully", items = created });
         }
 
         /// <summary>

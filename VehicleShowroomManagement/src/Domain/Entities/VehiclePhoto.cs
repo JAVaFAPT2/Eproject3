@@ -1,4 +1,3 @@
-using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -17,6 +16,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRequired]
         public string VehicleId { get; private set; } = string.Empty;
 
+        [BsonElement("vehicleModelId")]
+        public string? VehicleModelId { get; private set; }
+
         [BsonElement("url")]
         [BsonRequired]
         public string Url { get; private set; } = string.Empty;
@@ -31,15 +33,16 @@ namespace VehicleShowroomManagement.Domain.Entities
         internal VehiclePhoto() { }
 
         [BsonConstructor]
-        public VehiclePhoto(string vehicleId, string url, int displayOrder = 0, string? caption = null)
+        public VehiclePhoto(string vehicleId, string? vehicleModelId, string url, int displayOrder = 0, string? caption = null)
         {
-            if (string.IsNullOrWhiteSpace(vehicleId))
-                throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
+            if (string.IsNullOrWhiteSpace(vehicleId) && string.IsNullOrWhiteSpace(vehicleModelId))
+                throw new ArgumentException("Either Vehicle ID or Vehicle Model ID must be provided");
 
             if (string.IsNullOrWhiteSpace(url))
                 throw new ArgumentException("URL cannot be null or empty", nameof(url));
 
             VehicleId = vehicleId;
+            VehicleModelId = vehicleModelId;
             Url = url;
             DisplayOrder = displayOrder;
             Caption = caption;

@@ -18,6 +18,7 @@ namespace VehicleShowroomManagement.Application.Features.VehiclePhotos.Queries.G
                 {
                     Id = p.Id,
                     VehicleId = p.VehicleId,
+                    VehicleModelId = p.VehicleModelId,
                     Url = p.Url,
                     DisplayOrder = p.DisplayOrder,
                     Caption = p.Caption
