@@ -87,7 +87,7 @@ export default function AuthNavbar(props) {
   let navbarBg = "none";
   let navbarShadow = "initial";
   let bgButton = "white";
-  let colorButton = "brand.500";
+  let colorButton = "black";
   let navbarPosition = "absolute";
 
   let brand = (
@@ -171,7 +171,7 @@ export default function AuthNavbar(props) {
               spacing='0px'
               align='center'
               cursor='default'>
-              <IconBox bg='brand.500' h='30px' w='30px' me='10px'>
+              <IconBox bg='black' h='30px' w='30px' me='10px'>
                 {link.icon}
               </IconBox>
               <Text fontWeight='bold' fontSize='md' me='auto' color={textColor}>
@@ -215,7 +215,7 @@ export default function AuthNavbar(props) {
               align='center'
               cursor='default'
               w='max-content'>
-              <IconBox bg='brand.500' h='30px' w='30px' me='10px'>
+              <IconBox bg='black' h='30px' w='30px' me='10px'>
                 {link.icon}
               </IconBox>
               <Text fontWeight='bold' fontSize='md' me='auto' color={textColor}>

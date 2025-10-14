@@ -57,7 +57,7 @@ export default function Conversion(props) {
         mx='auto'>
         <Flex direction='column' py='5px'>
           <Flex align='center'>
-            <Box h='8px' w='8px' bg='brand.500' borderRadius='50%' me='4px' />
+            <Box h='8px' w='8px' bg='black' borderRadius='50%' me='4px' />
             <Text
               fontSize='xs'
               color='secondaryGray.600'

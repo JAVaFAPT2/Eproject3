@@ -24,37 +24,32 @@ import { useShowToast } from 'utils/helper';
 function SignUp() {
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
-  const textColorBrand = useColorModeValue('brand.500', 'white');
-  const brandStars = useColorModeValue('brand.500', 'brand.400');
+  const textColorBrand = useColorModeValue('black', 'white');
+  const brandStars = useColorModeValue('black', 'brand.400');
 
   const navigate = useNavigate();
   const { showToast } = useShowToast();
 
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
 
   const handleShowPassword = () => setShowPassword(!showPassword);
 
   const handleSignUp = async () => {
+    if (!username || !email || !password) {
+      showToast('Please fill in all required fields', 'error');
+      return;
+    }
     if (password !== confirmPassword) {
       showToast('Passwords do not match', 'error');
       return;
     }
+
     try {
-      await AuthService.register({
-        username,
-        password,
-        email,
-        name,
-        phone,
-        address,
-      });
+      await AuthService.register({ username, password, email });
       showToast('Account created successfully!', 'success');
       setTimeout(() => navigate('/auth/sign-in'), 1500);
     } catch (error) {
@@ -85,19 +80,12 @@ function SignUp() {
           <Heading color={textColor} fontSize="36px" mb="10px">
             Sign Up
           </Heading>
-          <Text
-            mb="36px"
-            ms="4px"
-            color={textColorSecondary}
-            fontWeight="400"
-            fontSize="md"
-          >
+          <Text mb="36px" ms="4px" color={textColorSecondary} fontWeight="400">
             Create an account to get started!
           </Text>
         </Box>
 
         <Flex
-          zIndex="2"
           direction="column"
           w={{ base: '100%', md: '420px' }}
           maxW="100%"
@@ -123,33 +111,11 @@ function SignUp() {
               variant="auth"
               fontSize="sm"
               type="text"
-              placeholder="Your full name"
+              placeholder="Enter username"
               mb="24px"
               size="lg"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-            />
-
-            <FormLabel
-              display="flex"
-              ms="4px"
-              fontSize="sm"
-              fontWeight="500"
-              color={textColor}
-              mb="8px"
-            >
-              Full Name<Text color={brandStars}>*</Text>
-            </FormLabel>
-            <Input
-              isRequired
-              variant="auth"
-              fontSize="sm"
-              type="text"
-              placeholder="Your full name"
-              mb="24px"
-              size="lg"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
             />
 
             <FormLabel
@@ -172,50 +138,6 @@ function SignUp() {
               size="lg"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            />
-
-            <FormLabel
-              display="flex"
-              ms="4px"
-              fontSize="sm"
-              fontWeight="500"
-              color={textColor}
-              mb="8px"
-            >
-              Phone Number<Text color={brandStars}>*</Text>
-            </FormLabel>
-            <Input
-              isRequired
-              variant="auth"
-              fontSize="sm"
-              type="text"
-              placeholder="Your full name"
-              mb="24px"
-              size="lg"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-
-            <FormLabel
-              display="flex"
-              ms="4px"
-              fontSize="sm"
-              fontWeight="500"
-              color={textColor}
-              mb="8px"
-            >
-              Address<Text color={brandStars}>*</Text>
-            </FormLabel>
-            <Input
-              isRequired
-              variant="auth"
-              fontSize="sm"
-              type="text"
-              placeholder="Your full name"
-              mb="24px"
-              size="lg"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
             />
 
             <FormLabel
@@ -287,7 +209,6 @@ function SignUp() {
             flexDirection="column"
             justifyContent="center"
             alignItems="start"
-            maxW="100%"
             mt="0px"
           >
             <Text color={textColorSecondary} fontWeight="400" fontSize="14px">
