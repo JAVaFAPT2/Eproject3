@@ -25,13 +25,23 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Register
                 throw new InvalidOperationException("Email already exists");
             }
 
-            // Find Customer role by name
+            // Find Customer role by name (case-insensitive)
             var customerRoles = await roleRepository.FindAsync(r => r.Name == "Customer", cancellationToken);
             var customerRole = customerRoles.FirstOrDefault();
-            
+
             if (customerRole == null)
             {
-                throw new InvalidOperationException("Customer role not found in the system");
+                // Fallback: attempt case-insensitive lookup
+                var allRoles = await roleRepository.GetAllAsync(cancellationToken);
+                customerRole = allRoles.FirstOrDefault(r => string.Equals(r.Name, "Customer", StringComparison.OrdinalIgnoreCase));
+
+                // If still not found, create it idempotently
+                if (customerRole == null)
+                {
+                    var newCustomerRole = new Role("Customer");
+                    await roleRepository.AddAsync(newCustomerRole, cancellationToken);
+                    customerRole = newCustomerRole;
+                }
             }
 
             // Hash password
