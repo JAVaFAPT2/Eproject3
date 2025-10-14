@@ -6,7 +6,6 @@ import Navbar from 'components/navbar/NavbarAdmin.js';
 import Footer from 'components/footer/FooterAdmin.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
-import PrivateRoute from 'components/auth/PrivateRoute';
 
 export default function Dashboard(props) {
   const { ...rest } = props;
@@ -15,9 +14,10 @@ export default function Dashboard(props) {
   const { onOpen } = useDisclosure();
   const location = useLocation();
 
-  const filteredRoutes = routes.filter((route) => !route.hideInSidebar);
+  // ✅ Chỉ lấy các route có layout === '/admin'
+  const adminRoutes = routes.filter((route) => route.layout === '/admin');
 
-  // Get current active route name
+  // ✅ Lấy route đang active
   const getActiveRoute = (routes, pathname) => {
     for (let route of routes) {
       if (route.collapse || route.category) {
@@ -30,32 +30,21 @@ export default function Dashboard(props) {
     return null;
   };
 
-  const activeRoute = getActiveRoute(routes, location.pathname);
+  const activeRoute = getActiveRoute(adminRoutes, location.pathname);
 
-  // Render all routes
+  // ✅ Render các route admin
   const getRoutesComponents = (routes) =>
-    routes.map((route, key) => {
-      if (route.hideInSidebar) return null;
-
-      if (route.layout === '/admin') {
-        const element =
-          route.path === '/profile' ? (
-            <PrivateRoute>{route.component}</PrivateRoute>
-          ) : (
-            route.component
-          );
-        return <Route path={route.path} element={element} key={key} />;
-      }
-      if (route.collapse || route.category) {
-        return getRoutesComponents(route.items);
-      }
-      return null;
-    });
+    routes
+      .filter((r) => r.layout === '/admin')
+      .map((route, key) => (
+        <Route path={route.path} element={route.component} key={key} />
+      ));
 
   return (
     <Box>
       <SidebarContext.Provider value={{ toggleSidebar, setToggleSidebar }}>
-        <Sidebar routes={filteredRoutes} display="none" {...rest} />
+        {/* ✅ Sidebar chỉ hiện route admin */}
+        <Sidebar routes={adminRoutes} display="none" {...rest} />
 
         <Box
           float="right"
@@ -66,6 +55,7 @@ export default function Dashboard(props) {
           maxHeight="100%"
           w={{ base: '100%', xl: 'calc(100% - 290px)' }}
         >
+          {/* ✅ Navbar */}
           <Portal>
             <Box>
               <Navbar
@@ -80,17 +70,13 @@ export default function Dashboard(props) {
             </Box>
           </Portal>
 
-          <Box
-            mx="auto"
-            p={{ base: '20px', md: '30px' }}
-            pt="50px"
-            minH="100vh"
-          >
+          {/* ✅ Nội dung chính */}
+          <Box mx="auto" p={{ base: '20px', md: '30px' }} pt="50px" minH="100vh">
             <Routes>
-              {getRoutesComponents(routes)}
+              {getRoutesComponents(adminRoutes)}
               <Route
                 path="/"
-                element={<Navigate to="/admin/default" replace />}
+                element={<Navigate to="/admin/dashboard" replace />}
               />
             </Routes>
           </Box>

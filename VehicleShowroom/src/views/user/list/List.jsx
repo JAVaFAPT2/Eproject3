@@ -96,7 +96,7 @@ export default function List() {
   return (
     <Box pt="100px" minH="100vh" px={{ base: 4, md: 10 }}>
       <Text fontSize="4xl" fontWeight="600" mb={6}>
-        Vehicle Overview
+        Model Overview
       </Text>
 
       <Flex gap={10} flexDir={{ base: 'column', md: 'row' }}>

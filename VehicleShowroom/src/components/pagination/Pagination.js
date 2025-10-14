@@ -7,7 +7,7 @@ function Pagination({ page, totalPages, onPageChange }) {
   const [inputValue, setInputValue] = useState(page + 1);
   const { showToast } = useShowToast();
 
-  const activeColor = useColorModeValue('brand.500', 'navy.700');
+  const activeColor = useColorModeValue('black', 'navy.700');
 
   const pageNumbers = [];
   const delta = 2;

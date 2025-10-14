@@ -28,7 +28,7 @@ export default function TotalSpent(props) {
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const textColorSecondary = useColorModeValue("secondaryGray.600", "white");
   const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
-  const iconColor = useColorModeValue("brand.500", "white");
+  const iconColor = useColorModeValue("black", "white");
   const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
   const bgHover = useColorModeValue(
     { bg: "secondaryGray.400" },

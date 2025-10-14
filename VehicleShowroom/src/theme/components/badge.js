@@ -14,13 +14,13 @@ export const badgeStyles = {
           borderRadius: "16px",
         }),
         brand: (props) => ({
-          bg: mode("brand.500", "brand.400")(props),
+          bg: mode("black", "brand.400")(props),
           color: "white",
           _focus: {
-            bg: mode("brand.500", "brand.400")(props),
+            bg: mode("black", "brand.400")(props),
           },
           _active: {
-            bg: mode("brand.500", "brand.400")(props),
+            bg: mode("black", "brand.400")(props),
           },
           _hover: {
             bg: mode("brand.600", "brand.400")(props),

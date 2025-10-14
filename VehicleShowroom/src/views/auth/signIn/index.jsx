@@ -21,16 +21,18 @@ import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import AuthService from 'services/AuthService';
 import { useShowToast } from 'utils/helper';
+import { useUser } from 'contexts/UserContext';
 
 function SignIn() {
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
   const textColorDetails = useColorModeValue('navy.700', 'secondaryGray.600');
-  const textColorBrand = useColorModeValue('brand.500', 'white');
-  const brandStars = useColorModeValue('brand.500', 'brand.400');
+  const textColorBrand = useColorModeValue('black', 'white');
+  const brandStars = useColorModeValue('black', 'brand.400');
 
   const navigate = useNavigate();
   const { showToast } = useShowToast();
+  const { refreshUser } = useUser();
 
   const [show, setShow] = useState(false);
   const [username, setUsername] = useState('');
@@ -40,8 +42,14 @@ function SignIn() {
   const handleClick = () => setShow(!show);
 
   const handleLogin = async () => {
+    if (!username || !password) {
+      showToast('Please enter username and password', 'error');
+      return;
+    }
+
     try {
-      await AuthService.login({ username, password });
+      await AuthService.login(username, password);
+      await refreshUser();
       showToast('Login successful', 'success');
       setTimeout(() => navigate('/'), 1200);
     } catch (error) {
@@ -72,19 +80,12 @@ function SignIn() {
           <Heading color={textColor} fontSize="36px" mb="10px">
             Sign In
           </Heading>
-          <Text
-            mb="36px"
-            ms="4px"
-            color={textColorSecondary}
-            fontWeight="400"
-            fontSize="md"
-          >
-            Enter your email and password to sign in!
+          <Text mb="36px" ms="4px" color={textColorSecondary} fontWeight="400">
+            Enter your username and password to access your account.
           </Text>
         </Box>
 
         <Flex
-          zIndex="2"
           direction="column"
           w={{ base: '100%', md: '420px' }}
           maxW="100%"
@@ -94,7 +95,6 @@ function SignIn() {
           me="auto"
           mb={{ base: '20px', md: 'auto' }}
         >
-          {/* Form đăng nhập bằng username/password */}
           <FormControl>
             <FormLabel
               display="flex"
@@ -113,11 +113,10 @@ function SignIn() {
               type="text"
               placeholder="Enter username"
               mb="24px"
-              fontWeight="500"
-              size="lg"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
+
             <FormLabel
               ms="4px"
               fontSize="sm"
@@ -197,7 +196,6 @@ function SignIn() {
             flexDirection="column"
             justifyContent="center"
             alignItems="start"
-            maxW="100%"
             mt="0px"
           >
             <Text color={textColorDetails} fontWeight="400" fontSize="14px">
