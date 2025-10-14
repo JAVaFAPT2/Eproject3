@@ -40,7 +40,7 @@ import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
   // Chakra Color Mode
-  const brandColor = useColorModeValue('brand.500', 'white');
+  const brandColor = useColorModeValue('black', 'white');
   const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
 
   const [topEmployees, setTopEmployees] = useState([]);

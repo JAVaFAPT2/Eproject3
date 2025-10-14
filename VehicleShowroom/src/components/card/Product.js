@@ -14,8 +14,8 @@ import { ChevronRightIcon } from '@chakra-ui/icons';
 export default function ProductCard(props) {
   const { image, name, author, price, link } = props;
   const textColor = useColorModeValue('navy.700', 'white');
-  const textColorPrice = useColorModeValue('brand.500', 'white');
-  const textColorBrand = useColorModeValue('brand.500', 'brand.400');
+  const textColorPrice = useColorModeValue('black', 'white');
+  const textColorBrand = useColorModeValue('black', 'brand.400');
 
   return (
     <Card p="20px">
@@ -106,7 +106,7 @@ export default function ProductCard(props) {
               }}
             >
               <Flex align="center" gap={1}>
-                <Text fontSize="sm" color="brand.500" fontWeight="500">
+                <Text fontSize="sm" color="black" fontWeight="500">
                   View details
                 </Text>
                 <Icon as={ChevronRightIcon} color={textColorBrand} />
