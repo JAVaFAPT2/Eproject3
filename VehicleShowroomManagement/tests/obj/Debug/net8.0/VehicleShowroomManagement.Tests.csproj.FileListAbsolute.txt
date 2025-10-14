@@ -493,3 +493,5 @@ C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\obj\De
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\obj\Debug\net8.0\VehicleShowroomManagement.Tests.pdb
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\obj\Debug\net8.0\VehicleShowroomManagement.Tests.genruntimeconfig.cache
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\obj\Debug\net8.0\ref\VehicleShowroomManagement.Tests.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\bin\Debug\net8.0\DotNetEnv.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\tests\bin\Debug\net8.0\Sprache.dll

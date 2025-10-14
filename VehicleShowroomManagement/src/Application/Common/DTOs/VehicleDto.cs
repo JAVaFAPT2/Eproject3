@@ -11,6 +11,6 @@ namespace VehicleShowroomManagement.Application.Common.DTOs
         public string? RegistrationDataJson { get; set; }  // Serialized JSON string
         public string Status { get; set; } = string.Empty;
         public decimal PurchasePrice { get; set; }
-        public DateTime ReceiptDate { get; set; }
+        public string? Slug { get; set; }
     }
 }

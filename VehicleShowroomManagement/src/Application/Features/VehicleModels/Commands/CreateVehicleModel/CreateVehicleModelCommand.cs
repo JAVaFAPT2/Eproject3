@@ -9,6 +9,7 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Commands.
         string Description,
         string? ParentId = null,
         int Level = 1,
-        string? Slug = null) : IRequest<string>;
+        string? Slug = null,
+        string? Photo = null) : IRequest<string>;
 }
 

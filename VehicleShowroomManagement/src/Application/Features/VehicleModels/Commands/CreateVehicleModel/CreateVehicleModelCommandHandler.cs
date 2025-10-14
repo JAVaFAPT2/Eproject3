@@ -29,7 +29,8 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Commands.
                 request.Description,
                 request.ParentId,
                 request.Level,
-                slugToUse);
+                slugToUse,
+                request.Photo);
 
             await modelRepository.AddAsync(vehicleModel, cancellationToken);
 

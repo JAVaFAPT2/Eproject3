@@ -40,7 +40,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Creates a new order
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "Customer,Dealer,Admin")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
             var command = new CreateOrderCommand(

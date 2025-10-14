@@ -19,43 +19,54 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
             var services = scope.ServiceProvider;
 
             var context = services.GetRequiredService<VehicleShowroomDbContext>();
-            
-            // Check if roles already exist
-            var existingRoles = await context.Roles.CountDocumentsAsync(_ => true);
-            if (existingRoles > 0)
+
+            // Ensure required roles exist (idempotent)
+            var requiredRoleNames = new[] { "Admin", "HR", "Dealer", "Customer" };
+            foreach (var roleName in requiredRoleNames)
             {
-                return; // Data already seeded
+                var exists = await context.Roles
+                    .Find(r => r.Name == roleName)
+                    .AnyAsync();
+
+                if (!exists)
+                {
+                    await context.Roles.InsertOneAsync(new Role(roleName));
+                    Console.WriteLine($"✅ Seeded role: {roleName}");
+                }
             }
 
-            // Seed default roles
-            var adminRole = new Role("Admin");
-            var hrRole = new Role("HR");
-            var dealerRole = new Role("Dealer");
-            var customerRole = new Role("Customer");
+            // Resolve Admin role for default admin user
+            var adminRoleId = await context.Roles
+                .Find(r => r.Name == "Admin")
+                .Project(r => r.Id)
+                .FirstOrDefaultAsync();
 
-            await context.Roles.InsertManyAsync(new[] { adminRole, hrRole, dealerRole, customerRole });
+            // Seed default admin user if not exists (idempotent)
+            var adminExists = await context.Users
+                .Find(u => u.Username == "admin")
+                .AnyAsync();
 
-            Console.WriteLine("✅ Seeded roles: Admin, HR, Dealer, Customer");
+            if (!adminExists && !string.IsNullOrWhiteSpace(adminRoleId))
+            {
+                var passwordService = services.GetRequiredService<Domain.Services.IPasswordService>();
+                var adminPasswordHash = passwordService.HashPassword("Admin123!");
 
-            // Seed default admin user
-            var passwordService = services.GetRequiredService<Domain.Services.IPasswordService>();
-            var adminPasswordHash = passwordService.HashPassword("Admin123!");
+                var adminUser = new User(
+                    username: "admin",
+                    passwordHash: adminPasswordHash,
+                    name: "System Administrator",
+                    email: "admin@vehicleshowroom.com",
+                    roleId: adminRoleId,
+                    phone: "+1234567890",
+                    address: "123 Admin Street, City, Country",
+                    hireDate: DateTime.UtcNow
+                );
 
-            var adminUser = new User(
-                username: "admin",
-                passwordHash: adminPasswordHash,
-                name: "System Administrator",
-                email: "admin@vehicleshowroom.com",
-                roleId: adminRole.Id,
-                phone: "+1234567890",
-                address: "123 Admin Street, City, Country",
-                hireDate: DateTime.UtcNow
-            );
+                await context.Users.InsertOneAsync(adminUser);
+                Console.WriteLine("✅ Seeded admin user (username: admin, password: Admin123!)");
+            }
 
-            await context.Users.InsertOneAsync(adminUser);
-
-            Console.WriteLine("✅ Seeded admin user (username: admin, password: Admin123!)");
-            Console.WriteLine("MongoDB database seeded successfully!");
+            Console.WriteLine("MongoDB database seed check completed.");
         }
     }
 }

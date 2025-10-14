@@ -10,6 +10,7 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Commands.
             model.UpdateModel(request.Name, request.Price, request.Description);
             model.SetHierarchy(request.ParentId, request.Level);
             model.SetSlug(request.Slug);
+            model.SetPhoto(request.Photo);
             await modelRepository.UpdateAsync(model, cancellationToken);
         }
     }

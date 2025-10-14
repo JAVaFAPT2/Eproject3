@@ -6,7 +6,7 @@ namespace VehicleShowroomManagement.Application.Common.DTOs
     public class VehicleSpecDto
     {
         public string Id { get; set; } = string.Empty;
-        public string VehicleId { get; set; } = string.Empty;
+        public string ModelId { get; set; } = string.Empty;
         public string SpecName { get; set; } = string.Empty;
         public string SpecValue { get; set; } = string.Empty;
         public int DisplayOrder { get; set; }

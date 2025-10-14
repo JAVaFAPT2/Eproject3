@@ -23,6 +23,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
         public IMongoCollection<PurchaseOrderLine> PurchaseOrderLines => database.GetCollection<PurchaseOrderLine>("PURCHASE_ORDER_LINE");
         public IMongoCollection<Order> Orders => database.GetCollection<Order>("ORDER");
         public IMongoCollection<ServiceOrder> ServiceOrders => database.GetCollection<ServiceOrder>("SERVICE_ORDER");
+        // Billing/DocumentOutputs disabled - collections kept for backward compatibility but not exposed via APIs
         public IMongoCollection<BillingDocument> BillingDocuments => database.GetCollection<BillingDocument>("BILLING_DOCUMENT");
         public IMongoCollection<DocumentOutput> DocumentOutputs => database.GetCollection<DocumentOutput>("DOCUMENT_OUTPUT");
 

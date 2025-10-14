@@ -63,7 +63,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             var command = new AddPurchaseOrderLineCommand(
                 id,
-                request.ModelNumber,
+                request.ModelId,
                 request.Quantity,
                 request.PricePerUnit);
 
@@ -93,7 +93,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
         public class AddPurchaseOrderLineRequest
     {
-            public string ModelNumber { get; set; } = string.Empty; // Level-2 model
+            public string ModelId { get; set; } = string.Empty; // Level-2 model (modelNumber)
         public int Quantity { get; set; }
         public decimal PricePerUnit { get; set; }
     }

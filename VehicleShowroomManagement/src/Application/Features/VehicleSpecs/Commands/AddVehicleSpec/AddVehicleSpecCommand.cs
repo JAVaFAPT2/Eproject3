@@ -6,7 +6,7 @@ namespace VehicleShowroomManagement.Application.Features.VehicleSpecs.Commands.A
     /// Command to add a specification to a vehicle
     /// </summary>
     public record AddVehicleSpecCommand(
-        string VehicleId,
+        string ModelId,
         string SpecName,
         string SpecValue,
         int DisplayOrder = 0,

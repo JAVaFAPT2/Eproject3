@@ -2,11 +2,10 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.
 {
     public class GetPurchaseOrdersQueryHandler(IRepository<PurchaseOrder> purchaseOrderRepository) : IRequestHandler<GetPurchaseOrdersQuery, GetPurchaseOrdersResult>
     {
-        private readonly IRepository<PurchaseOrder> _purchaseOrderRepository = purchaseOrderRepository;
 
         public async Task<GetPurchaseOrdersResult> Handle(GetPurchaseOrdersQuery request, CancellationToken cancellationToken)
         {
-            var allPOs = await _purchaseOrderRepository.GetAllAsync(cancellationToken);
+            var allPOs = await purchaseOrderRepository.GetAllAsync(cancellationToken);
 
             // Apply filters
             var filtered = allPOs.Where(po =>
@@ -26,7 +25,6 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.
                     Id = po.Id,
                     CreatedBy = po.CreatedBy,
                     OrderDate = po.OrderDate,
-                    ExpectedDeliveryDate = po.ExpectedDeliveryDate,
                     TotalAmount = po.TotalAmount,
                     Status = po.Status.ToString()
                 })

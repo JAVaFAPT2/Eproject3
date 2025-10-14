@@ -42,6 +42,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("status")]
         public ServiceOrderStatus Status { get; private set; } = ServiceOrderStatus.Scheduled;
 
+        [BsonElement("licensePlate")]
+        public string? LicensePlate { get; private set; }
+
         // Internal constructor for MongoDB
         internal ServiceOrder() { }
 
@@ -108,7 +111,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         Status = ServiceOrderStatus.Cancelled;
     }
 
-    public void UpdateStatus(ServiceOrderStatus newStatus)
+    public void UpdateStatus(ServiceOrderStatus newStatus, string? licensePlate = null)
     {
         if (newStatus == ServiceOrderStatus.Completed)
         {
@@ -121,6 +124,11 @@ namespace VehicleShowroomManagement.Domain.Entities
         else
         {
             Status = newStatus;
+        }
+        
+        if (!string.IsNullOrWhiteSpace(licensePlate))
+        {
+            LicensePlate = licensePlate;
         }
     }
 

@@ -33,14 +33,12 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("licensePlate")]
         public string? LicensePlate { get; private set; }
 
-        [BsonElement("receiptDate")]
-        public DateTime ReceiptDate { get; private set; } = DateTime.UtcNow;
 
         // Parameterless constructor for MongoDB deserialization
         public Vehicle() { }
 
         public Vehicle(string vehicleId, string modelNumber, decimal purchasePrice, 
-            string? externalNumber = null, DateTime? receiptDate = null)
+            string? externalNumber = null)
         {
             if (string.IsNullOrWhiteSpace(vehicleId))
                 throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
@@ -55,7 +53,6 @@ namespace VehicleShowroomManagement.Domain.Entities
             ModelNumber = modelNumber;
             PurchasePrice = purchasePrice;
             ExternalNumber = externalNumber;
-            ReceiptDate = receiptDate ?? DateTime.UtcNow;
         }
 
         // Domain methods

@@ -12,7 +12,7 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Comm
             var po = await purchaseOrderRepository.GetByIdAsync(request.POId, cancellationToken) ?? throw new InvalidOperationException("Purchase order not found");
 
             // Verify vehicle model exists and is Level-2 (variant)
-            var models = await vehicleModelRepository.FindAsync(vm => vm.ModelNumber == request.ModelNumber, cancellationToken);
+            var models = await vehicleModelRepository.FindAsync(vm => vm.ModelNumber == request.ModelId, cancellationToken);
             var model = models.FirstOrDefault();
             if (model is null)
             {
@@ -25,7 +25,7 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Comm
 
             var line = new PurchaseOrderLine(
                 request.POId,
-                request.ModelNumber,
+                request.ModelId,
                 request.Quantity,
                 request.PricePerUnit);
 

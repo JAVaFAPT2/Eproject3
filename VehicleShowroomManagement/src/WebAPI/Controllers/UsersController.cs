@@ -97,7 +97,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// <summary>
         /// Updates user's active status only
         /// </summary>
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         [Authorize(Roles = "HR,Admin")]
         public async Task<IActionResult> UpdateUserActive(string id, [FromBody] UpdateUserActiveRequest request)
         {

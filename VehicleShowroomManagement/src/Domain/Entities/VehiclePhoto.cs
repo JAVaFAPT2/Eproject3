@@ -12,13 +12,13 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("modelNumber")]
-        [BsonRequired]
-        public string ModelNumber { get; private set; } = string.Empty;
-
         [BsonElement("url")]
         [BsonRequired]
         public string Url { get; private set; } = string.Empty;
+
+        [BsonElement("modelId")]
+        [BsonRequired]
+        public string ModelId { get; private set; } = string.Empty;
 
         [BsonElement("displayOrder")]
         public int DisplayOrder { get; private set; }
@@ -30,15 +30,14 @@ namespace VehicleShowroomManagement.Domain.Entities
         internal VehiclePhoto() { }
 
         [BsonConstructor]
-        public VehiclePhoto(string modelNumber, string url, int displayOrder = 0, string? caption = null)
+        public VehiclePhoto(string modelId, string url, int displayOrder = 0, string? caption = null)
         {
-            if (string.IsNullOrWhiteSpace(modelNumber))
-                throw new ArgumentException("ModelNumber cannot be null or empty", nameof(modelNumber));
-
+            if (string.IsNullOrWhiteSpace(modelId))
+                throw new ArgumentException("ModelId cannot be null or empty", nameof(modelId));
             if (string.IsNullOrWhiteSpace(url))
-                throw new ArgumentException("URL cannot be null or empty", nameof(url));
+                throw new ArgumentException("Url cannot be null or empty", nameof(url));
 
-            ModelNumber = modelNumber;
+            ModelId = modelId;
             Url = url;
             DisplayOrder = displayOrder;
             Caption = caption;
@@ -58,9 +57,16 @@ namespace VehicleShowroomManagement.Domain.Entities
         public void UpdateUrl(string url)
         {
             if (string.IsNullOrWhiteSpace(url))
-                throw new ArgumentException("URL cannot be null or empty", nameof(url));
-
+                throw new ArgumentException("Url cannot be null or empty", nameof(url));
             Url = url;
+        }
+
+        public void UpdateModelId(string modelId)
+        {
+            if (string.IsNullOrWhiteSpace(modelId))
+                throw new ArgumentException("ModelId cannot be null or empty", nameof(modelId));
+
+            ModelId = modelId;
         }
     }
 }

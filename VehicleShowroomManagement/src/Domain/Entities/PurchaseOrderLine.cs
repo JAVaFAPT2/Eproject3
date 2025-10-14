@@ -18,9 +18,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRequired]
         public string POId { get; private set; } = string.Empty;
 
-        [BsonElement("modelNumber")]
+        [BsonElement("modelId")]
         [BsonRequired]
-        public string ModelNumber { get; private set; } = string.Empty;
+        public string ModelId { get; private set; } = string.Empty;
 
         [BsonElement("quantity")]
         [BsonRequired]
@@ -34,13 +34,13 @@ namespace VehicleShowroomManagement.Domain.Entities
         internal PurchaseOrderLine() { }
 
         [BsonConstructor]
-        public PurchaseOrderLine(string poId, string modelNumber, int quantity, decimal pricePerUnit)
+        public PurchaseOrderLine(string poId, string modelId, int quantity, decimal pricePerUnit)
         {
             if (string.IsNullOrWhiteSpace(poId))
                 throw new ArgumentException("PO ID cannot be null or empty", nameof(poId));
 
-            if (string.IsNullOrWhiteSpace(modelNumber))
-                throw new ArgumentException("Model number cannot be null or empty", nameof(modelNumber));
+            if (string.IsNullOrWhiteSpace(modelId))
+                throw new ArgumentException("Model ID cannot be null or empty", nameof(modelId));
 
             if (quantity <= 0)
                 throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
@@ -49,7 +49,7 @@ namespace VehicleShowroomManagement.Domain.Entities
                 throw new ArgumentException("Price per unit cannot be negative", nameof(pricePerUnit));
 
             POId = poId;
-            ModelNumber = modelNumber;
+            ModelId = modelId;
             Quantity = quantity;
             PricePerUnit = pricePerUnit;
         }

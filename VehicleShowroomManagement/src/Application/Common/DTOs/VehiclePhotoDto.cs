@@ -6,9 +6,8 @@ namespace VehicleShowroomManagement.Application.Common.DTOs
     public class VehiclePhotoDto
     {
         public string Id { get; set; } = string.Empty;
-        public string VehicleId { get; set; } = string.Empty;
-        public string? VehicleModelId { get; set; }
-        public string Url { get; set; } = string.Empty;
+        public string ModelId { get; set; } = string.Empty;
+        public string PhotoUrl { get; set; } = string.Empty;
         public int DisplayOrder { get; set; }
         public string? Caption { get; set; }
     }

@@ -34,10 +34,14 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("slug")]
         public string? Slug { get; private set; }
 
+        // Primary photo url for this model (usually first upload)
+        [BsonElement("photo")]
+        public string? Photo { get; private set; }
+
     // Parameterless constructor for MongoDB deserialization
     public VehicleModel() { }
 
-    public VehicleModel(string modelNumber, string name, decimal price, string description, string? parentId = null, int level = 1, string? slug = null)
+    public VehicleModel(string modelNumber, string name, decimal price, string description, string? parentId = null, int level = 1, string? slug = null, string? photo = null)
         {
             if (string.IsNullOrWhiteSpace(modelNumber))
                 throw new ArgumentException("Model number cannot be null or empty", nameof(modelNumber));
@@ -58,6 +62,7 @@ namespace VehicleShowroomManagement.Domain.Entities
             ParentId = parentId;
             Level = level;
             Slug = slug;
+            Photo = photo;
         }
 
     // Domain methods
@@ -86,6 +91,11 @@ namespace VehicleShowroomManagement.Domain.Entities
         public void SetSlug(string? slug)
         {
             Slug = slug;
+        }
+
+        public void SetPhoto(string? photoUrl)
+        {
+            Photo = photoUrl;
         }
     }
 }

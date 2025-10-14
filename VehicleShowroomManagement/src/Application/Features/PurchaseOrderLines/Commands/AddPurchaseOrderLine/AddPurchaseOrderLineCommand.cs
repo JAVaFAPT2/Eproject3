@@ -4,7 +4,7 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Comm
 {
     public record AddPurchaseOrderLineCommand(
         string POId,
-        string ModelNumber,
+        string ModelId,
         int Quantity,
         decimal PricePerUnit) : IRequest<string>;
 }

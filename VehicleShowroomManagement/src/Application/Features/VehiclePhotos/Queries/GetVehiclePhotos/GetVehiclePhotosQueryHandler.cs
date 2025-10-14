@@ -10,16 +10,15 @@ namespace VehicleShowroomManagement.Application.Features.VehiclePhotos.Queries.G
 
         public async Task<List<VehiclePhotoDto>> Handle(GetVehiclePhotosQuery request, CancellationToken cancellationToken)
         {
-            var photos = await photoRepository.FindAsync(p => p.ModelNumber == request.VehicleId, cancellationToken);
+            var photos = await photoRepository.FindAsync(p => p.ModelId == request.VehicleId, cancellationToken);
 
             return [.. photos
                 .OrderBy(p => p.DisplayOrder)
                 .Select(p => new VehiclePhotoDto
                 {
                     Id = p.Id,
-                    VehicleId = string.Empty,
-                    VehicleModelId = p.ModelNumber,
-                    Url = p.Url,
+                    ModelId = p.ModelId,
+                    PhotoUrl = p.Url,
                     DisplayOrder = p.DisplayOrder,
                     Caption = p.Caption
                 })];

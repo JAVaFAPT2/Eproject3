@@ -5,17 +5,17 @@ namespace VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.
     /// </summary>
     public class UpdateVehiclePhotoCommandHandler(IRepository<VehiclePhoto> photoRepository) : IRequestHandler<UpdateVehiclePhotoCommand>
     {
-        private readonly IRepository<VehiclePhoto> _photoRepository = photoRepository;
 
         public async Task Handle(UpdateVehiclePhotoCommand request, CancellationToken cancellationToken)
         {
-            var photo = await _photoRepository.GetByIdAsync(request.PhotoId, cancellationToken);
-            if (photo == null)
+            var photo = await photoRepository.GetByIdAsync(request.PhotoId, cancellationToken);
+            if (photo is null)
             {
                 throw new KeyNotFoundException($"Photo with ID {request.PhotoId} not found");
             }
 
-            if (!string.IsNullOrWhiteSpace(request.Url))
+
+            if (request.Url != null)
             {
                 photo.UpdateUrl(request.Url);
             }
@@ -30,7 +30,7 @@ namespace VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.
                 photo.UpdateCaption(request.Caption);
             }
 
-            await _photoRepository.UpdateAsync(photo, cancellationToken);
+            await photoRepository.UpdateAsync(photo, cancellationToken);
         }
     }
 }

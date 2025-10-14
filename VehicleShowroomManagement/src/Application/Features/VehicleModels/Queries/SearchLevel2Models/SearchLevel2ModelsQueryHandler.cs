@@ -14,7 +14,7 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.S
                 var filtered = new List<VehicleModel>();
                 foreach (var m in models)
                 {
-                    var specs = await specRepository.FindAsync(s => s.VehicleId == m.ModelNumber, cancellationToken);
+                    var specs = await specRepository.FindAsync(s => s.ModelId == m.ModelNumber, cancellationToken);
                     var seatsOk = !request.Seats.HasValue || specs.Any(s => s.SpecName == "seats" && int.TryParse(s.SpecValue, out var v) && v == request.Seats.Value);
                     var fuelOk = string.IsNullOrWhiteSpace(request.FuelType) || specs.Any(s => s.SpecName == "fuelType" && string.Equals(s.SpecValue, request.FuelType, StringComparison.OrdinalIgnoreCase));
                     if (seatsOk && fuelOk) filtered.Add(m);

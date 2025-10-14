@@ -20,7 +20,7 @@ namespace VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetTo
                            (request.ToDate == null || o.OrderDate <= request.ToDate))
                 .ToList();
 
-            // Group by model number and count
+            // Group by level-2 model (ModelNumber is the level-2 identifier)
             var topModels = filteredOrders
                 .GroupBy(o => o.ModelNumber)
                 .Select(g => new
@@ -42,7 +42,7 @@ namespace VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetTo
                 var models = await modelRepository.FindAsync(m => m.ModelNumber == item.ModelNumber, cancellationToken);
                 var model = models.FirstOrDefault();
 
-                // Count available stock
+                // Count available stock for this level-2 model
                 var allVehicles = await vehicleRepository.FindAsync(v => v.ModelNumber == item.ModelNumber, cancellationToken);
                 var availableStock = allVehicles.Count(v => v.Status == VehicleStatus.InStock);
 

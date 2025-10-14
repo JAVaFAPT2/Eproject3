@@ -12,9 +12,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
-        [BsonElement("vehicleId")]
+        [BsonElement("modelId")]
         [BsonRequired]
-        public string VehicleId { get; private set; } = string.Empty;
+        public string ModelId { get; private set; } = string.Empty;
 
         [BsonElement("specName")]
         [BsonRequired]
@@ -34,11 +34,11 @@ namespace VehicleShowroomManagement.Domain.Entities
         internal VehicleSpec() { }
 
         [BsonConstructor]
-        public VehicleSpec(string vehicleId, string specName, string specValue, 
+        public VehicleSpec(string modelId, string specName, string specValue, 
             int displayOrder = 0, string? groupName = null)
         {
-            if (string.IsNullOrWhiteSpace(vehicleId))
-                throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
+            if (string.IsNullOrWhiteSpace(modelId))
+                throw new ArgumentException("Model ID cannot be null or empty", nameof(modelId));
 
             if (string.IsNullOrWhiteSpace(specName))
                 throw new ArgumentException("Spec name cannot be null or empty", nameof(specName));
@@ -46,7 +46,7 @@ namespace VehicleShowroomManagement.Domain.Entities
             if (string.IsNullOrWhiteSpace(specValue))
                 throw new ArgumentException("Spec value cannot be null or empty", nameof(specValue));
 
-            VehicleId = vehicleId;
+            ModelId = modelId;
             SpecName = specName;
             SpecValue = specValue;
             DisplayOrder = displayOrder;

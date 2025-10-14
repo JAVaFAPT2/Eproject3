@@ -5,17 +5,20 @@ namespace VehicleShowroomManagement.Application.Features.VehicleSpecs.Commands.A
     /// </summary>
     public class AddVehicleSpecCommandHandler(
         IRepository<VehicleSpec> specRepository,
-        IRepository<Vehicle> vehicleRepository) : IRequestHandler<AddVehicleSpecCommand, string>
+        IRepository<VehicleModel> modelRepository) : IRequestHandler<AddVehicleSpecCommand, string>
     {
 
         public async Task<string> Handle(AddVehicleSpecCommand request, CancellationToken cancellationToken)
         {
-            // Verify vehicle exists
-            _ = await vehicleRepository.GetByIdAsync(request.VehicleId, cancellationToken) ?? throw new KeyNotFoundException($"Vehicle with ID {request.VehicleId} not found");
+            // Verify level-2 model exists
+            var model = await modelRepository.GetByIdAsync(request.ModelId, cancellationToken)
+                ?? throw new KeyNotFoundException($"VehicleModel with number {request.ModelId} not found");
+            if (model.Level != 2)
+                throw new InvalidOperationException("Specifications must be attached to a level-2 model");
 
             // Create spec
             var spec = new VehicleSpec(
-                request.VehicleId,
+                request.ModelId,
                 request.SpecName,
                 request.SpecValue,
                 request.DisplayOrder,

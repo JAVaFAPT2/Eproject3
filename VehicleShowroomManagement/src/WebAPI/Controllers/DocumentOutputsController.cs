@@ -10,6 +10,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Dealer,Admin")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class DocumentOutputsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -23,6 +24,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets all document outputs with pagination
         /// </summary>
         [HttpGet]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<IActionResult> GetDocumentOutputs(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -38,6 +40,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Generates a document output
         /// </summary>
         [HttpPost("generate")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<IActionResult> GenerateDocument([FromBody] GenerateDocumentRequest request)
         {
             var command = new GenerateDocumentCommand(

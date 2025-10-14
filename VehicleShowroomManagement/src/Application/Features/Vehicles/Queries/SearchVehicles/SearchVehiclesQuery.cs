@@ -11,7 +11,8 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
         public string? SearchTerm { get; init; }
         public VehicleStatus? Status { get; init; }
         public string? ModelNumber { get; init; }
-        public string? Brand { get; init; }
+        public int? Seats { get; init; }
+        public string? FuelType { get; init; }
         public decimal? MinPrice { get; init; }
         public decimal? MaxPrice { get; init; }
         public int PageNumber { get; init; } = 1;
@@ -21,7 +22,8 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
             string? searchTerm = null,
             VehicleStatus? status = null,
             string? modelNumber = null,
-            string? brand = null,
+            int? seats = null,
+            string? fuelType = null,
             decimal? minPrice = null,
             decimal? maxPrice = null,
             int pageNumber = 1,
@@ -30,7 +32,8 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
             SearchTerm = searchTerm;
             Status = status;
             ModelNumber = modelNumber;
-            Brand = brand;
+            Seats = seats;
+            FuelType = fuelType;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
             PageNumber = pageNumber;
@@ -62,7 +65,6 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
         public string? ExternalNumber { get; set; }
         public VehicleStatus Status { get; set; }
         public decimal PurchasePrice { get; set; }
-        public DateTime ReceiptDate { get; set; }
         public bool IsAvailable { get; set; }
     }
 }

@@ -15,7 +15,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     /// API Controller for vehicle specification management operations
     /// </summary>
     [ApiController]
-    [Route("api/vehicles/{vehicleId}/specs")]
+    [Route("api/vehicle-models/{modelNumber}/specs")]
     [Authorize]
     public class VehicleSpecsController : ControllerBase
     {
@@ -30,9 +30,9 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets all specifications for a specific vehicle
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<List<VehicleSpecDto>>> GetVehicleSpecs(string vehicleId)
+        public async Task<ActionResult<List<VehicleSpecDto>>> GetVehicleSpecs(string modelNumber)
         {
-            var query = new GetVehicleSpecsQuery(vehicleId);
+            var query = new GetVehicleSpecsQuery(modelNumber);
             var specs = await _mediator.Send(query);
             return Ok(specs);
         }
@@ -57,10 +57,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpPost]
         [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> AddVehicleSpec(string vehicleId, [FromBody] AddVehicleSpecRequest request)
+        public async Task<IActionResult> AddVehicleSpec(string modelNumber, [FromBody] AddVehicleSpecRequest request)
         {
             var command = new AddVehicleSpecCommand(
-                vehicleId,
+                modelNumber,
                 request.SpecName,
                 request.SpecValue,
                 request.DisplayOrder,

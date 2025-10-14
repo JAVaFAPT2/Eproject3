@@ -16,7 +16,6 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.CreateO
             // Create order without assigning dealer or vehicle; these are set later in workflow
             var order = new Order(
                 request.CustomerId,
-                null,
                 request.ModelNumber,
                 request.SalePrice);
 

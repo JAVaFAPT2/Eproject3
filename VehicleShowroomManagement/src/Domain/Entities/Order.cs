@@ -41,8 +41,6 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("salePrice")]
         public decimal SalePrice { get; private set; }
 
-        [BsonElement("note")]
-        public string? Note { get; private set; }
 
         [BsonElement("reservationFrom")]
         public DateTime? ReservationFrom { get; private set; }
@@ -60,7 +58,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     internal Order() { }
 
         [BsonConstructor]
-        public Order(string customerId, string? dealerId, string modelNumber, decimal salePrice)
+        public Order(string customerId, string modelNumber, decimal salePrice, string? dealerId = null)
         {
             if (string.IsNullOrWhiteSpace(customerId))
                 throw new ArgumentException("Customer ID cannot be null or empty", nameof(customerId));
@@ -135,11 +133,6 @@ namespace VehicleShowroomManagement.Domain.Entities
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdateNote(string? note)
-    {
-        Note = note;
-        UpdatedAt = DateTime.UtcNow;
-    }
 
     public void SetReservationPeriod(DateTime from, DateTime to)
     {

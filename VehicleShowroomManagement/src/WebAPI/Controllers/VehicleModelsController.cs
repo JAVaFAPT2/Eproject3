@@ -15,17 +15,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class VehicleModelsController : ControllerBase
+    public class VehicleModelsController(IMediator mediator, ICloudinaryService cloudinaryService) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ICloudinaryService _cloudinaryService;
-
-        public VehicleModelsController(IMediator mediator, ICloudinaryService cloudinaryService)
-        {
-            _mediator = mediator;
-            _cloudinaryService = cloudinaryService;
-        }
-
         [HttpPost]
         [Authorize(Roles = "Dealer,Admin")]
         [Consumes("multipart/form-data")]
@@ -43,7 +34,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.Level,
                 request.Slug);
 
-            var modelNumber = await _mediator.Send(command);
+            var modelNumber = await mediator.Send(command);
 
             // Optional: upload photos for this modelNumber
             if (files is not null && files.Count > 0)
@@ -52,8 +43,13 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 foreach (var f in files)
                 {
                     if (f is not { Length: not 0 }) continue;
-                    var upload = await _cloudinaryService.UploadImageAsync(f, "vehicle-models");
-                    await _mediator.Send(new AddVehiclePhotoCommand(modelNumber, upload.SecureUrl, order++));
+                    var upload = await cloudinaryService.UploadImageAsync(f, "vehicle-models");
+                    if (order == 0)
+                    {
+                        // set primary photo on model (first image)
+                        await mediator.Send(new UpdateVehicleModelCommand(modelNumber, request.Name, request.Price, request.Description, request.ParentId, request.Level, request.Slug, upload.SecureUrl));
+                    }
+                    await mediator.Send(new AddVehiclePhotoCommand(modelNumber, upload.SecureUrl, order++));
                 }
             }
 
@@ -76,7 +72,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.Level,
                 request.Slug);
 
-            await _mediator.Send(command);
+            await mediator.Send(command);
             return Ok(new { message = "Vehicle model updated successfully" });
         }
 
@@ -87,7 +83,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> GetVehicleModel(string modelNumber)
         {
             var query = new GetVehicleModelByIdQuery(modelNumber);
-            var result = await _mediator.Send(query);
+            var result = await mediator.Send(query);
             
             if (result == null)
                 return NotFound(new { message = "Vehicle model not found" });
@@ -101,7 +97,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         [HttpGet("slug/{slug}")]
         public async Task<IActionResult> GetVehicleModelBySlug(string slug)
         {
-            var result = await _mediator.Send(new GetVehicleModelBySlugQuery(slug));
+            var result = await mediator.Send(new GetVehicleModelBySlugQuery(slug));
             if (result == null) return NotFound(new { message = "Vehicle model not found" });
             return Ok(result);
         }
@@ -115,7 +111,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             [FromQuery] int pageSize = 10)
         {
             var query = new GetVehicleModelsQuery(pageNumber, pageSize);
-            var result = await _mediator.Send(query);
+            var result = await mediator.Send(query);
             return Ok(result);
         }
 
@@ -130,7 +126,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
-            var result = await _mediator.Send(new SearchLevel2ModelsQuery(parentModelNumber, seats, fuelType, pageNumber, pageSize));
+            var result = await mediator.Send(new SearchLevel2ModelsQuery(parentModelNumber, seats, fuelType, pageNumber, pageSize));
             return Ok(result);
         }
     }

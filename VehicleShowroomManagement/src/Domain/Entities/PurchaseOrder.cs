@@ -28,14 +28,12 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("status")]
         public PurchaseOrderStatus Status { get; private set; } = PurchaseOrderStatus.Pending;
 
-        [BsonElement("expectedDeliveryDate")]
-        public DateTime? ExpectedDeliveryDate { get; private set; }
 
         // Internal constructor for MongoDB
         internal PurchaseOrder() { }
 
         [BsonConstructor]
-        public PurchaseOrder(string createdBy, decimal totalAmount, DateTime? expectedDeliveryDate = null)
+        public PurchaseOrder(string createdBy, decimal totalAmount)
         {
             if (string.IsNullOrWhiteSpace(createdBy))
                 throw new ArgumentException("CreatedBy cannot be null or empty", nameof(createdBy));
@@ -45,7 +43,6 @@ namespace VehicleShowroomManagement.Domain.Entities
 
             CreatedBy = createdBy;
             TotalAmount = totalAmount;
-            ExpectedDeliveryDate = expectedDeliveryDate;
             OrderDate = DateTime.UtcNow;
         }
 
@@ -58,10 +55,6 @@ namespace VehicleShowroomManagement.Domain.Entities
             TotalAmount = totalAmount;
         }
 
-        public void UpdateExpectedDeliveryDate(DateTime? expectedDeliveryDate)
-        {
-            ExpectedDeliveryDate = expectedDeliveryDate;
-        }
 
         public void Complete()
         {
