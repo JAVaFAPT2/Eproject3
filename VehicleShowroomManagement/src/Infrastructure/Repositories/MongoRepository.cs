@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver;
@@ -106,10 +107,14 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
         public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
             // For MongoDB, we need to get the ID from the entity
-            var idProperty = typeof(T).GetProperty("Id");
+            // First try to find property with [BsonId] attribute, then fallback to "Id"
+            var idProperty = typeof(T).GetProperties()
+                .FirstOrDefault(p => p.GetCustomAttributes(typeof(MongoDB.Bson.Serialization.Attributes.BsonIdAttribute), false).Any())
+                ?? typeof(T).GetProperty("Id");
+                
             if (idProperty == null)
             {
-                throw new InvalidOperationException("Entity must have an Id property");
+                throw new InvalidOperationException("Entity must have an Id property or a property marked with [BsonId]");
             }
 
             var id = idProperty.GetValue(entity)?.ToString();
@@ -152,10 +157,14 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
         public async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
         {
             // For MongoDB, we need to get the ID from the entity
-            var idProperty = typeof(T).GetProperty("Id");
+            // First try to find property with [BsonId] attribute, then fallback to "Id"
+            var idProperty = typeof(T).GetProperties()
+                .FirstOrDefault(p => p.GetCustomAttributes(typeof(MongoDB.Bson.Serialization.Attributes.BsonIdAttribute), false).Any())
+                ?? typeof(T).GetProperty("Id");
+                
             if (idProperty == null)
             {
-                throw new InvalidOperationException("Entity must have an Id property");
+                throw new InvalidOperationException("Entity must have an Id property or a property marked with [BsonId]");
             }
 
             var id = idProperty.GetValue(entity)?.ToString();
