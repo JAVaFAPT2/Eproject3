@@ -1,35 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.UpdateServiceOrderStatus;
-using VehicleShowroomManagement.Domain.Enums;
-
-namespace VehicleShowroomManagement.WebAPI.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
-    [Authorize(Roles = "Dealer,Admin")]
-    public class ServiceOrdersController(IMediator mediator) : ControllerBase
-    {
-        public class UpdateStatusRequest
-        {
-            public ServiceOrderStatus Status { get; set; }
-            public string? LicensePlate { get; set; }
-        }
-
-        [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateStatus(string id, [FromBody] UpdateStatusRequest request)
-        {
-            var command = new UpdateServiceOrderStatusCommand(id, request.Status, request.LicensePlate);
-            await mediator.Send(command);
-            return Ok(new { message = "Service order status updated successfully" });
-        }
-    }
-}
-
-using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.CreateServiceOrder;
 using VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.UpdateStatus;
 using VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.GetServiceOrders;
