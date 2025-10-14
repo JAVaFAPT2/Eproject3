@@ -55,10 +55,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
             var command = new UpdateProfileCommand(
                 userId,
-                request.FirstName,
-                request.LastName,
+                $"{request.FirstName} {request.LastName}".Trim(),
                 request.Email,
-                request.Phone);
+                request.Phone,
+                null);
 
             await _mediator.Send(command);
 

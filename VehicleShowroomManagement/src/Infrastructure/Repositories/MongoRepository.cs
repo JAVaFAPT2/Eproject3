@@ -27,8 +27,19 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
 
         public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            var filter = Builders<T>.Filter.Eq("_id", id);
-            return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+            // Handle ObjectId conversion for MongoDB
+            MongoDB.Bson.ObjectId objectId;
+            if (MongoDB.Bson.ObjectId.TryParse(id, out objectId))
+            {
+                var filter = Builders<T>.Filter.Eq("_id", objectId);
+                return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+            }
+            else
+            {
+                // Fallback to string ID if it's not a valid ObjectId
+                var filter = Builders<T>.Filter.Eq("_id", id);
+                return await _collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
+            }
         }
 
         public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -107,8 +118,35 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
                 throw new InvalidOperationException("Entity must have a valid Id");
             }
 
-            var filter = Builders<T>.Filter.Eq("_id", id);
-            await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+            // Handle ObjectId conversion for MongoDB
+            MongoDB.Bson.ObjectId objectId;
+            if (MongoDB.Bson.ObjectId.TryParse(id, out objectId))
+            {
+                var filter = Builders<T>.Filter.Eq("_id", objectId);
+                var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+                
+                // Debug: Log the update result
+                Console.WriteLine($"MongoDB ReplaceOneAsync (ObjectId) - Matched: {result.MatchedCount}, Modified: {result.ModifiedCount}");
+                
+                if (result.MatchedCount == 0)
+                {
+                    throw new InvalidOperationException($"No document found with ObjectId: {id}");
+                }
+            }
+            else
+            {
+                // Fallback to string ID if it's not a valid ObjectId
+                var filter = Builders<T>.Filter.Eq("_id", id);
+                var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+                
+                // Debug: Log the update result
+                Console.WriteLine($"MongoDB ReplaceOneAsync (String) - Matched: {result.MatchedCount}, Modified: {result.ModifiedCount}");
+                
+                if (result.MatchedCount == 0)
+                {
+                    throw new InvalidOperationException($"No document found with String ID: {id}");
+                }
+            }
         }
 
         public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
