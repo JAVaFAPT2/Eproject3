@@ -4,8 +4,7 @@ using VehicleShowroomManagement.Domain.Entities;
 namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.UpdateServiceOrderStatus
 {
     public class UpdateServiceOrderStatusCommandHandler(
-        IRepository<ServiceOrder> serviceOrderRepository,
-        IRepository<Vehicle> vehicleRepository) : IRequestHandler<UpdateServiceOrderStatusCommand>
+        IRepository<ServiceOrder> serviceOrderRepository) : IRequestHandler<UpdateServiceOrderStatusCommand>
     {
         public async Task Handle(UpdateServiceOrderStatusCommand request, CancellationToken cancellationToken)
         {

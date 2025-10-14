@@ -30,9 +30,10 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands
                 {
                     var vehicleId = $"VEH-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString().Substring(0, 8)}".ToUpper();
                     
+                    // Use model identifier from the purchase order line
                     var vehicle = new Vehicle(
                         vehicleId,
-                        line.ModelNumber,
+                        line.ModelId,
                         line.PricePerUnit);
 
                     await vehicleRepository.AddAsync(vehicle, cancellationToken);
