@@ -5,12 +5,11 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
 
         public async Task<GetVehicleModelsResult> Handle(GetVehicleModelsQuery request, CancellationToken cancellationToken)
         {
-            IEnumerable<VehicleModel> vehicleModels;
+            var allModels = await modelRepository.GetAllAsync(cancellationToken);
+            var vehicleModelsList = allModels.ToList();
 
-            vehicleModels = !string.IsNullOrEmpty(request.Brand) ? (await modelRepository.FindAsync(vm => vm.Brand == request.Brand, cancellationToken)).ToList() : (await modelRepository.GetAllAsync(cancellationToken)).ToList();
-
-            var totalCount = vehicleModels.Count();
-            var pagedModels = vehicleModels
+            var totalCount = vehicleModelsList.Count;
+            var pagedModels = vehicleModelsList
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToList();
@@ -21,7 +20,6 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
                 {
                     ModelNumber = vm.ModelNumber,
                     Name = vm.Name,
-                    Brand = vm.Brand,
                     Price = vm.Price
                 })],
                 TotalCount = totalCount,

@@ -7,8 +7,7 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands
         {
             var purchaseOrder = new PurchaseOrder(
                 request.CreatedBy,
-                request.TotalAmount,
-                request.ExpectedDeliveryDate);
+                request.TotalAmount);
 
             await purchaseOrderRepository.AddAsync(purchaseOrder, cancellationToken);
 

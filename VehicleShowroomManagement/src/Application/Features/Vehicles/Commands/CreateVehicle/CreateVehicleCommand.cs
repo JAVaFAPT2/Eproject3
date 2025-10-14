@@ -12,25 +12,19 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Commands.Creat
         public decimal PurchasePrice { get; init; }
         public string? ExternalNumber { get; init; }
         public string? Vin { get; init; }
-        public string? LicensePlate { get; init; }
-        public DateTime? ReceiptDate { get; init; }
 
         public CreateVehicleCommand(
             string vehicleId,
             string modelNumber,
             decimal purchasePrice,
             string? externalNumber = null,
-            string? vin = null,
-            string? licensePlate = null,
-            DateTime? receiptDate = null)
+            string? vin = null)
         {
             VehicleId = vehicleId;
             ModelNumber = modelNumber;
             PurchasePrice = purchasePrice;
             ExternalNumber = externalNumber;
             Vin = vin;
-            LicensePlate = licensePlate;
-            ReceiptDate = receiptDate;
         }
     }
 }

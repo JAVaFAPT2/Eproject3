@@ -18,8 +18,8 @@ namespace VehicleShowroomManagement.Application.Features.VehiclePhotos.Queries.G
             return new VehiclePhotoDto
             {
                 Id = photo.Id,
-                VehicleId = photo.VehicleId,
-                VehicleModelId = photo.VehicleModelId,
+                VehicleId = string.Empty,
+                VehicleModelId = photo.ModelNumber,
                 Url = photo.Url,
                 DisplayOrder = photo.DisplayOrder,
                 Caption = photo.Caption

@@ -16,10 +16,9 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
             {
                 ModelNumber = vehicleModel.ModelNumber,
                 Name = vehicleModel.Name,
-                Brand = vehicleModel.Brand,
                 Price = vehicleModel.Price,
                 Description = vehicleModel.Description,
-                ImageUrl = vehicleModel.ImageUrl
+                ImageUrl = string.Empty
             };
         }
     }

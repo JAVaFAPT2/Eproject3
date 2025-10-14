@@ -14,9 +14,22 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.AssignV
                 throw new InvalidOperationException("Order not found");
             }
 
-            // Verify vehicle exists and is available
-            var vehicles = await vehicleRepository.FindAsync(v => v.VehicleId == request.VehicleId, cancellationToken);
-            var vehicle = vehicles.FirstOrDefault();
+            // If VehicleId provided, use it; otherwise pick first available by order's model number
+            Vehicle? vehicle;
+            if (!string.IsNullOrWhiteSpace(request.VehicleId))
+            {
+                var vehicles = await vehicleRepository.FindAsync(v => v.VehicleId == request.VehicleId, cancellationToken);
+                vehicle = vehicles.FirstOrDefault();
+            }
+            else
+            {
+                var vehicles = await vehicleRepository.FindAsync(v => v.ModelNumber == order.ModelNumber && v.Status == VehicleStatus.InStock, cancellationToken);
+                vehicle = vehicles.FirstOrDefault();
+                if (vehicle != null)
+                {
+                    request = request with { VehicleId = vehicle.VehicleId };
+                }
+            }
 
             if (vehicle is null)
             {

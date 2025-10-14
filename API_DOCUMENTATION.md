@@ -30,7 +30,7 @@
 ## 🔐 **Authentication APIs** (`/api/auth`)
 
 ### **1. POST /api/auth/login**
-**User Login - Returns JWT Token**
+**User Login - Returns Access Token, sets HttpOnly Refresh Cookie**
 
 ```bash
 # Request
@@ -45,13 +45,14 @@ Content-Type: application/json
 # Response (200 OK)
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "base64-encoded-refresh-token",
   "tokenExpiresAt": "2024-01-02T00:00:00Z",
-  "refreshTokenExpiresAt": "2024-01-08T00:00:00Z",
   "userId": "507f1f77bcf86cd799439011",
   "role": "Admin",
   "message": "Login successful"
 }
+
+# Cookie (Set-Cookie)
+# refreshToken=<opaque>; HttpOnly; Secure; SameSite=Lax; Path=/; Expires=...
 ```
 
 ### **2. POST /api/auth/forgot-password**
@@ -92,27 +93,22 @@ Content-Type: application/json
 ```
 
 ### **4. POST /api/auth/refresh-token**
-**Refresh JWT Token**
+**Refresh Access Token using HttpOnly Cookie**
 
 ```bash
 # Request
 POST /api/auth/refresh-token
-Content-Type: application/json
-
-{
-  "refreshToken": "base64-encoded-refresh-token"
-}
+# Refresh token is read from HttpOnly cookie; body optional
 
 # Response (200 OK)
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "new-base64-encoded-refresh-token",
   "tokenExpiresAt": "2024-01-02T00:00:00Z",
-  "refreshTokenExpiresAt": "2024-01-08T00:00:00Z",
-  "userId": "507f1f77bcf86cd799439011",
-  "role": "Admin",
   "message": "Token refreshed successfully"
 }
+
+# Cookie (Set-Cookie)
+# refreshToken may be rotated and re-set with new expiration
 ```
 
 ### **5. POST /api/auth/register**
@@ -143,23 +139,22 @@ Content-Type: application/json
 ```
 
 ### **6. POST /api/auth/revoke-token**
-**Revoke Refresh Token (Logout)**
+**Revoke Refresh Token (Logout) and Clear Cookie**
 *Requires Authentication*
 
 ```bash
 # Request
 POST /api/auth/revoke-token
 Authorization: Bearer <jwt-token>
-Content-Type: application/json
-
-{
-  "refreshToken": "base64-encoded-refresh-token"
-}
+# Refresh token is read from HttpOnly cookie; body optional
 
 # Response (200 OK)
 {
   "message": "Token revoked successfully"
 }
+
+# Cookie (Set-Cookie)
+# refreshToken is cleared (Max-Age=0 / expired)
 ```
 
 ---
@@ -360,7 +355,7 @@ Content-Type: application/json
 ```
 
 ### **13. PUT /api/users/{id}**
-**Update User**
+**Update Active status only**
 
 ```bash
 # Request
@@ -369,16 +364,12 @@ Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
-  "name": "John Doe Updated",
-  "email": "john.updated@showroom.com",
-  "phone": "+1987654321",
-  "address": "789 New St",
-  "roleId": "507f1f77bcf86cd799439012"
+  "isActive": true
 }
 
 # Response (200 OK)
 {
-  "message": "User updated successfully"
+  "message": "User active status updated successfully"
 }
 ```
 
@@ -537,6 +528,37 @@ Authorization: Bearer <jwt-token>
 }
 ```
 
+### **16.1 POST /api/vehicles/with-media**
+**Create Vehicle with Photos (multipart)** *(Dealer/Admin only)*
+
+```bash
+# Request
+POST /api/vehicles/with-media
+Authorization: Bearer <jwt-token>
+Content-Type: multipart/form-data
+
+# Parts
+- data: application/json (CreateVehicleRequest JSON)
+- files: one or more image files (repeat key "files")
+
+# Example (curl)
+curl -X POST /api/vehicles/with-media \
+  -H "Authorization: Bearer <jwt>" \
+  -F 'data={"vehicleId":"VEH-2024-001","modelNumber":"CAMRY2024","purchasePrice":26000};type=application/json' \
+  -F "files=@img1.jpg" -F "files=@img2.jpg"
+
+# Response (201 Created)
+{
+  "id": "507f1f77bcf86cd799439011",
+  "message": "Vehicle created successfully with media"
+}
+
+# Notes:
+# - Backend uploads images and creates photo records linked to the vehicle
+# - Photos are also linked to the vehicle model via modelNumber (vehicleModelId)
+# - To retrieve photo URLs immediately, call GET /api/vehicles/{id}/photos
+```
+
 ### **18. GET /api/vehicles**
 **Get All Vehicles with Pagination**
 
@@ -680,6 +702,31 @@ Content-Type: application/json
 {
   "message": "2 vehicles deleted successfully"
 }
+```
+
+### **23. POST /api/vehicles/{vehicleId}/photos/upload**
+**Upload Photos for a Vehicle (multipart)** *(Dealer/Admin only)*
+
+```bash
+# Request
+POST /api/vehicles/{vehicleId}/photos/upload
+Authorization: Bearer <jwt-token>
+Content-Type: multipart/form-data
+
+# Parts
+- files: one or more image files (repeat key "files")
+
+# Response (200 OK)
+{
+  "message": "Photos uploaded successfully",
+  "items": [
+    { "id": "507f1f77bcf86cd79943a111", "url": "https://res.cloudinary.com/..." }
+  ]
+}
+
+# Notes:
+# - Images are uploaded and photo records created.
+# - Each photo links to the vehicle and may include vehicleModelId in queries.
 ```
 
 ---
@@ -1310,6 +1357,18 @@ graph TD
 }
 ```
 
+### **VehiclePhoto**
+```json
+{
+  "id": "ObjectId",
+  "vehicleId": "string (FK)",
+  "vehicleModelId": "string (nullable, FK)",
+  "url": "string (required)",
+  "displayOrder": "int",
+  "caption": "string (nullable)"
+}
+```
+
 ### **Order (Customer Order)**
 ```json
 {
@@ -1635,3 +1694,54 @@ POST /api/orders/{orderId}/complete
 ---
 
 **Happy API Testing! 🎉**
+
+---
+
+## ✅ Latest Updates: Variant Model Hierarchy (Level-2) and Flow Changes
+
+This section supplements existing docs to reflect the new variant (Level-2) model structure and simplified flows. Earlier sections remain valid unless overridden here.
+
+### Vehicle Models (Variants)
+- Create (multipart):
+  - POST `/api/vehicle-models`
+  - Parts:
+    - `data` (application/json): `{ modelNumber, name, price, description, parentId, level=2, slug }`
+    - `files`: repeated images (optional)
+- Get by slug:
+  - GET `/api/vehicle-models/slug/{slug}`
+- Search Level-2 variants:
+  - GET `/api/vehicle-models/search?parentModelNumber=911&seats=4&fuelType=petrol&pageNumber=1&pageSize=10`
+
+### Photos (Model-only)
+- Upload to model:
+  - POST `/api/vehicle-models/{modelNumber}/photos/upload` (multipart `files`)
+
+### Vehicles
+- Create vehicle (no receiptDate; licensePlate assigned later):
+  - POST `/api/vehicles` with `{ vehicleId, modelNumber, purchasePrice, externalNumber?, vin?, licensePlate? }`
+- Get vehicles by variant slug:
+  - GET `/api/vehicles/slug/{slug}?pageNumber=1&pageSize=10`
+  - Response: `{ model: {...}, vehicles: { ...paged... } }`
+
+### Purchase Orders
+- Create PO (no expectedDeliveryDate): POST `/api/purchase-orders` `{ createdBy, totalAmount }`
+- Add lines (Level-2 model only): POST `/api/purchase-orders/{id}/lines` `{ modelNumber, quantity, pricePerUnit }`
+- Complete PO: POST `/api/purchase-orders/{id}/complete` (auto-creates Vehicles)
+
+### Orders
+- Create (customers allowed): POST `/api/orders` `{ customerId, modelNumber, salePrice }`
+- Assign vehicle by variant: POST `/api/orders/{id}/assign-vehicle` `{ vehicleId? }`
+  - If `vehicleId` omitted, backend auto-picks first available vehicle of the order’s Level-2 model.
+
+### Service Orders
+- Update status and set license plate when Completed:
+  - PUT `/api/service-orders/{id}/status` `{ status, licensePlate? }`
+  - On `Completed`, if `licensePlate` provided, vehicle gets updated.
+
+### Billing Documents
+- Removed. Payment is considered complete at service completion.
+
+### Dashboard
+- Overview: GET `/api/dashboard/overview` → `{ profit, employees, customersPurchased, completedOrders, level2Models, vehicles }`
+- Top vehicles (by Level-2 model): GET `/api/dashboard/top-vehicles?top=10`
+- Recent orders: GET `/api/dashboard/recent-orders?limit=10`

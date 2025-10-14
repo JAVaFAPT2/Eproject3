@@ -40,17 +40,13 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Creates a new order
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "Dealer,Admin")]
+        [Authorize(Roles = "Customer,Dealer,Admin")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
         {
             var command = new CreateOrderCommand(
                 request.CustomerId,
-                request.DealerId,
                 request.ModelNumber,
-                request.SalePrice,
-                request.VehicleId,
-                request.AppointmentDate,
-                request.Note);
+                request.SalePrice);
 
             var orderId = await _mediator.Send(command);
             return CreatedAtAction(nameof(CreateOrder), new { id = orderId }, 
@@ -88,12 +84,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     public class CreateOrderRequest
     {
         public string CustomerId { get; set; } = string.Empty;
-        public string DealerId { get; set; } = string.Empty;
         public string ModelNumber { get; set; } = string.Empty;
         public decimal SalePrice { get; set; }
-        public string? VehicleId { get; set; }
-        public DateTime? AppointmentDate { get; set; }
-        public string? Note { get; set; }
     }
 
     public class AssignVehicleRequest

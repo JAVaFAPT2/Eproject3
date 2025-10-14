@@ -5,30 +5,18 @@ namespace VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.
     /// </summary>
     public class AddVehiclePhotoCommandHandler(
         IRepository<VehiclePhoto> photoRepository,
-        IRepository<Vehicle> vehicleRepository,
         IRepository<VehicleModel> vehicleModelRepository) : IRequestHandler<AddVehiclePhotoCommand, string>
     {
 
         public async Task<string> Handle(AddVehiclePhotoCommand request, CancellationToken cancellationToken)
         {
-            // Verify target exists (vehicle or model)
-            if (!string.IsNullOrWhiteSpace(request.VehicleId))
-            {
-                _ = await vehicleRepository.GetByIdAsync(request.VehicleId, cancellationToken) ?? throw new KeyNotFoundException($"Vehicle with ID {request.VehicleId} not found");
-            }
-            else if (!string.IsNullOrWhiteSpace(request.VehicleModelId))
-            {
-                _ = await vehicleModelRepository.GetByIdAsync(request.VehicleModelId, cancellationToken) ?? throw new KeyNotFoundException($"VehicleModel with ID {request.VehicleModelId} not found");
-            }
-            else
-            {
-                throw new ArgumentException("Either VehicleId or VehicleModelId must be provided");
-            }
+            // Verify Level-2 model exists by model number
+            _ = await vehicleModelRepository.GetByIdAsync(request.ModelNumber, cancellationToken)
+                ?? throw new KeyNotFoundException($"VehicleModel with number {request.ModelNumber} not found");
 
             // Create photo
             var photo = new VehiclePhoto(
-                request.VehicleId ?? string.Empty,
-                request.VehicleModelId,
+                request.ModelNumber,
                 request.Url,
                 request.DisplayOrder,
                 request.Caption);

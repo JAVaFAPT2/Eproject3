@@ -1,0 +1,33 @@
+namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.SearchLevel2Models
+{
+    public class SearchLevel2ModelsQueryHandler(IRepository<VehicleModel> modelRepository, IRepository<VehicleSpec> specRepository)
+        : IRequestHandler<SearchLevel2ModelsQuery, List<VehicleModel>>
+    {
+        public async Task<List<VehicleModel>> Handle(SearchLevel2ModelsQuery request, CancellationToken cancellationToken)
+        {
+            // Base filter: Level 2 (variants)
+            var models = await modelRepository.FindAsync(m => m.Level == 2 && (request.ParentModelNumber == null || m.ParentId == request.ParentModelNumber), cancellationToken);
+
+            // Seats / FuelType via specs (assumes specs attached to level-2 model via vehicleId field holding model number)
+            if (request.Seats.HasValue || !string.IsNullOrWhiteSpace(request.FuelType))
+            {
+                var filtered = new List<VehicleModel>();
+                foreach (var m in models)
+                {
+                    var specs = await specRepository.FindAsync(s => s.VehicleId == m.ModelNumber, cancellationToken);
+                    var seatsOk = !request.Seats.HasValue || specs.Any(s => s.SpecName == "seats" && int.TryParse(s.SpecValue, out var v) && v == request.Seats.Value);
+                    var fuelOk = string.IsNullOrWhiteSpace(request.FuelType) || specs.Any(s => s.SpecName == "fuelType" && string.Equals(s.SpecValue, request.FuelType, StringComparison.OrdinalIgnoreCase));
+                    if (seatsOk && fuelOk) filtered.Add(m);
+                }
+                models = filtered;
+            }
+
+            return models
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
+        }
+    }
+}
+
+

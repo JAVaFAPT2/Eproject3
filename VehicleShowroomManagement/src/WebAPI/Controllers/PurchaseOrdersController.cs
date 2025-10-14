@@ -51,8 +51,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             var command = new CreatePurchaseOrderCommand(
                 request.CreatedBy,
-                request.TotalAmount,
-                request.ExpectedDeliveryDate);
+                request.TotalAmount);
 
             var poId = await _mediator.Send(command);
             return CreatedAtAction(nameof(CreatePurchaseOrder), new { id = poId }, 
@@ -86,16 +85,15 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
     }
 
-    public class CreatePurchaseOrderRequest
+        public class CreatePurchaseOrderRequest
     {
         public string CreatedBy { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
-        public DateTime? ExpectedDeliveryDate { get; set; }
     }
 
-    public class AddPurchaseOrderLineRequest
+        public class AddPurchaseOrderLineRequest
     {
-        public string ModelNumber { get; set; } = string.Empty;
+            public string ModelNumber { get; set; } = string.Empty; // Level-2 model
         public int Quantity { get; set; }
         public decimal PricePerUnit { get; set; }
     }

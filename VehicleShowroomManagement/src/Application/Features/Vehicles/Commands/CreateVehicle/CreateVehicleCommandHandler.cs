@@ -5,7 +5,6 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Commands.Creat
     /// </summary>
     public class CreateVehicleCommandHandler(IRepository<Vehicle> vehicleRepository) : IRequestHandler<CreateVehicleCommand, string>
     {
-        private readonly IRepository<Vehicle> _vehicleRepository = vehicleRepository;
 
         public async Task<string> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
         {
@@ -14,11 +13,10 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Commands.Creat
                 request.VehicleId,
                 request.ModelNumber,
                 request.PurchasePrice,
-                request.ExternalNumber,
-                request.ReceiptDate);
+                request.ExternalNumber);
 
             // Add to repository
-            await _vehicleRepository.AddAsync(vehicle, cancellationToken);
+            await vehicleRepository.AddAsync(vehicle, cancellationToken);
 
             return vehicle.VehicleId;
         }

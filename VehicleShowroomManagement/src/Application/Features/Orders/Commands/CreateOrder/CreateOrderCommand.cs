@@ -4,11 +4,7 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.CreateO
 {
     public record CreateOrderCommand(
         string CustomerId,
-        string DealerId,
         string ModelNumber,
-        decimal SalePrice,
-        string? VehicleId = null,
-        DateTime? AppointmentDate = null,
-        string? Note = null) : IRequest<string>;
+        decimal SalePrice) : IRequest<string>;
 }
 

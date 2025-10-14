@@ -9,17 +9,18 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Comm
         public async Task<string> Handle(AddPurchaseOrderLineCommand request, CancellationToken cancellationToken)
         {
             // Verify purchase order exists
-            var po = await purchaseOrderRepository.GetByIdAsync(request.POId, cancellationToken);
-            if (po == null)
-            {
-                throw new InvalidOperationException("Purchase order not found");
-            }
+            var po = await purchaseOrderRepository.GetByIdAsync(request.POId, cancellationToken) ?? throw new InvalidOperationException("Purchase order not found");
 
-            // Verify vehicle model exists
+            // Verify vehicle model exists and is Level-2 (variant)
             var models = await vehicleModelRepository.FindAsync(vm => vm.ModelNumber == request.ModelNumber, cancellationToken);
-            if (!models.Any())
+            var model = models.FirstOrDefault();
+            if (model is null)
             {
                 throw new InvalidOperationException("Vehicle model not found");
+            }
+            if (model.Level != 2)
+            {
+                throw new InvalidOperationException("Purchase order lines must reference a Level-2 variant model");
             }
 
             var line = new PurchaseOrderLine(

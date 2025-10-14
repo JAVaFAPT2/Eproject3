@@ -8,8 +8,39 @@ using VehicleShowroomManagement.Application.DependencyInjection;
 using VehicleShowroomManagement.Infrastructure.DependencyInjection;
 using VehicleShowroomManagement.Infrastructure.Persistence;
 using VehicleShowroomManagement.WebAPI.DependencyInjection;
+using DotNetEnv;
+using Microsoft.AspNetCore.DataProtection;
+
+// Load .env file if it exists (look in project root)
+var projectRoot = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../.."));
+var envFile = Path.Combine(projectRoot, ".env");
+if (File.Exists(envFile))
+{
+    Env.Load(envFile);
+}
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure URLs based on environment
+var environmentName = builder.Environment.EnvironmentName;
+var isProduction = builder.Environment.IsProduction();
+var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+Console.WriteLine($"Environment: {environmentName}, IsProduction: {isProduction}, IsDocker: {isDocker}");
+
+if (isProduction || isDocker)
+{
+    // In production or Docker, use HTTP only (no SSL certificates needed)
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+    var urls = $"http://0.0.0.0:{port}";
+    Console.WriteLine($"Production/Docker URLs: {urls}");
+    builder.WebHost.UseUrls(urls);
+}
+else
+{
+    // In local development (non-Docker), use localhost with both HTTP and HTTPS
+    Console.WriteLine("Local Development URLs: http://localhost:8090, https://localhost:8091");
+    builder.WebHost.UseUrls("http://localhost:8090", "https://localhost:8091");
+}
 
 // Configure Autofac as the service provider factory
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
@@ -22,6 +53,14 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
     containerBuilder.RegisterModule(new InfrastructureModule(builder.Configuration));
     containerBuilder.RegisterModule<WebApiModule>();
 });
+
+// Configure Data Protection for containerized environments
+if (builder.Environment.IsProduction() || isDocker)
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("VehicleShowroomManagement")
+        .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+}
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -90,11 +129,12 @@ builder.Services.AddAuthorization(options =>
 // CORS Configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFE", policy =>
     {
-        policy.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        policy.WithOrigins(builder.Configuration["Cors:Origins"]?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? ["http://localhost:3000"])
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -106,7 +146,7 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFE");
 
 app.UseAuthentication();
 app.UseAuthorization();

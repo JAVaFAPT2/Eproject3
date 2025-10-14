@@ -12,15 +12,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Authorize(Roles = "Dealer,Admin")]
-    public class BillingDocumentsController : ControllerBase
+    public class BillingDocumentsController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public BillingDocumentsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
 
         /// <summary>
         /// Gets all billing documents with pagination
@@ -33,7 +28,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             [FromQuery] string? orderId = null)
         {
             var query = new GetBillingDocumentsQuery(pageNumber, pageSize, status, orderId);
-            var result = await _mediator.Send(query);
+            var result = await mediator.Send(query);
             return Ok(result);
         }
 
@@ -49,7 +44,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.Amount,
                 request.AppointmentDate);
 
-            var billingDocId = await _mediator.Send(command);
+            var billingDocId = await mediator.Send(command);
             return CreatedAtAction(nameof(CreateBillingDocument), new { id = billingDocId }, 
                 new { id = billingDocId, message = "Billing document created successfully" });
         }
@@ -61,7 +56,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> UpdateAmount(string id, [FromBody] UpdateAmountRequest request)
         {
             var command = new UpdateBillingDocumentAmountCommand(id, request.Amount);
-            await _mediator.Send(command);
+            await mediator.Send(command);
             return Ok(new { message = "Billing document amount updated successfully" });
         }
 
@@ -72,7 +67,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> UpdateAppointmentDate(string id, [FromBody] UpdateAppointmentDateRequest request)
         {
             var command = new UpdateBillingDocumentAppointmentDateCommand(id, request.AppointmentDate);
-            await _mediator.Send(command);
+            await mediator.Send(command);
             return Ok(new { message = "Billing document appointment date updated successfully" });
         }
 
@@ -83,7 +78,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> UpdateStatus(string id, [FromBody] UpdateStatusRequest request)
         {
             var command = new UpdateBillingDocumentStatusCommand(id, request.Status);
-            await _mediator.Send(command);
+            await mediator.Send(command);
             return Ok(new { message = "Billing document status updated successfully" });
         }
     }

@@ -30,6 +30,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("purchasePrice")]
         public decimal PurchasePrice { get; private set; }
 
+        [BsonElement("licensePlate")]
+        public string? LicensePlate { get; private set; }
+
         [BsonElement("receiptDate")]
         public DateTime ReceiptDate { get; private set; } = DateTime.UtcNow;
 
@@ -85,6 +88,13 @@ namespace VehicleShowroomManagement.Domain.Entities
                 throw new InvalidOperationException("Only reserved or in-stock vehicles can be sold");
 
             Status = VehicleStatus.Sold;
+        }
+
+        public void SetLicensePlate(string licensePlate)
+        {
+            if (string.IsNullOrWhiteSpace(licensePlate))
+                throw new ArgumentException("License plate cannot be empty", nameof(licensePlate));
+            LicensePlate = licensePlate;
         }
 
         public void SendToService()

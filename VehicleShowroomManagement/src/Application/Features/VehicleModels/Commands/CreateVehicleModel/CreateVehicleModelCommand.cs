@@ -5,9 +5,10 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Commands.
     public record CreateVehicleModelCommand(
         string ModelNumber,
         string Name,
-        string Brand,
         decimal Price,
         string Description,
-        string? ImageUrl = null) : IRequest<string>;
+        string? ParentId = null,
+        int Level = 1,
+        string? Slug = null) : IRequest<string>;
 }
 

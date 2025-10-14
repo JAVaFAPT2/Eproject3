@@ -1,32 +1,17 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetTopVehicles
 {
     /// <summary>
     /// Handler for get top vehicles query (updated for new Order/Vehicle schema)
     /// </summary>
-    public class GetTopVehiclesQueryHandler : IRequestHandler<GetTopVehiclesQuery, List<TopVehicleDto>>
+    public class GetTopVehiclesQueryHandler(
+        IRepository<Order> orderRepository,
+        IRepository<Vehicle> vehicleRepository,
+        IRepository<VehicleModel> modelRepository) : IRequestHandler<GetTopVehiclesQuery, List<TopVehicleDto>>
     {
-        private readonly IRepository<Order> _orderRepository;
-        private readonly IRepository<Vehicle> _vehicleRepository;
-        private readonly IRepository<VehicleModel> _modelRepository;
-
-        public GetTopVehiclesQueryHandler(
-            IRepository<Order> orderRepository,
-            IRepository<Vehicle> vehicleRepository,
-            IRepository<VehicleModel> modelRepository)
-        {
-            _orderRepository = orderRepository;
-            _vehicleRepository = vehicleRepository;
-            _modelRepository = modelRepository;
-        }
-
         public async Task<List<TopVehicleDto>> Handle(GetTopVehiclesQuery request, CancellationToken cancellationToken)
         {
-            var allOrders = await _orderRepository.GetAllAsync();
+            var allOrders = await orderRepository.GetAllAsync(cancellationToken);
             
             // Filter by date if provided
             var filteredOrders = allOrders
@@ -54,18 +39,18 @@ namespace VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetTo
             
             foreach (var item in topModels)
             {
-                var models = await _modelRepository.FindAsync(m => m.ModelNumber == item.ModelNumber);
+                var models = await modelRepository.FindAsync(m => m.ModelNumber == item.ModelNumber, cancellationToken);
                 var model = models.FirstOrDefault();
 
                 // Count available stock
-                var allVehicles = await _vehicleRepository.FindAsync(v => v.ModelNumber == item.ModelNumber);
+                var allVehicles = await vehicleRepository.FindAsync(v => v.ModelNumber == item.ModelNumber, cancellationToken);
                 var availableStock = allVehicles.Count(v => v.Status == VehicleStatus.InStock);
 
                 result.Add(new TopVehicleDto
                 {
                     VehicleId = "", // Not applicable for model-level stats
                     ModelNumber = item.ModelNumber,
-                    Brand = model?.Brand ?? "Unknown",
+                    Brand = "",
                     Model = model?.Name ?? item.ModelNumber,
                     SalesCount = item.Count,
                     TotalRevenue = item.TotalRevenue,

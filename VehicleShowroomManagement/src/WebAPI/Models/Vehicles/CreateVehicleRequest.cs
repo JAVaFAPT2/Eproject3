@@ -10,7 +10,5 @@ namespace VehicleShowroomManagement.WebAPI.Models.Vehicles
         public decimal PurchasePrice { get; set; }
         public string? ExternalNumber { get; set; }
         public string? Vin { get; set; }
-        public string? LicensePlate { get; set; }
-        public DateTime? ReceiptDate { get; set; }
     }
 }

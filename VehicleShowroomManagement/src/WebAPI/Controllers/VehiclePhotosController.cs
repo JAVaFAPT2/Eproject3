@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.AddVehiclePhoto;
 using VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.UpdateVehiclePhoto;
@@ -17,27 +16,18 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     /// API Controller for vehicle photo management operations
     /// </summary>
     [ApiController]
-    [Route("api/vehicles/{vehicleId}/photos")]
+    [Route("api/vehicle-models/{modelNumber}/photos")]
     [Authorize]
-    public class VehiclePhotosController : ControllerBase
+    public class VehiclePhotosController(IMediator mediator, ICloudinaryService cloudinaryService) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ICloudinaryService _cloudinaryService;
-
-        public VehiclePhotosController(IMediator mediator, ICloudinaryService cloudinaryService)
-        {
-            _mediator = mediator;
-            _cloudinaryService = cloudinaryService;
-        }
-
         /// <summary>
-        /// Gets all photos for a specific vehicle
+        /// Gets all photos for a specific vehicle model (Level-2)
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<List<VehiclePhotoDto>>> GetVehiclePhotos(string vehicleId)
+        public async Task<ActionResult<List<VehiclePhotoDto>>> GetVehiclePhotos(string modelNumber)
         {
-            var query = new GetVehiclePhotosQuery(vehicleId);
-            var photos = await _mediator.Send(query);
+            var query = new GetVehiclePhotosQuery(modelNumber);
+            var photos = await mediator.Send(query);
             return Ok(photos);
         }
 
@@ -48,7 +38,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<ActionResult<VehiclePhotoDto>> GetPhoto(string photoId)
         {
             var query = new GetPhotoByIdQuery(photoId);
-            var photo = await _mediator.Send(query);
+            var photo = await mediator.Send(query);
 
             if (photo == null)
                 return NotFound(new { message = "Photo not found" });
@@ -57,43 +47,42 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Adds a new photo to a vehicle
+        /// Adds a new photo to a vehicle model
         /// </summary>
         [HttpPost]
         [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> AddVehiclePhoto(string vehicleId, [FromBody] AddVehiclePhotoRequest request)
+        public async Task<IActionResult> AddVehiclePhoto(string modelNumber, [FromBody] AddVehiclePhotoRequest request)
         {
             var command = new AddVehiclePhotoCommand(
-                vehicleId,
-                request.VehicleModelId,
+                modelNumber,
                 request.Url,
                 request.DisplayOrder,
                 request.Caption);
 
-            var photoId = await _mediator.Send(command);
+            var photoId = await mediator.Send(command);
 
             return CreatedAtAction(nameof(GetPhoto), new { photoId }, 
                 new { id = photoId, message = "Photo added successfully" });
         }
 
         /// <summary>
-        /// Uploads one or more photo files to a vehicle. Expects multipart/form-data with repeated part "files".
+        /// Uploads one or more photo files to a vehicle model. Expects multipart/form-data with repeated part "files".
         /// </summary>
         [HttpPost("upload")]
         [Authorize(Roles = "Dealer,Admin")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadVehiclePhotos(string vehicleId, [FromForm] List<IFormFile> files)
+        public async Task<IActionResult> UploadVehiclePhotos(string modelNumber, [FromForm] List<IFormFile> files)
         {
-            if (files == null || files.Count == 0)
+            if (files is not { Count: not 0 })
                 return BadRequest(new { message = "No files provided" });
 
             var created = new List<object>();
             foreach (var file in files)
             {
-                if (file == null || file.Length == 0) continue;
-                var upload = await _cloudinaryService.UploadImageAsync(file, "vehicles");
-                var cmd = new AddVehiclePhotoCommand(vehicleId, null, upload.SecureUrl, 0, null);
-                var id = await _mediator.Send(cmd);
+                if (file is not { Length: not 0 }) continue;
+                var upload = await cloudinaryService.UploadImageAsync(file, "vehicles");
+                var cmd = new AddVehiclePhotoCommand(modelNumber, upload.SecureUrl);
+                var id = await mediator.Send(cmd);
                 created.Add(new { id, url = upload.SecureUrl });
             }
 
@@ -113,7 +102,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.DisplayOrder,
                 request.Caption);
 
-            await _mediator.Send(command);
+            await mediator.Send(command);
 
             return Ok(new { message = "Photo updated successfully" });
         }
@@ -126,7 +115,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> DeleteVehiclePhoto(string photoId)
         {
             var command = new DeleteVehiclePhotoCommand(photoId);
-            await _mediator.Send(command);
+            await mediator.Send(command);
 
             return Ok(new { message = "Photo deleted successfully" });
         }
