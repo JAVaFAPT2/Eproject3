@@ -34,17 +34,22 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         [Authorize(Roles = "Dealer,Admin")]
         public async Task<IActionResult> CreateVehicle([FromBody] CreateVehicleRequest request)
         {
+            // Generate VehicleId if not provided or empty
+            var vehicleId = !string.IsNullOrWhiteSpace(request.VehicleId) 
+                ? request.VehicleId 
+                : $"VEH-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+
             var command = new CreateVehicleCommand(
-                request.VehicleId,
+                vehicleId,
                 request.ModelNumber,
                 request.PurchasePrice,
                 request.ExternalNumber,
                 request.Vin);
 
-            var vehicleId = await mediator.Send(command);
+            var createdVehicleId = await mediator.Send(command);
             
-            return CreatedAtAction(nameof(GetVehicle), new { id = vehicleId }, 
-                new { id = vehicleId, message = "Vehicle created successfully" });
+            return CreatedAtAction(nameof(GetVehicle), new { id = createdVehicleId }, 
+                new { id = createdVehicleId, message = "Vehicle created successfully" });
         }
 
         /// <summary>
@@ -55,27 +60,46 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         [Authorize(Roles = "Dealer,Admin")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateVehicleWithMedia(
-            [FromForm] string data,
+            [FromForm] string? data,
+            [FromForm] string? vehicleId,
+            [FromForm] string? modelNumber,
+            [FromForm] decimal? purchasePrice,
+            [FromForm] string? externalNumber,
+            [FromForm] string? vin,
             [FromForm] List<IFormFile>? files)
         {
-            if (string.IsNullOrWhiteSpace(data))
-                return BadRequest(new { message = "Missing 'data' part" });
+            CreateVehicleRequest? request = null;
 
-            CreateVehicleRequest? request;
-            try
+            // Try to parse from JSON data field first
+            if (!string.IsNullOrWhiteSpace(data))
             {
-                request = JsonSerializer.Deserialize<CreateVehicleRequest>(data, new JsonSerializerOptions
+                try
                 {
-                    PropertyNameCaseInsensitive = true
-                });
+                    request = JsonSerializer.Deserialize<CreateVehicleRequest>(data, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException)
+                {
+                    return BadRequest(new { message = "Invalid JSON in 'data' part" });
+                }
             }
-            catch (JsonException)
+            // Fallback to individual form fields
+            else if (!string.IsNullOrWhiteSpace(vehicleId) && !string.IsNullOrWhiteSpace(modelNumber) && purchasePrice.HasValue)
             {
-                return BadRequest(new { message = "Invalid JSON in 'data' part" });
+                request = new CreateVehicleRequest
+                {
+                    VehicleId = vehicleId,
+                    ModelNumber = modelNumber,
+                    PurchasePrice = purchasePrice.Value,
+                    ExternalNumber = externalNumber,
+                    Vin = vin
+                };
             }
 
             if (request is null)
-                return BadRequest(new { message = "Invalid or empty 'data'" });
+                return BadRequest(new { message = "Missing required fields: data (JSON) or individual fields (vehicleId, modelNumber, purchasePrice)" });
 
             var createCommand = new CreateVehicleCommand(
                 request.VehicleId,
@@ -84,7 +108,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.ExternalNumber,
                 request.Vin);
 
-            var vehicleId = await mediator.Send(createCommand);
+            var createdVehicleId = await mediator.Send(createCommand);
 
             if (files is not null && files.Count > 0)
             {
@@ -100,8 +124,8 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 }
             }
 
-            return CreatedAtAction(nameof(GetVehicle), new { id = vehicleId },
-                new { id = vehicleId, message = "Vehicle created successfully with media" });
+            return CreatedAtAction(nameof(GetVehicle), new { id = createdVehicleId },
+                new { id = createdVehicleId, message = "Vehicle created successfully with media" });
         }
 
         /// <summary>

@@ -1,4 +1,3 @@
-using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -26,6 +25,17 @@ namespace VehicleShowroomManagement.Application.Features.Auth.Commands.Login
                 u.DeletedAt == null, cancellationToken);
 
             var user = users.FirstOrDefault();
+
+            // Debug: Let's see what users exist in the database
+            var allUsers = await userRepository.GetAllAsync(cancellationToken);
+            Console.WriteLine($"Total users in database: {allUsers.Count()}");
+            foreach (var u in allUsers)
+            {
+                Console.WriteLine($"User: {u.Username}, DeletedAt: {u.DeletedAt}");
+            }
+
+            Console.WriteLine($"Login attempt for: {request.Username}");
+            Console.WriteLine($"User found: {user != null}");
 
             if (user == null || !passwordService.VerifyPassword(request.Password, user.PasswordHash))
             {

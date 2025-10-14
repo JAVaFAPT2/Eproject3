@@ -22,7 +22,7 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
         public MongoRepository(VehicleShowroomDbContext context, string collectionName)
         {
             _context = context;
-            _collection = _context.GetDatabase().GetCollection<T>(collectionName.ToLower());
+            _collection = _context.GetDatabase().GetCollection<T>(collectionName.ToUpper());
         }
 
         public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
@@ -125,9 +125,6 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
                 var filter = Builders<T>.Filter.Eq("_id", objectId);
                 var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
                 
-                // Debug: Log the update result
-                Console.WriteLine($"MongoDB ReplaceOneAsync (ObjectId) - Matched: {result.MatchedCount}, Modified: {result.ModifiedCount}");
-                
                 if (result.MatchedCount == 0)
                 {
                     throw new InvalidOperationException($"No document found with ObjectId: {id}");
@@ -138,9 +135,6 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
                 // Fallback to string ID if it's not a valid ObjectId
                 var filter = Builders<T>.Filter.Eq("_id", id);
                 var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
-                
-                // Debug: Log the update result
-                Console.WriteLine($"MongoDB ReplaceOneAsync (String) - Matched: {result.MatchedCount}, Modified: {result.ModifiedCount}");
                 
                 if (result.MatchedCount == 0)
                 {
