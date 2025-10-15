@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver;
@@ -22,7 +23,7 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
         public MongoRepository(VehicleShowroomDbContext context, string collectionName)
         {
             _context = context;
-            _collection = _context.GetDatabase().GetCollection<T>(collectionName.ToLower());
+            _collection = _context.GetDatabase().GetCollection<T>(collectionName.ToUpper());
         }
 
         public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
@@ -106,10 +107,14 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
         public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
             // For MongoDB, we need to get the ID from the entity
-            var idProperty = typeof(T).GetProperty("Id");
+            // First try to find property with [BsonId] attribute, then fallback to "Id"
+            var idProperty = typeof(T).GetProperties()
+                .FirstOrDefault(p => p.GetCustomAttributes(typeof(MongoDB.Bson.Serialization.Attributes.BsonIdAttribute), false).Any())
+                ?? typeof(T).GetProperty("Id");
+                
             if (idProperty == null)
             {
-                throw new InvalidOperationException("Entity must have an Id property");
+                throw new InvalidOperationException("Entity must have an Id property or a property marked with [BsonId]");
             }
 
             var id = idProperty.GetValue(entity)?.ToString();
@@ -125,9 +130,6 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
                 var filter = Builders<T>.Filter.Eq("_id", objectId);
                 var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
                 
-                // Debug: Log the update result
-                Console.WriteLine($"MongoDB ReplaceOneAsync (ObjectId) - Matched: {result.MatchedCount}, Modified: {result.ModifiedCount}");
-                
                 if (result.MatchedCount == 0)
                 {
                     throw new InvalidOperationException($"No document found with ObjectId: {id}");
@@ -138,9 +140,6 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
                 // Fallback to string ID if it's not a valid ObjectId
                 var filter = Builders<T>.Filter.Eq("_id", id);
                 var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
-                
-                // Debug: Log the update result
-                Console.WriteLine($"MongoDB ReplaceOneAsync (String) - Matched: {result.MatchedCount}, Modified: {result.ModifiedCount}");
                 
                 if (result.MatchedCount == 0)
                 {
@@ -158,10 +157,14 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
         public async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
         {
             // For MongoDB, we need to get the ID from the entity
-            var idProperty = typeof(T).GetProperty("Id");
+            // First try to find property with [BsonId] attribute, then fallback to "Id"
+            var idProperty = typeof(T).GetProperties()
+                .FirstOrDefault(p => p.GetCustomAttributes(typeof(MongoDB.Bson.Serialization.Attributes.BsonIdAttribute), false).Any())
+                ?? typeof(T).GetProperty("Id");
+                
             if (idProperty == null)
             {
-                throw new InvalidOperationException("Entity must have an Id property");
+                throw new InvalidOperationException("Entity must have an Id property or a property marked with [BsonId]");
             }
 
             var id = idProperty.GetValue(entity)?.ToString();

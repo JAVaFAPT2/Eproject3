@@ -137,12 +137,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                     break;
 
                 case "VEHICLE_MODEL":
-                    // Unique index for model number
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("modelNumber"),
-                        new CreateIndexOptions { Unique = true, Name = "ModelNumber_Unique" }
-                    ));
-
+                    // Note: ModelNumber is already the primary key (_id), so no need for separate unique index
                     // Query optimization
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("brand").Ascending("price"),
@@ -151,12 +146,7 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
                     break;
 
                 case "VEHICLE":
-                    // Unique index for vehicle ID
-                    indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("vehicleId"),
-                        new CreateIndexOptions { Unique = true, Name = "VehicleId_Unique" }
-                    ));
-
+                    // Note: VehicleId is already the primary key (_id), so no need for separate unique index
                     // Search and filter indexes
                     indexModels.Add(new CreateIndexModel<T>(
                         Builders<T>.IndexKeys.Ascending("modelNumber").Ascending("status"),
