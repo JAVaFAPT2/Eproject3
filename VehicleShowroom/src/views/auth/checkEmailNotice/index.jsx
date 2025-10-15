@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Button, Flex, Heading, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Text, useColorModeValue }  from '@chakra-ui/react';
+
 import { useNavigate } from 'react-router-dom';
 import DefaultAuth from 'layouts/auth/Default';
-import illustration from 'assets/img/auth/auth.png';
+import illustration from 'assets/img/auth/banner.png';
 
 function CheckEmailNotice() {
   const textColor = useColorModeValue('navy.700', 'white');

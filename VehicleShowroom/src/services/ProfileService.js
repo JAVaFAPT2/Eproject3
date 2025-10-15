@@ -2,32 +2,37 @@ import ApiClient from 'api/ApiClient';
 import { ApiUrl } from 'constants/ApiUrl';
 
 const ProfileService = {
-  /**
-   * 👤 Get current user profile
-   * GET /api/profile
-   */
-  async getProfile() {
-    const res = await ApiClient.get(ApiUrl.PROFILE.GET);
+  // 🟢 Lấy thông tin hồ sơ người dùng hiện tại
+  getProfile: async () => {
+    const res = await ApiClient.get(ApiUrl.PROFILE.BASE);
     return res.data;
   },
 
-  /**
-   * ✏️ Update current user profile
-   * PUT /api/profile
-   * @param {Object} payload { firstName, lastName, email, phone, ... }
-   */
-  async updateProfile(payload) {
-    const res = await ApiClient.put(ApiUrl.PROFILE.UPDATE, payload);
+  // 🟡 Cập nhật hồ sơ người dùng
+  updateProfile: async (data) => {
+    /**
+     * data format:
+     * {
+     *   firstName: string,
+     *   lastName: string,
+     *   email: string,
+     *   phone: string
+     * }
+     */
+    const res = await ApiClient.put(ApiUrl.PROFILE.BASE, data);
     return res.data;
   },
 
-  /**
-   * 🔑 Change current user password
-   * POST /api/profile/change-password
-   * @param {Object} payload { currentPassword, newPassword }
-   */
-  async changePassword(payload) {
-    const res = await ApiClient.post(ApiUrl.PROFILE.CHANGE_PASSWORD, payload);
+  // 🔴 Đổi mật khẩu
+  changePassword: async (data) => {
+    /**
+     * data format:
+     * {
+     *   currentPassword: string,
+     *   newPassword: string
+     * }
+     */
+    const res = await ApiClient.post(ApiUrl.PROFILE.CHANGE_PASSWORD, data);
     return res.data;
   },
 };

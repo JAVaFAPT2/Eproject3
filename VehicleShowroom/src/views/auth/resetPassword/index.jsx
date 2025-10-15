@@ -1,4 +1,3 @@
-// views/auth/ResetPassword.jsx
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -12,40 +11,48 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
+import { useAppToast } from 'utils/ToastHelper';
 import DefaultAuth from 'layouts/auth/Default';
-import illustration from 'assets/img/auth/auth.png';
+import illustration from 'assets/img/auth/banner.png';
 import AuthService from 'services/AuthService';
-import { useShowToast } from 'utils/helper';
 
 function ResetPassword() {
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
-  const { showToast } = useShowToast();
+  const toast = useAppToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const token = searchParams.get('token'); // lấy token từ query string
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleResetPassword = async () => {
     if (!password || !confirmPassword) {
-      showToast('Please fill in all fields', 'warning');
+      toast.error('Please fill in all fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      showToast('Passwords do not match', 'error');
+      toast.error('Passwords do not match');
       return;
     }
 
+    setLoading(true);
     try {
-      await AuthService.resetPassword({ token, password });
-      showToast('Password reset successfully!', 'success');
+      // ✅ Đúng format body API: { token, newPassword }
+      await AuthService.resetPassword({ token, newPassword: password });
+      toast.success('Password reset successfully!');
       navigate('/auth/sign-in');
     } catch (error) {
       console.error(error);
-      showToast('Failed to reset password', 'error');
+      const msg =
+        error.response?.data?.message ||
+        'Failed to reset password. Please try again.';
+      toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -63,13 +70,14 @@ function ResetPassword() {
         px={{ base: '25px', md: '0px' }}
         mt={{ base: '40px', md: '10vh' }}
       >
-        <Box>
+        <Box w={{ base: '100%', md: '420px' }}>
           <Heading color={textColor} fontSize="32px" mb="10px">
             Reset Password
           </Heading>
           <Text color={textColorSecondary} mb="24px">
             Enter your new password below.
           </Text>
+
           <FormControl>
             <FormLabel color={textColor}>New Password</FormLabel>
             <Input
@@ -89,7 +97,12 @@ function ResetPassword() {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
 
-            <Button w="100%" variant="brand" onClick={handleResetPassword}>
+            <Button
+              w="100%"
+              variant="brand"
+              onClick={handleResetPassword}
+              isLoading={loading}
+            >
               Reset Password
             </Button>
           </FormControl>

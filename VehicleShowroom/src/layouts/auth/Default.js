@@ -1,9 +1,9 @@
 // Chakra imports
 import { Box, Flex, Icon, Text } from '@chakra-ui/react';
+
 import PropTypes from 'prop-types';
 import React from 'react';
 import Footer from 'components/footer/FooterAuth';
-import FixedPlugin from 'components/fixedPlugin/FixedPlugin';
 // Assets
 import { FaChevronLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -34,7 +34,7 @@ function AuthIllustration(props) {
           ps={{ base: '25px', lg: '0px' }}
           pt="50px"
           w="fit-content"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/user')}
           _hover={{ cursor: 'pointer' }}
         >
           <Icon
@@ -59,24 +59,18 @@ function AuthIllustration(props) {
         >
           <Flex w="100%" h="100%" position="relative">
             <Flex
-              position="absolute"
-              top={0}
-              left={0}
               w="100%"
               h="100%"
               bgImage={`url(${illustrationBackground})`}
               bgSize="cover"
               bgPosition="center"
-              justify="center"
-              align="center"
-              display={{ base: 'flex', lg: 'flex', xl: 'flex' }}
               borderBottomLeftRadius={{ lg: '120px', xl: '200px' }}
+              overflow="hidden"
             />
           </Flex>
         </Box>
         <Footer />
       </Flex>
-      <FixedPlugin />
     </Flex>
   );
 }

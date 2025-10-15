@@ -2,7 +2,8 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 // chakra imports
-import { Box, Flex, HStack, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, HStack, Text, useColorModeValue }  from '@chakra-ui/react';
+
 
 export function SidebarLinks(props) {
   //   Chakra color mode
@@ -12,9 +13,9 @@ export function SidebarLinks(props) {
     'secondaryGray.600',
     'secondaryGray.600',
   );
-  let activeIcon = useColorModeValue('black', 'white');
+  let activeIcon = useColorModeValue('brand.500', 'white');
   let textColor = useColorModeValue('secondaryGray.500', 'white');
-  let brandColor = useColorModeValue('black', 'brand.400');
+  let brandColor = useColorModeValue('brand.500', 'brand.400');
 
   const { routes } = props;
 
@@ -48,9 +49,7 @@ export function SidebarLinks(props) {
           </>
         );
       } else if (
-        route.layout === '/admin' ||
-        route.layout === '/auth' ||
-        route.layout === '/rtl'
+        route.layout === '/admin'
       ) {
         return (
           <NavLink key={index} to={route.layout + route.path}>

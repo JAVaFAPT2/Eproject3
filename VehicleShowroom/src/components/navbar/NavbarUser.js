@@ -2,100 +2,73 @@ import React from 'react';
 import {
   Box,
   Flex,
-  Button,
   IconButton,
-  Image,
+  Text,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import CategoryMenu from 'components/navbar/components/CategoryMenu';
-import { CloseIcon } from '@chakra-ui/icons';
+import { useNavigate } from 'react-router-dom';
+import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
+import CategoryMenu from 'components/categoryMenu/CategoryMenu';
 
-export default function NavbarUser({ toggleCategory, isCategoryOpen, modl }) {
+function NavbarUser({ toggleCategory, isCategoryOpen }) {
   const navigate = useNavigate();
-  const location = useLocation();
-  const isDesktop = useBreakpointValue({ base: false, md: true });
-
-  const isHome = location.pathname === '/user/home';
 
   return (
     <>
+      {/* Drawer menu */}
       <CategoryMenu isVisible={isCategoryOpen} closeHandler={toggleCategory} />
 
-      <Box
+      <Flex
         as="header"
-        position={modl ? 'absolute' : 'relative'}
+        position="absolute"
         top={0}
         w="100%"
-        zIndex={100}
-        bg={
-          isHome
-            ? 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)'
-            : 'transparent'
-        }
+        h={{ base: '72px', md: '90px' }}
+        align="center"
+        justify="center"
+        bg="transparent"
+        color="white"
+        zIndex={200}
       >
         <Flex
+          w="100%"
+          maxW="2560px"
+          px={{ base: 4, md: 10 }}
           align="center"
           justify="space-between"
-          px={{ base: 4, md: 10 }}
-          h={'100px'}
-          color={isHome ? 'white' : 'black'}
         >
-          {/* Menu button */}
-          <Button
-            variant="ghost"
-            color={isHome ? 'white' : 'black'}
-            fontSize="md"
-            leftIcon={
-              <Image
-                src="https://cdn.ui.porsche.com/porsche-design-system/icons/menu-lines.e332216.svg"
-                w="24px"
-                h="24px"
-                filter={isHome ? 'invert(1)' : 'none'}
-              />
-            }
-            onClick={toggleCategory}
-            _hover={{ bg: 'transparent' }}
-            gap={2}
-          >
-            {isDesktop && 'Menu'}
-          </Button>
-
-          {/* Logo */}
-          <Box
-            cursor="pointer"
-            onClick={() => navigate('/')}
-            color={isHome ? 'white' : 'black'}
-            fontWeight={'600'}
-            fontSize={'2xl'}
-          >
-            Car Showroom
-          </Box>
-
-          {/* Profile / Close icon */}
+          {/* 🔹 Menu button */}
           <IconButton
-            variant="ghost"
-            aria-label="User Menu"
-            onClick={toggleCategory}
             icon={
               isCategoryOpen ? (
-                <CloseIcon
-                  boxSize="24px"
-                  filter={isHome ? 'invert(1)' : 'none'}
-                  display={{ base: 'none', md: 'block' }}
-                />
+                <CloseIcon boxSize={5} />
               ) : (
-                <Image
-                  src="https://cdn.ui.porsche.com/porsche-design-system/icons/user.c18dabe.svg"
-                  w="24px"
-                  h="24px"
-                  filter={isHome ? 'invert(1)' : 'none'}
-                />
+                <HamburgerIcon boxSize={6} />
               )
             }
+            variant="ghost"
+            colorScheme="whiteAlpha"
+            onClick={toggleCategory}
+            aria-label="Toggle menu"
+            _hover={{ bg: 'whiteAlpha.300' }}
           />
+
+          {/* 🔹 Center title */}
+          <Text
+            fontSize={useBreakpointValue({ base: 'lg', md: '2xl' })}
+            fontWeight="bold"
+            cursor="pointer"
+            onClick={() => navigate('/')}
+          >
+            Car Showroom
+          </Text>
+
+          {/* 🔹 Placeholder for right side (empty to balance layout) */}
+          <Box w="40px" />
         </Flex>
-      </Box>
+      </Flex>
     </>
   );
 }
+
+export default NavbarUser;

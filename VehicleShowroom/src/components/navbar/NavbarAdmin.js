@@ -8,7 +8,8 @@ import {
   Link,
   Text,
   useColorModeValue,
-} from '@chakra-ui/react';
+}  from '@chakra-ui/react';
+
 import PropTypes from 'prop-types';
 import React, { useState, useEffect } from 'react';
 import NavbarLinks from 'components/navbar/NavbarLinks';

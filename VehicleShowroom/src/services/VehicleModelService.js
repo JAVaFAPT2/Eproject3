@@ -1,59 +1,75 @@
-import { vehicleModels } from '../mockData/vehicleModels.js';
-import { vehiclePhotos } from '../mockData/vehiclePhotos.js';
-import { simulateDelay } from './utils.js';
-
-/**
- * Gắn ảnh (photos) tương ứng cho mỗi vehicle model
- */
-const attachPhotosToModel = (model) => {
-  const photos = vehiclePhotos.filter(
-    (p) => p.vehicleModelId === model.modelNumber,
-  );
-  return { ...model, photos };
-};
+import ApiClient, { uploadClient } from 'api/ApiClient';
+import { ApiUrl } from 'constants/ApiUrl';
 
 const VehicleModelService = {
   /**
-   * ✅ Lấy tất cả model kèm ảnh
+   * 🟢 Tạo Vehicle Model (multipart/form-data)
+   * POST /api/VehicleModels
    */
-  getAll: () => {
-    const result = vehicleModels.map(attachPhotosToModel);
-    return simulateDelay(result);
+  create: async (data) => {
+    const formData = new FormData();
+
+    // 🔧 Append từng trường theo đúng key của API backend
+    formData.append('modelNumber', data.modelNumber);
+    formData.append('name', data.name);
+    formData.append('price', data.price ? Number(data.price) : 0);
+    formData.append('description', data.description || '');
+    formData.append('parentId', data.parentId || '');
+    formData.append('level', data.level || 1);
+    formData.append('slug', data.slug || '');
+
+    // 🖼️ Gắn file ảnh (có thể là mảng hoặc 1 file)
+    if (Array.isArray(data.files)) {
+      data.files.forEach((file) => formData.append('files', file));
+    } else if (data.files) {
+      formData.append('files', data.files);
+    }
+
+    const res = await uploadClient.post(ApiUrl.VEHICLE_MODELS.BASE, formData);
+    return res.data;
   },
 
   /**
-   * ✅ Lấy 1 model theo id (kèm ảnh)
+   * 🟡 Cập nhật Vehicle Model (multipart/form-data)
+   * PUT /api/VehicleModels/{modelNumber}
    */
-  getById: (id) => {
-    const model = vehicleModels.find((x) => x.modelNumber === id);
-    if (!model) return simulateDelay(null);
-    return simulateDelay(attachPhotosToModel(model));
+  update: async (modelNumber, data) => {
+    const formData = new FormData();
+
+    formData.append('modelNumber', modelNumber);
+    formData.append('name', data.name);
+    formData.append('price', data.price ? Number(data.price) : 0);
+    formData.append('description', data.description || '');
+    formData.append('parentId', data.parentId || '');
+    formData.append('level', data.level || 1);
+    formData.append('slug', data.slug || '');
+
+    if (Array.isArray(data.files)) {
+      data.files.forEach((file) => formData.append('files', file));
+    } else if (data.files) {
+      formData.append('files', data.files);
+    }
+
+    const res = await uploadClient.put(`${ApiUrl.VEHICLE_MODELS.BASE}/${modelNumber}`, formData);
+    return res.data;
   },
 
   /**
-   * ✅ Tạo mới model
+   * 🔍 Tìm kiếm Vehicle Model
+   * GET /api/VehicleModels/search?parentModelNumber=&seats=&fuelType=&pageNumber=&pageSize=
    */
-  create: (data) => {
-    vehicleModels.push(data);
-    return simulateDelay({ message: 'Vehicle model created successfully' });
+  search: async (params = {}) => {
+    const res = await ApiClient.get(ApiUrl.VEHICLE_MODELS.SEARCH, { params });
+    return res.data;
   },
 
   /**
-   * ✅ Cập nhật model
+   * 🔹 Lấy model theo slug
+   * GET /api/VehicleModels/slug/{slug}
    */
-  update: (id, data) => {
-    const i = vehicleModels.findIndex((x) => x.modelNumber === id);
-    if (i >= 0) vehicleModels[i] = { ...vehicleModels[i], ...data };
-    return simulateDelay({ message: 'Vehicle model updated successfully' });
-  },
-
-  /**
-   * ✅ Xóa model
-   */
-  delete: (id) => {
-    const i = vehicleModels.findIndex((x) => x.modelNumber === id);
-    if (i >= 0) vehicleModels.splice(i, 1);
-    return simulateDelay({ message: 'Vehicle model deleted successfully' });
+  getBySlug: async (slug) => {
+    const res = await ApiClient.get(`${ApiUrl.VEHICLE_MODELS.SLUG}/${slug}`);
+    return res.data;
   },
 };
 

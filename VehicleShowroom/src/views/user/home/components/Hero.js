@@ -144,7 +144,7 @@ function Hero({ isCategoryOpen }) {
             size="lg"
             px={{ base: 6, md: 10 }}
             py={6}
-            fonWeight="400"
+            fontWeight="400"
             fontFamily="body"
             bg="transparent"
             _hover={{

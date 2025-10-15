@@ -1,12 +1,27 @@
 import React from 'react';
 
 import { Icon } from '@chakra-ui/react';
-import { MdHome, MdCardTravel } from 'react-icons/md';
+
+import {
+  MdPerson,
+  MdHome,
+  MdAccountCircle,
+  MdCategory,
+  MdOutlineDirectionsCar,
+} from 'react-icons/md';
 
 // Admin Imports
-import Dashboard from 'views/admin/dashboard';
-import VehiclePage from 'views/admin/vehicle';
-import OrderPage from 'views/admin/order';
+import MainDashboard from 'views/admin/default';
+import CustomerManagement from 'views/admin/customer';
+import EmployeeManagement from 'views/admin/employee';
+import VehicleModelManagement from 'views/admin/vehicleModel';
+import VehicleManagement from 'views/admin/vehicle';
+
+// User Imports
+import Home from 'views/user/home';
+import Profile from 'views/user/profile';
+import List from 'views/user/list';
+import Detail from 'views/user/detail';
 
 // Auth Imports
 import SignIn from 'views/auth/signIn';
@@ -14,47 +29,87 @@ import SignUp from 'views/auth/signUp';
 import CheckEmailNotice from 'views/auth/checkEmailNotice';
 import ResetPassword from 'views/auth/resetPassword';
 import ForgotPassword from 'views/auth/forgotPassword';
-import { RiOrderPlayLine } from 'react-icons/ri';
-
-// User Imports
-import Home from 'views/user/home/Home';
-import List from 'views/user/list/List';
-import Detail from 'views/user/detail/Detail';
-import PurchaseOrderPage from 'views/admin/purchase-order';
 
 const routes = [
   // Admin Routes
   {
-    name: 'Dashboard',
+    name: 'Main Dashboard',
     layout: '/admin',
-    path: '/dashboard',
+    path: '/default',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-    component: <Dashboard />,
+    component: <MainDashboard />,
+    role: 'ADMIN',
+  },
+  {
+    name: 'Customer Management',
+    layout: '/admin',
+    path: '/customer-management',
+    icon: (
+      <Icon as={MdAccountCircle} width="20px" height="20px" color="inherit" />
+    ),
+    component: <CustomerManagement />,
+    role: 'ADMIN',
+  },
+  {
+    name: 'Employee Management',
+    layout: '/admin',
+    path: '/employee-management',
+    icon: (
+      <Icon as={MdAccountCircle} width="20px" height="20px" color="inherit" />
+    ),
+    component: <EmployeeManagement />,
+    role: 'ADMIN',
+  },
+  {
+    name: 'Vehicle Model Management',
+    layout: '/admin',
+    path: '/vehicle-model-management',
+    icon: <Icon as={MdCategory} width="20px" height="20px" color="inherit" />,
+    component: <VehicleModelManagement />,
+    role: 'ADMIN',
   },
   {
     name: 'Vehicle Management',
     layout: '/admin',
     path: '/vehicle-management',
-    icon: <Icon as={MdCardTravel} width="20px" height="20px" color="inherit" />,
-    component: <VehiclePage />,
+    icon: (
+      <Icon
+        as={MdOutlineDirectionsCar}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
+    component: <VehicleManagement />,
+    role: 'ADMIN',
+  },
+
+  //User Routes
+  {
+    name: 'Home',
+    layout: '/user',
+    path: '/home',
+    component: <Home />,
   },
   {
-    name: 'Purchase Order Management',
-    layout: '/admin',
-    path: '/purchase-order-management',
-    icon: (
-      <Icon as={RiOrderPlayLine} width="20px" height="20px" color="inherit" />
-    ),
-    component: <PurchaseOrderPage />,
+    name: 'Profile',
+    layout: '/user',
+    path: '/profile',
+    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
+    component: <Profile />,
   },
   {
-    name: 'Order Management',
-    layout: '/admin',
-    path: '/order-management',
-    icon: (
-      <Icon as={RiOrderPlayLine} width="20px" height="20px" color="inherit" />
-    ),
-    component: <OrderPage />,
+    name: 'List',
+    layout: '/user',
+    path: '/list',
+    component: <List />,
+  },
+  {
+    name: 'Detail',
+    layout: '/user',
+    path: '/detail',
+    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
+    component: <Detail />,
   },
 
   //Auth Routes
@@ -87,32 +142,6 @@ const routes = [
     layout: '/auth',
     path: '/reset-password',
     component: <ResetPassword />,
-  },
-
-  //User Routes
-  {
-    name: 'Home',
-    layout: '/user',
-    path: '/home',
-    component: <Home />,
-  },
-  {
-    name: 'Models',
-    layout: '/user',
-    path: '/models',
-    component: <List />,
-  },
-  {
-    name: 'Models',
-    layout: '/user',
-    path: '/models/:model',
-    component: <List />,
-  },
-  {
-    name: 'Detail',
-    layout: '/user',
-    path: '/model/:id',
-    component: <Detail />,
   },
 ];
 

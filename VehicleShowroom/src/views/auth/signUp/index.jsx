@@ -14,50 +14,62 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
+import { useAppToast } from 'utils/ToastHelper';
 import DefaultAuth from 'layouts/auth/Default';
-import illustration from 'assets/img/auth/auth.png';
+import illustration from 'assets/img/auth/banner.png';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import AuthService from 'services/AuthService';
-import { useShowToast } from 'utils/helper';
 
 function SignUp() {
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
-  const textColorBrand = useColorModeValue('black', 'white');
-  const brandStars = useColorModeValue('black', 'brand.400');
+  const textColorBrand = useColorModeValue('brand.500', 'white');
+  const brandStars = useColorModeValue('brand.500', 'brand.400');
 
   const navigate = useNavigate();
-  const { showToast } = useShowToast();
+  const toast = useAppToast();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // ✅ thêm loading
 
   const handleShowPassword = () => setShowPassword(!showPassword);
 
-  const handleSignUp = async () => {
-    if (!username || !email || !password) {
-      showToast('Please fill in all required fields', 'error');
+  // ✅ Gọi API đăng ký qua AuthService
+  const handleEmailPasswordSignUp = async () => {
+    if (!fullName || !email || !password || !confirmPassword) {
+      toast.error('Please fill in all required fields');
       return;
     }
+
     if (password !== confirmPassword) {
-      showToast('Passwords do not match', 'error');
+      toast.error('Passwords do not match');
       return;
     }
 
     try {
-      await AuthService.register({ username, password, email });
-      showToast('Account created successfully!', 'success');
-      setTimeout(() => navigate('/auth/sign-in'), 1500);
+      setIsLoading(true); // bật loading
+      const payload = {
+        username: fullName, // ánh xạ sang username
+        email,
+        password,
+      };
+
+      await AuthService.register(payload);
+
+      toast.success('Account created successfully!');
+      navigate('/auth/sign-in');
     } catch (error) {
-      console.error('Sign up failed:', error);
-      showToast(
-        error.response?.data?.message || 'Sign up failed. Please try again.',
-        'error',
-      );
+      console.error(error);
+      const msg =
+        error.response?.data?.message || 'Sign up failed. Please try again.';
+      toast.error(msg);
+    } finally {
+      setIsLoading(false); // tắt loading
     }
   };
 
@@ -73,19 +85,26 @@ function SignUp() {
         justifyContent="center"
         mb={{ base: '30px', md: '60px' }}
         px={{ base: '25px', md: '0px' }}
-        mt={{ base: '40px', md: '10vh' }}
+        mt={{ base: '40px', md: '5vh' }}
         flexDirection="column"
       >
         <Box me="auto">
           <Heading color={textColor} fontSize="36px" mb="10px">
             Sign Up
           </Heading>
-          <Text mb="36px" ms="4px" color={textColorSecondary} fontWeight="400">
+          <Text
+            mb="36px"
+            ms="4px"
+            color={textColorSecondary}
+            fontWeight="400"
+            fontSize="md"
+          >
             Create an account to get started!
           </Text>
         </Box>
 
         <Flex
+          zIndex="2"
           direction="column"
           w={{ base: '100%', md: '420px' }}
           maxW="100%"
@@ -95,7 +114,7 @@ function SignUp() {
           me="auto"
           mb={{ base: '20px', md: 'auto' }}
         >
-          <FormControl>
+          <FormControl isDisabled={isLoading}>
             <FormLabel
               display="flex"
               ms="4px"
@@ -104,18 +123,18 @@ function SignUp() {
               color={textColor}
               mb="8px"
             >
-              Username<Text color={brandStars}>*</Text>
+              Full Name<Text color={brandStars}>*</Text>
             </FormLabel>
             <Input
               isRequired
               variant="auth"
               fontSize="sm"
               type="text"
-              placeholder="Enter username"
+              placeholder="Your full name"
               mb="24px"
               size="lg"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
             />
 
             <FormLabel
@@ -199,7 +218,9 @@ function SignUp() {
               w="100%"
               h="50"
               my="24px"
-              onClick={handleSignUp}
+              onClick={handleEmailPasswordSignUp}
+              isLoading={isLoading} // ✅ loading spinner
+              loadingText="Creating account..."
             >
               Sign Up
             </Button>
@@ -209,6 +230,7 @@ function SignUp() {
             flexDirection="column"
             justifyContent="center"
             alignItems="start"
+            maxW="100%"
             mt="0px"
           >
             <Text color={textColorSecondary} fontWeight="400" fontSize="14px">

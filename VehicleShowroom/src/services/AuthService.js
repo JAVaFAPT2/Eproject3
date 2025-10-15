@@ -1,114 +1,149 @@
 import ApiClient from 'api/ApiClient';
 import { ApiUrl } from 'constants/ApiUrl';
 
-const TOKEN_KEY = 'accessToken';
-const TOKEN_EXPIRES_KEY = 'tokenExpiresAt';
+// ================================
+// 🔐 AUTH SERVICE
+// ================================
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
+const KEEP_LOGIN_KEY = 'keep_logged_in';
 
-// ==================
-// 🔑 Token Helpers
-// ==================
-const getAccessToken = () => localStorage.getItem(TOKEN_KEY);
-
-const setAccessToken = (token) => {
-  if (!token) {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(TOKEN_EXPIRES_KEY);
-  } else {
-    localStorage.setItem(TOKEN_KEY, token);
-  }
-};
-
-const setTokenExpiration = (expiresAt) => {
-  if (expiresAt) localStorage.setItem(TOKEN_EXPIRES_KEY, expiresAt);
-};
-
-const clearAuth = () => {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(TOKEN_EXPIRES_KEY);
-};
-
-// ==================
-// 🧩 AuthService
-// ==================
 const AuthService = {
-  // 1️⃣ Login
-  async login(username, password) {
-    const res = await ApiClient.post(ApiUrl.AUTH.LOGIN, { username, password });
-    const { token, tokenExpiresAt } = res.data;
+  // ---------------------------------
+  // 🧩 Token helpers
+  // ---------------------------------
+  setAccessToken(token, keepLoggedIn = null) {
+    const keep = keepLoggedIn ?? AuthService.isKeepLoggedIn(); // nếu không truyền thì lấy theo state hiện tại
 
-    setAccessToken(token);
-    setTokenExpiration(tokenExpiresAt);
+    if (keep) {
+      localStorage.setItem(ACCESS_TOKEN_KEY, token);
+    } else {
+      sessionStorage.setItem(ACCESS_TOKEN_KEY, token);
+    }
+  },
+
+  getAccessToken() {
+    return (
+      localStorage.getItem(ACCESS_TOKEN_KEY) ||
+      sessionStorage.getItem(ACCESS_TOKEN_KEY)
+    );
+  },
+
+  setRefreshToken(token, keepLoggedIn = null) {
+    const keep = keepLoggedIn ?? AuthService.isKeepLoggedIn();
+
+    if (keep) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    } else {
+      sessionStorage.setItem(REFRESH_TOKEN_KEY, token);
+    }
+  },
+
+  getRefreshToken() {
+    return (
+      localStorage.getItem(REFRESH_TOKEN_KEY) ||
+      sessionStorage.getItem(REFRESH_TOKEN_KEY)
+    );
+  },
+
+  clearTokens() {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+    sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+  },
+
+  // ---------------------------------
+  // 🧠 Keep login state
+  // ---------------------------------
+  setKeepLoggedIn(value) {
+    localStorage.setItem(KEEP_LOGIN_KEY, value ? 'true' : 'false');
+  },
+
+  isKeepLoggedIn() {
+    return localStorage.getItem(KEEP_LOGIN_KEY) === 'true';
+  },
+
+  // ---------------------------------
+  // 🧍 Register
+  // ---------------------------------
+  register: async (data) => {
+    const res = await ApiClient.post(ApiUrl.AUTH.REGISTER, data);
+    return res.data;
+  },
+
+  // ---------------------------------
+  // 🔑 Login
+  // ---------------------------------
+  login: async (data, keepLoggedIn = false) => {
+    const res = await ApiClient.post(ApiUrl.AUTH.LOGIN, data);
+
+    AuthService.setKeepLoggedIn(keepLoggedIn);
+
+    if (res.data?.accessToken)
+      AuthService.setAccessToken(res.data.accessToken, keepLoggedIn);
+    if (res.data?.refreshToken)
+      AuthService.setRefreshToken(res.data.refreshToken, keepLoggedIn);
 
     return res.data;
   },
 
-  // 2️⃣ Forgot Password
-  async forgotPassword(email) {
+  // ---------------------------------
+  // 🔁 Refresh token (used by ApiClient interceptor)
+  // ---------------------------------
+  refreshToken: async () => {
+    const refreshToken = AuthService.getRefreshToken();
+    if (!refreshToken) throw new Error('No refresh token found');
+
+    const res = await ApiClient.post(ApiUrl.AUTH.REFRESH_TOKEN, {
+      refreshToken,
+    });
+
+    const keepLoggedIn = AuthService.isKeepLoggedIn();
+
+    if (res.data?.accessToken)
+      AuthService.setAccessToken(res.data.accessToken, keepLoggedIn);
+    if (res.data?.refreshToken)
+      AuthService.setRefreshToken(res.data.refreshToken, keepLoggedIn);
+
+    return res.data?.accessToken;
+  },
+
+  // ---------------------------------
+  // ❌ Logout / Revoke token
+  // ---------------------------------
+  logout: async () => {
+    const refreshToken = AuthService.getRefreshToken();
+    if (refreshToken) {
+      try {
+        await ApiClient.post(ApiUrl.AUTH.REVOKE_TOKEN, { refreshToken });
+      } catch (err) {
+        console.warn('Revoke token failed', err);
+      }
+    }
+
+    AuthService.clearTokens();
+    localStorage.removeItem(KEEP_LOGIN_KEY);
+  },
+
+  // ---------------------------------
+  // 📧 Forgot Password
+  // ---------------------------------
+  forgotPassword: async (email) => {
     const res = await ApiClient.post(ApiUrl.AUTH.FORGOT_PASSWORD, { email });
     return res.data;
   },
 
-  // 3️⃣ Reset Password
-  async resetPassword(token, newPassword) {
+  // ---------------------------------
+  // 🔑 Reset Password
+  // ---------------------------------
+  resetPassword: async (token, newPassword) => {
     const res = await ApiClient.post(ApiUrl.AUTH.RESET_PASSWORD, {
       token,
       newPassword,
     });
     return res.data;
   },
-
-  // 4️⃣ Refresh Token
-  async refreshToken() {
-    const res = await ApiClient.post(ApiUrl.AUTH.REFRESH_TOKEN, null, {
-      withCredentials: true, // refresh token nằm trong HttpOnly cookie
-    });
-
-    const { token, tokenExpiresAt } = res.data;
-    setAccessToken(token);
-    setTokenExpiration(tokenExpiresAt);
-
-    return token;
-  },
-
-  // 5️⃣ Register
-  async register({ username, password, email }) {
-    const res = await ApiClient.post(ApiUrl.AUTH.REGISTER, {
-      username,
-      password,
-      email,
-    });
-    return res.data;
-  },
-
-  // 6️⃣ Revoke Token (Logout)
-  async revokeToken() {
-    try {
-      await ApiClient.post(ApiUrl.AUTH.REVOKE_TOKEN, null, {
-        withCredentials: true,
-      });
-    } catch (err) {
-      console.warn('Token revoke failed (maybe expired already)', err);
-    } finally {
-      clearAuth();
-    }
-  },
-
-  // 🚪 Logout
-  logout() {
-    clearAuth();
-  },
-
-  // 🧭 Check login state
-  isAuthenticated() {
-    const token = getAccessToken();
-    const expiresAt = localStorage.getItem(TOKEN_EXPIRES_KEY);
-
-    if (!token || !expiresAt) return false;
-    return new Date(expiresAt) > new Date();
-  },
-
-  getAccessToken,
-  setAccessToken,
 };
 
 export default AuthService;

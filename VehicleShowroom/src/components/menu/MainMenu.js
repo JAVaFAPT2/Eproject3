@@ -29,7 +29,7 @@ export default function Banner(props) {
     { color: "secondaryGray.900", bg: "unset" },
     { color: "secondaryGray.500", bg: "unset" }
   );
-  const iconColor = useColorModeValue("black", "white");
+  const iconColor = useColorModeValue("brand.500", "white");
   const bgList = useColorModeValue("white", "whiteAlpha.100");
   const bgShadow = useColorModeValue(
     "14px 17px 40px 4px rgba(112, 144, 176, 0.08)",

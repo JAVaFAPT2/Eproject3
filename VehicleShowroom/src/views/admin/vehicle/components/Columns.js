@@ -1,53 +1,74 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { Text, Flex, IconButton } from '@chakra-ui/react';
+import { Checkbox, Text, Flex, IconButton } from '@chakra-ui/react';
 import { MdEdit, MdDelete } from 'react-icons/md';
 
 const columnHelper = createColumnHelper();
 
-export const getColumns = ({ onEdit, onDelete, textColor }) => [
-  columnHelper.accessor('vehicleId', {
-    header: 'ID',
-    cell: (info) => <Text color={textColor}>{info.getValue()}</Text>,
-  }),
-  columnHelper.accessor('modelNumber', {
-    header: 'MODEL',
-    cell: (info) => <Text>{info.getValue()}</Text>,
-  }),
-  columnHelper.accessor('status', {
-    header: 'STATUS',
-    cell: (info) => <Text>{info.getValue()}</Text>,
-  }),
-  columnHelper.accessor('purchasePrice', {
-    header: 'PRICE',
-    cell: (info) => <Text>${info.getValue()}</Text>,
-  }),
-  columnHelper.display({
-    id: 'actions',
-    header: (
-      <Text textAlign="right" w="full">
-        ACTIONS
-      </Text>
-    ),
-    cell: (info) => {
-      const v = info.row.original;
-      return (
-        <Flex justify="flex-end" gap={2}>
-          <IconButton
-            aria-label="edit"
-            icon={<MdEdit />}
-            size="sm"
-            colorScheme="blue"
-            onClick={() => onEdit(v)}
+export default function Columns({
+  onEdit,
+  onDelete,
+  selectedBulk,
+  setSelectedBulk,
+}) {
+  return [
+    columnHelper.display({
+      id: 'select',
+      header: '',
+      cell: (info) => {
+        const row = info.row.original;
+        const checked = selectedBulk.includes(row.vehicleId);
+        return (
+          <Checkbox
+            isChecked={checked}
+            onChange={(e) => {
+              setSelectedBulk((prev) =>
+                e.target.checked
+                  ? [...prev, row.vehicleId]
+                  : prev.filter((id) => id !== row.vehicleId),
+              );
+            }}
           />
-          <IconButton
-            aria-label="delete"
-            icon={<MdDelete />}
-            size="sm"
-            colorScheme="red"
-            onClick={() => onDelete(v)}
-          />
-        </Flex>
-      );
-    },
-  }),
-];
+        );
+      },
+    }),
+    columnHelper.accessor('vin', {
+      header: 'VIN',
+      cell: (info) => <Text>{info.getValue()}</Text>,
+    }),
+    columnHelper.accessor('modelName', {
+      header: 'MODEL NAME',
+      cell: (info) => <Text>{info.getValue()}</Text>,
+    }),
+    columnHelper.accessor('purchasePrice', {
+      header: 'PRICE',
+      cell: (info) => <Text>${info.getValue()?.toLocaleString() || 0}</Text>,
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: 'ACTIONS',
+      cell: (info) => {
+        const row = info.row.original;
+        return (
+          <Flex justify="flex-end" gap={2}>
+            <IconButton
+              aria-label="Edit"
+              icon={<MdEdit />}
+              size="sm"
+              colorScheme="blue"
+              borderRadius="xl"
+              onClick={() => onEdit(row)}
+            />
+            <IconButton
+              aria-label="Delete"
+              icon={<MdDelete />}
+              size="sm"
+              colorScheme="red"
+              borderRadius="xl"
+              onClick={() => onDelete(row)}
+            />
+          </Flex>
+        );
+      },
+    }),
+  ];
+}

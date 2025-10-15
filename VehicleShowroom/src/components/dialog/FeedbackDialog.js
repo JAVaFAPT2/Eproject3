@@ -8,7 +8,8 @@ import {
   ModalCloseButton,
   Image,
   Text,
-} from '@chakra-ui/react';
+}  from '@chakra-ui/react';
+
 
 import Success from 'assets/gif/success.gif';
 import Error from 'assets/gif/error.gif';

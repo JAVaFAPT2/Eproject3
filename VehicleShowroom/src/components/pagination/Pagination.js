@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { HStack, Button, Input, useColorModeValue } from '@chakra-ui/react';
-import { useShowToast } from 'utils/helper';
+import { useAppToast } from 'utils/ToastHelper';
 
 function Pagination({ page, totalPages, onPageChange }) {
   const [showInput, setShowInput] = useState(false);
   const [inputValue, setInputValue] = useState(page + 1);
-  const { showToast } = useShowToast();
+  const toast = useAppToast();
 
-  const activeColor = useColorModeValue('black', 'navy.700');
+  const activeColor = useColorModeValue('brand.500', 'navy.700');
 
   const pageNumbers = [];
   const delta = 2;
@@ -23,7 +23,12 @@ function Pagination({ page, totalPages, onPageChange }) {
       onPageChange(n - 1);
       setShowInput(false);
     } else {
-      showToast('Invalid page number', 'error');
+      toast({
+        title: 'Invalid page number',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
     }
   };
 

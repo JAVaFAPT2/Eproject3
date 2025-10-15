@@ -2,41 +2,38 @@ import { mode } from '@chakra-ui/theme-tools';
 export const globalStyles = {
   colors: {
     brand: {
-      100: '#F7F7F7', // very light gray
-      200: '#E0E0E0', // light gray
-      300: '#CFCFCF', // soft gray
-      400: '#A0A0A0', // medium gray
-      500: '#707070', // main gray tone
-      600: '#4A4A4A', // dark gray
-      700: '#2E2E2E', // darker gray
-      800: '#1A1A1A', // near black
-      900: '#0A0A0A', // pure black tone
+      100: '#F7F7F7', // trắng nhạt
+      200: '#E0E0E0', // xám sáng
+      300: '#CFCFCF', // xám nhẹ
+      400: '#AFAFAF', // trung tính
+      500: '#7A7A7A', // xám chuẩn brand
+      600: '#4D4D4D', // xám đậm
+      700: '#2C2C2C', // gần đen
+      800: '#1A1A1A', // rất đen
+      900: '#0D0D0D', // đen tuyệt đối
     },
-
     brandScheme: {
-      100: '#F7F7F7',
-      200: '#E0E0E0',
-      300: '#CFCFCF',
-      400: '#A0A0A0',
-      500: '#707070',
-      600: '#4A4A4A',
-      700: '#2E2E2E',
+      100: '#FFFFFF',
+      200: '#F2F2F2',
+      300: '#E5E5E5',
+      400: '#CCCCCC',
+      500: '#999999',
+      600: '#666666',
+      700: '#333333',
       800: '#1A1A1A',
-      900: '#0A0A0A',
+      900: '#000000',
     },
-
     brandTabs: {
-      100: '#F7F7F7',
-      200: '#E0E0E0',
-      300: '#CFCFCF',
-      400: '#A0A0A0',
-      500: '#707070',
-      600: '#4A4A4A',
+      100: '#F9F9F9',
+      200: '#EAEAEA',
+      300: '#DADADA',
+      400: '#B5B5B5',
+      500: '#888888',
+      600: '#5C5C5C',
       700: '#2E2E2E',
       800: '#1A1A1A',
-      900: '#0A0A0A',
+      900: '#000000',
     },
-
     secondaryGray: {
       100: '#E0E5F2',
       200: '#E1E9F8',

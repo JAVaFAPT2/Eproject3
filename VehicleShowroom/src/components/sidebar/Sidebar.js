@@ -12,7 +12,8 @@ import {
   useDisclosure,
   DrawerContent,
   DrawerCloseButton,
-} from '@chakra-ui/react';
+}  from '@chakra-ui/react';
+
 import Content from 'components/sidebar/components/Content';
 import {
   renderThumb,

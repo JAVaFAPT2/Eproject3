@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Portal, useDisclosure } from '@chakra-ui/react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import Sidebar from 'components/sidebar/Sidebar.js';
 import Navbar from 'components/navbar/NavbarAdmin.js';
 import Footer from 'components/footer/FooterAdmin.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
+import { useUser } from 'contexts/UserContext';
+import AuthService from 'services/AuthService';
+import { useAppToast } from 'utils/ToastHelper';
 
 export default function Dashboard(props) {
   const { ...rest } = props;
@@ -13,11 +22,36 @@ export default function Dashboard(props) {
   const [toggleSidebar, setToggleSidebar] = useState(false);
   const { onOpen } = useDisclosure();
   const location = useLocation();
+  const navigate = useNavigate();
+  const toast = useAppToast();
 
-  // ✅ Chỉ lấy các route có layout === '/admin'
-  const adminRoutes = routes.filter((route) => route.layout === '/admin');
+  const { user } = useUser();
 
-  // ✅ Lấy route đang active
+  useEffect(() => {
+    const currentUser = user || AuthService.getUser();
+
+    if (!currentUser) {
+      toast.warning('Please sign in first.');
+      navigate('/auth/sign-in', { replace: true });
+      return;
+    }
+
+    if (!['ADMIN', 'EMPLOYEE'].includes(currentUser.roleName)) {
+      toast.error(
+        'Access denied. You do not have permission to access the admin panel.',
+      );
+      navigate('/user', { replace: true });
+    }
+  }, [user, navigate, toast]);
+
+  // ✅ Lọc route cho sidebar
+  const filteredRoutes = routes.filter((route) => {
+    if (route.hideInSidebar) return false;
+    if (route.role && route.role !== user?.roleName) return false;
+    return true;
+  });
+
+  // ✅ Lấy route hiện tại
   const getActiveRoute = (routes, pathname) => {
     for (let route of routes) {
       if (route.collapse || route.category) {
@@ -30,21 +64,27 @@ export default function Dashboard(props) {
     return null;
   };
 
-  const activeRoute = getActiveRoute(adminRoutes, location.pathname);
+  const activeRoute = getActiveRoute(routes, location.pathname);
 
-  // ✅ Render các route admin
+  // ✅ Render route component
   const getRoutesComponents = (routes) =>
-    routes
-      .filter((r) => r.layout === '/admin')
-      .map((route, key) => (
-        <Route path={route.path} element={route.component} key={key} />
-      ));
+    routes.map((route, key) => {
+      if (route.hideInSidebar) return null;
+      if (route.role && route.role !== user?.roleName) return null;
+
+      if (route.layout === '/admin') {
+        return <Route path={route.path} element={route.component} key={key} />;
+      }
+      if (route.collapse || route.category) {
+        return getRoutesComponents(route.items);
+      }
+      return null;
+    });
 
   return (
     <Box>
       <SidebarContext.Provider value={{ toggleSidebar, setToggleSidebar }}>
-        {/* ✅ Sidebar chỉ hiện route admin */}
-        <Sidebar routes={adminRoutes} display="none" {...rest} />
+        <Sidebar routes={filteredRoutes} display="none" {...rest} />
 
         <Box
           float="right"
@@ -55,12 +95,11 @@ export default function Dashboard(props) {
           maxHeight="100%"
           w={{ base: '100%', xl: 'calc(100% - 290px)' }}
         >
-          {/* ✅ Navbar */}
           <Portal>
             <Box>
               <Navbar
                 onOpen={onOpen}
-                logoText="Horizon UI Dashboard PRO"
+                logoText="Trendify Admin"
                 brandText={activeRoute?.name || 'Dashboard'}
                 secondary={activeRoute?.secondary || false}
                 message={activeRoute?.messageNavbar || ''}
@@ -70,13 +109,17 @@ export default function Dashboard(props) {
             </Box>
           </Portal>
 
-          {/* ✅ Nội dung chính */}
-          <Box mx="auto" p={{ base: '20px', md: '30px' }} pt="50px" minH="100vh">
+          <Box
+            mx="auto"
+            p={{ base: '20px', md: '30px' }}
+            pt="50px"
+            minH="100vh"
+          >
             <Routes>
-              {getRoutesComponents(adminRoutes)}
+              {getRoutesComponents(routes)}
               <Route
                 path="/"
-                element={<Navigate to="/admin/dashboard" replace />}
+                element={<Navigate to="/admin/default" replace />}
               />
             </Routes>
           </Box>

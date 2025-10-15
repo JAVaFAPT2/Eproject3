@@ -1,4 +1,3 @@
-// views/auth/ForgotPassword.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -12,26 +11,41 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
+import { useAppToast } from 'utils/ToastHelper';
 import DefaultAuth from 'layouts/auth/Default';
-import illustration from 'assets/img/auth/auth.png';
+import illustration from 'assets/img/auth/banner.png';
 import AuthService from 'services/AuthService';
-import { useShowToast } from 'utils/helper';
 
 function ForgotPassword() {
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
-  const { showToast } = useShowToast();
+  const toast = useAppToast();
   const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    setLoading(true);
     try {
-      await AuthService.forgotPassword(email);
-      showToast('Password reset email sent!', 'success');
-      navigate('/auth/check-email');
+      // ✅ Gọi API từ AuthService
+      await AuthService.forgotPassword({ email });
+
+      toast.success('Password reset email sent!');
+      navigate('/auth/check-email'); // điều hướng sang trang thông báo gửi thành công
     } catch (error) {
       console.error(error);
-      showToast('Failed to send email', 'error');
+      const msg =
+        error.response?.data?.message ||
+        'Failed to send reset email. Please try again.';
+      toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,7 +63,7 @@ function ForgotPassword() {
         px={{ base: '25px', md: '0px' }}
         mt={{ base: '40px', md: '10vh' }}
       >
-        <Box>
+        <Box w={{ base: '100%', md: '420px' }}>
           <Heading color={textColor} fontSize="32px" mb="10px">
             Forgot Password
           </Heading>
@@ -57,8 +71,9 @@ function ForgotPassword() {
             Enter your email address and we’ll send you a link to reset your
             password.
           </Text>
+
           <FormControl>
-            <FormLabel color={textColor}>Email</FormLabel>
+            <FormLabel color={textColor}>Email address</FormLabel>
             <Input
               type="email"
               placeholder="mail@example.com"
@@ -66,7 +81,12 @@ function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <Button w="100%" variant="brand" onClick={handleForgotPassword}>
+            <Button
+              w="100%"
+              variant="brand"
+              onClick={handleForgotPassword}
+              isLoading={loading}
+            >
               Send Reset Link
             </Button>
           </FormControl>

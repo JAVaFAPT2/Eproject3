@@ -15,49 +15,60 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
+import { useAppToast } from 'utils/ToastHelper';
 import DefaultAuth from 'layouts/auth/Default';
-import illustration from 'assets/img/auth/auth.png';
+import illustration from 'assets/img/auth/banner.png';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import AuthService from 'services/AuthService';
-import { useShowToast } from 'utils/helper';
 import { useUser } from 'contexts/UserContext';
 
 function SignIn() {
   const textColor = useColorModeValue('navy.700', 'white');
   const textColorSecondary = 'gray.400';
   const textColorDetails = useColorModeValue('navy.700', 'secondaryGray.600');
-  const textColorBrand = useColorModeValue('black', 'white');
-  const brandStars = useColorModeValue('black', 'brand.400');
+  const textColorBrand = useColorModeValue('brand.500', 'white');
+  const brandStars = useColorModeValue('brand.500', 'brand.400');
 
   const navigate = useNavigate();
-  const { showToast } = useShowToast();
-  const { refreshUser } = useUser();
+  const toast = useAppToast();
+  const { setUser } = useUser();
 
   const [show, setShow] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // ✅ loading state
 
   const handleClick = () => setShow(!show);
 
+  // ==============================
+  // 🔐 Handle Login
+  // ==============================
   const handleLogin = async () => {
     if (!username || !password) {
-      showToast('Please enter username and password', 'error');
+      toast.error('Please enter username and password');
       return;
     }
 
     try {
-      await AuthService.login(username, password);
-      await refreshUser();
-      showToast('Login successful', 'success');
-      setTimeout(() => navigate('/'), 1200);
-    } catch (error) {
-      console.error('Login failed:', error);
-      showToast(
-        error.response?.data?.message || 'Login failed. Please try again.',
-        'error',
+      setIsLoading(true); // ✅ bật loading
+      const data = await AuthService.login(
+        { username, password },
+        keepLoggedIn,
       );
+      const { user } = data;
+      setUser(user);
+      toast.success('Login success!');
+      navigate('/');
+    } catch (error) {
+      console.error(error);
+      const msg =
+        error.response?.data?.message ||
+        'Invalid credentials. Please try again.';
+      toast.error(msg);
+    } finally {
+      setIsLoading(false); // ✅ tắt loading
     }
   };
 
@@ -73,19 +84,26 @@ function SignIn() {
         justifyContent="center"
         mb={{ base: '30px', md: '60px' }}
         px={{ base: '25px', md: '0px' }}
-        mt={{ base: '40px', md: '10vh' }}
+        mt={{ base: '40px', md: '5vh' }}
         flexDirection="column"
       >
         <Box me="auto">
           <Heading color={textColor} fontSize="36px" mb="10px">
             Sign In
           </Heading>
-          <Text mb="36px" ms="4px" color={textColorSecondary} fontWeight="400">
-            Enter your username and password to access your account.
+          <Text
+            mb="36px"
+            ms="4px"
+            color={textColorSecondary}
+            fontWeight="400"
+            fontSize="md"
+          >
+            Enter your username and password to sign in!
           </Text>
         </Box>
 
         <Flex
+          zIndex="2"
           direction="column"
           w={{ base: '100%', md: '420px' }}
           maxW="100%"
@@ -95,7 +113,8 @@ function SignIn() {
           me="auto"
           mb={{ base: '20px', md: 'auto' }}
         >
-          <FormControl>
+          {/* Form login */}
+          <FormControl isDisabled={isLoading}>
             <FormLabel
               display="flex"
               ms="4px"
@@ -111,8 +130,9 @@ function SignIn() {
               variant="auth"
               fontSize="sm"
               type="text"
-              placeholder="Enter username"
+              placeholder="Enter your username"
               mb="24px"
+              size="lg"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -156,6 +176,7 @@ function SignIn() {
                   me="10px"
                   isChecked={keepLoggedIn}
                   onChange={(e) => setKeepLoggedIn(e.target.checked)}
+                  isDisabled={isLoading}
                 />
                 <FormLabel
                   htmlFor="remember-login"
@@ -167,6 +188,7 @@ function SignIn() {
                   Keep me logged in
                 </FormLabel>
               </FormControl>
+
               <NavLink to="/auth/forgot-password">
                 <Text
                   color={textColorBrand}
@@ -187,6 +209,8 @@ function SignIn() {
               h="50"
               mb="24px"
               onClick={handleLogin}
+              isLoading={isLoading} // ✅ Hiển thị loading spinner
+              loadingText="Signing in..."
             >
               Sign In
             </Button>
@@ -196,6 +220,7 @@ function SignIn() {
             flexDirection="column"
             justifyContent="center"
             alignItems="start"
+            maxW="100%"
             mt="0px"
           >
             <Text color={textColorDetails} fontWeight="400" fontSize="14px">

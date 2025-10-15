@@ -9,77 +9,59 @@ import {
   PopoverBody,
   PopoverHeader,
   Text,
-  useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { IoMdMoon, IoMdSunny, IoMdCart } from 'react-icons/io';
+import { useAppToast } from 'utils/ToastHelper';
 import React, { useState } from 'react';
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AuthService from 'services/AuthService';
 import { useUser } from 'contexts/UserContext';
-import CartSidebar from 'components/sidebar/CartSidebar';
 import { MdLogin } from 'react-icons/md';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import routes from 'routes.js';
-import { useShowToast } from 'utils/helper';
 
 export default function NavbarLinks() {
-  const { colorMode, toggleColorMode } = useColorMode();
   const navbarIcon = useColorModeValue('gray.600', 'white');
   const menuBg = useColorModeValue('white', 'navy.800');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const borderColor = useColorModeValue('#E6ECFA', 'rgba(135, 140, 189, 0.3)');
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const { user } = useUser();
   const navigate = useNavigate();
-  const { showToast } = useShowToast();
+  const toast = useAppToast();
 
-  const handleLogout = async () => {
-    showToast('Logout success!', 'success');
-    AuthService.logout();
-    navigate('/auth/sign-in');
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  const handleToggleDashboard = () => {
+    if (isAdminRoute) {
+      navigate('/user');
+    } else {
+      navigate('/admin');
+    }
   };
 
-  const filteredRoutes = routes.filter((route) => !route.hideInSidebar);
+  const handleLogout = async () => {
+    toast.success('Logout success!');
+    AuthService.logout();
+    setTimeout(() => {
+      navigate('/user');
+      window.location.reload();
+    }, 1000);
+  };
+
+  const filteredRoutes = routes.filter((route) => {
+    if (route.hideInSidebar) return false;
+    if (route.role && route.role !== user?.roleName) return false;
+    return true;
+  });
 
   return (
     <Flex align="center" gap="10px">
-      {/* Sidebar toggle for mobile */}
-      <SidebarResponsive routes={filteredRoutes} />
-
-      {/* Cart toggle */}
-      <Button
-        variant="ghost"
-        p="0"
-        me={2}
-        minW="unset"
-        onClick={() => setIsCartOpen(true)}
-        _hover={{ bg: 'transparent' }}
-      >
-        <Icon h="20px" w="20px" color={navbarIcon} as={IoMdCart} />
-      </Button>
-
-      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-
-      {/* Dark/Light toggle */}
-      <Button
-        variant="ghost"
-        p="0"
-        minW="unset"
-        onClick={toggleColorMode}
-        _hover={{ bg: 'transparent' }}
-      >
-        <Icon
-          h="20px"
-          w="20px"
-          color={navbarIcon}
-          as={colorMode === 'light' ? IoMdMoon : IoMdSunny}
-        />
-      </Button>
+      {isAdminRoute && <SidebarResponsive routes={filteredRoutes} />}
 
       {/* User / Login */}
       {!user ? (
@@ -89,8 +71,9 @@ export default function NavbarLinks() {
           me={2}
           minW="unset"
           onClick={() => navigate('/auth/sign-in')}
+          _hover={{ backgroundColor: 'none' }}
         >
-          <Icon h="30px" w="30px" color={navbarIcon} as={MdLogin} />
+          <Icon h="24px" w="24px" color={navbarIcon} as={MdLogin} />
         </Button>
       ) : (
         <Popover placement="bottom-end">
@@ -102,7 +85,7 @@ export default function NavbarLinks() {
               size="sm"
               w="40px"
               h="40px"
-              bg={menuBg}
+              bg="transparent"
               p={2}
             />
           </PopoverTrigger>
@@ -121,6 +104,18 @@ export default function NavbarLinks() {
             </PopoverHeader>
             <PopoverBody>
               <Flex direction="column" gap={2}>
+                {(user?.roleName === 'ADMIN' ||
+                  user?.roleName === 'EMPLOYEE') && (
+                  <Button
+                    variant="ghost"
+                    justifyContent="flex-start"
+                    size="sm"
+                    onClick={handleToggleDashboard}
+                  >
+                    {isAdminRoute ? 'Back to Website' : 'Go to Dashboard'}
+                  </Button>
+                )}
+
                 <Button
                   variant="ghost"
                   justifyContent="flex-start"

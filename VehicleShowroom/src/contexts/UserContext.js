@@ -1,43 +1,79 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import ProfileService from 'services/ProfileService';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import AuthService from 'services/AuthService';
+import ProfileService from 'services/ProfileService';
 
-const UserContext = createContext();
+const UserContext = createContext({
+  user: null,
+  isAuthenticated: false,
+  loading: true,
+  setUser: () => {},
+  refreshUser: () => {},
+  logout: () => {},
+});
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isAuthenticated = !!AuthService.getAccessToken();
 
-  const refreshUser = async () => {
+  // 🧠 Lấy hồ sơ người dùng từ API
+  const fetchUserProfile = useCallback(async () => {
     try {
-      setLoading(true);
       const token = AuthService.getAccessToken();
       if (!token) {
         setUser(null);
+        setLoading(false);
         return;
       }
-      const res = await ProfileService.getProfile();
-      setUser(res);
-    } catch (err) {
-      if (
-        err.response &&
-        err.response.status !== 401 &&
-        err.response.status !== 403
-      ) {
-        console.error('Failed to fetch user', err);
-      }
+
+      const profile = await ProfileService.getProfile();
+      setUser(profile);
+    } catch (error) {
+      console.warn('❌ Failed to fetch profile:', error);
       setUser(null);
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    refreshUser();
   }, []);
 
+  // 🪄 Khi mount hoặc token thay đổi
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
+
+  // 🔁 Cho phép gọi lại thủ công (vd: sau khi update profile)
+  const refreshUser = async () => {
+    await fetchUserProfile();
+  };
+
+  // 🚪 Logout: clear token + user
+  const logout = async () => {
+    try {
+      await AuthService.logout();
+    } catch (err) {
+      console.warn('Logout failed:', err);
+    } finally {
+      setUser(null);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser, refreshUser, loading }}>
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+        isAuthenticated,
+        loading,
+        refreshUser,
+        logout,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

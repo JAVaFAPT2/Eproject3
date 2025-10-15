@@ -6,14 +6,12 @@ import {
   List,
   ListItem,
   Text,
-  Button,
-  useColorMode,
   useColorModeValue,
-} from '@chakra-ui/react';
+}  from '@chakra-ui/react';
+
 
 export default function Footer() {
   const textColor = useColorModeValue('gray.400', 'white');
-  const { toggleColorMode } = useColorMode();
   return (
     <Flex
       zIndex="3"
@@ -27,7 +25,7 @@ export default function Footer() {
       }}
       justifyContent="space-between"
       px={{ base: '30px', md: '50px' }}
-      pb="30px"
+      py="30px"
     >
       <Text
         color={textColor}
@@ -40,7 +38,7 @@ export default function Footer() {
         {' '}
         &copy; {1900 + new Date().getYear()}
         <Text as="span" fontWeight="500" ms="4px">
-          Car Showroom
+          Trendify
         </Text>
       </Text>
       <List display="flex">
