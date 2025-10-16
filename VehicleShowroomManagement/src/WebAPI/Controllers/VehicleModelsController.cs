@@ -123,6 +123,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a vehicle model by model number
         /// </summary>
         [HttpGet("{modelNumber}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetVehicleModel(string modelNumber)
         {
             var query = new GetVehicleModelByIdQuery(modelNumber);
@@ -138,6 +139,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a level-2 vehicle model by slug
         /// </summary>
         [HttpGet("slug/{slug}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetVehicleModelBySlug(string slug)
         {
             var result = await mediator.Send(new GetVehicleModelBySlugQuery(slug));
@@ -149,6 +151,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets all vehicle models with pagination
         /// </summary>
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetVehicleModels(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -163,6 +166,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Search level-2 vehicle models by parent and specs
         /// </summary>
         [HttpGet("search")]
+        [AllowAnonymous]
         public async Task<IActionResult> SearchLevel2(
             [FromQuery] string? parentModelNumber = null,
             [FromQuery] int? seats = null,

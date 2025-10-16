@@ -45,7 +45,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets all users filtered by role name
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "HR,Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<UserDto>>> GetUsers([FromQuery] string? roleName = null)
         {
             if (string.IsNullOrEmpty(roleName))
@@ -63,7 +63,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a user by ID
         /// </summary>
         [HttpGet("{id}")]
-        [Authorize(Roles = "HR,Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDto>> GetUser(string id)
         {
             var query = new GetUserByIdQuery(id);

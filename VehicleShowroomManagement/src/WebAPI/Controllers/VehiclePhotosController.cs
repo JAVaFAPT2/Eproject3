@@ -24,6 +24,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets all photos for a specific vehicle model (Level-2)
         /// </summary>
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<VehiclePhotoDto>>> GetVehiclePhotos(string modelNumber)
         {
             var query = new GetVehiclePhotosQuery(modelNumber);
@@ -35,6 +36,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a specific photo by ID
         /// </summary>
         [HttpGet("~/api/photos/{photoId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<VehiclePhotoDto>> GetPhoto(string photoId)
         {
             var query = new GetPhotoByIdQuery(photoId);
