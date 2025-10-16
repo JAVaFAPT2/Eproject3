@@ -7,9 +7,10 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
     {
         public string ModelNumber { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public string Brand { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public string Description { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }
+        public int Level { get; set; }
+        public string? ParentModel { get; set; }
     }
 }

@@ -151,9 +151,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetVehicleModels(
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null)
         {
-            var query = new GetVehicleModelsQuery(pageNumber, pageSize);
+            var query = new GetVehicleModelsQuery(pageNumber, pageSize, search);
             var result = await mediator.Send(query);
             return Ok(result);
         }

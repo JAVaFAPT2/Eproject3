@@ -8,6 +8,18 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
             var allModels = await modelRepository.GetAllAsync(cancellationToken);
             var vehicleModelsList = allModels.ToList();
 
+            // Optional search filter by name, model number, or description
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                var term = request.Search.Trim().ToLowerInvariant();
+                vehicleModelsList = vehicleModelsList
+                    .Where(vm =>
+                        (vm.Name?.ToLowerInvariant().Contains(term) ?? false) ||
+                        (vm.ModelNumber?.ToLowerInvariant().Contains(term) ?? false) ||
+                        (vm.Description?.ToLowerInvariant().Contains(term) ?? false))
+                    .ToList();
+            }
+
             var totalCount = vehicleModelsList.Count;
             var pagedModels = vehicleModelsList
                 .Skip((request.PageNumber - 1) * request.PageSize)
@@ -20,7 +32,10 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
                 {
                     ModelNumber = vm.ModelNumber,
                     Name = vm.Name,
-                    Price = vm.Price
+                    Price = vm.Price,
+                    Level = vm.Level,
+                    ParentModel = vm.ParentId,
+                    Description = vm.Description
                 })],
                 TotalCount = totalCount,
                 PageNumber = request.PageNumber,
