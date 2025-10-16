@@ -13,7 +13,6 @@ import Footer from 'components/footer/FooterAdmin.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
 import { useUser } from 'contexts/UserContext';
-import AuthService from 'services/AuthService';
 import { useAppToast } from 'utils/ToastHelper';
 
 export default function Dashboard(props) {
@@ -24,30 +23,26 @@ export default function Dashboard(props) {
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useAppToast();
-
-  const { user } = useUser();
+  const { user, loading } = useUser();
 
   useEffect(() => {
-    const currentUser = user || AuthService.getUser();
-
-    if (!currentUser) {
+    if (user === null && !loading) {
       toast.warning('Please sign in first.');
       navigate('/auth/sign-in', { replace: true });
       return;
     }
 
-    if (!['ADMIN', 'EMPLOYEE'].includes(currentUser.roleName)) {
+    if (!loading && user && !['Admin'].includes(user.role)) {
       toast.error(
         'Access denied. You do not have permission to access the admin panel.',
       );
       navigate('/user', { replace: true });
     }
-  }, [user, navigate, toast]);
+  }, [user, loading, navigate, toast]);
 
   // ✅ Lọc route cho sidebar
   const filteredRoutes = routes.filter((route) => {
     if (route.hideInSidebar) return false;
-    if (route.role && route.role !== user?.roleName) return false;
     return true;
   });
 

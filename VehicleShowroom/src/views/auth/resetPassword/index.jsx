@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
 import DefaultAuth from 'layouts/auth/Default';
-import illustration from 'assets/img/auth/banner.png';
+import illustration from 'assets/image/auth/banner.png';
 import AuthService from 'services/AuthService';
 
 function ResetPassword() {

@@ -13,6 +13,7 @@ import {
   MdDelete,
   MdExpandMore,
   MdExpandLess,
+  MdImage,
 } from 'react-icons/md';
 
 export default function Row({
@@ -21,6 +22,7 @@ export default function Row({
   expandedRows,
   toggleExpand,
   onAdd,
+  onPreview,
   onEdit,
   onDelete,
   renderChildren,
@@ -49,7 +51,6 @@ export default function Row({
           </Flex>
         </Td>
         <Td>${model.price?.toLocaleString() || 0}</Td>
-        <Td>{model.level}</Td>
         <Td textAlign="right">
           <Flex justify="flex-end" gap={2}>
             <IconButton
@@ -59,6 +60,14 @@ export default function Row({
               colorScheme="green"
               borderRadius="xl"
               onClick={() => onAdd(model)}
+            />
+            <IconButton
+              aria-label="Add Submodel"
+              size="sm"
+              icon={<MdImage />}
+              colorScheme="purple"
+              borderRadius="xl"
+              onClick={() => onPreview(model)}
             />
             <IconButton
               aria-label="Edit"

@@ -9,34 +9,42 @@ import {
   useColorModeValue,
   Flex,
 } from '@chakra-ui/react';
-
-import AuthService from 'services/AuthService';
+import ProfileService from 'services/ProfileService';
 import ProfileTab from './components/ProfileTab';
 import PasswordTab from './components/PasswordTab';
+import { useAppToast } from 'utils/ToastHelper';
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
+  const toast = useAppToast();
 
+  // 🎨 Define shared colors once
   const bgColor = useColorModeValue('white', 'navy.800');
+  const textColor = useColorModeValue('secondaryGray.900', 'white');
+  const sectionBg = useColorModeValue('gray.50', 'navy.700');
   const brandColor = useColorModeValue('brand.500', 'brand.400');
   const borderColor = useColorModeValue('rgba(11,20,55,0.1)', 'navy.600');
 
+  // 🧠 Fetch user profile on mount
   useEffect(() => {
-    const profile = AuthService.getUser();
-    if (profile) {
-      setUser(profile);
-    } else {
-      AuthService.logout();
-      window.location.href = '/login';
-    }
-  }, []);
+    const fetchProfile = async () => {
+      try {
+        const data = await ProfileService.getProfile();
+        setUser(data);
+      } catch (err) {
+        console.error('❌ Failed to load profile:', err);
+        toast.error('Failed to load profile');
+      }
+    };
+
+    fetchProfile();
+  }, [toast]);
 
   return (
     <Box py="100px" w="80%" mx="auto">
       <Tabs
         variant="unstyled"
         orientation="vertical"
-        isFitted={false}
         display="flex"
         border="1px solid"
         borderColor={borderColor}
@@ -45,7 +53,8 @@ export default function ProfilePage() {
         shadow="lg"
         minH="600px"
       >
-        <Flex w={'100%'} display={{ sm: 'block', md: 'flex' }}>
+        <Flex w="100%" display={{ sm: 'block', md: 'flex' }}>
+          {/* Sidebar tab list */}
           <TabList
             flexDirection="column"
             w="220px"
@@ -81,10 +90,18 @@ export default function ProfilePage() {
             ))}
           </TabList>
 
-          <TabPanels w={'100%'} p={6} bg={bgColor}>
-            <TabPanel>{user && <ProfileTab user={user} />}</TabPanel>
+          {/* Main content */}
+          <TabPanels w="100%" p={6} bg={bgColor}>
             <TabPanel>
-              <PasswordTab />
+              {user && (
+                <ProfileTab
+                  user={user}
+                  colors={{ bgColor, textColor, sectionBg }}
+                />
+              )}
+            </TabPanel>
+            <TabPanel>
+              <PasswordTab colors={{ bgColor, textColor, sectionBg }} />
             </TabPanel>
           </TabPanels>
         </Flex>

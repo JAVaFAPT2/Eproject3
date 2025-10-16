@@ -6,7 +6,6 @@ import {
   FormLabel,
   Input,
   SimpleGrid,
-  useColorModeValue,
   Text,
   Divider,
   Flex,
@@ -14,51 +13,46 @@ import {
 import { useAppToast } from 'utils/ToastHelper';
 import ProfileService from 'services/ProfileService';
 
-export default function ProfileTab() {
+export default function ProfileTab({ user, colors }) {
   const toast = useAppToast();
-  const bgColor = useColorModeValue('white', 'navy.800');
-  const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const sectionBg = useColorModeValue('gray.50', 'navy.700');
+  const { bgColor, textColor, sectionBg } = colors;
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    username: '',
+    name: '',
     email: '',
     phone: '',
+    address: '',
+    role: '',
   });
   const [loading, setLoading] = useState(false);
 
-  // 🧩 Lấy profile từ API khi mount
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const data = await ProfileService.getProfile();
-        setFormData({
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          email: data.email || '',
-          phone: data.phone || '',
-        });
-      } catch (error) {
-        console.error(error);
-        toast.error('Failed to load profile information');
-      }
-    };
-
-    fetchProfile();
+    if (user) {
+      setFormData({
+        username: user.username || '',
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || '',
+        role: user.role || '',
+      });
+    }
   }, []);
 
-  // 📝 Cập nhật state khi người dùng thay đổi input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 💾 Gửi cập nhật lên server
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await ProfileService.updateProfile(formData);
+      await ProfileService.updateProfile({
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+      });
       toast.success('Profile updated successfully');
     } catch (error) {
       console.error(error);
@@ -81,7 +75,6 @@ export default function ProfileTab() {
 
       <Divider my={6} />
 
-      {/* Personal Information */}
       <Box p={4} bg={sectionBg} borderRadius="12px" mb={6}>
         <Text fontSize="lg" fontWeight="bold" mb={4}>
           Personal Information
@@ -89,21 +82,21 @@ export default function ProfileTab() {
 
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
           <FormControl>
-            <FormLabel>First Name</FormLabel>
+            <FormLabel>Username</FormLabel>
             <Input
               color={textColor}
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
+              name="username"
+              value={formData.username}
+              isDisabled
             />
           </FormControl>
 
           <FormControl>
-            <FormLabel>Last Name</FormLabel>
+            <FormLabel>Full Name</FormLabel>
             <Input
               color={textColor}
-              name="lastName"
-              value={formData.lastName}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
             />
           </FormControl>
@@ -114,8 +107,7 @@ export default function ProfileTab() {
               color={textColor}
               name="email"
               value={formData.email}
-              onChange={handleChange}
-              disabled
+              isDisabled
             />
           </FormControl>
 
@@ -125,6 +117,16 @@ export default function ProfileTab() {
               color={textColor}
               name="phone"
               value={formData.phone}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl gridColumn={{ md: 'span 2' }}>
+            <FormLabel>Address</FormLabel>
+            <Input
+              color={textColor}
+              name="address"
+              value={formData.address}
               onChange={handleChange}
             />
           </FormControl>

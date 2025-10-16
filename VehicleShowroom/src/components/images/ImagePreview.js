@@ -23,11 +23,9 @@ export default function ImagePreview({
 }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
-  const activeBorder = useColorModeValue('brand.500', 'brand.400');
-  const bgColor = useColorModeValue('white', 'navy.800');
+  const activeBorder = useColorModeValue('whiteAlpha.700', 'brand.400');
   const chevronBg = useColorModeValue('whiteAlpha.700', 'gray.700');
   const chevronColor = useColorModeValue('gray.700', 'white');
-  const textColor = useColorModeValue('secondaryGray.900', 'white');
 
   useEffect(() => {
     if (isOpen) setCurrentIndex(initialIndex);
@@ -47,8 +45,7 @@ export default function ImagePreview({
     <Modal isOpen={isOpen} onClose={onClose} size="4xl" isCentered>
       <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(6px)" />
       <ModalContent bg="transparent" boxShadow="none">
-        <ModalCloseButton color={textColor} size="lg" zIndex={10} />
-        <ModalBody bg={bgColor} borderRadius="20px">
+        <ModalBody borderRadius="20px" pt={10}>
           {/* ✅ Image viewer */}
           <Flex position="relative" align="center" justify="center" w="full">
             {/* Chevron Left */}
@@ -73,7 +70,7 @@ export default function ImagePreview({
             <Box w="full" textAlign="center">
               <Image
                 src={images[currentIndex]}
-                maxH="70vh"
+                h="85vh"
                 objectFit="contain"
                 mx="auto"
                 borderRadius="lg"
@@ -102,38 +99,37 @@ export default function ImagePreview({
 
           {/* ✅ Thumbnails */}
           {images.length > 1 && (
-            <>
-              <Divider my={4} />
-              <HStack
-                justify="center"
-                spacing={3}
-                py={2}
-                px={3}
-                overflowX="auto"
-                w="full"
-              >
-                {images.map((img, idx) => (
-                  <Box
-                    key={idx}
+            <HStack
+              justify="center"
+              spacing={3}
+              py={2}
+              px={3}
+              overflowX="auto"
+              w="full"
+            >
+              {images.map((img, idx) => (
+                <Box
+                  key={idx}
+                  borderRadius="md"
+                  overflow="hidden"
+                  borderWidth="2px"
+                  borderColor={
+                    idx === currentIndex ? activeBorder : 'transparent'
+                  }
+                  cursor="pointer"
+                  onClick={() => setCurrentIndex(idx)}
+                  transition="all 0.2s"
+                  _hover={{ borderColor: activeBorder }}
+                >
+                  <Image
+                    src={img}
+                    boxSize="60px"
+                    objectFit="cover"
                     borderRadius="md"
-                    overflow="hidden"
-                    borderWidth="2px"
-                    borderColor={idx === currentIndex ? activeBorder : 'transparent'}
-                    cursor="pointer"
-                    onClick={() => setCurrentIndex(idx)}
-                    transition="all 0.2s"
-                    _hover={{ borderColor: activeBorder }}
-                  >
-                    <Image
-                      src={img}
-                      boxSize="60px"
-                      objectFit="cover"
-                      borderRadius="md"
-                    />
-                  </Box>
-                ))}
-              </HStack>
-            </>
+                  />
+                </Box>
+              ))}
+            </HStack>
           )}
         </ModalBody>
       </ModalContent>

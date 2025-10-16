@@ -6,25 +6,7 @@ const VehicleModelService = {
    * 🟢 Tạo Vehicle Model (multipart/form-data)
    * POST /api/VehicleModels
    */
-  create: async (data) => {
-    const formData = new FormData();
-
-    // 🔧 Append từng trường theo đúng key của API backend
-    formData.append('modelNumber', data.modelNumber);
-    formData.append('name', data.name);
-    formData.append('price', data.price ? Number(data.price) : 0);
-    formData.append('description', data.description || '');
-    formData.append('parentId', data.parentId || '');
-    formData.append('level', data.level || 1);
-    formData.append('slug', data.slug || '');
-
-    // 🖼️ Gắn file ảnh (có thể là mảng hoặc 1 file)
-    if (Array.isArray(data.files)) {
-      data.files.forEach((file) => formData.append('files', file));
-    } else if (data.files) {
-      formData.append('files', data.files);
-    }
-
+  create: async (formData) => {
     const res = await uploadClient.post(ApiUrl.VEHICLE_MODELS.BASE, formData);
     return res.data;
   },
@@ -50,7 +32,10 @@ const VehicleModelService = {
       formData.append('files', data.files);
     }
 
-    const res = await uploadClient.put(`${ApiUrl.VEHICLE_MODELS.BASE}/${modelNumber}`, formData);
+    const res = await uploadClient.put(
+      `${ApiUrl.VEHICLE_MODELS.BASE}/${modelNumber}`,
+      formData,
+    );
     return res.data;
   },
 
@@ -60,6 +45,11 @@ const VehicleModelService = {
    */
   search: async (params = {}) => {
     const res = await ApiClient.get(ApiUrl.VEHICLE_MODELS.SEARCH, { params });
+    return res.data;
+  },
+
+  get: async (params = {}) => {
+    const res = await ApiClient.get(ApiUrl.VEHICLE_MODELS.BASE, { params });
     return res.data;
   },
 

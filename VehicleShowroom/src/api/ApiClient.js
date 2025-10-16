@@ -32,7 +32,11 @@ export const uploadClient = axios.create({
 // ==================
 const attachToken = (config) => {
   const token = AuthService.getAccessToken();
-  if (token) config.headers['Authorization'] = `Bearer ${token}`;
+  if (token) {
+    config.headers['Authorization'] = token.startsWith('Bearer ')
+      ? token
+      : `Bearer ${token}`;
+  }
   return config;
 };
 
@@ -109,14 +113,21 @@ const createResponseInterceptor = (client) =>
         originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
         return client(originalRequest);
       } catch (err) {
-        // ❌ Refresh thất bại → clear queue, logout
         processQueue(err, null);
         isRefreshing = false;
         console.error('❌ Refresh token failed:', err);
 
-        // 🚪 Logout và redirect sign-in
+        // ✅ Check if user was logged in before logging out
+        const hadToken = !!AuthService.getAccessToken();
+
+        // 🚪 Logout (clear tokens)
         AuthService.logout();
-        window.location.href = '/auth/sign-in';
+
+        // ✅ Only redirect if user was logged in
+        if (hadToken) {
+          window.location.href = '/auth/sign-in';
+        }
+
         return Promise.reject(err);
       }
     },

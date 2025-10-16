@@ -22,53 +22,60 @@ export default function ImageUploader({
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
 
-  // 🧠 Đồng bộ giá trị từ prop (nếu edit có sẵn thumbnail)
+  // 🧠 Sync with parent value (for edit mode)
   useEffect(() => {
-    if (value && value.length > 0) {
+    if (Array.isArray(value) && value.length > 0) {
       setPreviews(value);
     } else {
       setPreviews([]);
     }
   }, [value]);
 
-  // 📸 Xử lý chọn file
+  // 🧹 Cleanup URLs on unmount
+  useEffect(() => {
+    return () => previews.forEach((p) => URL.revokeObjectURL(p));
+  }, [previews]);
+
+  // 📸 Handle file select
   const handleFiles = (selectedFiles) => {
     if (!selectedFiles || selectedFiles.length === 0) return;
-    const fileArray = Array.from(selectedFiles);
 
-    // Tạo preview cho mỗi ảnh
+    const fileArray = Array.from(selectedFiles);
     const previewArray = fileArray.map((file) => URL.createObjectURL(file));
 
-    // Hợp nhất nếu multiple
-    let newFiles = multiple ? [...files, ...fileArray] : [fileArray[0]];
-    let newPreviews = multiple
+    // ✅ If multiple = true → merge all
+    const newFiles = multiple ? [...files, ...fileArray] : [fileArray[0]];
+    const newPreviews = multiple
       ? [...previews, ...previewArray]
       : [previewArray[0]];
 
     setFiles(newFiles);
     setPreviews(newPreviews);
-    onChange(newFiles, newPreviews);
+    onChange?.(newFiles, newPreviews);
+
+    fileInputRef.current.value = ''; // allow reselecting same file
   };
 
-  // 🗑️ Xóa ảnh tại index
+  // 🗑️ Delete image by index
   const handleDelete = (index) => {
     const newFiles = [...files];
     const newPreviews = [...previews];
+
+    URL.revokeObjectURL(newPreviews[index]);
 
     newFiles.splice(index, 1);
     newPreviews.splice(index, 1);
 
     setFiles(newFiles);
     setPreviews(newPreviews);
-    onChange(newFiles, newPreviews);
+    onChange?.(newFiles, newPreviews);
   };
 
-  // 📤 Click vào vùng input để chọn ảnh
+  // 📤 Open file dialog
   const handleClick = () => fileInputRef.current?.click();
 
   return (
     <Box>
-      {/* Input chọn file */}
       <Box
         border="2px dashed"
         borderColor={borderColor}
@@ -97,15 +104,15 @@ export default function ImageUploader({
         {previews.length === 0 && (
           <Text fontWeight="semibold">
             {multiple
-              ? 'Click or drop multiple images (first will be thumbnail)'
-              : 'Click or drop image to upload'}
+              ? 'Click to select multiple images'
+              : 'Click to upload an image'}
           </Text>
         )}
 
-        {/* Nếu có ảnh preview */}
+        {/* Nếu có ảnh */}
         {previews.length > 0 &&
           (multiple ? (
-            <SimpleGrid columns={[2, 3, 4]} spacing={3} mt={2}>
+            <SimpleGrid columns={[2, 3, 4]} spacing={3} mt={3}>
               {previews.map((src, idx) => (
                 <Box key={idx} position="relative">
                   <Image
@@ -113,27 +120,28 @@ export default function ImageUploader({
                     boxSize="90px"
                     objectFit="cover"
                     borderRadius="md"
-                    border={idx === 0 ? '2px solid' : '1px solid'}
-                    borderColor={idx === 0 ? 'brand.400' : borderColor}
+                    border="1px solid"
+                    borderColor={borderColor}
                     alt={`preview-${idx}`}
                   />
-                  {/* 🏷️ Thumbnail tag */}
-                  {idx === 0 && (
-                    <Text
-                      position="absolute"
-                      bottom={1}
-                      left={1}
-                      bg="brand.400"
-                      color="white"
-                      fontSize="10px"
-                      px={2}
-                      py={0.5}
-                      borderRadius="sm"
-                    >
-                      Thumbnail
-                    </Text>
-                  )}
-                  {/* ❌ Nút xóa */}
+
+                  {/* 🔢 Display order number */}
+                  <Text
+                    position="absolute"
+                    top={1}
+                    left={1}
+                    bg="blackAlpha.700"
+                    color="white"
+                    fontSize="xs"
+                    fontWeight="bold"
+                    px={2}
+                    py={0.5}
+                    borderRadius="md"
+                  >
+                    {idx + 1}
+                  </Text>
+
+                  {/* ❌ Delete button */}
                   <IconButton
                     aria-label="delete"
                     icon={<MdClose />}
@@ -141,8 +149,8 @@ export default function ImageUploader({
                     colorScheme="red"
                     variant="solid"
                     position="absolute"
-                    top={-2}
-                    right={-1}
+                    top={1}
+                    right={1}
                     borderRadius="full"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -153,7 +161,6 @@ export default function ImageUploader({
               ))}
             </SimpleGrid>
           ) : (
-            // 🖼️ Single preview (ở giữa)
             <Flex justify="center" mt={3}>
               <Box position="relative" display="inline-block">
                 <Image
@@ -172,14 +179,29 @@ export default function ImageUploader({
                   colorScheme="red"
                   variant="solid"
                   position="absolute"
-                  top={-3}
-                  right={-3}
+                  top={1}
+                  right={1}
                   borderRadius="full"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDelete(0);
                   }}
                 />
+                {/* 🔢 Display order for single */}
+                <Text
+                  position="absolute"
+                  top={1}
+                  left={1}
+                  bg="blackAlpha.700"
+                  color="white"
+                  fontSize="xs"
+                  fontWeight="bold"
+                  px={2}
+                  py={0.5}
+                  borderRadius="md"
+                >
+                  1
+                </Text>
               </Box>
             </Flex>
           ))}

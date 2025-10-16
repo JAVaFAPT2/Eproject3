@@ -5,11 +5,12 @@ import {
   IconButton,
   Button,
   useColorModeValue,
-  VStack,
+  HStack,
+  Text,
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { MdLogin, MdPerson, MdLogout } from 'react-icons/md';
 import IndividualCars from 'components/categoryMenu/components/IndividualCars';
 import { useUser } from 'contexts/UserContext';
@@ -23,10 +24,16 @@ function CategoryMenu({ isVisible, closeHandler }) {
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useUser();
 
+  // 🔹 Handle sign out
   const handleSignOut = async () => {
     await logout();
     closeHandler();
-    navigate('/auth/sign-in');
+  };
+
+  // 🔹 Handle navigation safely
+  const handleNavigate = (path) => {
+    closeHandler();
+    navigate(path);
   };
 
   return (
@@ -54,13 +61,14 @@ function CategoryMenu({ isVisible, closeHandler }) {
           >
             {/* Header */}
             <Flex
-              justify="flex-end"
+              justify="space-between"
               align="center"
-              px="1rem"
-              py="0.75rem"
-              borderBottom="1px solid"
+              p={6}
               borderColor={borderColor}
             >
+              <Text fontSize="2xl" fontWeight="600">
+                Models
+              </Text>
               <IconButton
                 icon={<CloseIcon />}
                 aria-label="Close menu"
@@ -81,41 +89,49 @@ function CategoryMenu({ isVisible, closeHandler }) {
               py="1rem"
               borderTop="1px solid"
               borderColor={borderColor}
-              justify={isAuthenticated ? 'space-between' : 'end'}
+              justify="space-between"
               align="center"
+              gap={3}
             >
               {!isAuthenticated ? (
-                <Button
-                  as={NavLink}
-                  to="/auth/sign-in"
-                  rightIcon={<MdLogin size={20} />}
-                  onClick={closeHandler}
-                >
-                  Sign In
-                </Button>
-              ) : (
-                <VStack w="full" spacing={3}>
+                <Flex w="full" justify="flex-end">
                   <Button
-                    as={NavLink}
-                    to="/user/profile"
-                    leftIcon={<MdPerson size={20} />}
-                    variant="outline"
-                    w="full"
-                    onClick={closeHandler}
+                    rightIcon={<MdLogin size={20} />}
+                    onClick={() => handleNavigate('/auth/sign-in')}
                   >
-                    {user?.firstName
-                      ? `${user.firstName} ${user.lastName || ''}`
-                      : 'Profile'}
+                    Sign In
                   </Button>
+                </Flex>
+              ) : (
+                <HStack w="full" justify="space-between">
+                  <Flex gap={3} align="center">
+                    {/* 👤 Profile Button */}
+                    <Button
+                      leftIcon={<MdPerson size={20} />}
+                      onClick={() => handleNavigate('/user/profile')}
+                    >
+                      Profile
+                    </Button>
+
+                    {/* 🛠️ Admin Button (only for admins) */}
+                    {user?.role === 'Admin' && (
+                      <Button
+                        leftIcon={<MdPerson size={20} />}
+                        colorScheme="brand"
+                        onClick={() => handleNavigate('/admin')}
+                      >
+                        Admin Panel
+                      </Button>
+                    )}
+                  </Flex>
                   <Button
                     leftIcon={<MdLogout size={20} />}
-                    colorScheme="red"
-                    w="full"
                     onClick={handleSignOut}
+                    color="red"
                   >
                     Sign Out
                   </Button>
-                </VStack>
+                </HStack>
               )}
             </Flex>
           </MotionBox>

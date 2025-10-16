@@ -4,9 +4,9 @@ import { ApiUrl } from 'constants/ApiUrl';
 // ================================
 // 🔐 AUTH SERVICE
 // ================================
-const ACCESS_TOKEN_KEY = 'access_token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
-const KEEP_LOGIN_KEY = 'keep_logged_in';
+const ACCESS_TOKEN_KEY = 'accessToken';    
+const REFRESH_TOKEN_KEY = 'refreshToken';
+const KEEP_LOGIN_KEY = 'keepLoggedIn';
 
 const AuthService = {
   // ---------------------------------
@@ -77,13 +77,13 @@ const AuthService = {
   // ---------------------------------
   login: async (data, keepLoggedIn = false) => {
     const res = await ApiClient.post(ApiUrl.AUTH.LOGIN, data);
+    const { token, refreshToken, user } = res.data;
 
     AuthService.setKeepLoggedIn(keepLoggedIn);
 
-    if (res.data?.accessToken)
-      AuthService.setAccessToken(res.data.accessToken, keepLoggedIn);
-    if (res.data?.refreshToken)
-      AuthService.setRefreshToken(res.data.refreshToken, keepLoggedIn);
+    // ✅ Save tokens correctly
+    if (token) AuthService.setAccessToken(token, keepLoggedIn);
+    if (refreshToken) AuthService.setRefreshToken(refreshToken, keepLoggedIn);
 
     return res.data;
   },

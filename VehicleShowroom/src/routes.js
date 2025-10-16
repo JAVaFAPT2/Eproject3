@@ -38,7 +38,6 @@ const routes = [
     path: '/default',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: <MainDashboard />,
-    role: 'ADMIN',
   },
   {
     name: 'Customer Management',
@@ -48,7 +47,6 @@ const routes = [
       <Icon as={MdAccountCircle} width="20px" height="20px" color="inherit" />
     ),
     component: <CustomerManagement />,
-    role: 'ADMIN',
   },
   {
     name: 'Employee Management',
@@ -58,7 +56,6 @@ const routes = [
       <Icon as={MdAccountCircle} width="20px" height="20px" color="inherit" />
     ),
     component: <EmployeeManagement />,
-    role: 'ADMIN',
   },
   {
     name: 'Vehicle Model Management',
@@ -66,7 +63,6 @@ const routes = [
     path: '/vehicle-model-management',
     icon: <Icon as={MdCategory} width="20px" height="20px" color="inherit" />,
     component: <VehicleModelManagement />,
-    role: 'ADMIN',
   },
   {
     name: 'Vehicle Management',
@@ -81,7 +77,6 @@ const routes = [
       />
     ),
     component: <VehicleManagement />,
-    role: 'ADMIN',
   },
 
   //User Routes

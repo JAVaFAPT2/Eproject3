@@ -36,10 +36,6 @@ export default function Columns({ toggleExpand, expandedRows }) {
       header: 'PRICE',
       cell: (info) => <Text>${info.getValue()?.toLocaleString() || 0}</Text>,
     }),
-    columnHelper.accessor('level', {
-      header: 'LEVEL',
-      cell: (info) => <Text>{info.getValue()}</Text>,
-    }),
     columnHelper.display({
       id: 'actions',
       header: <Text align="right">ACTIONS</Text>,

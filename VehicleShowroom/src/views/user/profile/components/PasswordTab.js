@@ -5,16 +5,17 @@ import {
   FormControl,
   FormLabel,
   Input,
-  VStack,
-  useColorModeValue,
+  SimpleGrid,
+  Text,
+  Divider,
+  Flex,
 } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
 import ProfileService from 'services/ProfileService';
 
-export default function PasswordTab() {
+export default function PasswordTab({ colors }) {
+  const { bgColor, textColor, sectionBg } = colors;
   const toast = useAppToast();
-  const bgColor = useColorModeValue('white', 'navy.800');
-  const textColor = useColorModeValue('secondaryGray.900', 'white');
 
   const [formData, setFormData] = useState({
     currentPassword: '',
@@ -49,7 +50,6 @@ export default function PasswordTab() {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });
-
       toast.success('Password changed successfully');
       setFormData({
         currentPassword: '',
@@ -68,50 +68,70 @@ export default function PasswordTab() {
   };
 
   return (
-    <Box bg={bgColor} p={6} borderRadius="16px" w={{ base: '100%', md: '50%' }}>
-      <VStack spacing={4} align="stretch">
-        <FormControl>
-          <FormLabel>Current Password</FormLabel>
-          <Input
-            color={textColor}
-            type="password"
-            name="currentPassword"
-            value={formData.currentPassword}
-            onChange={handleChange}
-          />
-        </FormControl>
+    <Box bg={bgColor} p={8} borderRadius="16px" shadow="md">
+      {/* 🔹 Header */}
+      <Flex direction="column" align="start" mb={6}>
+        <Text fontSize="2xl" fontWeight="bold" color={textColor}>
+          Change Password
+        </Text>
+        <Text fontSize="sm" color="gray.500">
+          Update your account password below
+        </Text>
+      </Flex>
 
-        <FormControl>
-          <FormLabel>New Password</FormLabel>
-          <Input
-            color={textColor}
-            type="password"
-            name="newPassword"
-            value={formData.newPassword}
-            onChange={handleChange}
-          />
-        </FormControl>
+      <Divider my={6} />
 
-        <FormControl>
-          <FormLabel>Confirm New Password</FormLabel>
-          <Input
-            color={textColor}
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-          />
-        </FormControl>
-      </VStack>
+      {/* 🔹 Password fields section */}
+      <Box p={4} bg={sectionBg} borderRadius="12px" mb={6}>
+        <Text fontSize="lg" fontWeight="bold" mb={4}>
+          Security Details
+        </Text>
 
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+          <FormControl gridColumn={{ md: 'span 2' }}>
+            <FormLabel color={textColor}>Current Password</FormLabel>
+            <Input
+              color={textColor}
+              type="password"
+              name="currentPassword"
+              value={formData.currentPassword}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel color={textColor}>New Password</FormLabel>
+            <Input
+              color={textColor}
+              type="password"
+              name="newPassword"
+              value={formData.newPassword}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl>
+            <FormLabel color={textColor}>Confirm New Password</FormLabel>
+            <Input
+              color={textColor}
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+            />
+          </FormControl>
+        </SimpleGrid>
+      </Box>
+
+      {/* 🔹 Submit button */}
       <Button
-        mt={5}
+        mt={8}
         colorScheme="brand"
         color="white"
         onClick={handleSubmit}
         isLoading={loading}
       >
-        Change Password
+        Save Changes
       </Button>
     </Box>
   );

@@ -18,53 +18,51 @@ import { NavLink } from 'react-router-dom';
 import VehicleModelService from 'services/VehicleModelService';
 
 function IndividualCars() {
-  const [models, setModels] = useState([]);
+  const [allModels, setAllModels] = useState([]);
+  const [displayedModels, setDisplayedModels] = useState([]);
   const [parentModel, setParentModel] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const bgItem = useColorModeValue('#eeeff2', 'gray.700');
   const borderHover = useColorModeValue('gray.300', 'gray.500');
 
-  // ✅ Load model cấp 1
-  const loadLevel1 = async () => {
-    setLoading(true);
-    try {
-      const data = await VehicleModelService.search({
-        pageNumber: 1,
-        pageSize: 50,
-      });
-      setModels(data?.items || data || []);
-    } catch (error) {
-      console.error('Failed to load models:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ✅ Load model cấp 2 (theo modelNumber cha)
-  const loadLevel2 = async (parentModelNumber, name) => {
-    setLoading(true);
-    try {
-      const data = await VehicleModelService.search({
-        parentModelNumber,
-        pageNumber: 1,
-        pageSize: 50,
-      });
-      setModels(data?.items || data || []);
-      setParentModel({ modelNumber: parentModelNumber, name });
-    } catch (error) {
-      console.error('Failed to load variants:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // ✅ Load all models once
   useEffect(() => {
-    loadLevel1();
+    const fetchModels = async () => {
+      setLoading(true);
+      try {
+        const data = await VehicleModelService.get({
+          pageNumber: 1,
+          pageSize: 100,
+        });
+        const all = data?.vehicleModels || data || [];
+        setAllModels(all);
+
+        // ✅ Filter only level 1 (parent models)
+        setDisplayedModels(all.filter((m) => m.level === 1));
+      } catch (error) {
+        console.error('Failed to load models:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchModels();
   }, []);
 
+  // ✅ Show variants of a selected model
+  const handleOpenLevel2 = (parentModelNumber, name) => {
+    const variants = allModels.filter(
+      (m) => m.parentModelNumber === parentModelNumber,
+    );
+    setDisplayedModels(variants);
+    setParentModel({ modelNumber: parentModelNumber, name });
+  };
+
+  // ✅ Back to parent level
   const handleBack = () => {
+    setDisplayedModels(allModels.filter((m) => m.level === 1));
     setParentModel(null);
-    loadLevel1();
   };
 
   if (loading)
@@ -76,7 +74,7 @@ function IndividualCars() {
 
   return (
     <Box>
-      {/* 🔹 Nút Back khi đang ở cấp 2 */}
+      {/* 🔹 Back button when in level 2 */}
       {parentModel && (
         <Flex align="center" mb={4}>
           <IconButton
@@ -91,12 +89,12 @@ function IndividualCars() {
       )}
 
       <Grid templateColumns="1fr" gap={6} placeItems="center" py={2} pb={8}>
-        {models.length === 0 ? (
+        {displayedModels.length === 0 ? (
           <Text color="gray.500" fontStyle="italic">
             No models found
           </Text>
         ) : (
-          models.map((el) => (
+          displayedModels.map((el) => (
             <GridItem
               key={el.modelNumber}
               w="full"
@@ -113,7 +111,9 @@ function IndividualCars() {
                   fontWeight="semibold"
                   cursor="pointer"
                   onClick={() =>
-                    el.level === 1 ? loadLevel2(el.modelNumber, el.name) : null
+                    el.level === 1
+                      ? handleOpenLevel2(el.modelNumber, el.name)
+                      : null
                   }
                 >
                   {el.name}
@@ -132,7 +132,7 @@ function IndividualCars() {
                     onClick={(e) => {
                       if (el.level === 1) {
                         e.preventDefault();
-                        loadLevel2(el.modelNumber, el.name);
+                        handleOpenLevel2(el.modelNumber, el.name);
                       }
                     }}
                   >

@@ -4,8 +4,10 @@ import { useAppToast } from 'utils/ToastHelper';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
+import ImagePreview from 'components/images/ImagePreview';
 import Pagination from 'components/pagination/Pagination';
 import VehicleModelService from 'services/VehicleModelService';
+import VehiclePhotoService from 'services/VehiclePhotoService';
 
 import Form from './Form';
 import Header from './Header';
@@ -27,6 +29,9 @@ export default function Table() {
   const [parentModel, setParentModel] = useState(null);
   const [selectedToDelete, setSelectedToDelete] = useState(null);
   const [expandedRows, setExpandedRows] = useState({});
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewImages, setPreviewImages] = useState([]);
+  const [previewIndex, setPreviewIndex] = useState(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -39,22 +44,34 @@ export default function Table() {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const loadModels = useCallback(
-    async (pageNum = 1) => {
-      try {
-        const res = await VehicleModelService.search({
-          pageNumber: pageNum,
-          pageSize: 50,
-        });
-        setModels(res.data || []);
-        setTotalPages(res.totalPages || 1);
-      } catch (err) {
-        console.error(err);
-        toast.error('Failed to load vehicle models');
-      }
-    },
-    [toast],
-  );
+  const handlePreview = async (model, index = 0) => {
+    try {
+      const photos = await VehiclePhotoService.getByModelNumber(
+        model.modelNumber,
+      );
+      const urls = photos.map((p) => p.url || p.photoUrl || p.path);
+      setPreviewImages(urls);
+      setPreviewIndex(index);
+      setIsPreviewOpen(true);
+    } catch (err) {
+      console.error('Failed to load model photos:', err);
+      toast.error('Failed to load images');
+    }
+  };
+
+  const loadModels = useCallback(async (pageNum = 1) => {
+    try {
+      const res = await VehicleModelService.get({
+        pageNumber: pageNum,
+        pageSize: 50,
+      });
+      setModels(res.vehicleModels || []);
+      setTotalPages(res.totalPages || 1);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load vehicle models');
+    }
+  }, []);
 
   useEffect(() => {
     loadModels(page);
@@ -112,6 +129,7 @@ export default function Table() {
           setEditingModel(null);
           onOpen();
         },
+        onPreview: handlePreview,
         onDelete: (model) => {
           setSelectedToDelete({
             modelNumber: model.modelNumber,
@@ -147,6 +165,13 @@ export default function Table() {
         bgColor={bgColor}
       />
 
+      <ImagePreview
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        images={previewImages}
+        initialIndex={previewIndex}
+      />
+
       <Card
         flexDirection="column"
         w="100%"
@@ -179,6 +204,7 @@ export default function Table() {
             setParentModel(null);
             onOpen();
           }}
+          onPreview={handlePreview}
           onDelete={(m) => {
             setSelectedToDelete({ modelNumber: m.modelNumber, name: m.name });
             onConfirmOpen();

@@ -16,7 +16,7 @@ export default function Header({
       </Text>
       <Flex gap={2}>
         <SearchBar
-          placeholder="Search vehicle models..."
+          placeholder="Search models..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
         />

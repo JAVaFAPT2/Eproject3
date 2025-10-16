@@ -6,12 +6,24 @@ import {
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
-import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { HamburgerIcon } from '@chakra-ui/icons';
 import CategoryMenu from 'components/categoryMenu/CategoryMenu';
 
 function NavbarUser({ toggleCategory, isCategoryOpen }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 🧭 Kiểm tra có đang ở trang home không
+  const isHome =
+    location.pathname === '/' ||
+    location.pathname === '/user' ||
+    location.pathname === '/user/home';
+
+  // 🎨 Màu chữ và icon phụ thuộc location
+  const textColor = isHome ? 'white' : 'black';
+  const iconColor = isHome ? 'white' : 'black';
+  const hoverBg = isHome ? 'whiteAlpha.300' : 'black';
 
   return (
     <>
@@ -27,7 +39,7 @@ function NavbarUser({ toggleCategory, isCategoryOpen }) {
         align="center"
         justify="center"
         bg="transparent"
-        color="white"
+        color={textColor}
         zIndex={200}
       >
         <Flex
@@ -39,18 +51,11 @@ function NavbarUser({ toggleCategory, isCategoryOpen }) {
         >
           {/* 🔹 Menu button */}
           <IconButton
-            icon={
-              isCategoryOpen ? (
-                <CloseIcon boxSize={5} />
-              ) : (
-                <HamburgerIcon boxSize={6} />
-              )
-            }
+            icon={<HamburgerIcon boxSize={6} color={iconColor} />}
             variant="ghost"
-            colorScheme="whiteAlpha"
             onClick={toggleCategory}
             aria-label="Toggle menu"
-            _hover={{ bg: 'whiteAlpha.300' }}
+            _hover={{ bg: hoverBg }}
           />
 
           {/* 🔹 Center title */}
@@ -59,11 +64,13 @@ function NavbarUser({ toggleCategory, isCategoryOpen }) {
             fontWeight="bold"
             cursor="pointer"
             onClick={() => navigate('/')}
+            color={textColor}
+            transition="color 0.2s ease"
           >
             Car Showroom
           </Text>
 
-          {/* 🔹 Placeholder for right side (empty to balance layout) */}
+          {/* 🔹 Placeholder for right side (balance layout) */}
           <Box w="40px" />
         </Flex>
       </Flex>

@@ -9,6 +9,7 @@ export default function List({
   expandedRows,
   toggleExpand,
   onAdd,
+  onPreview,
   onEdit,
   onDelete,
   textColor,
@@ -24,6 +25,7 @@ export default function List({
       expandedRows={expandedRows}
       toggleExpand={toggleExpand}
       onAdd={onAdd}
+      onPreview={onPreview}
       onEdit={onEdit}
       onDelete={onDelete}
       renderChildren={renderRow}

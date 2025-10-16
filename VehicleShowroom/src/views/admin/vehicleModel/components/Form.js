@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
 import VehicleModelService from 'services/VehicleModelService';
-import ImageUploader from 'components/images/ImageUploader'; 
+import ImageUploader from 'components/images/ImageUploader';
 
 export default function Form({
   isOpen,
@@ -87,7 +87,10 @@ export default function Form({
       data.append('modelNumber', formData.modelNumber);
       data.append('name', formData.name);
       data.append('price', formData.price);
-      data.append('description', formData.description);
+      data.append(
+        'description',
+        formData.description?.trim() || 'No description provided',
+      );
       data.append('parentId', formData.parentId || '');
       data.append('level', formData.level);
       data.append('slug', formData.slug || '');
@@ -97,6 +100,8 @@ export default function Form({
           data.append('files', file);
         });
       }
+
+      console.log('Submitting formData:', formData);
 
       if (model) {
         await VehicleModelService.update(model.modelNumber, data);
@@ -171,7 +176,7 @@ export default function Form({
               />
             </FormControl>
 
-            <FormControl>
+            <FormControl isRequired>
               <FormLabel>Description</FormLabel>
               <Textarea
                 name="description"

@@ -23,7 +23,7 @@ import {
 
 // Custom components
 import IconBox from "components/icons/IconBox";
-import { HorizonLogo } from "components/icons/Icons";
+import { HorizonLogo } from "assets/image/logo.png";
 import { SidebarResponsive } from "components/sidebar/Sidebar";
 import { SidebarContext } from "contexts/SidebarContext";
 
