@@ -110,11 +110,29 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Search level-2 vehicle models by parent and specs
         /// </summary>
         [HttpGet("search")]
-        [Obsolete]
         [AllowAnonymous]
-        public IActionResult SearchLevel2()
+        public async Task<IActionResult> SearchLevel2Models(
+            [FromQuery] string? parentModelNumber = null,
+            [FromQuery] int? seats = null,
+            [FromQuery] string? fuelType = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            return BadRequest(new { message = "Use GET /api/vehiclemodels?search=..." });
+            var query = new SearchLevel2ModelsQuery(parentModelNumber, seats, fuelType, pageNumber, pageSize);
+            var result = await mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Soft delete a vehicle model by model number
+        /// </summary>
+        [HttpDelete("{modelNumber}")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> DeleteVehicleModel(string modelNumber)
+        {
+            var command = new DeleteVehicleModelCommand(modelNumber);
+            await mediator.Send(command);
+            return Ok(new { message = "Vehicle model deleted successfully" });
         }
     }
 }

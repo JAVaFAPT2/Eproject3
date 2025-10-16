@@ -75,6 +75,13 @@ ConnectionStrings__MongoDB=mongodb+srv://carmanagement:car123@carmanagement.trs6
 Jwt__Key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
 Jwt__Issuer=VehicleShowroomAPI
 Jwt__Audience=VehicleShowroomClient
+# Public Access and API Behavior
+
+- Anonymous (guest) access is enabled for GET endpoints on VehicleModels, VehiclePhotos, and VehicleSpecs.
+- VehicleModels: single consolidated GET supports `search` (nullable) for both listing and searching.
+- Vehicles: main GET supports list + search via optional filters.
+- Model creation is JSON-only; image uploads are separate endpoints.
+
 
 # Email Settings
 EmailSettings__SmtpHost=smtp.gmail.com
