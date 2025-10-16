@@ -30,6 +30,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets all specifications for a specific vehicle
         /// </summary>
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<VehicleSpecDto>>> GetVehicleSpecs(string modelNumber)
         {
             var query = new GetVehicleSpecsQuery(modelNumber);
@@ -41,6 +42,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a specific specification by ID
         /// </summary>
         [HttpGet("~/api/specs/{specId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<VehicleSpecDto>> GetSpec(string specId)
         {
             var query = new GetSpecByIdQuery(specId);

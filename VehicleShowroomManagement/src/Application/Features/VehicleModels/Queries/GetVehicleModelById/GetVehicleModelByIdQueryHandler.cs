@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
         {
             var vehicleModel = await vehicleModelRepository.GetByIdAsync(request.ModelNumber, cancellationToken);
 
-            if (vehicleModel == null)
+            if (vehicleModel == null || vehicleModel.DeletedAt != null)
                 return null;
 
             return new VehicleModelDto

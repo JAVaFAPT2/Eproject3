@@ -6,7 +6,9 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
         public async Task<GetVehicleModelsResult> Handle(GetVehicleModelsQuery request, CancellationToken cancellationToken)
         {
             var allModels = await modelRepository.GetAllAsync(cancellationToken);
-            var vehicleModelsList = allModels.ToList();
+            var vehicleModelsList = allModels
+                .Where(vm => vm.DeletedAt == null)
+                .ToList();
 
             // Optional search filter by name, model number, or description
             if (!string.IsNullOrWhiteSpace(request.Search))
