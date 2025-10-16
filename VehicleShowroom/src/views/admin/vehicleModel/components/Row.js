@@ -22,6 +22,7 @@ export default function Row({
   expandedRows,
   toggleExpand,
   onAdd,
+  onAddSpec,
   onPreview,
   onEdit,
   onDelete,
@@ -59,7 +60,9 @@ export default function Row({
               icon={<MdAdd />}
               colorScheme="green"
               borderRadius="xl"
-              onClick={() => onAdd(model)}
+              onClick={() =>
+                model.level < 2 ? onAdd(model) : onAddSpec(model)
+              }
             />
             <IconButton
               aria-label="Add Submodel"
@@ -91,6 +94,29 @@ export default function Row({
 
       {isExpanded &&
         model.children?.map((child) => renderChildren(child, depth + 1))}
+
+      {isExpanded &&
+        model.level === 2 &&
+        model.specs?.length > 0 &&
+        model.specs.map((spec, idx) => (
+          <Tr key={`${model.modelNumber}-spec-${idx}`}>
+            <Td pl={depth * 3 + 6}>
+              <Text fontSize="sm" fontWeight="500" color="gray.600">
+                {spec.displayOrder || idx + 1}.
+              </Text>
+            </Td>
+            <Td colSpan={2}>
+              <Text fontSize="sm">
+                <b>{spec.specName}</b>: {spec.specValue}
+              </Text>
+            </Td>
+            <Td textAlign="right">
+              <Text fontSize="sm" color="gray.500">
+                {spec.groupName || '-'}
+              </Text>
+            </Td>
+          </Tr>
+        ))}
     </>
   );
 }

@@ -3,8 +3,7 @@ import {
   Box,
   Heading,
   Text,
-  Flex,
-  Button,
+  Grid,
   Icon,
   Container,
   useColorModeValue,
@@ -13,31 +12,48 @@ import { motion } from 'framer-motion';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import VehicleModelService from 'services/VehicleModelService';
+import VehiclePhotoService from 'services/VehiclePhotoService';
 
 const MotionBox = motion(Box);
 
 export default function StartYourJourney() {
   const navigate = useNavigate();
   const [models, setModels] = useState([]);
-  const [paused, setPaused] = useState(false);
   const bg = useColorModeValue('white', 'navy.900');
 
-  // ✅ Fetch data từ VehicleModelService
+  // ✅ Fetch models and their photos
   useEffect(() => {
-    async function fetchData() {
+    async function fetchModels() {
       try {
-        const data = await VehicleModelService.getAll();
-        setModels(data || []);
+        const data = await VehicleModelService.get();
+        const list = data.vehicleModels || [];
+
+        // Fetch photos for each model in parallel
+        const enriched = await Promise.all(
+          list.map(async (m) => {
+            try {
+              const photos = await VehiclePhotoService.getByModelNumber(
+                m.modelNumber,
+              );
+              return { ...m, photos };
+            } catch (err) {
+              console.warn(`No photos for ${m.modelNumber}`);
+              return { ...m, photos: [] };
+            }
+          }),
+        );
+
+        setModels(enriched);
       } catch (err) {
         console.error('Error fetching vehicle models:', err);
       }
     }
-    fetchData();
+
+    fetchModels();
   }, []);
 
   return (
-    <Box bg={bg} maxW="1880px" mx={{ base: 10, md: 20 }} position="relative">
-      {/* Header */}
+    <Box bg={bg} maxW="1880px" mx={{ base: 5, md: 20 }} position="relative">
       <Container maxW="6xl" textAlign="center" mb={{ base: 10, md: 20 }}>
         <Heading
           as="h2"
@@ -51,159 +67,108 @@ export default function StartYourJourney() {
       </Container>
 
       {/* Vehicle Models */}
-      <Flex
-        overflowX="auto"
-        gap={6}
-        px={{ base: 4, md: 10 }}
-        pb={8}
-        justify="center"
-        flexWrap={{ base: 'nowrap', md: 'wrap' }}
-      >
-        {models.map((m, idx) => (
-          <MotionBox
-            key={m.modelNumber}
-            flex={{ base: '0 0 85%', md: '1 1 45%' }}
-            borderRadius="xl"
-            overflow="hidden"
-            cursor="pointer"
-            position="relative"
-            onClick={() => navigate(`/user/models/${m.modelNumber}`)}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{
-              duration: 0.6,
-              delay: idx * 0.1,
-              ease: 'easeOut',
-            }}
-          >
-            {/* Video / Image Poster */}
-            <Box
-              position="relative"
-              h={{ base: '75vh', md: '45vh' }}
+      <Box px={{ base: 0, md: 10 }} pb={16}>
+        <Grid
+          templateColumns={{
+            base: '1fr',
+            lg: 'repeat(2, 1fr)',
+          }}
+          gap={10}
+          justifyItems="center"
+        >
+          {models.map((m, idx) => (
+            <MotionBox
+              key={m.modelNumber}
+              w="100%"
+              borderRadius="2xl"
               overflow="hidden"
-              borderRadius="xl"
-              bg="black"
+              cursor="pointer"
+              position="relative"
+              onClick={() => navigate(`/user/models/${m.modelNumber}`)}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{
+                duration: 0.6,
+                delay: idx * 0.1,
+                ease: 'easeOut',
+              }}
             >
-              <motion.img
-                src={m.photos?.[0]?.url || '/placeholder-car.png'}
-                alt={m.name}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                }}
-                initial={{ scale: 1.05 }}
-                whileHover={{ scale: 1.1 }}
-                transition={{ duration: 0.6 }}
-              />
-
-              {/* 🔹 Model Name (top center) */}
-              <Flex
-                position="absolute"
-                top={4}
-                left="50%"
-                transform="translateX(-50%)"
-                justify="center"
-                align="center"
-                px={4}
-                py={1}
-                borderRadius="full"
+              {/* ✅ Background image */}
+              <Box
+                position="relative"
+                h={{ base: '90vh', md: '60vh' }}
+                borderRadius="2xl"
+                overflow="hidden"
               >
-                <Text
-                  fontSize={{ base: 'xl', md: '4xl' }}
-                  color="white"
-                  textAlign="center"
-                  fontFamily="'Kaushan Script', cursive"
-                  fontStyle="italic"
-                  fontWeight="600"
+                <motion.img
+                  src={
+                    m.photos?.[0]?.url ||
+                    m.photos?.[0]?.photoUrl ||
+                    '/placeholder-car.png'
+                  }
+                  alt={m.name}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                  initial={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.6 }}
+                />
+
+                {/* 🔹 Top Overlay (Model Name) */}
+                <Grid
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  w="100%"
+                  h="25%"
+                  bgGradient="linear(to-b, rgba(0,0,0,0.7), transparent)"
+                  placeItems="center"
+                  pt={4}
                 >
-                  {m.name}
-                </Text>
-              </Flex>
+                  <Text
+                    fontSize={{ base: '2xl', md: '4xl' }}
+                    color="white"
+                    fontFamily="'Kaushan Script', cursive"
+                    fontWeight="600"
+                    textAlign="center"
+                  >
+                    {m.name}
+                  </Text>
+                </Grid>
 
-              {/* 🔹 Description & Explore (bottom row) */}
-              <Flex
-                position="absolute"
-                bottom={0}
-                left={0}
-                w="100%"
-                color="white"
-                px={6}
-                py={4}
-                align="center"
-                justify="space-between"
-              >
-                <Text fontSize={{ base: 'sm', md: 'md' }} mb={2}>
-                  {m.description}
-                </Text>
-
-                <Flex align="center" gap={2}>
-                  <Text fontWeight="500">Explore</Text>
-                  <Icon as={ArrowForwardIcon} boxSize={5} />
-                </Flex>
-              </Flex>
-            </Box>
-          </MotionBox>
-        ))}
-      </Flex>
-
-      {/* Bottom Controller (mobile only) */}
-      <Flex
-        display={{ base: 'flex', md: 'none' }}
-        justify="center"
-        align="center"
-        mt={4}
-        gap={3}
-        flexDir="column"
-      >
-        {/* Dots */}
-        <Flex
-          bg="rgba(148,149,153,0.18)"
-          borderRadius="full"
-          px={4}
-          py={2}
-          gap={3}
-          align="center"
-          justify="center"
-        >
-          {models.map((_, i) => (
-            <Box
-              key={i}
-              w={i === 0 ? '30px' : '10px'}
-              h="10px"
-              bg={i === 0 ? 'white' : 'rgba(215,215,218,0.35)'}
-              borderRadius="full"
-              transition="all 0.3s ease"
-            />
+                {/* 🔹 Bottom Overlay (Description + Explore) */}
+                <Grid
+                  position="absolute"
+                  bottom={0}
+                  left={0}
+                  w="100%"
+                  bgGradient="linear(to-t, rgba(0,0,0,0.85), transparent)"
+                  color="white"
+                  p={{ base: 5, md: 6 }}
+                  gap={2}
+                >
+                  <Text fontSize={{ base: 'sm', md: 'md' }}>
+                    {m.description}
+                  </Text>
+                  <Grid
+                    templateColumns="auto auto"
+                    alignItems="center"
+                    justifyContent="start"
+                    gap={2}
+                  >
+                    <Text fontWeight="600">Explore</Text>
+                    <Icon as={ArrowForwardIcon} boxSize={5} />
+                  </Grid>
+                </Grid>
+              </Box>
+            </MotionBox>
           ))}
-        </Flex>
-
-        {/* Play/Pause (decorative only) */}
-        <Button
-          onClick={() => setPaused((p) => !p)}
-          rounded="full"
-          p={3}
-          bg="rgba(148,149,153,0.18)"
-          _hover={{ bg: 'rgba(148,149,153,0.3)' }}
-        >
-          {paused ? (
-            <img
-              src="https://cdn.ui.porsche.com/porsche-design-system/icons/play.24226d4.svg"
-              width="24"
-              height="24"
-              alt="Play"
-            />
-          ) : (
-            <img
-              src="https://cdn.ui.porsche.com/porsche-design-system/icons/pause.e41b935.svg"
-              width="24"
-              height="24"
-              alt="Pause"
-            />
-          )}
-        </Button>
-      </Flex>
+        </Grid>
+      </Box>
     </Box>
   );
 }

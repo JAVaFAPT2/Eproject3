@@ -8,8 +8,10 @@ import ImagePreview from 'components/images/ImagePreview';
 import Pagination from 'components/pagination/Pagination';
 import VehicleModelService from 'services/VehicleModelService';
 import VehiclePhotoService from 'services/VehiclePhotoService';
+import VehicleSpecService from 'services/VehicleSpecService';
 
-import Form from './Form';
+import ModelForm from './ModelForm';
+import SpecForm from './SpecForm';
 import Header from './Header';
 import List from './List';
 import Columns from './Columns';
@@ -32,6 +34,8 @@ export default function Table() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewImages, setPreviewImages] = useState([]);
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [isSpecFormOpen, setIsSpecFormOpen] = useState(false);
+  const [selectedSpecModel, setSelectedSpecModel] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -40,11 +44,32 @@ export default function Table() {
     onClose: onConfirmClose,
   } = useDisclosure();
 
-  const toggleExpand = (id) => {
-    setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  const toggleExpand = useCallback(async (modelNumber) => {
+    setExpandedRows((prev) => {
+      const newState = { ...prev, [modelNumber]: !prev[modelNumber] };
+      return newState;
+    });
 
-  const handlePreview = async (model, index = 0) => {
+    const model = models.find((m) => m.modelNumber === modelNumber);
+    if (model && model.level === 2 && !model.specs) {
+      try {
+        const specs = await VehicleSpecService.getByModelNumber(
+          model.modelNumber,
+        );
+        setModels((prev) =>
+          prev.map((m) =>
+            m.modelNumber === model.modelNumber ? { ...m, specs } : m,
+          ),
+        );
+      } catch (err) {
+        console.error('Failed to load specs:', err);
+        toast.error('Failed to load specifications');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handlePreview = useCallback(async (model, index = 0) => {
     try {
       const photos = await VehiclePhotoService.getByModelNumber(
         model.modelNumber,
@@ -57,6 +82,12 @@ export default function Table() {
       console.error('Failed to load model photos:', err);
       toast.error('Failed to load images');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleAddSpec = (model) => {
+    setSelectedSpecModel(model);
+    setIsSpecFormOpen(true);
   };
 
   const loadModels = useCallback(async (pageNum = 1) => {
@@ -71,6 +102,7 @@ export default function Table() {
       console.error(err);
       toast.error('Failed to load vehicle models');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -129,6 +161,7 @@ export default function Table() {
           setEditingModel(null);
           onOpen();
         },
+        onAddSpec: handleAddSpec,
         onPreview: handlePreview,
         onDelete: (model) => {
           setSelectedToDelete({
@@ -140,7 +173,7 @@ export default function Table() {
         toggleExpand,
         expandedRows,
       }),
-    [onOpen, onConfirmOpen, expandedRows],
+    [onOpen, onConfirmOpen, expandedRows, handlePreview, toggleExpand],
   );
 
   const table = useReactTable({
@@ -151,7 +184,7 @@ export default function Table() {
 
   return (
     <>
-      <Form
+      <ModelForm
         isOpen={isOpen}
         onClose={() => {
           setEditingModel(null);
@@ -163,6 +196,12 @@ export default function Table() {
         parentModel={parentModel}
         textColor={textColor}
         bgColor={bgColor}
+      />
+
+      <SpecForm
+        isOpen={isSpecFormOpen}
+        onClose={() => setIsSpecFormOpen(false)}
+        model={selectedSpecModel}
       />
 
       <ImagePreview
@@ -199,6 +238,7 @@ export default function Table() {
             setEditingModel(null);
             onOpen();
           }}
+          onAddSpec={handleAddSpec}
           onEdit={(m) => {
             setEditingModel(m);
             setParentModel(null);

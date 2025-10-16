@@ -9,6 +9,7 @@ export default function List({
   expandedRows,
   toggleExpand,
   onAdd,
+  onAddSpec,
   onPreview,
   onEdit,
   onDelete,
@@ -25,6 +26,7 @@ export default function List({
       expandedRows={expandedRows}
       toggleExpand={toggleExpand}
       onAdd={onAdd}
+      onAddSpec={onAddSpec}
       onPreview={onPreview}
       onEdit={onEdit}
       onDelete={onDelete}

@@ -11,7 +11,7 @@ export default function Section({ vehicles }) {
   useEffect(() => {
     const fetchModels = async () => {
       try {
-        const res = await VehicleModelService.search({
+        const res = await VehicleModelService.grt({
           pageNumber: 1,
           pageSize: 100,
         });
