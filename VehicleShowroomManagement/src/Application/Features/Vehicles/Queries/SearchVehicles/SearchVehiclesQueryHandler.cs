@@ -30,7 +30,7 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
                 else
                 {
                     // No models match specs -> return empty result early
-                    return new SearchVehiclesResult { Vehicles = new List<VehicleSearchDto>(), TotalCount = 0, PageNumber = request.PageNumber, PageSize = request.PageSize, TotalPages = 0, HasPreviousPage = false, HasNextPage = false };
+                    return new SearchVehiclesResult { Items = new List<VehicleSearchDto>(), TotalCount = 0, PageNumber = request.PageNumber, PageSize = request.PageSize, TotalPages = 0, HasPreviousPage = false, HasNextPage = false };
                 }
             }
 
@@ -67,7 +67,7 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
 
             return new SearchVehiclesResult
             {
-                Vehicles = pagedVehicles,
+                Items = pagedVehicles,
                 TotalCount = totalCount,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,

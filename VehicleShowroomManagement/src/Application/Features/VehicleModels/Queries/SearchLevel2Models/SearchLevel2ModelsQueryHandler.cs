@@ -1,9 +1,9 @@
 namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.SearchLevel2Models
 {
     public class SearchLevel2ModelsQueryHandler(IRepository<VehicleModel> modelRepository, IRepository<VehicleSpec> specRepository)
-        : IRequestHandler<SearchLevel2ModelsQuery, List<VehicleModel>>
+        : IRequestHandler<SearchLevel2ModelsQuery, SearchLevel2ModelsResult>
     {
-        public async Task<List<VehicleModel>> Handle(SearchLevel2ModelsQuery request, CancellationToken cancellationToken)
+        public async Task<SearchLevel2ModelsResult> Handle(SearchLevel2ModelsQuery request, CancellationToken cancellationToken)
         {
             // Base filter: Level 2 (variants)
             var models = await modelRepository.FindAsync(m => m.Level == 2 && (request.ParentModelNumber == null || m.ParentId == request.ParentModelNumber), cancellationToken);
@@ -22,10 +22,23 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.S
                 models = filtered;
             }
 
-            return models
+            var modelsList = models.ToList();
+            var totalCount = modelsList.Count;
+            var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+            var paginatedModels = modelsList
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToList();
+
+            return new SearchLevel2ModelsResult
+            {
+                Items = paginatedModels,
+                TotalCount = totalCount,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalPages = totalPages
+            };
         }
     }
 }

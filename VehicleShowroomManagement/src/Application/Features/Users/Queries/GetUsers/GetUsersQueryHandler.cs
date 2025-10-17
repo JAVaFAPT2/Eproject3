@@ -15,7 +15,7 @@ namespace VehicleShowroomManagement.Application.Features.Users.Queries.GetUsers
                 var role = roles.FirstOrDefault();
                 if (role == null)
                 {
-                    return new GetUsersResult { Users = new List<UserDto>(), TotalCount = 0, PageNumber = request.PageNumber, PageSize = request.PageSize };
+                    return new GetUsersResult { Items = new List<UserDto>(), TotalCount = 0, PageNumber = request.PageNumber, PageSize = request.PageSize, TotalPages = 0 };
                 }
                 users = await userRepository.FindAsync(u => u.RoleId == role.Id && u.DeletedAt == null, cancellationToken);
             }
@@ -34,6 +34,7 @@ namespace VehicleShowroomManagement.Application.Features.Users.Queries.GetUsers
 
             var usersList = users.ToList();
             var total = usersList.Count;
+            var totalPages = (int)Math.Ceiling(total / (double)request.PageSize);
             var page = usersList
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
@@ -41,7 +42,7 @@ namespace VehicleShowroomManagement.Application.Features.Users.Queries.GetUsers
 
             var result = new GetUsersResult
             {
-                Users = [.. page.Select(user => new UserDto
+                Items = [.. page.Select(user => new UserDto
                 {
                     Id = user.Id,
                     Username = user.Username,
@@ -59,7 +60,8 @@ namespace VehicleShowroomManagement.Application.Features.Users.Queries.GetUsers
                 })],
                 TotalCount = total,
                 PageNumber = request.PageNumber,
-                PageSize = request.PageSize
+                PageSize = request.PageSize,
+                TotalPages = totalPages
             };
 
             return result;

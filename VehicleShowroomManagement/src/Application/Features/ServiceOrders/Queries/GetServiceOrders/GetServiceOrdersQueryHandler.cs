@@ -50,7 +50,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.G
 
             return new ServiceOrdersResponse
             {
-                ServiceOrders = serviceOrderDtos,
+                Items = serviceOrderDtos,
                 TotalCount = totalCount,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,

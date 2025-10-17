@@ -46,7 +46,7 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
     /// </summary>
     public class SearchVehiclesResult
     {
-        public List<VehicleSearchDto> Vehicles { get; set; } = new();
+        public List<VehicleSearchDto> Items { get; set; } = new();
         public int TotalCount { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }

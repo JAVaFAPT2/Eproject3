@@ -23,6 +23,7 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
             }
 
             var totalCount = vehicleModelsList.Count;
+            var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
             var pagedModels = vehicleModelsList
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
@@ -30,7 +31,7 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
 
             return new GetVehicleModelsResult
             {
-                VehicleModels = [.. pagedModels.Select(vm => new VehicleModelDto
+                Items = [.. pagedModels.Select(vm => new VehicleModelDto
                 {
                     ModelNumber = vm.ModelNumber,
                     Name = vm.Name,
@@ -41,7 +42,8 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
                 })],
                 TotalCount = totalCount,
                 PageNumber = request.PageNumber,
-                PageSize = request.PageSize
+                PageSize = request.PageSize,
+                TotalPages = totalPages
             };
         }
     }

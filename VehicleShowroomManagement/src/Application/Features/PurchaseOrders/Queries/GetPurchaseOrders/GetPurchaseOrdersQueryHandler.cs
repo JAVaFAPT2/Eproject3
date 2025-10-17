@@ -32,7 +32,7 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.
 
             return new GetPurchaseOrdersResult
             {
-                PurchaseOrders = pagedPOs,
+                Items = pagedPOs,
                 TotalCount = totalCount,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
