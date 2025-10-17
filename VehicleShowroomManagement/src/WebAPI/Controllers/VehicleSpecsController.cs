@@ -31,11 +31,15 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<List<VehicleSpecDto>>> GetVehicleSpecs(string modelNumber)
+        public async Task<ActionResult<List<VehicleSpecDto>>> GetVehicleSpecs(string modelNumber,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
             var query = new GetVehicleSpecsQuery(modelNumber);
             var specs = await _mediator.Send(query);
-            return Ok(specs);
+            var total = specs.Count;
+            var page = specs.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            return Ok(new { items = page, totalCount = total, pageNumber, pageSize });
         }
 
         /// <summary>

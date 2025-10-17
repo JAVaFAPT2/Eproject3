@@ -36,7 +36,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         public DateTime? AppointmentDate { get; private set; }
 
         [BsonElement("status")]
-        public OrderStatus Status { get; private set; } = OrderStatus.Waiting;
+        public OrderStatus Status { get; private set; } = OrderStatus.Pending;
 
         [BsonElement("salePrice")]
         public decimal SalePrice { get; private set; }
@@ -74,7 +74,7 @@ namespace VehicleShowroomManagement.Domain.Entities
             ModelNumber = modelNumber;
             SalePrice = salePrice;
             OrderDate = DateTime.UtcNow;
-            Status = OrderStatus.Waiting;
+            Status = OrderStatus.Pending;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
     }
@@ -85,24 +85,32 @@ namespace VehicleShowroomManagement.Domain.Entities
         if (string.IsNullOrWhiteSpace(vehicleId))
             throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
 
-        if (Status != OrderStatus.Waiting)
+        if (Status != OrderStatus.Pending)
             throw new InvalidOperationException("Only waiting orders can have vehicles assigned");
 
         VehicleId = vehicleId;
-        Status = OrderStatus.Reserved;
+        Status = OrderStatus.Confirmed;
         ReservationFrom = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
 
     public void Confirm()
     {
-        if (Status != OrderStatus.Reserved)
+        if (Status != OrderStatus.Confirmed)
             throw new InvalidOperationException("Only reserved orders can be confirmed");
 
         if (string.IsNullOrEmpty(VehicleId))
             throw new InvalidOperationException("Cannot confirm order without assigned vehicle");
 
         Status = OrderStatus.Confirmed;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void SetDealer(string dealerId)
+    {
+        if (string.IsNullOrWhiteSpace(dealerId))
+            throw new ArgumentException("Dealer ID cannot be empty", nameof(dealerId));
+        DealerId = dealerId;
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -115,17 +123,28 @@ namespace VehicleShowroomManagement.Domain.Entities
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void Cancel()
+    public void UpdateStatus(OrderStatus status)
     {
-        if (Status == OrderStatus.Completed)
-            throw new InvalidOperationException("Cannot cancel a completed order");
-
-        if (Status == OrderStatus.Cancelled)
-            throw new InvalidOperationException("Order is already cancelled");
-
-        Status = OrderStatus.Cancelled;
-        UpdatedAt = DateTime.UtcNow;
+        switch (status)
+        {
+            case OrderStatus.Pending:
+                // Keep as pending if already pending; no-op otherwise
+                if (Status == OrderStatus.Pending)
+                {
+                    UpdatedAt = DateTime.UtcNow;
+                }
+                break;
+            case OrderStatus.Confirmed:
+                Confirm();
+                break;
+            case OrderStatus.Completed:
+                Complete();
+                break;
+            default:
+                throw new InvalidOperationException("Unsupported status transition");
+        }
     }
+
 
     public void UpdateAppointmentDate(DateTime? appointmentDate)
     {
@@ -145,11 +164,9 @@ namespace VehicleShowroomManagement.Domain.Entities
     }
 
         // Computed properties
-        public bool IsWaiting => Status == OrderStatus.Waiting;
-        public bool IsReserved => Status == OrderStatus.Reserved;
+        public bool IsPending => Status == OrderStatus.Pending;
         public bool IsConfirmed => Status == OrderStatus.Confirmed;
         public bool IsCompleted => Status == OrderStatus.Completed;
-        public bool IsCancelled => Status == OrderStatus.Cancelled;
         public bool HasVehicle => !string.IsNullOrEmpty(VehicleId);
     }
 }

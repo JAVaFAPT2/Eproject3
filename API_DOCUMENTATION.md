@@ -444,11 +444,11 @@ Content-Type: application/json
 ```
 
 ### **17. GET /api/vehicle-models**
-**Get All Vehicle Models**
+**Get Vehicle Models (Unified)**
 
 ```bash
 # Request
-GET /api/vehicle-models?pageNumber=1&pageSize=10&brand=Toyota
+GET /api/vehicle-models?pageNumber=1&pageSize=10&search=toyota&parentModelNumber=MODEL-123&seats=4&fuelType=petrol
 Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
@@ -560,11 +560,11 @@ curl -X POST /api/vehicles/with-media \
 ```
 
 ### **18. GET /api/vehicles**
-**Get All Vehicles with Pagination**
+**Get All Vehicles with Pagination & Filters**
 
 ```bash
 # Request
-GET /api/vehicles?pageNumber=1&pageSize=10&status=Available&brand=Toyota
+GET /api/vehicles?pageNumber=1&pageSize=10&status=1&searchTerm=VEH-2024
 Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
@@ -576,7 +576,7 @@ Authorization: Bearer <jwt-token>
       "modelNumber": "CAMRY2024",
       "modelName": "Toyota Camry 2024",
       "brand": "Toyota",
-      "status": "Available",
+      "status": 1,
       "purchasePrice": 26000.00,
       "salePrice": 28000.00
     }
@@ -588,8 +588,10 @@ Authorization: Bearer <jwt-token>
 }
 ```
 
-### **19. GET /api/vehicles/search**
-**Search Vehicles** *(Advanced filtering)*
+### ~~**19. GET /api/vehicles/search**~~
+~~Search Vehicles~~
+
+Deprecated. Use `GET /api/vehicles` with query parameters: `searchTerm`, `status`, `modelNumber`, `seats`, `fuelType`, `minPrice`, `maxPrice`, `pageNumber`, `pageSize`.
 
 ```bash
 # Request
@@ -653,7 +655,7 @@ Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
-  "status": "Sold"
+  "status": 3
 }
 
 # Response (200 OK)
@@ -661,11 +663,10 @@ Content-Type: application/json
   "message": "Vehicle status updated successfully"
 }
 
-# Possible status values:
-# - Available (1)
-# - Reserved (2)
-# - Sold (3)
-# - InService (4)
+# Possible status values (numeric):
+# - Available = 1
+# - Reserved = 2
+# - Sold = 3
 ```
 
 ### **22. DELETE /api/vehicles/{id}**
@@ -780,29 +781,23 @@ Content-Type: application/json
 }
 ```
 
-### **26. POST /api/purchase-orders/{id}/complete**
-**Complete Purchase Order** *(Auto-creates vehicles)*
+### **26. PUT /api/purchase-orders/{id}/status**
+**Update Purchase Order Status** *(1=Pending, 2=Completed, 3=Cancelled)*
 
 ```bash
 # Request
-POST /api/purchase-orders/507f1f77bcf86cd799439020/complete
+PUT /api/purchase-orders/507f1f77bcf86cd799439020/status
 Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "status": 2
+}
 
 # Response (200 OK)
 {
-  "message": "Purchase order completed successfully",
-  "vehiclesCreated": 5,
-  "vehicleIds": [
-    "507f1f77bcf86cd799439030",
-    "507f1f77bcf86cd799439031",
-    "507f1f77bcf86cd799439032",
-    "507f1f77bcf86cd799439033",
-    "507f1f77bcf86cd799439034"
-  ]
+  "message": "Purchase order status updated"
 }
-
-# Note: Completing a PO automatically creates Vehicle entities
-# based on the purchase order lines (quantity × model)
 ```
 
 ---
@@ -851,7 +846,8 @@ Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
-  "vehicleId": "507f1f77bcf86cd799439030"
+  "vehicleId": "507f1f77bcf86cd799439030",
+  "dealerId": "507f1f77bcf86cd799439011"
 }
 
 # Response (200 OK)
@@ -859,7 +855,7 @@ Content-Type: application/json
   "message": "Vehicle assigned successfully"
 }
 
-# Status changes: Waiting → Reserved
+# Status changes: Pending → Confirmed (vehicle assigned)
 ```
 
 ### **29. POST /api/orders/{id}/confirm**
@@ -875,24 +871,26 @@ Authorization: Bearer <jwt-token>
   "message": "Order confirmed successfully"
 }
 
-# Status changes: Reserved → Confirmed
+# Status changes: Confirmed remains Confirmed (idempotent)
 ```
 
-### **30. POST /api/orders/{id}/complete**
-**Complete Order** *(Dealer/Admin only)*
+### **30. PUT /api/orders/{id}/status**
+**Update Order Status** *(Dealer/Admin only)*
 
 ```bash
 # Request
-POST /api/orders/507f1f77bcf86cd799439050/complete
+PUT /api/orders/507f1f77bcf86cd799439050/status
 Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "status": 3
+}
 
 # Response (200 OK)
 {
-  "message": "Order completed successfully"
+  "message": "Order status updated"
 }
-
-# Status changes: Confirmed → Completed
-# Vehicle status also updated to Sold
 ```
 
 ---
@@ -934,7 +932,7 @@ Content-Type: application/json
 
 ### **32. PUT /api/service-orders/{id}/status**
 **Update Service Order Status**
-*Auto-creates BillingDocument when status changes to Completed*
+*On Completed, can set license plate on vehicle*
 
 ```bash
 # Request
@@ -943,7 +941,8 @@ Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
-  "status": 2
+  "status": 2,
+  "licensePlate": "ABC-123"
 }
 
 # Response (200 OK)
@@ -952,21 +951,14 @@ Content-Type: application/json
   "billingDocumentId": "507f1f77bcf86cd799439070"
 }
 
-# Service Order Status Values:
-# - Scheduled (1)
-# - Completed (2)
-# - Cancelled (3)
+# Service Order Status Values (numeric):
+# - InProgress = 1
+# - Completed = 2
+# - Cancelled = 3
 
-# Auto-Billing Feature:
-# When status is set to "Completed", the system automatically:
-# 1. Marks the service order as complete
-# 2. Fetches the related Order to get the sale price
-# 3. Creates a BillingDocument with:
-#    - orderId: from service order
-#    - amount: Order's salePrice
-#    - createdBy: service order creator
-#    - status: Unpaid
-# 4. Returns the billingDocumentId for printing/exporting
+# On Completed:
+# - Service order marked complete
+# - If licensePlate provided, vehicle updated
 ```
 
 ---
@@ -1178,22 +1170,22 @@ Authorization: Bearer <jwt-token>
 # Response (200 OK)
 {
   "totalRevenue": 1250000.00,
-  "monthlyRevenue": 125000.00,
-  "yearlyRevenue": 1500000.00,
-  "revenueGrowth": 15.5,
-  "topSellingModels": [
-    {
-      "modelNumber": "CAMRY2024",
-      "name": "Toyota Camry 2024",
-      "brand": "Toyota",
-      "totalSold": 25,
-      "revenue": 700000.00
-    }
-  ]
+  "previousPeriodRevenue": 1180000.00,
+  "growthPercentage": 5.93,
+  "revenueData": [
+    { "label": "2025-05", "value": 210000.00, "date": "2025-05-01T00:00:00Z" },
+    { "label": "2025-06", "value": 180000.00, "date": "2025-06-01T00:00:00Z" },
+    { "label": "2025-07", "value": 190000.00, "date": "2025-07-01T00:00:00Z" },
+    { "label": "2025-08", "value": 200000.00, "date": "2025-08-01T00:00:00Z" },
+    { "label": "2025-09", "value": 230000.00, "date": "2025-09-01T00:00:00Z" },
+    { "label": "2025-10", "value": 240000.00, "date": "2025-10-01T00:00:00Z" }
+  ],
+  "averageOrderValue": 28500.00,
+  "totalOrders": 44
 }
 ```
 
-### **36. GET /api/dashboard/customer**
+### **40. GET /api/dashboard/customer**
 **Get Customer Analytics**
 
 ```bash
@@ -1204,25 +1196,32 @@ Authorization: Bearer <jwt-token>
 # Response (200 OK)
 {
   "totalCustomers": 150,
-  "newCustomersThisMonth": 12,
-  "customerRetentionRate": 85.5,
-  "averageOrderValue": 28500.00,
-  "customerGrowth": [
-    {
-      "month": "2024-01",
-      "count": 45
-    }
-  ]
+  "newCustomers": 12,
+  "activeCustomers": 85,
+  "customerGrowthPercentage": 8.0,
+  "customerGrowthData": [
+    { "label": "2025-05", "newCustomers": 8, "totalCustomers": 120, "date": "2025-05-01T00:00:00Z" },
+    { "label": "2025-06", "newCustomers": 10, "totalCustomers": 130, "date": "2025-06-01T00:00:00Z" },
+    { "label": "2025-07", "newCustomers": 6, "totalCustomers": 136, "date": "2025-07-01T00:00:00Z" },
+    { "label": "2025-08", "newCustomers": 5, "totalCustomers": 141, "date": "2025-08-01T00:00:00Z" },
+    { "label": "2025-09", "newCustomers": 4, "totalCustomers": 145, "date": "2025-09-01T00:00:00Z" },
+    { "label": "2025-10", "newCustomers": 5, "totalCustomers": 150, "date": "2025-10-01T00:00:00Z" }
+  ],
+  "averageCustomerValue": 28500.00,
+  "repeatCustomers": 22
 }
 ```
 
-### **37. GET /api/dashboard/top-vehicles**
+### **41. GET /api/dashboard/top-vehicles**
 **Get Top Selling Vehicles**
 
 ```bash
 # Request
-GET /api/dashboard/top-vehicles
+GET /api/dashboard/top-vehicles?top=10
 Authorization: Bearer <jwt-token>
+
+# Behavior
+- If no date range provided, returns current month's top selling level-2 models.
 
 # Response (200 OK)
 [
@@ -1348,7 +1347,7 @@ graph TD
   "externalNumber": "string (optional)",
   "vin": "string (optional)",
   "licensePlate": "string (optional)",
-  "status": "Available | Reserved | Sold | InService",
+  "status": "Available | Reserved | Sold",
   "purchasePrice": "decimal (required)",
   "photos": ["string (urls)"],
   "receiptDate": "DateTime (optional)",
@@ -1379,7 +1378,7 @@ graph TD
   "vehicleId": "string (optional, FK)",
   "orderDate": "DateTime",
   "appointmentDate": "DateTime (optional)",
-  "status": "Waiting | Reserved | Confirmed | Completed | Cancelled",
+  "status": "Pending | Confirmed | Completed",
   "salePrice": "decimal (required)",
   "note": "string (optional)",
   "reservationFrom": "DateTime (optional)",
@@ -1422,7 +1421,7 @@ graph TD
   "description": "string (optional)",
   "cost": "decimal (required)",
   "type": "PreDelivery | Maintenance | Repair",
-  "status": "Scheduled | Completed | Cancelled"
+  "status": "InProgress | Completed | Cancelled"
 }
 ```
 

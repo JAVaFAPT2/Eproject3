@@ -176,16 +176,28 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? searchTerm = null,
-            [FromQuery] VehicleStatus? status = null,
+            [FromQuery] int? status = null,
             [FromQuery] string? modelNumber = null,
             [FromQuery] int? seats = null,
             [FromQuery] string? fuelType = null,
             [FromQuery] decimal? minPrice = null,
             [FromQuery] decimal? maxPrice = null)
         {
+            VehicleStatus? statusEnum = null;
+            if (status.HasValue)
+            {
+                // Map numeric status to domain enum: 1=Available, 2=Reserved, 3=Sold
+                statusEnum = status.Value switch
+                {
+                    1 => VehicleStatus.Available,
+                    2 => VehicleStatus.Reserved,
+                    3 => VehicleStatus.Sold,
+                    _ => null
+                };
+            }
             var query = new SearchVehiclesQuery(
                 searchTerm,
-                status,
+                statusEnum,
                 modelNumber,
                 seats,
                 fuelType,

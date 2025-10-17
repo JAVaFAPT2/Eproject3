@@ -25,11 +25,15 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// </summary>
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<List<VehiclePhotoDto>>> GetVehiclePhotos(string modelNumber)
+        public async Task<ActionResult<List<VehiclePhotoDto>>> GetVehiclePhotos(string modelNumber,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
             var query = new GetVehiclePhotosQuery(modelNumber);
             var photos = await mediator.Send(query);
-            return Ok(photos);
+            var total = photos.Count;
+            var page = photos.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            return Ok(new { items = page, totalCount = total, pageNumber, pageSize });
         }
 
         /// <summary>

@@ -40,7 +40,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         public ServiceType Type { get; private set; }
 
         [BsonElement("status")]
-        public ServiceOrderStatus Status { get; private set; } = ServiceOrderStatus.Scheduled;
+        public ServiceOrderStatus Status { get; private set; } = ServiceOrderStatus.InProgress;
 
         [BsonElement("licensePlate")]
         public string? LicensePlate { get; private set; }
@@ -133,7 +133,7 @@ namespace VehicleShowroomManagement.Domain.Entities
     }
 
     // Computed properties
-    public bool IsScheduled => Status == ServiceOrderStatus.Scheduled;
+    public bool IsInProgress => Status == ServiceOrderStatus.InProgress;
     public bool IsCompleted => Status == ServiceOrderStatus.Completed;
     public bool IsCancelled => Status == ServiceOrderStatus.Cancelled;
 }

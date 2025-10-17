@@ -66,5 +66,6 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
         public VehicleStatus Status { get; set; }
         public decimal PurchasePrice { get; set; }
         public bool IsAvailable { get; set; }
+        public string? Vin { get; set; }
     }
 }

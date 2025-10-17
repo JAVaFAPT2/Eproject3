@@ -78,6 +78,24 @@ namespace VehicleShowroomManagement.Domain.Entities
             Status = PurchaseOrderStatus.Cancelled;
         }
 
+        public void UpdateStatus(PurchaseOrderStatus status)
+        {
+            switch (status)
+            {
+                case PurchaseOrderStatus.Pending:
+                    Status = PurchaseOrderStatus.Pending;
+                    break;
+                case PurchaseOrderStatus.Completed:
+                    Complete();
+                    break;
+                case PurchaseOrderStatus.Cancelled:
+                    Cancel();
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsupported status");
+            }
+        }
+
         // Computed properties
         public bool CanBeCompleted => Status == PurchaseOrderStatus.Pending;
         public bool CanBeCancelled => Status == PurchaseOrderStatus.Pending;

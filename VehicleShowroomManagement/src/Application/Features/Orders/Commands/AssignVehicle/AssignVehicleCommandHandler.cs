@@ -23,7 +23,7 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.AssignV
             }
             else
             {
-                var vehicles = await vehicleRepository.FindAsync(v => v.ModelNumber == order.ModelNumber && v.Status == VehicleStatus.InStock, cancellationToken);
+                var vehicles = await vehicleRepository.FindAsync(v => v.ModelNumber == order.ModelNumber && v.Status == VehicleStatus.Available, cancellationToken);
                 vehicle = vehicles.FirstOrDefault();
                 if (vehicle != null)
                 {
@@ -36,9 +36,15 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.AssignV
                 throw new InvalidOperationException("Vehicle not found");
             }
 
-            if (vehicle.Status != VehicleStatus.InStock)
+            if (vehicle.Status != VehicleStatus.Available)
             {
                 throw new InvalidOperationException("Vehicle is not available");
+            }
+
+            // Assign dealer
+            if (!string.IsNullOrWhiteSpace(request.DealerId))
+            {
+                order.SetDealer(request.DealerId);
             }
 
             // Assign vehicle to order

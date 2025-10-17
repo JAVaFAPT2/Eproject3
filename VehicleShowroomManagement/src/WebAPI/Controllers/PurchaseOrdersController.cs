@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.CreatePurchaseOrder;
-using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.CompletePurchaseOrder;
+using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.UpdatePurchaseOrderStatus;
 using VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.GetPurchaseOrders;
 using VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Commands.AddPurchaseOrderLine;
 using VehicleShowroomManagement.Domain.Enums;
@@ -28,14 +28,21 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     public async Task<IActionResult> GetPurchaseOrders(
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string? status = null,
+        [FromQuery] int? status = null,
         [FromQuery] DateTime? fromDate = null,
         [FromQuery] DateTime? toDate = null)
     {
         PurchaseOrderStatus? statusEnum = null;
-        if (!string.IsNullOrEmpty(status) && Enum.TryParse<PurchaseOrderStatus>(status, true, out var parsedStatus))
+        if (status.HasValue)
         {
-            statusEnum = parsedStatus;
+            // Map numeric status to enum: 1=Pending, 2=Completed, 3=Cancelled
+            statusEnum = status.Value switch
+            {
+                1 => PurchaseOrderStatus.Pending,
+                2 => PurchaseOrderStatus.Completed,
+                3 => PurchaseOrderStatus.Cancelled,
+                _ => null
+            };
         }
 
         var query = new GetPurchaseOrdersQuery(pageNumber, pageSize, statusEnum, fromDate, toDate);
@@ -71,18 +78,12 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             return Ok(new { id = lineId, message = "Purchase order line added successfully" });
         }
 
-        [HttpPost("{id}/complete")]
-        public async Task<IActionResult> CompletePurchaseOrder(string id)
-        {
-            var command = new CompletePurchaseOrderCommand(id);
-            var vehicleIds = await _mediator.Send(command);
-            return Ok(new 
-            { 
-                message = "Purchase order completed successfully", 
-                vehiclesCreated = vehicleIds.Count,
-                vehicleIds 
-            });
-        }
+    [HttpPut("{id}/status")]
+    public async Task<IActionResult> UpdatePurchaseOrderStatus(string id, [FromBody] UpdatePurchaseOrderStatusRequest request)
+    {
+        await _mediator.Send(new UpdatePurchaseOrderStatusCommand(id, request.Status));
+        return Ok(new { message = "Purchase order status updated" });
+    }
     }
 
         public class CreatePurchaseOrderRequest
@@ -96,5 +97,10 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             public string ModelId { get; set; } = string.Empty; // Level-2 model (modelNumber)
         public int Quantity { get; set; }
         public decimal PricePerUnit { get; set; }
+    }
+
+    public class UpdatePurchaseOrderStatusRequest
+    {
+        public PurchaseOrderStatus Status { get; set; }
     }
 }

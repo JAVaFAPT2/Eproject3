@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.Orders.Commands.CreateOrder;
 using VehicleShowroomManagement.Application.Features.Orders.Commands.AssignVehicle;
 using VehicleShowroomManagement.Application.Features.Orders.Commands.ConfirmOrder;
-using VehicleShowroomManagement.Application.Features.Orders.Commands.CompleteOrder;
+using VehicleShowroomManagement.Application.Features.Orders.Commands.UpdateOrderStatus;
 using VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrders;
+using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
@@ -28,10 +29,23 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> GetOrders(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? status = null,
+            [FromQuery] int? status = null,
             [FromQuery] string? customerId = null)
         {
-            var query = new GetOrdersQuery(pageNumber, pageSize, status, customerId);
+            OrderStatus? statusEnum = null;
+            if (status.HasValue)
+            {
+                // 1=Pending, 2=Confirmed, 3=Completed
+                statusEnum = status.Value switch
+                {
+                    1 => OrderStatus.Pending,
+                    2 => OrderStatus.Confirmed,
+                    3 => OrderStatus.Completed,
+                    _ => null
+                };
+            }
+
+            var query = new GetOrdersQuery(pageNumber, pageSize, statusEnum?.ToString(), customerId);
             var result = await _mediator.Send(query);
             return Ok(result);
         }
@@ -57,7 +71,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         [Authorize(Roles = "Dealer,Admin")]
         public async Task<IActionResult> AssignVehicle(string id, [FromBody] AssignVehicleRequest request)
         {
-            var command = new AssignVehicleCommand(id, request.VehicleId);
+            var command = new AssignVehicleCommand(id, request.VehicleId, request.DealerId);
             await _mediator.Send(command);
             return Ok(new { message = "Vehicle assigned successfully" });
         }
@@ -71,13 +85,12 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             return Ok(new { message = "Order confirmed successfully" });
         }
 
-        [HttpPost("{id}/complete")]
+        [HttpPut("{id}/status")]
         [Authorize(Roles = "Dealer,Admin")]
-        public async Task<IActionResult> CompleteOrder(string id)
+        public async Task<IActionResult> UpdateOrderStatus(string id, [FromBody] UpdateOrderStatusRequest request)
         {
-            var command = new CompleteOrderCommand(id);
-            await _mediator.Send(command);
-            return Ok(new { message = "Order completed successfully" });
+            await _mediator.Send(new UpdateOrderStatusCommand(id, request.Status));
+            return Ok(new { message = "Order status updated" });
         }
     }
 
@@ -91,6 +104,12 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     public class AssignVehicleRequest
     {
         public string VehicleId { get; set; } = string.Empty;
+        public string DealerId { get; set; } = string.Empty;
+    }
+
+    public class UpdateOrderStatusRequest
+    {
+        public OrderStatus Status { get; set; }
     }
 }
 

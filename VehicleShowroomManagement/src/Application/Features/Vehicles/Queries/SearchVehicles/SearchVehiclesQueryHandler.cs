@@ -40,7 +40,8 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
                 (allowedModelNumbers == null || allowedModelNumbers.Contains(v.ModelNumber)) &&
                 (string.IsNullOrEmpty(request.SearchTerm) || 
                  v.VehicleId.Contains(request.SearchTerm) || 
-                 v.ModelNumber.Contains(request.SearchTerm)) &&
+                 v.ModelNumber.Contains(request.SearchTerm) ||
+                 (v.Vin != null && v.Vin.Contains(request.SearchTerm))) &&
                 (request.MinPrice == null || v.PurchasePrice >= request.MinPrice) &&
                 (request.MaxPrice == null || v.PurchasePrice <= request.MaxPrice)).ToList();
 
@@ -57,7 +58,8 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
                     ExternalNumber = v.ExternalNumber,
                     Status = v.Status,
                     PurchasePrice = v.PurchasePrice,
-                    IsAvailable = v.IsAvailable
+                    IsAvailable = v.IsAvailable,
+                    Vin = v.Vin
                 })
                 .ToList();
 

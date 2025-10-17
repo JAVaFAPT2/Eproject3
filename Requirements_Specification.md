@@ -115,8 +115,8 @@ The system will be built using **Domain-Driven Design (DDD)** with **Clean Archi
 #### 5.1.1 Vehicle Management
 - Create new vehicle records
 - Update vehicle information
-- Manage vehicle status (Available, Sold, In Service, Reserved)
-- Vehicle search and filtering
+- Manage vehicle status (Available, Reserved, Sold)
+- Vehicle search and filtering (supports `searchTerm`, `status` 1/2/3, model/spec filters)
 - Bulk operations for inventory updates
 
 #### 5.1.2 Purchase Order Management
@@ -129,17 +129,18 @@ The system will be built using **Domain-Driven Design (DDD)** with **Clean Archi
 - Customer inquiry management
 - Sales quotation generation
 - Sales order processing
-- Customer assignment to vehicles
-- Sales confirmation generation
+- Assign vehicle to orders (requires `dealerId`; auto-pick available vehicle if `vehicleId` omitted)
+- Status transitions: Pending → Confirmed → Completed (numeric 1/2/3)
 
 #### 5.1.4 Service Management
 - Pre-delivery service orders
-- Service scheduling
+- Status: InProgress, Completed, Cancelled (numeric 1/2/3)
+- Optional license plate assignment on completion
 - Service history tracking
 - Warranty management
 
 #### 5.1.5 Billing and Invoicing
-- Invoice generation
+- Invoice generation (if applicable)
 - Payment processing
 - Tax calculation
 - Credit management
@@ -211,10 +212,18 @@ The system will be built using **Domain-Driven Design (DDD)** with **Clean Archi
 ## 8. API Design
 
 ### 8.1 RESTful Endpoints
-- `GET /api/vehicles` - Retrieve vehicles with filtering
+- `GET /api/vehicles` - Retrieve vehicles (merged list+search; numeric status 1/2/3)
 - `POST /api/vehicles` - Create new vehicle
 - `PUT /api/vehicles/{id}` - Update vehicle
+- `PUT /api/vehicles/{id}/status` - Update vehicle status (1/2/3)
 - `DELETE /api/vehicles/{id}` - Delete vehicle
+- `GET /api/vehicle-models` - Unified models endpoint (search/spec filters)
+- `PUT /api/orders/{id}/status` - Update order status (1/2/3)
+- `PUT /api/purchase-orders/{id}/status` - Update purchase order status (1/2/3)
+- `PUT /api/service-orders/{id}/status` - Update service order status (1/2/3)
+- `GET /api/dashboard/revenue` - 6-month revenue series
+- `GET /api/dashboard/customer` - 6-month customer series
+- `GET /api/dashboard/top-vehicles` - Current month by default
 
 ### 8.2 CQRS Endpoints
 - **Commands**: POST requests for write operations

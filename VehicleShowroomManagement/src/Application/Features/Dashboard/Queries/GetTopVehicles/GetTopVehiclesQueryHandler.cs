@@ -12,12 +12,24 @@ namespace VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetTo
         public async Task<List<TopVehicleDto>> Handle(GetTopVehiclesQuery request, CancellationToken cancellationToken)
         {
             var allOrders = await orderRepository.GetAllAsync(cancellationToken);
-            
-            // Filter by date if provided
+
+            // Default to current month if no date range provided
+            DateTime? effectiveFrom = request.FromDate;
+            DateTime? effectiveTo = request.ToDate;
+            if (effectiveFrom == null && effectiveTo == null)
+            {
+                var now = DateTime.UtcNow;
+                var firstOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                var firstOfNextMonth = firstOfMonth.AddMonths(1);
+                effectiveFrom = firstOfMonth;
+                effectiveTo = firstOfNextMonth;
+            }
+
+            // Filter by completed orders within date range
             var filteredOrders = allOrders
                 .Where(o => o.Status == OrderStatus.Completed &&
-                           (request.FromDate == null || o.OrderDate >= request.FromDate) &&
-                           (request.ToDate == null || o.OrderDate <= request.ToDate))
+                           (effectiveFrom == null || o.OrderDate >= effectiveFrom) &&
+                           (effectiveTo == null || o.OrderDate < effectiveTo))
                 .ToList();
 
             // Group by level-2 model (ModelNumber is the level-2 identifier)
@@ -44,7 +56,7 @@ namespace VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetTo
 
                 // Count available stock for this level-2 model
                 var allVehicles = await vehicleRepository.FindAsync(v => v.ModelNumber == item.ModelNumber, cancellationToken);
-                var availableStock = allVehicles.Count(v => v.Status == VehicleStatus.InStock);
+                var availableStock = allVehicles.Count(v => v.Status == VehicleStatus.Available);
 
                 result.Add(new TopVehicleDto
                 {

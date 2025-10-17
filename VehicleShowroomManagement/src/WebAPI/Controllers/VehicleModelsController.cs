@@ -92,35 +92,29 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Gets all vehicle models with pagination
+        /// Gets all vehicle models with pagination and optional filters (unified)
         /// </summary>
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetVehicleModels(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? search = null)
-        {
-            var query = new GetVehicleModelsQuery(pageNumber, pageSize, search);
-            var result = await mediator.Send(query);
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Search level-2 vehicle models by parent and specs
-        /// </summary>
-        [HttpGet("search")]
-        [AllowAnonymous]
-        public async Task<IActionResult> SearchLevel2Models(
+            [FromQuery] string? search = null,
             [FromQuery] string? parentModelNumber = null,
             [FromQuery] int? seats = null,
-            [FromQuery] string? fuelType = null,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] string? fuelType = null)
         {
-            var query = new SearchLevel2ModelsQuery(parentModelNumber, seats, fuelType, pageNumber, pageSize);
-            var result = await mediator.Send(query);
-            return Ok(result);
+            // If any spec filters provided, use SearchLevel2ModelsQuery; otherwise fallback to simple list
+            if (!string.IsNullOrWhiteSpace(parentModelNumber) || seats.HasValue || !string.IsNullOrWhiteSpace(fuelType))
+            {
+                var searchQuery = new SearchLevel2ModelsQuery(parentModelNumber, seats, fuelType, pageNumber, pageSize);
+                var searchResult = await mediator.Send(searchQuery);
+                return Ok(searchResult);
+            }
+
+            var listQuery = new GetVehicleModelsQuery(pageNumber, pageSize, search);
+            var listResult = await mediator.Send(listQuery);
+            return Ok(listResult);
         }
 
         /// <summary>
