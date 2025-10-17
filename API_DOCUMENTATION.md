@@ -6,6 +6,22 @@
 > **Authentication**: JWT Bearer Tokens  
 > **Code Quality**: 0 Warnings | 100% Interface-Based Architecture
 
+## 📋 **Standardized Response Structure**
+
+All paginated list endpoints now return a consistent structure:
+
+```json
+{
+  "items": [...],
+  "totalCount": 0,
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalPages": 0
+}
+```
+
+This applies to: `/api/users`, `/api/vehicle-models`, `/api/vehicles`, `/api/purchase-orders`, `/api/orders`, `/api/service-orders`, `/api/vehicle-models/{id}/photos`, `/api/vehicle-models/{id}/specs`
+
 ---
 
 ## 📋 **Table of Contents**
@@ -249,23 +265,29 @@ GET /api/users?roleName=Customer
 Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
-[
-  {
-    "id": "507f1f77bcf86cd799439011",
-    "username": "john_doe",
-    "name": "John Doe",
-    "email": "john@showroom.com",
-    "phone": "+1234567890",
-    "address": "123 Main St",
-    "roleId": "507f1f77bcf86cd799439012",
-    "role": "Employee",
-    "status": "Active",
-    "hireDate": "2024-01-01T00:00:00Z",
-    "isActive": true,
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
-  }
-]
+{
+  "items": [
+    {
+      "id": "507f1f77bcf86cd799439011",
+      "username": "john_doe",
+      "name": "John Doe",
+      "email": "john@showroom.com",
+      "phone": "+1234567890",
+      "address": "123 Main St",
+      "roleId": "507f1f77bcf86cd799439012",
+      "role": "Employee",
+      "status": "Active",
+      "hireDate": "2024-01-01T00:00:00Z",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "totalCount": 1,
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalPages": 1
+}
 
 # Error Response (400 Bad Request)
 {
@@ -453,7 +475,7 @@ Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
 {
-  "models": [
+  "items": [
     {
       "modelNumber": "CAMRY2024",
       "name": "Toyota Camry 2024",
@@ -569,7 +591,7 @@ Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
 {
-  "vehicles": [
+  "items": [
     {
       "id": "507f1f77bcf86cd799439011",
       "vehicleId": "VEH-2024-001",
@@ -600,7 +622,7 @@ Authorization: Bearer <jwt-token>
 
 # Response (200 OK)
 {
-  "vehicles": [
+  "items": [
     {
       "id": "507f1f77bcf86cd799439011",
       "vehicleId": "VEH-2024-001",

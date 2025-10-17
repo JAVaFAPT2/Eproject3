@@ -2,6 +2,19 @@
 
 ## Backend API Updates
 
+### **Standardized Response Structure** ✅
+All paginated list endpoints now return consistent structure:
+```json
+{
+  "items": [...],
+  "totalCount": 0,
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalPages": 0
+}
+```
+**Applied to**: `/api/users`, `/api/vehicle-models`, `/api/vehicles`, `/api/purchase-orders`, `/api/orders`, `/api/service-orders`, `/api/vehicle-models/{id}/photos`, `/api/vehicle-models/{id}/specs`
+
 - VehicleModels
   - GET `/api/vehicle-models`: unified endpoint with optional filters `search`, `parentModelNumber`, `seats`, `fuelType`; previous `/api/vehicle-models/search` behavior is routed via this endpoint.
   - Soft delete enabled via `DELETE /api/vehiclemodels/{modelNumber}`; soft-deleted models excluded from GET, by-id, and by-slug queries.
@@ -43,3 +56,4 @@
 
 - Use `GET /api/vehiclemodels?search=...` for search or omit `search` to get all.
 - After creating a model via JSON, call photo upload endpoints to attach images.
+- **All list responses now use `items` property** - no more checking different property names per endpoint.
