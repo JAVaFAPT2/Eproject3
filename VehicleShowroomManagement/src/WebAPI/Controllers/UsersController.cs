@@ -5,7 +5,7 @@ using VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser;
 using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserProfile;
 using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserActive;
 using VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById;
-using VehicleShowroomManagement.Application.Features.Users.Queries.GetUsersByRole;
+using VehicleShowroomManagement.Application.Features.Users.Queries.GetUsers;
 using VehicleShowroomManagement.WebAPI.Models.Users;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
