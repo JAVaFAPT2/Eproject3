@@ -17,8 +17,15 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
             {
                 var allSpecs = await specRepository.GetAllAsync(cancellationToken);
                 var specs = allSpecs.Where(s =>
-                    (request.Seats == null || (s.SpecName == "Seats" && int.TryParse(s.SpecValue, out var val) && val == request.Seats)) ||
-                    (!string.IsNullOrWhiteSpace(request.FuelType) && s.SpecName == "Fuel Type" && s.SpecValue.Equals(request.FuelType, StringComparison.OrdinalIgnoreCase))
+                    (request.Seats == null || 
+                     ((s.SpecName.Equals("Seats", StringComparison.OrdinalIgnoreCase) || 
+                       s.SpecName.Equals("seats", StringComparison.OrdinalIgnoreCase)) && 
+                      int.TryParse(s.SpecValue, out var val) && val == request.Seats)) ||
+                    (!string.IsNullOrWhiteSpace(request.FuelType) && 
+                     ((s.SpecName.Equals("Fuel Type", StringComparison.OrdinalIgnoreCase) || 
+                       s.SpecName.Equals("fuelType", StringComparison.OrdinalIgnoreCase) ||
+                       s.SpecName.Equals("fuel_type", StringComparison.OrdinalIgnoreCase)) && 
+                      s.SpecValue.Equals(request.FuelType, StringComparison.OrdinalIgnoreCase)))
                 );
                 var modelIds = specs.Select(s => s.ModelId).ToHashSet();
                 if (modelIds.Count > 0)

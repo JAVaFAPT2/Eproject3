@@ -15,8 +15,16 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.S
                 foreach (var m in models)
                 {
                     var specs = await specRepository.FindAsync(s => s.ModelId == m.ModelNumber, cancellationToken);
-                    var seatsOk = !request.Seats.HasValue || specs.Any(s => s.SpecName == "Seats" && int.TryParse(s.SpecValue, out var v) && v == request.Seats.Value);
-                    var fuelOk = string.IsNullOrWhiteSpace(request.FuelType) || specs.Any(s => s.SpecName == "Fuel Type" && string.Equals(s.SpecValue, request.FuelType, StringComparison.OrdinalIgnoreCase));
+                    var vehicleSpecs = specs as VehicleSpec[] ?? specs.ToArray();
+                    var seatsOk = !request.Seats.HasValue || vehicleSpecs.Any(s => 
+                        (s.SpecName.Equals("Seats", StringComparison.OrdinalIgnoreCase) || 
+                         s.SpecName.Equals("seats", StringComparison.OrdinalIgnoreCase)) && 
+                        int.TryParse(s.SpecValue, out var v) && v == request.Seats.Value);
+                    var fuelOk = string.IsNullOrWhiteSpace(request.FuelType) || vehicleSpecs.Any(s => 
+                        (s.SpecName.Equals("Fuel Type", StringComparison.OrdinalIgnoreCase) || 
+                         s.SpecName.Equals("fuelType", StringComparison.OrdinalIgnoreCase) ||
+                         s.SpecName.Equals("fuel_type", StringComparison.OrdinalIgnoreCase)) && 
+                        string.Equals(s.SpecValue, request.FuelType, StringComparison.OrdinalIgnoreCase));
                     if (seatsOk && fuelOk) filtered.Add(m);
                 }
                 models = filtered;
