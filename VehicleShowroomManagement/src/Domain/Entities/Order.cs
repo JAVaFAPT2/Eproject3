@@ -41,6 +41,8 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("salePrice")]
         public decimal SalePrice { get; private set; }
 
+        [BsonElement("note")]
+        public string? Note { get; private set; }
 
         [BsonElement("reservationFrom")]
         public DateTime? ReservationFrom { get; private set; }
@@ -111,6 +113,12 @@ namespace VehicleShowroomManagement.Domain.Entities
         if (string.IsNullOrWhiteSpace(dealerId))
             throw new ArgumentException("Dealer ID cannot be empty", nameof(dealerId));
         DealerId = dealerId;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateNote(string? note)
+    {
+        Note = note;
         UpdatedAt = DateTime.UtcNow;
     }
 
