@@ -79,6 +79,16 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             var command = new UpdateServiceOrderStatusCommand(id, request.Status, request.LicensePlate);
             var result = await _mediator.Send(command);
 
+            // Include billing document ID if created
+            if (!string.IsNullOrEmpty(result.BillingDocumentId))
+            {
+                return Ok(new 
+                { 
+                    message = result.Message,
+                    billingDocumentId = result.BillingDocumentId
+                });
+            }
+
             return Ok(new 
             { 
                 message = result.Message

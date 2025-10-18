@@ -7,6 +7,7 @@ using VehicleShowroomManagement.Domain.Services;
 using VehicleShowroomManagement.Infrastructure.Persistence;
 using VehicleShowroomManagement.Infrastructure.Repositories;
 using VehicleShowroomManagement.Infrastructure.Services;
+using VehicleShowroomManagement.Infrastructure.Resilience;
 using InfrastructurePasswordService = VehicleShowroomManagement.Infrastructure.Services.PasswordService;
 
 namespace VehicleShowroomManagement.Infrastructure.DependencyInjection
@@ -96,10 +97,12 @@ namespace VehicleShowroomManagement.Infrastructure.DependencyInjection
             // Infrastructure Services
             builder.RegisterType<EmailService>()
                    .As<IEmailService>()
+                   .WithParameter("resiliencePolicy", c => c.ResolveNamed<AsyncPolicy>("EmailPolicy"))
                    .InstancePerLifetimeScope();
 
             builder.RegisterType<CloudinaryService>()
                    .As<ICloudinaryService>()
+                   .WithParameter("resiliencePolicy", c => c.ResolveNamed<AsyncPolicy>("CloudinaryPolicy"))
                    .InstancePerLifetimeScope();
 
             builder.RegisterType<PdfService>()
@@ -113,6 +116,15 @@ namespace VehicleShowroomManagement.Infrastructure.DependencyInjection
             // MongoDB Index Initializer
             builder.RegisterType<MongoDbIndexInitializer>()
                    .AsSelf()
+                   .SingleInstance();
+
+            // Resilience Policies
+            builder.RegisterInstance(ResiliencePolicies.GetCloudinaryPolicy())
+                   .Named<AsyncPolicy>("CloudinaryPolicy")
+                   .SingleInstance();
+
+            builder.RegisterInstance(ResiliencePolicies.GetEmailPolicy())
+                   .Named<AsyncPolicy>("EmailPolicy")
                    .SingleInstance();
         }
     }

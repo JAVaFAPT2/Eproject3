@@ -1,34 +1,44 @@
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 using VehicleShowroomManagement.Application.Common.Interfaces;
+using VehicleShowroomManagement.Application.Common.Configuration;
+using VehicleShowroomManagement.Application.Common.Exceptions;
+using Polly;
+using Microsoft.Extensions.Logging;
 
 namespace VehicleShowroomManagement.Infrastructure.Services
 {
     /// <summary>
-    /// Implementation of email service
+    /// Implementation of email service with resilience policies
     /// </summary>
-    public class EmailService : IEmailService
+    public class EmailService : BaseService, IEmailService
     {
-        private readonly IConfiguration _configuration;
+        private readonly EmailSettings _settings;
         private readonly SmtpClient _smtpClient;
+        private readonly AsyncPolicy _resiliencePolicy;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IOptions<EmailSettings> options, ILogger<EmailService> logger, AsyncPolicy resiliencePolicy) 
+            : base(logger)
         {
-            _configuration = configuration;
+            _settings = options.Value;
             
-            _smtpClient = new SmtpClient(_configuration["EmailSettings:SmtpHost"])
+            _smtpClient = new SmtpClient(_settings.SmtpHost)
             {
-                Port = int.Parse(_configuration["EmailSettings:SmtpPort"]!),
+                Port = _settings.SmtpPort,
                 Credentials = new NetworkCredential(
-                    _configuration["EmailSettings:SmtpUsername"], 
-                    _configuration["EmailSettings:SmtpPassword"]),
-                EnableSsl = bool.Parse(_configuration["EmailSettings:EnableSsl"]!)
+                    _settings.SmtpUsername, 
+                    _settings.SmtpPassword),
+                EnableSsl = _settings.EnableSsl
             };
+            
+            _resiliencePolicy = resiliencePolicy;
         }
 
         public async Task SendPasswordResetEmailAsync(string email, string firstName, string resetToken)
         {
+            LogOperationStart(nameof(SendPasswordResetEmailAsync), new { email, firstName });
+
             var subject = "Password Reset Request - Vehicle Showroom Management";
             var body = $@"
                 <html>
@@ -44,7 +54,16 @@ namespace VehicleShowroomManagement.Infrastructure.Services
                 </body>
                 </html>";
 
-            await SendEmailAsync(email, subject, body);
+            try
+            {
+                await SendEmailAsync(email, subject, body);
+                LogOperationComplete(nameof(SendPasswordResetEmailAsync), new { email });
+            }
+            catch (Exception ex)
+            {
+                LogOperationError(nameof(SendPasswordResetEmailAsync), ex, new { email, firstName });
+                throw new EmailException($"Failed to send password reset email: {ex.Message}", ex);
+            }
         }
 
         public async Task SendWelcomeEmailAsync(string email, string firstName, string username, string temporaryPassword)
@@ -104,7 +123,7 @@ namespace VehicleShowroomManagement.Infrastructure.Services
 
             var message = new MailMessage
             {
-                From = new MailAddress(_configuration["EmailSettings:FromEmail"]!, _configuration["EmailSettings:FromName"]),
+                From = new MailAddress(_settings.FromEmail, _settings.FromName),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true
@@ -118,17 +137,28 @@ namespace VehicleShowroomManagement.Infrastructure.Services
 
         private async Task SendEmailAsync(string email, string subject, string body)
         {
-            var message = new MailMessage
+            try
             {
-                From = new MailAddress(_configuration["EmailSettings:FromEmail"]!, _configuration["EmailSettings:FromName"]),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            };
+                await _resiliencePolicy.ExecuteAsync(async () =>
+                {
+                    var message = new MailMessage
+                    {
+                        From = new MailAddress(_settings.FromEmail, _settings.FromName),
+                        Subject = subject,
+                        Body = body,
+                        IsBodyHtml = true
+                    };
 
-            message.To.Add(email);
+                    message.To.Add(email);
 
-            await _smtpClient.SendMailAsync(message);
+                    await _smtpClient.SendMailAsync(message);
+                });
+            }
+            catch (Exception ex)
+            {
+                LogOperationError(nameof(SendEmailAsync), ex, new { email, subject });
+                throw new EmailException($"Failed to send email: {ex.Message}", ex);
+            }
         }
 
         public void Dispose()
