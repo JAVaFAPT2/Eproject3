@@ -1,31 +1,22 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-
 namespace VehicleShowroomManagement.Application.Features.Vehicles.Commands.UpdateVehicleStatus
 {
     /// <summary>
     /// Handler for updating vehicle status
     /// </summary>
-    public class UpdateVehicleStatusCommandHandler : IRequestHandler<UpdateVehicleStatusCommand>
+    public class UpdateVehicleStatusCommandHandler(IRepository<Vehicle> vehicleRepository) : IRequestHandler<UpdateVehicleStatusCommand, bool>
     {
-        private readonly IRepository<Vehicle> _vehicleRepository;
-
-        public UpdateVehicleStatusCommandHandler(IRepository<Vehicle> vehicleRepository)
+        public async Task<bool> Handle(UpdateVehicleStatusCommand request, CancellationToken cancellationToken)
         {
-            _vehicleRepository = vehicleRepository;
-        }
-
-        public async Task Handle(UpdateVehicleStatusCommand request, CancellationToken cancellationToken)
-        {
-            var vehicle = await _vehicleRepository.GetByIdAsync(request.VehicleId);
+            var vehicles = await vehicleRepository.FindAsync(v => v.VehicleId == request.VehicleId, cancellationToken);
+            var vehicle = vehicles.FirstOrDefault();
+            
             if (vehicle == null)
-                throw new ArgumentException($"Vehicle with ID {request.VehicleId} not found");
+                throw new ArgumentException("Vehicle not found");
 
-            // Update status using domain method
             vehicle.UpdateStatus(request.Status);
-
-            await _vehicleRepository.UpdateAsync(vehicle);
+            await vehicleRepository.UpdateAsync(vehicle, cancellationToken);
+            
+            return true;
         }
     }
 }

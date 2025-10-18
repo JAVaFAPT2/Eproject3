@@ -6,6 +6,7 @@ using VehicleShowroomManagement.Application.Features.Orders.Commands.AssignVehic
 using VehicleShowroomManagement.Application.Features.Orders.Commands.ConfirmOrder;
 using VehicleShowroomManagement.Application.Features.Orders.Commands.UpdateOrderStatus;
 using VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrders;
+using VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrderById;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -47,6 +48,21 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
             var query = new GetOrdersQuery(pageNumber, pageSize, statusEnum?.ToString(), customerId);
             var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Gets a single order by ID
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOrderById(string id)
+        {
+            var query = new GetOrderByIdQuery(id);
+            var result = await _mediator.Send(query);
+            
+            if (result == null)
+                return NotFound(new { message = "Order not found" });
+                
             return Ok(result);
         }
 
