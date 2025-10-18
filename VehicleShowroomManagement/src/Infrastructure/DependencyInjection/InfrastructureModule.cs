@@ -9,6 +9,7 @@ using VehicleShowroomManagement.Infrastructure.Repositories;
 using VehicleShowroomManagement.Infrastructure.Services;
 using VehicleShowroomManagement.Infrastructure.Resilience;
 using InfrastructurePasswordService = VehicleShowroomManagement.Infrastructure.Services.PasswordService;
+using Polly;
 
 namespace VehicleShowroomManagement.Infrastructure.DependencyInjection
 {
@@ -97,12 +98,12 @@ namespace VehicleShowroomManagement.Infrastructure.DependencyInjection
             // Infrastructure Services
             builder.RegisterType<EmailService>()
                    .As<IEmailService>()
-                   .WithParameter("resiliencePolicy", c => c.ResolveNamed<AsyncPolicy>("EmailPolicy"))
+                   .WithParameter((pi, ctx) => pi.Name == "resiliencePolicy", (pi, ctx) => ctx.ResolveNamed<AsyncPolicy>("EmailPolicy"))
                    .InstancePerLifetimeScope();
 
             builder.RegisterType<CloudinaryService>()
                    .As<ICloudinaryService>()
-                   .WithParameter("resiliencePolicy", c => c.ResolveNamed<AsyncPolicy>("CloudinaryPolicy"))
+                   .WithParameter((pi, ctx) => pi.Name == "resiliencePolicy", (pi, ctx) => ctx.ResolveNamed<AsyncPolicy>("CloudinaryPolicy"))
                    .InstancePerLifetimeScope();
 
             builder.RegisterType<PdfService>()

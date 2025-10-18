@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Xunit;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VehicleShowroomManagement.Application.Common.Interfaces;
@@ -54,7 +54,7 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
             {
                 new ServiceOrder { Id = "1", Status = ServiceOrderStatus.Completed, Cost = 500 },
                 new ServiceOrder { Id = "2", Status = ServiceOrderStatus.Completed, Cost = 750 },
-                new ServiceOrder { Id = "3", Status = ServiceOrderStatus.Pending, Cost = 300 }
+                new ServiceOrder { Id = "3", Status = ServiceOrderStatus.Scheduled, Cost = 300 }
             };
 
             var purchaseOrders = new List<PurchaseOrder>

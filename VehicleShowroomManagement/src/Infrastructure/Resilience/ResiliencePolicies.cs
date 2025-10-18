@@ -21,9 +21,9 @@ namespace VehicleShowroomManagement.Infrastructure.Resilience
                 .WaitAndRetryAsync(
                     retryCount: 3,
                     sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), // Exponential backoff
-                    onRetry: (outcome, timespan, retryCount, context) =>
+                    onRetry: (exception, timespan, retryCount, context) =>
                     {
-                        Console.WriteLine($"Cloudinary retry {retryCount} in {timespan} seconds due to: {outcome.Exception?.Message}");
+                        Console.WriteLine($"Cloudinary retry {retryCount} in {timespan} seconds due to: {exception.Message}");
                     });
         }
 
@@ -66,9 +66,9 @@ namespace VehicleShowroomManagement.Infrastructure.Resilience
                 .WaitAndRetryAsync(
                     retryCount: 3,
                     sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), // Exponential backoff
-                    onRetry: (outcome, timespan, retryCount, context) =>
+                    onRetry: (exception, timespan, retryCount, context) =>
                     {
-                        Console.WriteLine($"Email retry {retryCount} in {timespan} seconds due to: {outcome.Exception?.Message}");
+                        Console.WriteLine($"Email retry {retryCount} in {timespan} seconds due to: {exception.Message}");
                     });
         }
 

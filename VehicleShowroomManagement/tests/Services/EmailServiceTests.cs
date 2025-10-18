@@ -1,10 +1,10 @@
-using FluentAssertions;
+using Xunit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using VehicleShowroomManagement.Application.Common.Exceptions;
 using VehicleShowroomManagement.Infrastructure.Services;
-using VehicleShowroomManagement.WebAPI.Configuration;
+using VehicleShowroomManagement.Application.Common.Configuration;
 using System.Net.Mail;
 using Polly;
 

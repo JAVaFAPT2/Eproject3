@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Xunit;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VehicleShowroomManagement.Application.Common.Interfaces;
@@ -121,7 +121,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             // Arrange
             var serviceOrderId = "service-order-1";
             var currentStatus = ServiceOrderStatus.Completed;
-            var invalidNewStatus = ServiceOrderStatus.Pending; // Can't go back to pending from completed
+            var invalidNewStatus = ServiceOrderStatus.Scheduled; // Can't go back to scheduled from completed
             var existingServiceOrder = new ServiceOrder
             {
                 Id = serviceOrderId,
@@ -141,7 +141,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         }
 
         [Theory]
-        [InlineData(ServiceOrderStatus.Pending, ServiceOrderStatus.InProgress)]
+        [InlineData(ServiceOrderStatus.Scheduled, ServiceOrderStatus.InProgress)]
         [InlineData(ServiceOrderStatus.InProgress, ServiceOrderStatus.Completed)]
         [InlineData(ServiceOrderStatus.InProgress, ServiceOrderStatus.Cancelled)]
         public async Task Handle_WithValidStatusTransitions_UpdatesSuccessfully(ServiceOrderStatus currentStatus, ServiceOrderStatus newStatus)

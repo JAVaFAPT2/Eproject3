@@ -584,13 +584,13 @@
               "target": "Package",
               "version": "[17.7.2, )"
             },
-            "MongoDB.Driver": {
-              "target": "Package",
-              "version": "[2.29.0, )"
-            },
             "Moq": {
               "target": "Package",
               "version": "[4.20.69, )"
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[8.4.2, )"
             },
             "coverlet.collector": {
               "target": "Package",
