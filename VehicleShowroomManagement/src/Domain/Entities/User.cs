@@ -1,4 +1,3 @@
-using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -148,5 +147,13 @@ namespace VehicleShowroomManagement.Domain.Entities
         public bool IsActive => Status == "Active";
         public bool IsDeleted => DeletedAt.HasValue;
         public bool IsEmployee => HireDate.HasValue;
+        
+        /// <summary>
+        /// Gets the best available display name for the user
+        /// Priority: Name -> Email -> Username
+        /// </summary>
+        public string DisplayName => !string.IsNullOrWhiteSpace(Name) ? Name 
+                                   : !string.IsNullOrWhiteSpace(Email) ? Email 
+                                   : Username;
     }
 }
