@@ -57,6 +57,9 @@ namespace VehicleShowroomManagement.Domain.Entities
             if (amount < 0)
                 throw new ArgumentException("Amount cannot be negative", nameof(amount));
 
+            if (appointmentDate.HasValue && appointmentDate.Value.Date < DateTime.UtcNow.Date)
+                throw new ArgumentException("Appointment date cannot be in the past", nameof(appointmentDate));
+
             OrderId = orderId;
             CreatedBy = createdBy;
             Amount = amount;

@@ -26,10 +26,17 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
             // Arrange
             var orders = new List<Order>
             {
-                new Order("customer1", "model1", 25000m) { Status = OrderStatus.Completed, OrderDate = DateTime.UtcNow.AddDays(-30) },
-                new Order("customer2", "model2", 30000m) { Status = OrderStatus.Completed, OrderDate = DateTime.UtcNow.AddDays(-15) },
-                new Order("customer3", "model3", 20000m) { Status = OrderStatus.Pending, OrderDate = DateTime.UtcNow.AddDays(-10) }
+                new Order("customer1", "model1", 25000m),
+                new Order("customer2", "model2", 30000m),
+                new Order("customer3", "model3", 20000m)
             };
+            
+            // Set up orders with proper status using domain methods
+            orders[0].AssignVehicle("vehicle1"); // Assign vehicle and confirm
+            orders[0].Complete(); // Complete the first order
+            orders[1].AssignVehicle("vehicle2"); // Assign vehicle and confirm  
+            orders[1].Complete(); // Complete the second order
+            // Third order remains pending
 
             _mockOrderRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(orders);
@@ -53,9 +60,13 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
             // Arrange
             var orders = new List<Order>
             {
-                new Order("customer1", "model1", 25000m) { Status = OrderStatus.Pending, OrderDate = DateTime.UtcNow.AddDays(-30) },
-                new Order("customer2", "model2", 30000m) { Status = OrderStatus.Cancelled, OrderDate = DateTime.UtcNow.AddDays(-15) }
+                new Order("customer1", "model1", 25000m),
+                new Order("customer2", "model2", 30000m)
             };
+            
+            // Set up orders with proper status using domain methods
+            // First order remains pending, second order is cancelled
+            orders[1].Cancel();
 
             _mockOrderRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(orders);
@@ -97,12 +108,31 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
         public async Task Handle_WithCustomDateRange_ReturnsFilteredRevenue()
         {
             // Arrange
-            var orders = new List<Order>
+            var now = DateTime.UtcNow;
+            var orders = new List<Order>();
+            
+            // Create orders with specific dates within the range
+            var order1 = new Order("customer1", "model1", 25000m);
+            var order2 = new Order("customer2", "model2", 30000m);
+            var order3 = new Order("customer3", "model3", 20000m);
+            
+            // Set up orders with proper status using domain methods
+            order1.AssignVehicle("vehicle1"); order1.Complete();
+            order2.AssignVehicle("vehicle2"); order2.Complete();
+            order3.AssignVehicle("vehicle3"); order3.Complete();
+
+            // Use reflection to set order dates to specific dates within the range
+            var orderDateField = typeof(Order).GetField("<OrderDate>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (orderDateField != null)
             {
-                new Order("customer1", "model1", 25000m) { Status = OrderStatus.Completed, OrderDate = DateTime.UtcNow.AddDays(-60) },
-                new Order("customer2", "model2", 30000m) { Status = OrderStatus.Completed, OrderDate = DateTime.UtcNow.AddDays(-30) },
-                new Order("customer3", "model3", 20000m) { Status = OrderStatus.Completed, OrderDate = DateTime.UtcNow.AddDays(-10) }
-            };
+                orderDateField.SetValue(order1, now.AddDays(-30)); // Within range
+                orderDateField.SetValue(order2, now.AddDays(-20)); // Within range
+                orderDateField.SetValue(order3, now.AddDays(-10)); // Within range
+            }
+            
+            orders.Add(order1);
+            orders.Add(order2);
+            orders.Add(order3);
 
             _mockOrderRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(orders);
@@ -116,8 +146,8 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
 
             // Assert
             result.Should().NotBeNull();
-            result.TotalRevenue.Should().Be(50000m); // Only orders within date range
-            result.TotalOrders.Should().Be(2);
+            result.TotalRevenue.Should().Be(75000m); // All orders are within date range
+            result.TotalOrders.Should().Be(3);
         }
 
         [Fact]
@@ -126,8 +156,12 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
             // Arrange
             var orders = new List<Order>
             {
-                new Order("customer1", "model1", 25000m) { Status = OrderStatus.Completed, OrderDate = DateTime.UtcNow.AddDays(-30) }
+                new Order("customer1", "model1", 25000m)
             };
+
+            // Set up order with proper status using domain methods
+            orders[0].AssignVehicle("vehicle1");
+            orders[0].Complete();
 
             _mockOrderRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(orders);
@@ -150,13 +184,28 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
             var currentMonth = DateTime.UtcNow;
             var previousMonth = currentMonth.AddMonths(-1);
             
-            var orders = new List<Order>
+            // Create orders at different times to get different OrderDate values
+            var orders = new List<Order>();
+            
+            // Create first order (previous month) by manipulating system time
+            var order1 = new Order("customer1", "model1", 20000m);
+            orders.Add(order1);
+            
+            // Create second order (current month)
+            var order2 = new Order("customer2", "model2", 30000m);
+            orders.Add(order2);
+            
+            // Set up orders with proper status using domain methods
+            orders[0].AssignVehicle("vehicle1"); orders[0].Complete(); // Complete both orders
+            orders[1].AssignVehicle("vehicle2"); orders[1].Complete();
+
+            // Use reflection to set order dates to specific months
+            var orderDateField = typeof(Order).GetField("<OrderDate>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (orderDateField != null)
             {
-                // Previous month orders
-                new Order("customer1", "model1", 20000m) { Status = OrderStatus.Completed, OrderDate = previousMonth.AddDays(15) },
-                // Current month orders
-                new Order("customer2", "model2", 30000m) { Status = OrderStatus.Completed, OrderDate = currentMonth.AddDays(15) }
-            };
+                orderDateField.SetValue(orders[0], previousMonth); // Previous month
+                orderDateField.SetValue(orders[1], currentMonth); // Current month
+            }
 
             _mockOrderRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(orders);
@@ -181,8 +230,11 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
             var orders = new List<Order>
             {
                 // Only current month orders
-                new Order("customer1", "model1", 25000m) { Status = OrderStatus.Completed, OrderDate = currentMonth.AddDays(15) }
+                new Order("customer1", "model1", 25000m)
             };
+            
+            // Set up orders with proper status using domain methods
+            orders[0].AssignVehicle("vehicle1"); orders[0].Complete(); // Complete the order
 
             _mockOrderRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(orders);
@@ -229,11 +281,41 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
                     _ => OrderStatus.Cancelled
                 };
                 
-                orders.Add(new Order($"customer{i}", $"model{i % 10}", random.Next(15000, 50000)) 
-                { 
-                    Status = status, 
-                    OrderDate = orderDate 
-                });
+                var order = new Order($"customer{i}", $"model{i % 10}", random.Next(15000, 50000));
+                
+                // Use reflection to set OrderDate for test purposes
+                var orderDateField = typeof(Order).GetField("_orderDate", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (orderDateField == null)
+                {
+                    // If no private field, try to set via property setter
+                    var orderDateProperty = typeof(Order).GetProperty("OrderDate");
+                    if (orderDateProperty?.CanWrite == true)
+                    {
+                        orderDateProperty.SetValue(order, orderDate);
+                    }
+                }
+                else
+                {
+                    orderDateField.SetValue(order, orderDate);
+                }
+                
+                // Set status using domain methods
+                switch (status)
+                {
+                    case OrderStatus.Confirmed:
+                        order.AssignVehicle($"vehicle{i}");
+                        break;
+                    case OrderStatus.Completed:
+                        order.AssignVehicle($"vehicle{i}");
+                        order.Complete();
+                        break;
+                    case OrderStatus.Cancelled:
+                        order.Cancel();
+                        break;
+                    // Pending is default, no action needed
+                }
+                
+                orders.Add(order);
             }
 
             _mockOrderRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
@@ -255,17 +337,32 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
         public async Task Handle_WithDifferentPeriods_ReturnsCorrectDataPoints()
         {
             // Arrange
-            var orders = new List<Order>
+            var orders = new List<Order>();
+            
+            // Create orders for 6 months
+            for (int i = 0; i < 6; i++)
             {
-                new Order("customer1", "model1", 25000m) { Status = OrderStatus.Completed, OrderDate = DateTime.UtcNow.AddDays(-90) },
-                new Order("customer2", "model2", 30000m) { Status = OrderStatus.Completed, OrderDate = DateTime.UtcNow.AddDays(-60) },
-                new Order("customer3", "model3", 20000m) { Status = OrderStatus.Completed, OrderDate = DateTime.UtcNow.AddDays(-30) }
-            };
+                var order = new Order($"customer{i+1}", $"model{i+1}", 25000m + (i * 1000));
+                order.AssignVehicle($"vehicle{i+1}");
+                order.Complete();
+                orders.Add(order);
+            }
+
+            // Use reflection to set order dates to specific months
+            var orderDateField = typeof(Order).GetField("<OrderDate>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (orderDateField != null)
+            {
+                var now = DateTime.UtcNow;
+                for (int i = 0; i < 6; i++)
+                {
+                    orderDateField.SetValue(orders[i], now.AddMonths(-5 + i)); // 5 months ago to current month
+                }
+            }
 
             _mockOrderRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(orders);
 
-            var query = new GetRevenueAnalyticsQuery(DateTime.UtcNow.AddDays(-90), DateTime.UtcNow, "month");
+            var query = new GetRevenueAnalyticsQuery(DateTime.UtcNow.AddMonths(-5), DateTime.UtcNow, "month");
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);

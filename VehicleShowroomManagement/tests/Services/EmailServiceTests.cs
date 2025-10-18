@@ -22,15 +22,18 @@ namespace VehicleShowroomManagement.Tests.Services
         {
             _mockOptions = new Mock<IOptions<EmailSettings>>();
             _mockLogger = new Mock<ILogger<EmailService>>();
-            _policy = Policy.NoOpAsync(); // Use a real no-op policy instead of mocking
+            
+            // Use a policy that doesn't actually send emails
+            _policy = Policy.Handle<Exception>()
+                .RetryAsync(0); // No retries, just fail fast
 
             _mockOptions.Setup(x => x.Value).Returns(new EmailSettings
             {
-                SmtpHost = "smtp.test.com",
-                SmtpPort = 587,
+                SmtpHost = "localhost", // Use localhost to avoid external connections
+                SmtpPort = 25,
                 SmtpUsername = "test@test.com",
                 SmtpPassword = "test-password",
-                EnableSsl = true,
+                EnableSsl = false, // Disable SSL for testing
                 FromEmail = "noreply@test.com",
                 FromName = "Test System"
             });
@@ -39,21 +42,20 @@ namespace VehicleShowroomManagement.Tests.Services
         }
 
         [Fact]
-        public async Task SendPasswordResetEmailAsync_WithValidParameters_CallsPolicy()
+        public async Task SendPasswordResetEmailAsync_WithValidParameters_ThrowsEmailException()
         {
             // Arrange
             var email = "test@example.com";
             var firstName = "John";
             var resetToken = "reset-token-123";
 
-            // Act & Assert - Since we're using a real policy, we just verify no exception is thrown
-            await _service.SendPasswordResetEmailAsync(email, firstName, resetToken);
-            
-            // The test passes if no exception is thrown
+            // Act & Assert - Should throw EmailException due to SMTP connection failure
+            await Assert.ThrowsAsync<EmailException>(() => 
+                _service.SendPasswordResetEmailAsync(email, firstName, resetToken));
         }
 
         [Fact]
-        public async Task SendWelcomeEmailAsync_WithValidParameters_CallsPolicy()
+        public async Task SendWelcomeEmailAsync_WithValidParameters_ThrowsEmailException()
         {
             // Arrange
             var email = "test@example.com";
@@ -61,14 +63,13 @@ namespace VehicleShowroomManagement.Tests.Services
             var username = "johndoe";
             var temporaryPassword = "temp-pass-123";
 
-            // Act & Assert - Since we're using a real policy, we just verify no exception is thrown
-            await _service.SendWelcomeEmailAsync(email, firstName, username, temporaryPassword);
-            
-            // The test passes if no exception is thrown
+            // Act & Assert - Should throw EmailException due to SMTP connection failure
+            await Assert.ThrowsAsync<EmailException>(() => 
+                _service.SendWelcomeEmailAsync(email, firstName, username, temporaryPassword));
         }
 
         [Fact]
-        public async Task SendOrderConfirmationEmailAsync_WithValidParameters_CallsPolicy()
+        public async Task SendOrderConfirmationEmailAsync_WithValidParameters_ThrowsEmailException()
         {
             // Arrange
             var email = "test@example.com";
@@ -76,14 +77,13 @@ namespace VehicleShowroomManagement.Tests.Services
             var orderNumber = "ORD-123";
             var totalAmount = 25000.00m;
 
-            // Act & Assert - Since we're using a real policy, we just verify no exception is thrown
-            await _service.SendOrderConfirmationEmailAsync(email, customerName, orderNumber, totalAmount);
-            
-            // The test passes if no exception is thrown
+            // Act & Assert - Should throw EmailException due to SMTP connection failure
+            await Assert.ThrowsAsync<EmailException>(() => 
+                _service.SendOrderConfirmationEmailAsync(email, customerName, orderNumber, totalAmount));
         }
 
         [Fact]
-        public async Task SendInvoiceEmailAsync_WithValidParameters_CallsPolicy()
+        public async Task SendInvoiceEmailAsync_WithValidParameters_ThrowsEmailException()
         {
             // Arrange
             var email = "test@example.com";
@@ -91,10 +91,9 @@ namespace VehicleShowroomManagement.Tests.Services
             var invoiceNumber = "INV-123";
             var invoicePdf = new byte[] { 1, 2, 3, 4, 5 };
 
-            // Act & Assert - Since we're using a real policy, we just verify no exception is thrown
-            await _service.SendInvoiceEmailAsync(email, customerName, invoiceNumber, invoicePdf);
-            
-            // The test passes if no exception is thrown
+            // Act & Assert - Should throw SmtpException due to SMTP connection failure
+            await Assert.ThrowsAsync<SmtpException>(() => 
+                _service.SendInvoiceEmailAsync(email, customerName, invoiceNumber, invoicePdf));
         }
 
         [Fact]
@@ -105,10 +104,9 @@ namespace VehicleShowroomManagement.Tests.Services
             var firstName = "John";
             var resetToken = "reset-token-123";
 
-            // Act & Assert - Since we're using a no-op policy, this test should pass
-            await _service.SendPasswordResetEmailAsync(email, firstName, resetToken);
-            
-            // The test passes if no exception is thrown
+            // Act & Assert - Should throw EmailException due to SMTP connection failure
+            await Assert.ThrowsAsync<EmailException>(() => 
+                _service.SendPasswordResetEmailAsync(email, firstName, resetToken));
         }
 
         [Fact]

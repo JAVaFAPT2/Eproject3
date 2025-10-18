@@ -97,6 +97,9 @@ namespace VehicleShowroomManagement.Domain.Services
             if (cost <= 0)
                 throw new ArgumentException("Cost must be greater than zero", nameof(cost));
             
+            if (sellingPrice < 0)
+                throw new ArgumentException("Selling price cannot be negative", nameof(sellingPrice));
+            
             return (sellingPrice - cost) / cost;
         }
     }

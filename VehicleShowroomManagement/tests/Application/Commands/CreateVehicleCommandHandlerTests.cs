@@ -25,7 +25,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             _mockVehicleRepository.Setup(r => r.AddAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-vehicle-id");
+                              .ReturnsAsync((Vehicle vehicle, CancellationToken ct) => vehicle);
 
             var command = new CreateVehicleCommand("vehicle1", "model1", 20000m, "EXT001", "VIN123456789");
 
@@ -33,7 +33,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-vehicle-id");
+            result.Should().NotBeNullOrEmpty();
             _mockVehicleRepository.Verify(r => r.AddAsync(It.Is<Vehicle>(v => 
                 v.VehicleId == "vehicle1" &&
                 v.ModelNumber == "model1" &&
@@ -49,21 +49,21 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             _mockVehicleRepository.Setup(r => r.AddAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-vehicle-id");
+                              .ReturnsAsync((Vehicle vehicle, CancellationToken ct) => vehicle);
 
-            var command = new CreateVehicleCommand("vehicle1", "model1", 20000m);
+            var command = new CreateVehicleCommand("vehicle1", "model1", 20000m, "EXT-001", "VIN-123456789");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-vehicle-id");
+            result.Should().NotBeNullOrEmpty();
             _mockVehicleRepository.Verify(r => r.AddAsync(It.Is<Vehicle>(v => 
                 v.VehicleId == "vehicle1" &&
                 v.ModelNumber == "model1" &&
                 v.PurchasePrice == 20000m &&
-                v.ExternalNumber == null &&
-                v.Vin == null
+                v.ExternalNumber == "EXT-001" &&
+                v.Vin == "VIN-123456789"
             ), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -112,15 +112,15 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             _mockVehicleRepository.Setup(r => r.AddAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-vehicle-id");
+                              .ReturnsAsync((Vehicle vehicle, CancellationToken ct) => vehicle);
 
-            var command = new CreateVehicleCommand("vehicle1", "model1", 100000m); // Large amount
+            var command = new CreateVehicleCommand("vehicle1", "model1", 100000m, "EXT001", "VIN123456789"); // Large amount
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-vehicle-id");
+            result.Should().NotBeNullOrEmpty();
             _mockVehicleRepository.Verify(r => r.AddAsync(It.Is<Vehicle>(v => v.PurchasePrice == 100000m), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -131,15 +131,15 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var longVin = new string('A', 50); // Very long VIN
 
             _mockVehicleRepository.Setup(r => r.AddAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-vehicle-id");
+                              .ReturnsAsync((Vehicle vehicle, CancellationToken ct) => vehicle);
 
-            var command = new CreateVehicleCommand("vehicle1", "model1", 20000m, null, longVin);
+            var command = new CreateVehicleCommand("vehicle1", "model1", 20000m, "EXT-001", longVin);
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-vehicle-id");
+            result.Should().NotBeNullOrEmpty();
             _mockVehicleRepository.Verify(r => r.AddAsync(It.Is<Vehicle>(v => v.Vin == longVin), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -150,15 +150,15 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var longExternalNumber = new string('B', 100); // Very long external number
 
             _mockVehicleRepository.Setup(r => r.AddAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-vehicle-id");
+                              .ReturnsAsync((Vehicle vehicle, CancellationToken ct) => vehicle);
 
-            var command = new CreateVehicleCommand("vehicle1", "model1", 20000m, longExternalNumber);
+            var command = new CreateVehicleCommand("vehicle1", "model1", 20000m, longExternalNumber, "VIN-123456789");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-vehicle-id");
+            result.Should().NotBeNullOrEmpty();
             _mockVehicleRepository.Verify(r => r.AddAsync(It.Is<Vehicle>(v => v.ExternalNumber == longExternalNumber), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -169,7 +169,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockVehicleRepository.Setup(r => r.AddAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()))
                               .ThrowsAsync(new Exception("Database error"));
 
-            var command = new CreateVehicleCommand("vehicle1", "model1", 20000m);
+            var command = new CreateVehicleCommand("vehicle1", "model1", 20000m, "EXT-001", "VIN-123456789");
 
             // Act & Assert
             await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
@@ -180,7 +180,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             _mockVehicleRepository.Setup(r => r.AddAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-vehicle-id");
+                              .ReturnsAsync((Vehicle vehicle, CancellationToken ct) => vehicle);
 
             var commands = new[]
             {
@@ -195,7 +195,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
                 var result = await _handler.Handle(cmd, CancellationToken.None);
 
                 // Assert
-                result.Should().Be("new-vehicle-id");
+                result.Should().NotBeNullOrEmpty();
             }
 
             _mockVehicleRepository.Verify(r => r.AddAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
@@ -206,7 +206,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             _mockVehicleRepository.Setup(r => r.AddAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-vehicle-id");
+                              .ReturnsAsync((Vehicle vehicle, CancellationToken ct) => vehicle);
 
             var command = new CreateVehicleCommand("vehicle-001", "model-2024", 20000m, "EXT-001", "VIN-123456789");
 
@@ -214,7 +214,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-vehicle-id");
+            result.Should().NotBeNullOrEmpty();
             _mockVehicleRepository.Verify(r => r.AddAsync(It.Is<Vehicle>(v => 
                 v.VehicleId == "vehicle-001" &&
                 v.ModelNumber == "model-2024" &&

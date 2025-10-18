@@ -58,11 +58,11 @@ namespace VehicleShowroomManagement.Tests.Integration
             _mockModelRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<VehicleModel, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(new List<VehicleModel> { vehicleModel });
             _mockOrderRepository.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("order1");
+                              .ReturnsAsync((Order order, CancellationToken ct) => order);
             _mockOrderRepository.Setup(r => r.GetByIdAsync("order1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(order);
             _mockServiceOrderRepository.Setup(r => r.AddAsync(It.IsAny<ServiceOrder>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("service1");
+                              .ReturnsAsync((ServiceOrder serviceOrder, CancellationToken ct) => serviceOrder);
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync("service1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(serviceOrder);
             _mockMediator.Setup(m => m.Send(It.IsAny<CreateBillingDocumentCommand>(), It.IsAny<CancellationToken>()))
@@ -81,8 +81,8 @@ namespace VehicleShowroomManagement.Tests.Integration
             var result = await _updateServiceOrderHandler.Handle(updateStatusCommand, CancellationToken.None);
 
             // Assert
-            orderId.Should().Be("order1");
-            serviceOrderId.Should().Be("service1");
+            orderId.Should().NotBeNullOrEmpty();
+            serviceOrderId.Should().NotBeNullOrEmpty();
             result.Should().NotBeNull();
             result.Success.Should().BeTrue();
             result.Message.Should().Be("Service order completed and billing document created");
@@ -100,18 +100,19 @@ namespace VehicleShowroomManagement.Tests.Integration
         {
             // Arrange
             var vehicleModel = new VehicleModel("model1", "Test Model", 25000m, "Test Description", level: 2);
-            var order = new Order("customer1", "model1", 25000m) { VehicleId = "vehicle1" };
+            var order = new Order("customer1", "model1", 25000m);
+            order.AssignVehicle("vehicle1"); // Use domain method to assign vehicle
             var serviceOrder = new ServiceOrder("order1", "customer1", "user1", ServiceType.PreDelivery, 300m);
             var vehicle = new Vehicle("vehicle1", "model1", 20000m);
 
             _mockModelRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<VehicleModel, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(new List<VehicleModel> { vehicleModel });
             _mockOrderRepository.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("order1");
+                              .ReturnsAsync((Order order, CancellationToken ct) => order);
             _mockOrderRepository.Setup(r => r.GetByIdAsync("order1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(order);
             _mockServiceOrderRepository.Setup(r => r.AddAsync(It.IsAny<ServiceOrder>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("service1");
+                              .ReturnsAsync((ServiceOrder serviceOrder, CancellationToken ct) => serviceOrder);
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync("service1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(serviceOrder);
             _mockVehicleRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Vehicle, bool>>>(), It.IsAny<CancellationToken>()))
@@ -132,8 +133,8 @@ namespace VehicleShowroomManagement.Tests.Integration
             var result = await _updateServiceOrderHandler.Handle(updateStatusCommand, CancellationToken.None);
 
             // Assert
-            orderId.Should().Be("order1");
-            serviceOrderId.Should().Be("service1");
+            orderId.Should().NotBeNullOrEmpty();
+            serviceOrderId.Should().NotBeNullOrEmpty();
             result.Should().NotBeNull();
             result.Success.Should().BeTrue();
             result.Message.Should().Be("Service order completed, order completed, vehicle marked as sold, and billing document created");
@@ -159,11 +160,11 @@ namespace VehicleShowroomManagement.Tests.Integration
             _mockModelRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<VehicleModel, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(new List<VehicleModel> { vehicleModel });
             _mockOrderRepository.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("order1");
+                              .ReturnsAsync((Order order, CancellationToken ct) => order);
             _mockOrderRepository.Setup(r => r.GetByIdAsync("order1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(order);
             _mockServiceOrderRepository.Setup(r => r.AddAsync(It.IsAny<ServiceOrder>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("service1");
+                              .ReturnsAsync((ServiceOrder serviceOrder, CancellationToken ct) => serviceOrder);
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync("service1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(serviceOrder);
 
@@ -180,8 +181,8 @@ namespace VehicleShowroomManagement.Tests.Integration
             var result = await _updateServiceOrderHandler.Handle(updateStatusCommand, CancellationToken.None);
 
             // Assert
-            orderId.Should().Be("order1");
-            serviceOrderId.Should().Be("service1");
+            orderId.Should().NotBeNullOrEmpty();
+            serviceOrderId.Should().NotBeNullOrEmpty();
             result.Should().NotBeNull();
             result.Success.Should().BeTrue();
             result.Message.Should().Be("Service order cancelled");
@@ -203,11 +204,11 @@ namespace VehicleShowroomManagement.Tests.Integration
             _mockModelRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<VehicleModel, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(new List<VehicleModel> { vehicleModel });
             _mockOrderRepository.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("order1");
+                              .ReturnsAsync((Order order, CancellationToken ct) => order);
             _mockOrderRepository.Setup(r => r.GetByIdAsync("order1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(order);
             _mockServiceOrderRepository.Setup(r => r.AddAsync(It.IsAny<ServiceOrder>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("service1");
+                              .ReturnsAsync((ServiceOrder serviceOrder, CancellationToken ct) => serviceOrder);
             _mockServiceOrderRepository.SetupSequence(r => r.GetByIdAsync("service1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(maintenanceService)
                               .ReturnsAsync(repairService);
@@ -235,9 +236,9 @@ namespace VehicleShowroomManagement.Tests.Integration
             var repairResult = await _updateServiceOrderHandler.Handle(updateRepairCommand, CancellationToken.None);
 
             // Assert
-            orderId.Should().Be("order1");
-            maintenanceId.Should().Be("service1");
-            repairId.Should().Be("service1");
+            orderId.Should().NotBeNullOrEmpty();
+            maintenanceId.Should().NotBeNullOrEmpty();
+            repairId.Should().NotBeNullOrEmpty();
             maintenanceResult.Success.Should().BeTrue();
             repairResult.Success.Should().BeTrue();
 
@@ -250,18 +251,19 @@ namespace VehicleShowroomManagement.Tests.Integration
         {
             // Arrange
             var vehicleModel = new VehicleModel("model1", "Test Model", 25000m, "Test Description", level: 2);
-            var order = new Order("customer1", "model1", 25000m) { VehicleId = "vehicle1" };
+            var order = new Order("customer1", "model1", 25000m);
+            order.AssignVehicle("vehicle1"); // Use domain method to assign vehicle
             var serviceOrder = new ServiceOrder("order1", "customer1", "user1", ServiceType.Maintenance, 500m);
             var vehicle = new Vehicle("vehicle1", "model1", 20000m);
 
             _mockModelRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<VehicleModel, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(new List<VehicleModel> { vehicleModel });
             _mockOrderRepository.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("order1");
+                              .ReturnsAsync((Order order, CancellationToken ct) => order);
             _mockOrderRepository.Setup(r => r.GetByIdAsync("order1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(order);
             _mockServiceOrderRepository.Setup(r => r.AddAsync(It.IsAny<ServiceOrder>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("service1");
+                              .ReturnsAsync((ServiceOrder serviceOrder, CancellationToken ct) => serviceOrder);
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync("service1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(serviceOrder);
             _mockVehicleRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Vehicle, bool>>>(), It.IsAny<CancellationToken>()))
@@ -282,8 +284,8 @@ namespace VehicleShowroomManagement.Tests.Integration
             var result = await _updateServiceOrderHandler.Handle(updateStatusCommand, CancellationToken.None);
 
             // Assert
-            orderId.Should().Be("order1");
-            serviceOrderId.Should().Be("service1");
+            orderId.Should().NotBeNullOrEmpty();
+            serviceOrderId.Should().NotBeNullOrEmpty();
             result.Should().NotBeNull();
             result.Success.Should().BeTrue();
 

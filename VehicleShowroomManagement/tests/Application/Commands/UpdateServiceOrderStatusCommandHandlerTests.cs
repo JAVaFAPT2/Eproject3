@@ -99,6 +99,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             // Arrange
             var serviceOrder = new ServiceOrder("order1", "customer1", "user1", ServiceType.PreDelivery, 300m);
             var order = new Order("customer1", "model1", 25000m);
+            order.AssignVehicle("vehicle1"); // Assign vehicle to make it confirmed
             var vehicle = new Vehicle("vehicle1", "model1", 20000m);
 
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync("service1", It.IsAny<CancellationToken>()))
@@ -159,7 +160,8 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             var serviceOrder = new ServiceOrder("order1", "customer1", "user1", ServiceType.Maintenance, 500m);
-            var order = new Order("customer1", "model1", 25000m) { VehicleId = "vehicle1" };
+            var order = new Order("customer1", "model1", 25000m);
+            order.AssignVehicle("vehicle1"); // Use domain method to assign vehicle
             var vehicle = new Vehicle("vehicle1", "model1", 20000m);
 
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync("service1", It.IsAny<CancellationToken>()))
@@ -270,6 +272,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             // Arrange
             var serviceOrder = new ServiceOrder("order1", "customer1", "user1", ServiceType.PreDelivery, 300m);
             var order = new Order("customer1", "model1", 25000m); // No VehicleId
+            order.AssignVehicle("vehicle1"); // Assign vehicle to make it confirmed
 
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync("service1", It.IsAny<CancellationToken>()))
                               .ReturnsAsync(serviceOrder);

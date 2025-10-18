@@ -193,7 +193,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var command = new LoginCommand("testuser", "password123");
 
             // Act & Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Fact]

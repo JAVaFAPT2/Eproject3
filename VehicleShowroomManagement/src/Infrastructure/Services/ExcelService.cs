@@ -16,6 +16,9 @@ namespace VehicleShowroomManagement.Infrastructure.Services
         }
         public async Task<byte[]> GenerateExcelAsync<T>(List<T> data, string worksheetName, string fileName)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+            
             LogOperationStart(nameof(GenerateExcelAsync), new { worksheetName, fileName, dataCount = data.Count });
 
             try

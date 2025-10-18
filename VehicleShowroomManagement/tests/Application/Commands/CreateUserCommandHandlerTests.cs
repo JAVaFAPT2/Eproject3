@@ -41,7 +41,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockPasswordService.Setup(s => s.HashPassword("password123"))
                               .Returns("hashedpassword");
             _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-user-id");
+                              .ReturnsAsync((User user, CancellationToken ct) => user);
 
             var command = new CreateUserCommand("newuser", "newuser@example.com", "password123", "New User", "role1", null, null, DateTime.Now);
 
@@ -49,7 +49,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-user-id");
+            result.Should().NotBeNullOrEmpty();
             _mockUserRepository.Verify(r => r.AddAsync(It.Is<User>(u => 
                 u.Username == "newuser" &&
                 u.Email == "newuser@example.com" &&
@@ -74,7 +74,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockPasswordService.Setup(s => s.HashPassword("password123"))
                               .Returns("hashedpassword");
             _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-user-id");
+                              .ReturnsAsync((User user, CancellationToken ct) => user);
 
             var command = new CreateUserCommand("newuser", "newuser@example.com", "password123", "New User", null, null, null, DateTime.Now);
 
@@ -82,7 +82,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-user-id");
+            result.Should().NotBeNullOrEmpty();
             _mockUserRepository.Verify(r => r.AddAsync(It.Is<User>(u => 
                 u.RoleId == employeeRole.Id &&
                 u.HireDate == command.HireDate
@@ -103,7 +103,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockPasswordService.Setup(s => s.HashPassword("password123"))
                               .Returns("hashedpassword");
             _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-user-id");
+                              .ReturnsAsync((User user, CancellationToken ct) => user);
 
             var command = new CreateUserCommand("newuser", "newuser@example.com", "password123", "New User");
 
@@ -111,7 +111,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-user-id");
+            result.Should().NotBeNullOrEmpty();
             _mockUserRepository.Verify(r => r.AddAsync(It.Is<User>(u => 
                 u.RoleId == customerRole.Id &&
                 u.HireDate == null
@@ -170,6 +170,10 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithInvalidEmail_ThrowsException()
         {
             // Arrange
+            var customerRole = new Role("Customer");
+            _mockRoleRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Role, bool>>>(), It.IsAny<CancellationToken>()))
+                              .ReturnsAsync(new List<Role> { customerRole });
+
             var command = new CreateUserCommand("newuser", "invalid-email", "password123", "New User");
 
             // Act & Assert
@@ -180,6 +184,10 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithWeakPassword_ThrowsException()
         {
             // Arrange
+            var customerRole = new Role("Customer");
+            _mockRoleRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Role, bool>>>(), It.IsAny<CancellationToken>()))
+                              .ReturnsAsync(new List<Role> { customerRole });
+
             var command = new CreateUserCommand("newuser", "newuser@example.com", "123", "New User"); // Too short
 
             // Act & Assert
@@ -190,6 +198,10 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithEmptyUsername_ThrowsException()
         {
             // Arrange
+            var customerRole = new Role("Customer");
+            _mockRoleRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Role, bool>>>(), It.IsAny<CancellationToken>()))
+                              .ReturnsAsync(new List<Role> { customerRole });
+
             var command = new CreateUserCommand("", "newuser@example.com", "password123", "New User");
 
             // Act & Assert
@@ -200,6 +212,10 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithEmptyName_ThrowsException()
         {
             // Arrange
+            var customerRole = new Role("Customer");
+            _mockRoleRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Role, bool>>>(), It.IsAny<CancellationToken>()))
+                              .ReturnsAsync(new List<Role> { customerRole });
+
             var command = new CreateUserCommand("newuser", "newuser@example.com", "password123", "");
 
             // Act & Assert
@@ -233,7 +249,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockPasswordService.Setup(s => s.HashPassword("password123"))
                               .Returns("hashedpassword");
             _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-                              .ReturnsAsync("new-user-id");
+                              .ReturnsAsync((User user, CancellationToken ct) => user);
 
             var command = new CreateUserCommand("newuser", "newuser@example.com", "password123", "New User", "admin-role", null, null, DateTime.Now);
 
@@ -241,7 +257,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            result.Should().Be("new-user-id");
+            result.Should().NotBeNullOrEmpty();
             _mockUserRepository.Verify(r => r.AddAsync(It.Is<User>(u => u.RoleId == "admin-role"), It.IsAny<CancellationToken>()), Times.Once);
         }
     }

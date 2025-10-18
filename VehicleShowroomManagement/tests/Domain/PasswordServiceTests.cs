@@ -72,62 +72,48 @@ namespace VehicleShowroomManagement.Tests.Domain
         }
 
         [Fact]
-        public void VerifyPassword_WithEmptyPassword_ReturnsFalse()
+        public void VerifyPassword_WithEmptyPassword_ThrowsArgumentException()
         {
             // Arrange
             var password = "TestPassword123!";
             var hashedPassword = _passwordService.HashPassword(password);
 
-            // Act
-            var result = _passwordService.VerifyPassword(string.Empty, hashedPassword);
-
-            // Assert
-            result.Should().BeFalse();
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _passwordService.VerifyPassword(string.Empty, hashedPassword));
         }
 
         [Fact]
-        public void VerifyPassword_WithNullPassword_ReturnsFalse()
+        public void VerifyPassword_WithNullPassword_ThrowsArgumentException()
         {
             // Arrange
             var password = "TestPassword123!";
             var hashedPassword = _passwordService.HashPassword(password);
 
-            // Act
-            var result = _passwordService.VerifyPassword(null!, hashedPassword);
-
-            // Assert
-            result.Should().BeFalse();
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _passwordService.VerifyPassword(null!, hashedPassword));
         }
 
         [Fact]
-        public void VerifyPassword_WithEmptyHash_ReturnsFalse()
+        public void VerifyPassword_WithEmptyHash_ThrowsArgumentException()
         {
             // Arrange
             var password = "TestPassword123!";
 
-            // Act
-            var result = _passwordService.VerifyPassword(password, string.Empty);
-
-            // Assert
-            result.Should().BeFalse();
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _passwordService.VerifyPassword(password, string.Empty));
         }
 
         [Fact]
-        public void VerifyPassword_WithNullHash_ReturnsFalse()
+        public void VerifyPassword_WithNullHash_ThrowsArgumentException()
         {
             // Arrange
             var password = "TestPassword123!";
 
-            // Act
-            var result = _passwordService.VerifyPassword(password, null!);
-
-            // Assert
-            result.Should().BeFalse();
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _passwordService.VerifyPassword(password, null!));
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
         [InlineData("123")]
         [InlineData("password")]
         [InlineData("PASSWORD")]
@@ -140,6 +126,15 @@ namespace VehicleShowroomManagement.Tests.Domain
             // Assert
             hashedPassword.Should().NotBeNullOrEmpty();
             hashedPassword.Should().NotBe(weakPassword);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void HashPassword_WithEmptyOrWhitespacePassword_ThrowsArgumentException(string emptyPassword)
+        {
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _passwordService.HashPassword(emptyPassword));
         }
     }
 }

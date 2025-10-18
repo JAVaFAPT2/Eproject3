@@ -85,9 +85,9 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
             };
 
             // Complete the first two orders for testing
-            completedOrders[0].Confirm(); // First confirm
+            completedOrders[0].AssignVehicle("vehicle1"); // First assign vehicle to confirm
             completedOrders[0].Complete(); // Then complete
-            completedOrders[1].Confirm(); // First confirm  
+            completedOrders[1].AssignVehicle("vehicle2"); // First assign vehicle to confirm
             completedOrders[1].Complete(); // Then complete
             
             // Complete the first two service orders
