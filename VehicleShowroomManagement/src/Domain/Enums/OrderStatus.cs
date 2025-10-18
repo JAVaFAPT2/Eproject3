@@ -18,6 +18,11 @@ namespace VehicleShowroomManagement.Domain.Enums
         /// <summary>
         /// Order has been completed
         /// </summary>
-        Completed = 3
+        Completed = 3,
+        
+        /// <summary>
+        /// Order has been cancelled
+        /// </summary>
+        Cancelled = 4
     }
 }

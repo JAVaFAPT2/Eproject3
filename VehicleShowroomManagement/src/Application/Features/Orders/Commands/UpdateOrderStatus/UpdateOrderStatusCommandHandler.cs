@@ -40,6 +40,12 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.UpdateO
                         vehicle.Sell();
                         await vehicleRepository.UpdateAsync(vehicle, cancellationToken);
                     }
+                    else if (request.Status == OrderStatus.Cancelled)
+                    {
+                        // When order is cancelled, make vehicle available again
+                        vehicle.UpdateStatus(VehicleStatus.Available);
+                        await vehicleRepository.UpdateAsync(vehicle, cancellationToken);
+                    }
                 }
             }
 

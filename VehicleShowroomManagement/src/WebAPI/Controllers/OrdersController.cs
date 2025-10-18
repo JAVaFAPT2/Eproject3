@@ -36,12 +36,13 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             OrderStatus? statusEnum = null;
             if (status.HasValue)
             {
-                // 1=Pending, 2=Confirmed, 3=Completed
+                // 1=Pending, 2=Confirmed, 3=Completed, 4=Cancelled
                 statusEnum = status.Value switch
                 {
                     1 => OrderStatus.Pending,
                     2 => OrderStatus.Confirmed,
                     3 => OrderStatus.Completed,
+                    4 => OrderStatus.Cancelled,
                     _ => null
                 };
             }

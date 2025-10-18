@@ -29,8 +29,13 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.
                 Message = "Service order status updated successfully"
             };
 
-            // Business Logic: Only PreDelivery service orders affect Order/Vehicle status
-            if (request.Status == ServiceOrderStatus.Completed && serviceOrder.Type == ServiceType.PreDelivery)
+            // Business Logic: Handle different status updates
+            if (request.Status == ServiceOrderStatus.Cancelled)
+            {
+                // For cancelled service orders, no impact on Order/Vehicle status
+                result.Message = "Service order cancelled";
+            }
+            else if (request.Status == ServiceOrderStatus.Completed && serviceOrder.Type == ServiceType.PreDelivery)
             {
                 // Get related order
                 var order = await orderRepository.GetByIdAsync(serviceOrder.OrderId, cancellationToken) ?? throw new ArgumentException("Related order not found");

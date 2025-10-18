@@ -131,6 +131,18 @@ namespace VehicleShowroomManagement.Domain.Entities
         UpdatedAt = DateTime.UtcNow;
     }
 
+    public void Cancel()
+    {
+        if (Status == OrderStatus.Completed)
+            throw new InvalidOperationException("Cannot cancel a completed order");
+
+        if (Status == OrderStatus.Cancelled)
+            throw new InvalidOperationException("Order is already cancelled");
+
+        Status = OrderStatus.Cancelled;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public void UpdateStatus(OrderStatus status)
     {
         switch (status)
@@ -147,6 +159,9 @@ namespace VehicleShowroomManagement.Domain.Entities
                 break;
             case OrderStatus.Completed:
                 Complete();
+                break;
+            case OrderStatus.Cancelled:
+                Cancel();
                 break;
             default:
                 throw new InvalidOperationException("Unsupported status transition");
@@ -175,6 +190,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         public bool IsPending => Status == OrderStatus.Pending;
         public bool IsConfirmed => Status == OrderStatus.Confirmed;
         public bool IsCompleted => Status == OrderStatus.Completed;
+        public bool IsCancelled => Status == OrderStatus.Cancelled;
         public bool HasVehicle => !string.IsNullOrEmpty(VehicleId);
     }
 }
