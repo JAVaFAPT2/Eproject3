@@ -22,27 +22,45 @@ namespace VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetRe
 
             foreach (var order in recentOrders)
             {
-                // Get customer
-                var customer = await userRepository.GetByIdAsync(order.CustomerId, cancellationToken);
-                
-                // Get dealer
-                var dealer = order.DealerId != null ? await userRepository.GetByIdAsync(order.DealerId, cancellationToken) : null;
-                
-                // Get model
-                var models = await modelRepository.FindAsync(m => m.ModelNumber == order.ModelNumber, cancellationToken);
-                var model = models.FirstOrDefault();
-
-                result.Add(new RecentOrderDto
+                try
                 {
-                    OrderId = order.Id,
-                    OrderNumber = order.Id, // Using ID as order number
-                    CustomerName = customer?.Name ?? "Unknown",
-                    VehicleModel = model?.Name ?? order.ModelNumber,
-                    TotalAmount = order.SalePrice,
-                    Status = order.Status.ToString(),
-                    OrderDate = order.OrderDate,
-                    SalesPersonName = dealer?.Name ?? "Unknown"
-                });
+                    // Get customer
+                    var customer = await userRepository.GetByIdAsync(order.CustomerId, cancellationToken);
+                    
+                    // Get dealer
+                    var dealer = order.DealerId != null ? await userRepository.GetByIdAsync(order.DealerId, cancellationToken) : null;
+                    
+                    // Get model
+                    var models = await modelRepository.FindAsync(m => m.ModelNumber == order.ModelNumber, cancellationToken);
+                    var model = models.FirstOrDefault();
+
+                    result.Add(new RecentOrderDto
+                    {
+                        OrderId = order.Id,
+                        OrderNumber = order.Id, // Using ID as order number
+                        CustomerName = customer?.Name ?? customer?.Username ?? $"Customer ID: {order.CustomerId}",
+                        VehicleModel = model?.Name ?? order.ModelNumber,
+                        TotalAmount = order.SalePrice,
+                        Status = order.Status.ToString(),
+                        OrderDate = order.OrderDate,
+                        SalesPersonName = dealer?.Name ?? dealer?.Username ?? "No Dealer Assigned"
+                    });
+                }
+                catch (Exception)
+                {
+                    // Log error and continue with basic info
+                    result.Add(new RecentOrderDto
+                    {
+                        OrderId = order.Id,
+                        OrderNumber = order.Id,
+                        CustomerName = $"Error loading customer: {order.CustomerId}",
+                        VehicleModel = order.ModelNumber,
+                        TotalAmount = order.SalePrice,
+                        Status = order.Status.ToString(),
+                        OrderDate = order.OrderDate,
+                        SalesPersonName = "Error loading dealer"
+                    });
+                }
             }
 
             return result;

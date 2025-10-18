@@ -11,6 +11,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.
 
             var serviceOrder = new ServiceOrder(
                 request.OrderId,
+                request.CustomerId,
                 request.CreatedBy,
                 request.Type,
                 request.Cost,

@@ -5,6 +5,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.
 {
     public record CreateServiceOrderCommand(
         string OrderId,
+        string CustomerId,
         string CreatedBy,
         ServiceType Type,
         decimal Cost,

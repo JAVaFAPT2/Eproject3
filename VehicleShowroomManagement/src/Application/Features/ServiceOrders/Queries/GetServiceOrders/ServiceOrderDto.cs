@@ -7,6 +7,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.G
     {
         public string Id { get; set; } = string.Empty;
         public string OrderId { get; set; } = string.Empty;
+        public string CustomerId { get; set; } = string.Empty;
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime? ServiceDate { get; set; }
         public DateTime? AppointmentDate { get; set; }

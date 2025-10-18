@@ -9,5 +9,6 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.G
         int PageNumber = 1,
         int PageSize = 10,
         string? Status = null,
-        string? OrderId = null) : IRequest<ServiceOrdersResponse>;
+        string? OrderId = null,
+        string? CustomerId = null) : IRequest<ServiceOrdersResponse>;
 }

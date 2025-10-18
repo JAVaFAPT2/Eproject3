@@ -1,4 +1,3 @@
-using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using VehicleShowroomManagement.Domain.Enums;
@@ -18,6 +17,11 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         [BsonRequired]
         public string OrderId { get; private set; } = string.Empty;
+
+        [BsonElement("customerId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        [BsonRequired]
+        public string CustomerId { get; private set; } = string.Empty;
 
         [BsonElement("createdBy")]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -40,7 +44,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         public ServiceType Type { get; private set; }
 
         [BsonElement("status")]
-        public ServiceOrderStatus Status { get; private set; } = ServiceOrderStatus.InProgress;
+        public ServiceOrderStatus Status { get; private set; } = ServiceOrderStatus.Scheduled;
 
         [BsonElement("licensePlate")]
         public string? LicensePlate { get; private set; }
@@ -49,11 +53,14 @@ namespace VehicleShowroomManagement.Domain.Entities
         internal ServiceOrder() { }
 
         [BsonConstructor]
-        public ServiceOrder(string orderId, string createdBy, ServiceType type, decimal cost, 
+        public ServiceOrder(string orderId, string customerId, string createdBy, ServiceType type, decimal cost, 
             DateTime? appointmentDate = null, string? description = null)
         {
             if (string.IsNullOrWhiteSpace(orderId))
                 throw new ArgumentException("Order ID cannot be null or empty", nameof(orderId));
+
+            if (string.IsNullOrWhiteSpace(customerId))
+                throw new ArgumentException("Customer ID cannot be null or empty", nameof(customerId));
 
             if (string.IsNullOrWhiteSpace(createdBy))
                 throw new ArgumentException("CreatedBy cannot be null or empty", nameof(createdBy));
@@ -62,6 +69,7 @@ namespace VehicleShowroomManagement.Domain.Entities
                 throw new ArgumentException("Cost cannot be negative", nameof(cost));
 
             OrderId = orderId;
+            CustomerId = customerId;
             CreatedBy = createdBy;
             Type = type;
             Cost = cost;

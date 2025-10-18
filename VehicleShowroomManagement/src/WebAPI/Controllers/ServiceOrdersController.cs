@@ -28,22 +28,24 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] int? status = null,
-            [FromQuery] string? orderId = null)
+            [FromQuery] string? orderId = null,
+            [FromQuery] string? customerId = null)
         {
             ServiceOrderStatus? statusEnum = null;
             if (status.HasValue)
             {
-                // Map to enum: 1=InProgress, 2=Completed, 3=Cancelled
+                // Map to enum: 1=Scheduled, 2=InProgress, 3=Completed, 4=Cancelled
                 statusEnum = status.Value switch
                 {
-                    1 => ServiceOrderStatus.InProgress,
-                    2 => ServiceOrderStatus.Completed,
-                    3 => ServiceOrderStatus.Cancelled,
+                    1 => ServiceOrderStatus.Scheduled,
+                    2 => ServiceOrderStatus.InProgress,
+                    3 => ServiceOrderStatus.Completed,
+                    4 => ServiceOrderStatus.Cancelled,
                     _ => null
                 };
             }
 
-            var query = new GetServiceOrdersQuery(pageNumber, pageSize, statusEnum?.ToString(), orderId);
+            var query = new GetServiceOrdersQuery(pageNumber, pageSize, statusEnum?.ToString(), orderId, customerId);
             var result = await _mediator.Send(query);
             return Ok(result);
         }
@@ -56,6 +58,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         {
             var command = new CreateServiceOrderCommand(
                 request.OrderId,
+                request.CustomerId,
                 request.CreatedBy,
                 request.Type,
                 request.Cost,
@@ -86,6 +89,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     public class CreateServiceOrderRequest
     {
         public string OrderId { get; set; } = string.Empty;
+        public string CustomerId { get; set; } = string.Empty;
         public string CreatedBy { get; set; } = string.Empty;
         public ServiceType Type { get; set; }
         public decimal Cost { get; set; }

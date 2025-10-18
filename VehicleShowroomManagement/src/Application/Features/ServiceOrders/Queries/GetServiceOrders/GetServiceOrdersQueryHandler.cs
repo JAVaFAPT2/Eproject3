@@ -23,6 +23,11 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.G
                 queryable = queryable.Where(so => so.OrderId == request.OrderId);
             }
 
+            if (!string.IsNullOrEmpty(request.CustomerId))
+            {
+                queryable = queryable.Where(so => so.CustomerId == request.CustomerId);
+            }
+
             // Get total count
             var totalCount = await serviceOrderRepository.CountAsync(queryable, cancellationToken);
 
@@ -39,6 +44,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.G
             {
                 Id = so.Id,
                 OrderId = so.OrderId,
+                CustomerId = so.CustomerId,
                 CreatedBy = so.CreatedBy,
                 ServiceDate = so.ServiceDate,
                 AppointmentDate = so.AppointmentDate,
