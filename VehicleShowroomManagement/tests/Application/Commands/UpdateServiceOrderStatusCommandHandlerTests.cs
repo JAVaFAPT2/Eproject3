@@ -113,7 +113,6 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             var serviceOrderId = "service-order-1";
-            var currentStatus = ServiceOrderStatus.Completed;
             var invalidNewStatus = ServiceOrderStatus.Scheduled; // Can't go back to scheduled from completed
             var existingServiceOrder = new ServiceOrder(
                 orderId: "order-1",
@@ -148,6 +147,9 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
                 type: ServiceType.Maintenance,
                 cost: 500.00m,
                 description: "Oil Change");
+            
+            // Set the current status for testing
+            existingServiceOrder.UpdateStatus(currentStatus);
 
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync(serviceOrderId, It.IsAny<CancellationToken>()))
                                      .ReturnsAsync(existingServiceOrder);

@@ -46,43 +46,53 @@ namespace VehicleShowroomManagement.Tests.Application.Queries
             // Arrange
             var completedOrders = new List<Order>
             {
-                new Order { Id = "1", Status = OrderStatus.Completed, SalePrice = 25000, CustomerId = "customer1" },
-                new Order { Id = "2", Status = OrderStatus.Completed, SalePrice = 30000, CustomerId = "customer2" },
-                new Order { Id = "3", Status = OrderStatus.Pending, SalePrice = 20000, CustomerId = "customer3" }
+                new Order("customer1", "model1", 25000m),
+                new Order("customer2", "model2", 30000m),
+                new Order("customer3", "model3", 20000m)
             };
 
             var serviceOrders = new List<ServiceOrder>
             {
-                new ServiceOrder { Id = "1", Status = ServiceOrderStatus.Completed, Cost = 500 },
-                new ServiceOrder { Id = "2", Status = ServiceOrderStatus.Completed, Cost = 750 },
-                new ServiceOrder { Id = "3", Status = ServiceOrderStatus.Scheduled, Cost = 300 }
+                new ServiceOrder("order1", "customer1", "user1", ServiceType.Maintenance, 500m),
+                new ServiceOrder("order2", "customer2", "user1", ServiceType.Repair, 750m),
+                new ServiceOrder("order3", "customer3", "user1", ServiceType.PreDelivery, 300m)
             };
 
             var purchaseOrders = new List<PurchaseOrder>
             {
-                new PurchaseOrder { Id = "1", TotalAmount = 20000 },
-                new PurchaseOrder { Id = "2", TotalAmount = 15000 }
+                new PurchaseOrder("user1", 20000m),
+                new PurchaseOrder("user1", 15000m)
             };
 
             var employees = new List<User>
             {
-                new User { Id = "1", HireDate = DateTime.Now.AddDays(-30) },
-                new User { Id = "2", HireDate = DateTime.Now.AddDays(-60) }
+                new User("user1", "hash1", "Employee 1", "emp1@test.com", "role1", hireDate: DateTime.Now.AddDays(-30)),
+                new User("user2", "hash2", "Employee 2", "emp2@test.com", "role1", hireDate: DateTime.Now.AddDays(-60))
             };
 
             var level2Models = new List<VehicleModel>
             {
-                new VehicleModel { Id = "1", Level = 2 },
-                new VehicleModel { Id = "2", Level = 2 },
-                new VehicleModel { Id = "3", Level = 1 }
+                new VehicleModel("model1", "Model 1", 25000m, "Description 1", level: 2),
+                new VehicleModel("model2", "Model 2", 30000m, "Description 2", level: 2),
+                new VehicleModel("model3", "Model 3", 20000m, "Description 3", level: 1)
             };
 
             var vehicles = new List<Vehicle>
             {
-                new Vehicle { Id = "1" },
-                new Vehicle { Id = "2" },
-                new Vehicle { Id = "3" }
+                new Vehicle("vehicle1", "model1", 20000m),
+                new Vehicle("vehicle2", "model2", 25000m),
+                new Vehicle("vehicle3", "model3", 18000m)
             };
+
+            // Complete the first two orders for testing
+            completedOrders[0].Confirm(); // First confirm
+            completedOrders[0].Complete(); // Then complete
+            completedOrders[1].Confirm(); // First confirm  
+            completedOrders[1].Complete(); // Then complete
+            
+            // Complete the first two service orders
+            serviceOrders[0].Complete();
+            serviceOrders[1].Complete();
 
             _mockOrderRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Order, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(completedOrders.Where(o => o.Status == OrderStatus.Completed));

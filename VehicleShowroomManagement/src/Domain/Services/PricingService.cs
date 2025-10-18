@@ -72,11 +72,23 @@ namespace VehicleShowroomManagement.Domain.Services
 
         public decimal CalculateProfit(decimal cost, decimal margin)
         {
+            if (cost < 0)
+                throw new ArgumentException("Cost cannot be negative", nameof(cost));
+            
+            if (margin < 0)
+                throw new ArgumentException("Margin cannot be negative", nameof(margin));
+            
             return cost * margin;
         }
 
         public decimal CalculateSellingPrice(decimal cost, decimal margin)
         {
+            if (cost < 0)
+                throw new ArgumentException("Cost cannot be negative", nameof(cost));
+            
+            if (margin < 0)
+                throw new ArgumentException("Margin cannot be negative", nameof(margin));
+            
             return cost + CalculateProfit(cost, margin);
         }
 
