@@ -17,7 +17,6 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         private readonly Mock<IRepository<Role>> _mockRoleRepository;
         private readonly Mock<IPasswordService> _mockPasswordService;
         private readonly Mock<IConfiguration> _mockConfiguration;
-        private readonly Mock<ILogger<LoginCommandHandler>> _mockLogger;
         private readonly LoginCommandHandler _handler;
 
         public LoginCommandHandlerTests()
@@ -26,7 +25,6 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockRoleRepository = new Mock<IRepository<Role>>();
             _mockPasswordService = new Mock<IPasswordService>();
             _mockConfiguration = new Mock<IConfiguration>();
-            _mockLogger = new Mock<ILogger<LoginCommandHandler>>();
 
             _handler = new LoginCommandHandler(
                 _mockUserRepository.Object,
@@ -40,10 +38,9 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             var user = new User("testuser", "hashedpassword", "Test User", "test@example.com", "role1");
-            var role = new Role("role1", "Admin", "Administrator role");
+            var role = new Role("Admin");
             
             var users = new List<User> { user };
-            var roles = new List<Role> { role };
 
             _mockUserRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(users);
@@ -55,23 +52,23 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
                               .Returns(true);
 
             // Mock JWT configuration
-            _mockConfiguration.Setup(c => c["JWT:SecretKey"]).Returns("test-secret-key-that-is-long-enough-for-jwt");
-            _mockConfiguration.Setup(c => c["JWT:Issuer"]).Returns("test-issuer");
-            _mockConfiguration.Setup(c => c["JWT:Audience"]).Returns("test-audience");
-            _mockConfiguration.Setup(c => c["JWT:ExpirationMinutes"]).Returns("60");
+            _mockConfiguration.Setup(c => c["Jwt:Key"]).Returns("test-secret-key-that-is-long-enough-for-jwt");
+            _mockConfiguration.Setup(c => c["Jwt:Issuer"]).Returns("test-issuer");
+            _mockConfiguration.Setup(c => c["Jwt:Audience"]).Returns("test-audience");
+            _mockConfiguration.Setup(c => c["Jwt:ExpireHours"]).Returns("24");
 
-            var command = new LoginCommand { Username = "testuser", Password = "password123" };
+            var command = new LoginCommand("testuser", "password123");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
-            result.Token.Should().NotBeNullOrEmpty();
+            result!.Token.Should().NotBeNullOrEmpty();
             result.RefreshToken.Should().NotBeNullOrEmpty();
             result.UserId.Should().Be(user.Id);
-            result.Username.Should().Be(user.Username);
-            result.Email.Should().Be(user.Email);
+            result.User.Username.Should().Be(user.Username);
+            result.User.Email.Should().Be(user.Email);
             result.RoleName.Should().Be(role.Name);
         }
 
@@ -80,10 +77,9 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             var user = new User("testuser", "hashedpassword", "Test User", "test@example.com", "role1");
-            var role = new Role("role1", "Admin", "Administrator role");
+            var role = new Role("Admin");
             
             var users = new List<User> { user };
-            var roles = new List<Role> { role };
 
             _mockUserRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(users);
@@ -95,23 +91,23 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
                               .Returns(true);
 
             // Mock JWT configuration
-            _mockConfiguration.Setup(c => c["JWT:SecretKey"]).Returns("test-secret-key-that-is-long-enough-for-jwt");
-            _mockConfiguration.Setup(c => c["JWT:Issuer"]).Returns("test-issuer");
-            _mockConfiguration.Setup(c => c["JWT:Audience"]).Returns("test-audience");
-            _mockConfiguration.Setup(c => c["JWT:ExpirationMinutes"]).Returns("60");
+            _mockConfiguration.Setup(c => c["Jwt:Key"]).Returns("test-secret-key-that-is-long-enough-for-jwt");
+            _mockConfiguration.Setup(c => c["Jwt:Issuer"]).Returns("test-issuer");
+            _mockConfiguration.Setup(c => c["Jwt:Audience"]).Returns("test-audience");
+            _mockConfiguration.Setup(c => c["Jwt:ExpireHours"]).Returns("24");
 
-            var command = new LoginCommand { Username = "test@example.com", Password = "password123" };
+            var command = new LoginCommand("test@example.com", "password123");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
-            result.Token.Should().NotBeNullOrEmpty();
+            result!.Token.Should().NotBeNullOrEmpty();
             result.RefreshToken.Should().NotBeNullOrEmpty();
             result.UserId.Should().Be(user.Id);
-            result.Username.Should().Be(user.Username);
-            result.Email.Should().Be(user.Email);
+            result.User.Username.Should().Be(user.Username);
+            result.User.Email.Should().Be(user.Email);
             result.RoleName.Should().Be(role.Name);
         }
 
@@ -124,7 +120,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(new List<User>());
 
-            var command = new LoginCommand { Username = "nonexistent", Password = "password123" };
+            var command = new LoginCommand("nonexistent", "password123");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -147,7 +143,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockPasswordService.Setup(s => s.VerifyPassword("wrongpassword", "hashedpassword"))
                               .Returns(false);
 
-            var command = new LoginCommand { Username = "testuser", Password = "wrongpassword" };
+            var command = new LoginCommand("testuser", "wrongpassword");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -161,7 +157,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             var user = new User("testuser", "hashedpassword", "Test User", "test@example.com", "role1");
-            user.Delete(); // Mark as deleted
+            user.SoftDelete(); // Mark as deleted
             var users = new List<User> { user };
 
             _mockUserRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
@@ -169,7 +165,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(users);
 
-            var command = new LoginCommand { Username = "testuser", Password = "password123" };
+            var command = new LoginCommand("testuser", "password123");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -194,7 +190,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockRoleRepository.Setup(r => r.GetByIdAsync("nonexistent-role", It.IsAny<CancellationToken>()))
                               .ReturnsAsync((Role?)null);
 
-            var command = new LoginCommand { Username = "testuser", Password = "password123" };
+            var command = new LoginCommand("testuser", "password123");
 
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
@@ -207,7 +203,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
                               .ThrowsAsync(new Exception("Database error"));
 
-            var command = new LoginCommand { Username = "testuser", Password = "password123" };
+            var command = new LoginCommand("testuser", "password123");
 
             // Act & Assert
             await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
@@ -217,7 +213,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithEmptyUsername_ReturnsNull()
         {
             // Arrange
-            var command = new LoginCommand { Username = "", Password = "password123" };
+            var command = new LoginCommand("", "password123");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -238,7 +234,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                               .ReturnsAsync(users);
 
-            var command = new LoginCommand { Username = "testuser", Password = "" };
+            var command = new LoginCommand("testuser", "");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);

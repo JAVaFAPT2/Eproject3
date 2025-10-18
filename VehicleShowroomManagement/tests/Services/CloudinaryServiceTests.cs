@@ -17,7 +17,6 @@ namespace VehicleShowroomManagement.Tests.Services
     {
         private readonly Mock<IOptions<CloudinarySettings>> _mockOptions;
         private readonly Mock<ILogger<CloudinaryService>> _mockLogger;
-        private readonly Mock<Cloudinary> _mockCloudinary;
         private readonly AsyncPolicy _policy;
         private readonly CloudinaryService _service;
 
@@ -25,7 +24,6 @@ namespace VehicleShowroomManagement.Tests.Services
         {
             _mockOptions = new Mock<IOptions<CloudinarySettings>>();
             _mockLogger = new Mock<ILogger<CloudinaryService>>();
-            _mockCloudinary = new Mock<Cloudinary>(Mock.Of<Account>());
             _policy = Policy.NoOpAsync(); // Use a real no-op policy instead of mocking
 
             _mockOptions.Setup(x => x.Value).Returns(new CloudinarySettings
@@ -88,7 +86,7 @@ namespace VehicleShowroomManagement.Tests.Services
             var result = await _service.DeleteImageAsync(publicId);
             
             // The test passes if no exception is thrown
-            result.Should().NotBeNull();
+            Assert.NotNull(result);
         }
 
         [Fact]

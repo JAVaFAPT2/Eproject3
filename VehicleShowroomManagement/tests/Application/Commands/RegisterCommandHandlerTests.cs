@@ -31,7 +31,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithValidData_CreatesUserAndReturnsId()
         {
             // Arrange
-            var customerRole = new Role("role1", "Customer", "Customer role");
+            var customerRole = new Role("Customer");
             var roles = new List<Role> { customerRole };
 
             _mockUserRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
@@ -43,13 +43,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync("new-user-id");
 
-            var command = new RegisterCommand
-            {
-                Username = "newuser",
-                Email = "newuser@example.com",
-                Password = "password123",
-                FullName = "New User"
-            };
+            var command = new RegisterCommand("newuser", "password123", "newuser@example.com");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -59,9 +53,8 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Verify(r => r.AddAsync(It.Is<User>(u => 
                 u.Username == "newuser" &&
                 u.Email == "newuser@example.com" &&
-                u.FullName == "New User" &&
                 u.PasswordHash == "hashedpassword" &&
-                u.RoleId == "role1"
+                u.RoleId == customerRole.Id
             ), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -75,13 +68,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(existingUsers);
 
-            var command = new RegisterCommand
-            {
-                Username = "existinguser",
-                Email = "newuser@example.com",
-                Password = "password123",
-                FullName = "New User"
-            };
+            var command = new RegisterCommand("existinguser", "password123", "newuser@example.com");
 
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
@@ -98,13 +85,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
                               .ReturnsAsync(new List<User>()) // Username check passes
                               .ReturnsAsync(existingUsers); // Email check fails
 
-            var command = new RegisterCommand
-            {
-                Username = "newuser",
-                Email = "existing@example.com",
-                Password = "password123",
-                FullName = "New User"
-            };
+            var command = new RegisterCommand("newuser", "password123", "existing@example.com");
 
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(command, CancellationToken.None));
@@ -127,13 +108,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync("new-user-id");
 
-            var command = new RegisterCommand
-            {
-                Username = "newuser",
-                Email = "newuser@example.com",
-                Password = "password123",
-                FullName = "New User"
-            };
+            var command = new RegisterCommand("newuser", "password123", "newuser@example.com");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -148,13 +123,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithInvalidEmail_ThrowsException()
         {
             // Arrange
-            var command = new RegisterCommand
-            {
-                Username = "newuser",
-                Email = "invalid-email",
-                Password = "password123",
-                FullName = "New User"
-            };
+            var command = new RegisterCommand("newuser", "password123", "invalid-email");
 
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentException>(() => _handler.Handle(command, CancellationToken.None));
@@ -164,13 +133,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithWeakPassword_ThrowsException()
         {
             // Arrange
-            var command = new RegisterCommand
-            {
-                Username = "newuser",
-                Email = "newuser@example.com",
-                Password = "123", // Too short
-                FullName = "New User"
-            };
+            var command = new RegisterCommand("newuser", "123", "newuser@example.com"); // Too short
 
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentException>(() => _handler.Handle(command, CancellationToken.None));
@@ -180,29 +143,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithEmptyUsername_ThrowsException()
         {
             // Arrange
-            var command = new RegisterCommand
-            {
-                Username = "",
-                Email = "newuser@example.com",
-                Password = "password123",
-                FullName = "New User"
-            };
-
-            // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() => _handler.Handle(command, CancellationToken.None));
-        }
-
-        [Fact]
-        public async Task Handle_WithEmptyFullName_ThrowsException()
-        {
-            // Arrange
-            var command = new RegisterCommand
-            {
-                Username = "newuser",
-                Email = "newuser@example.com",
-                Password = "password123",
-                FullName = ""
-            };
+            var command = new RegisterCommand("", "password123", "newuser@example.com");
 
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentException>(() => _handler.Handle(command, CancellationToken.None));
@@ -215,13 +156,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
                               .ThrowsAsync(new Exception("Database error"));
 
-            var command = new RegisterCommand
-            {
-                Username = "newuser",
-                Email = "newuser@example.com",
-                Password = "password123",
-                FullName = "New User"
-            };
+            var command = new RegisterCommand("newuser", "password123", "newuser@example.com");
 
             // Act & Assert
             await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
@@ -231,7 +166,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         public async Task Handle_WithCaseInsensitiveRoleLookup_CreatesUser()
         {
             // Arrange
-            var customerRole = new Role("role1", "customer", "Customer role"); // lowercase
+            var customerRole = new Role("customer"); // lowercase
             var roles = new List<Role> { customerRole };
 
             _mockUserRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<User, bool>>>(), It.IsAny<CancellationToken>()))
@@ -245,20 +180,14 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync("new-user-id");
 
-            var command = new RegisterCommand
-            {
-                Username = "newuser",
-                Email = "newuser@example.com",
-                Password = "password123",
-                FullName = "New User"
-            };
+            var command = new RegisterCommand("newuser", "password123", "newuser@example.com");
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             result.Should().Be("new-user-id");
-            _mockUserRepository.Verify(r => r.AddAsync(It.Is<User>(u => u.RoleId == "role1"), It.IsAny<CancellationToken>()), Times.Once);
+            _mockUserRepository.Verify(r => r.AddAsync(It.Is<User>(u => u.RoleId == customerRole.Id), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
