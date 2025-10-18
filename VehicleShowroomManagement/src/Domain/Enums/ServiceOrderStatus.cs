@@ -6,9 +6,9 @@ namespace VehicleShowroomManagement.Domain.Enums
     public enum ServiceOrderStatus
     {
         /// <summary>
-        /// Service has been scheduled
+        /// Service is in progress
         /// </summary>
-        Scheduled = 1,
+        InProgress = 1,
         
         /// <summary>
         /// Service has been completed

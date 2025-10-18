@@ -9,7 +9,7 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
         {
             var vehicleModel = await vehicleModelRepository.GetByIdAsync(request.ModelNumber, cancellationToken);
 
-            if (vehicleModel == null)
+            if (vehicleModel == null || vehicleModel.DeletedAt != null)
                 return null;
 
             return new VehicleModelDto
@@ -18,7 +18,9 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
                 Name = vehicleModel.Name,
                 Price = vehicleModel.Price,
                 Description = vehicleModel.Description,
-                ImageUrl = string.Empty
+                ImageUrl = string.Empty,
+                Level = vehicleModel.Level,
+                ParentModel = vehicleModel.ParentId
             };
         }
     }

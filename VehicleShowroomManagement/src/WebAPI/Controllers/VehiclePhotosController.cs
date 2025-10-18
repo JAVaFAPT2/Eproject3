@@ -24,17 +24,23 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets all photos for a specific vehicle model (Level-2)
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<List<VehiclePhotoDto>>> GetVehiclePhotos(string modelNumber)
+        [AllowAnonymous]
+        public async Task<ActionResult<List<VehiclePhotoDto>>> GetVehiclePhotos(string modelNumber,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
             var query = new GetVehiclePhotosQuery(modelNumber);
             var photos = await mediator.Send(query);
-            return Ok(photos);
+            var total = photos.Count;
+            var page = photos.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            return Ok(new { items = page, totalCount = total, pageNumber, pageSize });
         }
 
         /// <summary>
         /// Gets a specific photo by ID
         /// </summary>
         [HttpGet("~/api/photos/{photoId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<VehiclePhotoDto>> GetPhoto(string photoId)
         {
             var query = new GetPhotoByIdQuery(photoId);

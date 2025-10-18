@@ -4,72 +4,34 @@ using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Commands.CreateVehicleModel;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Commands.UpdateVehicleModel;
+using VehicleShowroomManagement.Application.Features.VehicleModels.Commands.DeleteVehicleModel;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Queries.GetVehicleModels;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Queries.GetVehicleModelById;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Queries.GetVehicleModelBySlug;
 using VehicleShowroomManagement.Application.Features.VehicleModels.Queries.SearchLevel2Models;
-using VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.AddVehiclePhoto;
+// using VehicleShowroomManagement.Application.Features.VehiclePhotos.Commands.AddVehiclePhoto;
 using VehicleShowroomManagement.WebAPI.Models.VehicleModels;
 namespace VehicleShowroomManagement.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class VehicleModelsController(IMediator mediator, ICloudinaryService cloudinaryService) : ControllerBase
+    public class VehicleModelsController(IMediator mediator) : ControllerBase
     {
         [HttpPost]
         [Authorize(Roles = "Dealer,Admin")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> CreateVehicleModel(
-            [FromForm] string? data,
-            [FromForm] string? modelNumber,
-            [FromForm] string? name,
-            [FromForm] decimal? price,
-            [FromForm] string? description,
-            [FromForm] string? parentId,
-            [FromForm] int? level,
-            [FromForm] string? slug,
-            [FromForm] List<IFormFile>? files)
+        public async Task<IActionResult> CreateVehicleModel([FromBody] CreateVehicleModelRequest request)
         {
-            CreateVehicleModelRequest? request = null;
+            if (request == null)
+                return BadRequest(new { message = "Invalid request body" });
 
-            // Try to parse from JSON data field first
-            if (!string.IsNullOrWhiteSpace(data))
-            {
-                try
-                {
-                    request = System.Text.Json.JsonSerializer.Deserialize<CreateVehicleModelRequest>(data, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                }
-                catch (System.Text.Json.JsonException)
-                {
-                    return BadRequest(new { message = "Invalid JSON in 'data' part" });
-                }
-            }
-            // Fallback to individual form fields
-            else if (!string.IsNullOrWhiteSpace(name) && price.HasValue)
-            {
-                // Generate ModelNumber if not provided
-                var generatedModelNumber = !string.IsNullOrWhiteSpace(modelNumber) 
-                    ? modelNumber 
-                    : $"MODEL-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
-
-                request = new CreateVehicleModelRequest
-                {
-                    ModelNumber = generatedModelNumber,
-                    Name = name,
-                    Price = price.Value,
-                    Description = description ?? string.Empty,
-                    ParentId = parentId,
-                    Level = level ?? 1,
-                    Slug = slug
-                };
-            }
-
-            if (request is null)
-                return BadRequest(new { message = "Missing required fields: data (JSON) or individual fields (name, price). ModelNumber is optional and will be auto-generated if not provided." });
+            // Generate ModelNumber if not provided
+            var modelNumber = !string.IsNullOrWhiteSpace(request.ModelNumber)
+                ? request.ModelNumber
+                : $"MODEL-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
 
             var command = new CreateVehicleModelCommand(
-                request.ModelNumber,
+                modelNumber,
                 request.Name,
                 request.Price,
                 request.Description,
@@ -78,24 +40,6 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 request.Slug);
 
             var createdModelNumber = await mediator.Send(command);
-
-            // Optional: upload photos for this modelNumber
-            if (files is not null && files.Count > 0)
-            {
-                var order = 0;
-                foreach (var f in files)
-                {
-                    if (f is not { Length: not 0 }) continue;
-                    var upload = await cloudinaryService.UploadImageAsync(f, "vehicle-models");
-                    if (order == 0)
-                    {
-                        // set primary photo on model (first image)
-                        await mediator.Send(new UpdateVehicleModelCommand(createdModelNumber, request.Name, request.Price, request.Description, request.ParentId, request.Level, request.Slug, upload.SecureUrl));
-                    }
-                    await mediator.Send(new AddVehiclePhotoCommand(createdModelNumber, upload.SecureUrl, order++));
-                }
-            }
-
             return Ok(new { modelNumber = createdModelNumber, message = "Vehicle model created successfully" });
         }
 
@@ -123,6 +67,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a vehicle model by model number
         /// </summary>
         [HttpGet("{modelNumber}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetVehicleModel(string modelNumber)
         {
             var query = new GetVehicleModelByIdQuery(modelNumber);
@@ -138,6 +83,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets a level-2 vehicle model by slug
         /// </summary>
         [HttpGet("slug/{slug}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetVehicleModelBySlug(string slug)
         {
             var result = await mediator.Send(new GetVehicleModelBySlugQuery(slug));
@@ -146,31 +92,41 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Gets all vehicle models with pagination
+        /// Gets all vehicle models with pagination and optional filters (unified)
         /// </summary>
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetVehicleModels(
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null,
+            [FromQuery] string? parentModelNumber = null,
+            [FromQuery] int? seats = null,
+            [FromQuery] string? fuelType = null)
         {
-            var query = new GetVehicleModelsQuery(pageNumber, pageSize);
-            var result = await mediator.Send(query);
-            return Ok(result);
+            // If any spec filters provided, use SearchLevel2ModelsQuery; otherwise fallback to simple list
+            if (!string.IsNullOrWhiteSpace(parentModelNumber) || seats.HasValue || !string.IsNullOrWhiteSpace(fuelType))
+            {
+                var searchQuery = new SearchLevel2ModelsQuery(parentModelNumber, seats, fuelType, pageNumber, pageSize);
+                var searchResult = await mediator.Send(searchQuery);
+                return Ok(searchResult);
+            }
+
+            var listQuery = new GetVehicleModelsQuery(pageNumber, pageSize, search);
+            var listResult = await mediator.Send(listQuery);
+            return Ok(listResult);
         }
 
         /// <summary>
-        /// Search level-2 vehicle models by parent and specs
+        /// Soft delete a vehicle model by model number
         /// </summary>
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchLevel2(
-            [FromQuery] string? parentModelNumber = null,
-            [FromQuery] int? seats = null,
-            [FromQuery] string? fuelType = null,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+        [HttpDelete("{modelNumber}")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> DeleteVehicleModel(string modelNumber)
         {
-            var result = await mediator.Send(new SearchLevel2ModelsQuery(parentModelNumber, seats, fuelType, pageNumber, pageSize));
-            return Ok(result);
+            var command = new DeleteVehicleModelCommand(modelNumber);
+            await mediator.Send(command);
+            return Ok(new { message = "Vehicle model deleted successfully" });
         }
     }
 }

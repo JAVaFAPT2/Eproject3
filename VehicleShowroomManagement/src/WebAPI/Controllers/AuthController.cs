@@ -37,7 +37,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Authenticates user and returns JWT token
+        /// Authenticates user and returns JWT access & refresh tokens
         /// </summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
@@ -62,13 +62,17 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
                 Response.Cookies.Append("refreshToken", result.RefreshToken, cookieOptions);
             }
 
-            // Optionally omit refresh token from body (kept for backward compatibility)
+            // Return both access and refresh tokens (accessToken alias kept for compatibility)
             return Ok(new
             {
                 result.UserId,
                 result.RoleName,
                 token = result.Token,
+                accessToken = result.AccessToken,
+                refreshToken = result.RefreshToken,
                 tokenExpiresAt = result.TokenExpiresAt,
+                accessTokenExpiresAt = result.ExpiresAt,
+                refreshTokenExpiresAt = result.RefreshTokenExpiresAt,
                 user = result.User
             });
         }

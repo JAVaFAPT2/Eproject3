@@ -131,7 +131,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             var ordersData = await mediator.Send(recentOrdersQuery);
             
             // Filter for waiting orders
-            var waitingOrders = ordersData.Where(o => o.Status == "Waiting").ToList();
+            var waitingOrders = ordersData.Where(o => o.Status == "Pending").ToList();
             
             var waitingListReport = new
             {
@@ -177,7 +177,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> ExportCustomerInfo([FromQuery] string? searchTerm = null, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
         {
             await Task.CompletedTask;
-            var content = System.Text.Encoding.UTF8.GetBytes("Sample Excel Content");
+            var content = "Sample Excel Content"u8.ToArray();
             return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "customer-info.xlsx");
         }
 
@@ -186,7 +186,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> ExportVehicleMaster([FromQuery] string? brand = null, [FromQuery] string? model = null, [FromQuery] int? year = null)
         {
             await Task.CompletedTask;
-            var content = System.Text.Encoding.UTF8.GetBytes("Sample Excel Content");
+            var content = "Sample Excel Content"u8.ToArray();
             return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "vehicle-master.xlsx");
         }
 
@@ -195,7 +195,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> ExportAllotmentDetails([FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null, [FromQuery] string? customerId = null)
         {
             await Task.CompletedTask;
-            var content = System.Text.Encoding.UTF8.GetBytes("Sample Excel Content");
+            var content = "Sample Excel Content"u8.ToArray();
             return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "allotment-details.xlsx");
         }
 
@@ -204,7 +204,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> ExportWaitingList([FromQuery] string? modelId = null, [FromQuery] string? customerId = null)
         {
             await Task.CompletedTask;
-            var content = System.Text.Encoding.UTF8.GetBytes("Sample Excel Content");
+            var content = "Sample Excel Content"u8.ToArray();
             return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "waiting-list.xlsx");
         }
     }

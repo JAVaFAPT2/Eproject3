@@ -169,38 +169,35 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Gets all vehicles with pagination and filters
+        /// Gets vehicles with optional search and filters (merged with previous /search)
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<GetVehiclesResult>> GetVehicles(
+        public async Task<ActionResult<SearchVehiclesResult>> GetVehicles(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] VehicleStatus? status = null,
-            [FromQuery] string? brand = null)
-        {
-            var query = new GetVehiclesQuery(pageNumber, pageSize, status, brand);
-            var result = await mediator.Send(query);
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Searches vehicles with filters - critical for showroom operations
-        /// </summary>
-        [HttpGet("search")]
-        public async Task<ActionResult<SearchVehiclesResult>> SearchVehicles(
             [FromQuery] string? searchTerm = null,
-            [FromQuery] VehicleStatus? status = null,
+            [FromQuery] int? status = null,
             [FromQuery] string? modelNumber = null,
             [FromQuery] int? seats = null,
             [FromQuery] string? fuelType = null,
             [FromQuery] decimal? minPrice = null,
-            [FromQuery] decimal? maxPrice = null,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] decimal? maxPrice = null)
         {
+            VehicleStatus? statusEnum = null;
+            if (status.HasValue)
+            {
+                // Map numeric status to domain enum: 1=Available, 2=Reserved, 3=Sold
+                statusEnum = status.Value switch
+                {
+                    1 => VehicleStatus.Available,
+                    2 => VehicleStatus.Reserved,
+                    3 => VehicleStatus.Sold,
+                    _ => null
+                };
+            }
             var query = new SearchVehiclesQuery(
                 searchTerm,
-                status,
+                statusEnum,
                 modelNumber,
                 seats,
                 fuelType,
@@ -211,6 +208,16 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 
             var result = await mediator.Send(query);
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Deprecated: use GET /api/vehicles with query params instead
+        /// </summary>
+        [HttpGet("search")]
+        [Obsolete]
+        public IActionResult SearchVehicles()
+        {
+            return BadRequest(new { message = "Use GET /api/vehicles with query params" });
         }
 
         /// <summary>

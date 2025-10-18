@@ -5,7 +5,7 @@ namespace VehicleShowroomManagement.Application.Features.VehicleModels.Queries.G
     {
         public async Task<VehicleModel?> Handle(GetVehicleModelBySlugQuery request, CancellationToken cancellationToken)
         {
-            var models = await modelRepository.FindAsync(m => m.Slug == request.Slug, cancellationToken);
+            var models = await modelRepository.FindAsync(m => m.Slug == request.Slug && m.DeletedAt == null, cancellationToken);
             return models.FirstOrDefault();
         }
     }

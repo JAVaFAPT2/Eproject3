@@ -21,7 +21,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.G
     /// </summary>
     public class ServiceOrdersResponse
     {
-        public List<ServiceOrderDto> ServiceOrders { get; set; } = new();
+        public List<ServiceOrderDto> Items { get; set; } = new();
         public int TotalCount { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }

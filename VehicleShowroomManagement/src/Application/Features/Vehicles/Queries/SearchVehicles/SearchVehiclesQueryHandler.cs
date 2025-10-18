@@ -17,8 +17,15 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
             {
                 var allSpecs = await specRepository.GetAllAsync(cancellationToken);
                 var specs = allSpecs.Where(s =>
-                    (request.Seats == null || (s.SpecName.ToLowerInvariant() == "seats" && int.TryParse(s.SpecValue, out var val) && val == request.Seats)) ||
-                    (!string.IsNullOrWhiteSpace(request.FuelType) && s.SpecName.ToLowerInvariant() == "fueltype" && s.SpecValue.Equals(request.FuelType, StringComparison.OrdinalIgnoreCase))
+                    (request.Seats == null || 
+                     ((s.SpecName.Equals("Seats", StringComparison.OrdinalIgnoreCase) || 
+                       s.SpecName.Equals("seats", StringComparison.OrdinalIgnoreCase)) && 
+                      int.TryParse(s.SpecValue, out var val) && val == request.Seats)) ||
+                    (!string.IsNullOrWhiteSpace(request.FuelType) && 
+                     ((s.SpecName.Equals("Fuel Type", StringComparison.OrdinalIgnoreCase) || 
+                       s.SpecName.Equals("fuelType", StringComparison.OrdinalIgnoreCase) ||
+                       s.SpecName.Equals("fuel_type", StringComparison.OrdinalIgnoreCase)) && 
+                      s.SpecValue.Equals(request.FuelType, StringComparison.OrdinalIgnoreCase)))
                 );
                 var modelIds = specs.Select(s => s.ModelId).ToHashSet();
                 if (modelIds.Count > 0)
@@ -30,7 +37,7 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
                 else
                 {
                     // No models match specs -> return empty result early
-                    return new SearchVehiclesResult { Vehicles = new List<VehicleSearchDto>(), TotalCount = 0, PageNumber = request.PageNumber, PageSize = request.PageSize, TotalPages = 0, HasPreviousPage = false, HasNextPage = false };
+                    return new SearchVehiclesResult { Items = new List<VehicleSearchDto>(), TotalCount = 0, PageNumber = request.PageNumber, PageSize = request.PageSize, TotalPages = 0, HasPreviousPage = false, HasNextPage = false };
                 }
             }
 
@@ -40,7 +47,8 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
                 (allowedModelNumbers == null || allowedModelNumbers.Contains(v.ModelNumber)) &&
                 (string.IsNullOrEmpty(request.SearchTerm) || 
                  v.VehicleId.Contains(request.SearchTerm) || 
-                 v.ModelNumber.Contains(request.SearchTerm)) &&
+                 v.ModelNumber.Contains(request.SearchTerm) ||
+                 (v.Vin != null && v.Vin.Contains(request.SearchTerm))) &&
                 (request.MinPrice == null || v.PurchasePrice >= request.MinPrice) &&
                 (request.MaxPrice == null || v.PurchasePrice <= request.MaxPrice)).ToList();
 
@@ -57,7 +65,8 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
                     ExternalNumber = v.ExternalNumber,
                     Status = v.Status,
                     PurchasePrice = v.PurchasePrice,
-                    IsAvailable = v.IsAvailable
+                    IsAvailable = v.IsAvailable,
+                    Vin = v.Vin
                 })
                 .ToList();
 
@@ -65,7 +74,7 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
 
             return new SearchVehiclesResult
             {
-                Vehicles = pagedVehicles,
+                Items = pagedVehicles,
                 TotalCount = totalCount,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,

@@ -25,7 +25,7 @@ namespace VehicleShowroomManagement.Domain.Entities
         public BsonDocument? RegistrationData { get; private set; }
 
         [BsonElement("status")]
-        public VehicleStatus Status { get; private set; } = VehicleStatus.InStock;
+        public VehicleStatus Status { get; private set; } = VehicleStatus.Available;
 
         [BsonElement("purchasePrice")]
         public decimal PurchasePrice { get; private set; }
@@ -33,12 +33,15 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("licensePlate")]
         public string? LicensePlate { get; private set; }
 
+        [BsonElement("vin")]
+        public string? Vin { get; private set; }
+
 
         // Parameterless constructor for MongoDB deserialization
         public Vehicle() { }
 
         public Vehicle(string vehicleId, string modelNumber, decimal purchasePrice, 
-            string? externalNumber = null)
+            string? externalNumber = null, string? vin = null)
         {
             if (string.IsNullOrWhiteSpace(vehicleId))
                 throw new ArgumentException("Vehicle ID cannot be null or empty", nameof(vehicleId));
@@ -53,6 +56,7 @@ namespace VehicleShowroomManagement.Domain.Entities
             ModelNumber = modelNumber;
             PurchasePrice = purchasePrice;
             ExternalNumber = externalNumber;
+            Vin = vin;
         }
 
         // Domain methods
@@ -71,9 +75,14 @@ namespace VehicleShowroomManagement.Domain.Entities
             ExternalNumber = externalNumber;
         }
 
+        public void SetVin(string? vin)
+        {
+            Vin = vin;
+        }
+
         public void Reserve()
         {
-            if (Status != VehicleStatus.InStock)
+            if (Status != VehicleStatus.Available)
                 throw new InvalidOperationException("Only vehicles in stock can be reserved");
 
             Status = VehicleStatus.Reserved;
@@ -81,7 +90,7 @@ namespace VehicleShowroomManagement.Domain.Entities
 
         public void Sell()
         {
-            if (Status != VehicleStatus.Reserved && Status != VehicleStatus.InStock)
+            if (Status != VehicleStatus.Reserved && Status != VehicleStatus.Available)
                 throw new InvalidOperationException("Only reserved or in-stock vehicles can be sold");
 
             Status = VehicleStatus.Sold;
@@ -94,21 +103,17 @@ namespace VehicleShowroomManagement.Domain.Entities
             LicensePlate = licensePlate;
         }
 
-        public void SendToService()
-        {
-            Status = VehicleStatus.InService;
-        }
 
         public void ReturnToStock()
         {
             if (Status == VehicleStatus.Sold)
                 throw new InvalidOperationException("Sold vehicles cannot be returned to stock");
 
-            Status = VehicleStatus.InStock;
+            Status = VehicleStatus.Available;
         }
 
         // Computed properties
-        public bool IsAvailable => Status == VehicleStatus.InStock;
+        public bool IsAvailable => Status == VehicleStatus.Available;
         public bool IsSold => Status == VehicleStatus.Sold;
         public bool IsReserved => Status == VehicleStatus.Reserved;
     }

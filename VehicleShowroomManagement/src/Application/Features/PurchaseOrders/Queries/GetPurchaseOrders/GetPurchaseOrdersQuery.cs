@@ -18,7 +18,7 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.
     /// </summary>
     public class GetPurchaseOrdersResult
     {
-        public List<PurchaseOrderSummaryDto> PurchaseOrders { get; set; } = new List<PurchaseOrderSummaryDto>();
+        public List<PurchaseOrderSummaryDto> Items { get; set; } = new List<PurchaseOrderSummaryDto>();
         public int TotalCount { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }

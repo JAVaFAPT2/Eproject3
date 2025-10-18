@@ -5,7 +5,7 @@ using VehicleShowroomManagement.Application.Features.Users.Commands.CreateUser;
 using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserProfile;
 using VehicleShowroomManagement.Application.Features.Users.Commands.UpdateUserActive;
 using VehicleShowroomManagement.Application.Features.Users.Queries.GetUserById;
-using VehicleShowroomManagement.Application.Features.Users.Queries.GetUsersByRole;
+using VehicleShowroomManagement.Application.Features.Users.Queries.GetUsers;
 using VehicleShowroomManagement.WebAPI.Models.Users;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -42,28 +42,26 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Gets all users filtered by role name
+        /// Gets users with optional roleName and searchTerm (phone/email)
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "HR,Admin")]
-        public async Task<ActionResult<List<UserDto>>> GetUsers([FromQuery] string? roleName = null)
+        [AllowAnonymous]
+        public async Task<ActionResult<List<UserDto>>> GetUsers(
+            [FromQuery] string? roleName = null,
+            [FromQuery] string? searchTerm = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            if (string.IsNullOrEmpty(roleName))
-            {
-                return BadRequest(new { message = "roleName parameter is required" });
-            }
-
-            var query = new GetUsersByRoleQuery(roleName);
-            var users = await mediator.Send(query);
-
-            return Ok(users);
+            var query = new GetUsersQuery(roleName, searchTerm, pageNumber, pageSize);
+            var result = await mediator.Send(query);
+            return Ok(result);
         }
 
         /// <summary>
         /// Gets a user by ID
         /// </summary>
         [HttpGet("{id}")]
-        [Authorize(Roles = "HR,Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDto>> GetUser(string id)
         {
             var query = new GetUserByIdQuery(id);

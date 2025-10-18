@@ -160,15 +160,15 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
 
                 case "VEHICLE_PHOTO":
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("displayOrder"),
-                        new CreateIndexOptions { Name = "VehicleId_DisplayOrder" }
+                        Builders<T>.IndexKeys.Ascending("modelId").Ascending("displayOrder"),
+                        new CreateIndexOptions { Name = "ModelId_DisplayOrder" }
                     ));
                     break;
 
                 case "VEHICLE_SPEC":
                     indexModels.Add(new CreateIndexModel<T>(
-                        Builders<T>.IndexKeys.Ascending("vehicleId").Ascending("groupName").Ascending("displayOrder"),
-                        new CreateIndexOptions { Name = "VehicleId_GroupName_DisplayOrder" }
+                        Builders<T>.IndexKeys.Ascending("modelId").Ascending("groupName").Ascending("displayOrder"),
+                        new CreateIndexOptions { Name = "ModelId_GroupName_DisplayOrder" }
                     ));
                     break;
 

@@ -38,6 +38,10 @@ namespace VehicleShowroomManagement.Domain.Entities
         [BsonElement("photo")]
         public string? Photo { get; private set; }
 
+        // Soft delete timestamp
+        [BsonElement("deletedAt")]
+        public DateTimeOffset? DeletedAt { get; private set; }
+
     // Parameterless constructor for MongoDB deserialization
     public VehicleModel() { }
 
@@ -96,6 +100,11 @@ namespace VehicleShowroomManagement.Domain.Entities
         public void SetPhoto(string? photoUrl)
         {
             Photo = photoUrl;
+        }
+
+        public void MarkDeleted()
+        {
+            DeletedAt = DateTimeOffset.UtcNow;
         }
     }
 }

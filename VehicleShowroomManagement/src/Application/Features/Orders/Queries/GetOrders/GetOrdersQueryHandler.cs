@@ -52,7 +52,7 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrder
 
             return new OrdersResponse
             {
-                Orders = orderDtos,
+                Items = orderDtos,
                 TotalCount = totalCount,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,

@@ -46,7 +46,7 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
     /// </summary>
     public class SearchVehiclesResult
     {
-        public List<VehicleSearchDto> Vehicles { get; set; } = new();
+        public List<VehicleSearchDto> Items { get; set; } = new();
         public int TotalCount { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
@@ -66,5 +66,6 @@ namespace VehicleShowroomManagement.Application.Features.Vehicles.Queries.Search
         public VehicleStatus Status { get; set; }
         public decimal PurchasePrice { get; set; }
         public bool IsAvailable { get; set; }
+        public string? Vin { get; set; }
     }
 }

@@ -27,10 +27,23 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         public async Task<IActionResult> GetServiceOrders(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? status = null,
+            [FromQuery] int? status = null,
             [FromQuery] string? orderId = null)
         {
-            var query = new GetServiceOrdersQuery(pageNumber, pageSize, status, orderId);
+            ServiceOrderStatus? statusEnum = null;
+            if (status.HasValue)
+            {
+                // Map to enum: 1=InProgress, 2=Completed, 3=Cancelled
+                statusEnum = status.Value switch
+                {
+                    1 => ServiceOrderStatus.InProgress,
+                    2 => ServiceOrderStatus.Completed,
+                    3 => ServiceOrderStatus.Cancelled,
+                    _ => null
+                };
+            }
+
+            var query = new GetServiceOrdersQuery(pageNumber, pageSize, statusEnum?.ToString(), orderId);
             var result = await _mediator.Send(query);
             return Ok(result);
         }
