@@ -12,9 +12,9 @@ const UserContext = createContext({
   user: null,
   isAuthenticated: false,
   loading: true,
-  setUser: () => {},
-  refreshUser: () => {},
-  logout: () => {},
+  login: async () => {},
+  logout: async () => {},
+  refreshUser: async () => {},
 });
 
 export const UserProvider = ({ children }) => {
@@ -24,16 +24,17 @@ export const UserProvider = ({ children }) => {
     !!AuthService.getAccessToken(),
   );
 
+  // 🧩 Load user profile
   const fetchUserProfile = useCallback(async () => {
     try {
       const token = AuthService.getAccessToken();
       if (!token) {
         setUser(null);
         setIsAuthenticated(false);
-        setLoading(false);
         return;
       }
-      const profile = await ProfileService.getProfile();
+
+      const profile = await ProfileService.get();
       setUser(profile);
       setIsAuthenticated(true);
     } catch (error) {
@@ -49,10 +50,20 @@ export const UserProvider = ({ children }) => {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
+  // 🟢 Login (thay vì gọi trực tiếp AuthService.login trong component)
+  const login = async (credentials, keepLoggedIn = false) => {
+    const res = await AuthService.login(credentials, keepLoggedIn);
+    const { user } = res;
+    setUser(user);
+    setIsAuthenticated(true);
+    return user;
+  };
+
   const refreshUser = async () => {
     await fetchUserProfile();
   };
 
+  // 🟣 Logout
   const logout = async () => {
     try {
       await AuthService.logout();
@@ -66,7 +77,14 @@ export const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ user, setUser, isAuthenticated, loading, refreshUser, logout }}
+      value={{
+        user,
+        isAuthenticated,
+        loading,
+        login,
+        logout,
+        refreshUser,
+      }}
     >
       {children}
     </UserContext.Provider>

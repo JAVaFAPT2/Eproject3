@@ -5,6 +5,12 @@ const columnHelper = createColumnHelper();
 
 export default function Columns({ onToggle }) {
   return [
+    columnHelper.display({
+      id: 'index',
+      header: () => <Text>#</Text>,
+      cell: (info) => <Text>{info.row.index + 1}</Text>,
+    }),
+    
     columnHelper.accessor('email', {
       header: 'EMAIL',
       cell: (info) => (
@@ -13,19 +19,13 @@ export default function Columns({ onToggle }) {
         </Text>
       ),
     }),
+    columnHelper.accessor('username', {
+      header: 'USER NAME',
+      cell: (info) => <Text>{info.getValue() || '-'}</Text>,
+    }),
     columnHelper.accessor('name', {
       header: 'FULL NAME',
       cell: (info) => <Text>{info.getValue() || '-'}</Text>,
-    }),
-    columnHelper.accessor('createdAt', {
-      header: 'JOINED DATE',
-      cell: (info) => (
-        <Text>
-          {info.getValue()
-            ? new Date(info.getValue()).toLocaleDateString()
-            : '-'}
-        </Text>
-      ),
     }),
     columnHelper.accessor('hireDate', {
       header: 'HIRE DATE',
@@ -38,7 +38,7 @@ export default function Columns({ onToggle }) {
       ),
     }),
     columnHelper.accessor('isActive', {
-      header: 'ACTIVE',
+      header: <Text align="right">ACTIVE</Text>,
       cell: (info) => {
         const row = info.row.original;
         return (

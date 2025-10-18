@@ -1,11 +1,8 @@
 import React from 'react';
-import { Flex, Text, IconButton, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Text, IconButton } from '@chakra-ui/react';
 import { MdAdd } from 'react-icons/md';
-import { SearchBar } from 'components/navbar/searchBar/SearchBar';
 
 export default function Header({
-  searchInput,
-  setSearchInput,
   onAdd,
   textColor,
 }) {
@@ -15,11 +12,6 @@ export default function Header({
         Vehicle Models
       </Text>
       <Flex gap={2}>
-        <SearchBar
-          placeholder="Search models..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-        />
         <IconButton
           aria-label="Add new"
           icon={<MdAdd />}

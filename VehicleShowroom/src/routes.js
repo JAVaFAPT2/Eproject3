@@ -3,7 +3,6 @@ import React from 'react';
 import { Icon } from '@chakra-ui/react';
 
 import {
-  MdPerson,
   MdHome,
   MdAccountCircle,
   MdCategory,
@@ -11,7 +10,7 @@ import {
 } from 'react-icons/md';
 
 // Admin Imports
-import MainDashboard from 'views/admin/default';
+import Dashboard from 'views/admin/dashboard';
 import CustomerManagement from 'views/admin/customer';
 import EmployeeManagement from 'views/admin/employee';
 import VehicleModelManagement from 'views/admin/vehicleModel';
@@ -29,6 +28,9 @@ import SignUp from 'views/auth/signUp';
 import CheckEmailNotice from 'views/auth/checkEmailNotice';
 import ResetPassword from 'views/auth/resetPassword';
 import ForgotPassword from 'views/auth/forgotPassword';
+import PurchaseOrderManagement from 'views/admin/purchaseOrder';
+import OrderManagement from 'views/admin/order';
+import ServiceOrderManagement from 'views/admin/serviceOrder';
 
 const routes = [
   // Admin Routes
@@ -37,7 +39,7 @@ const routes = [
     layout: '/admin',
     path: '/default',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-    component: <MainDashboard />,
+    component: <Dashboard />,
   },
   {
     name: 'Customer Management',
@@ -58,9 +60,9 @@ const routes = [
     component: <EmployeeManagement />,
   },
   {
-    name: 'Vehicle Model Management',
+    name: 'Model Management',
     layout: '/admin',
-    path: '/vehicle-model-management',
+    path: '/model-management',
     icon: <Icon as={MdCategory} width="20px" height="20px" color="inherit" />,
     component: <VehicleModelManagement />,
   },
@@ -78,6 +80,48 @@ const routes = [
     ),
     component: <VehicleManagement />,
   },
+  {
+    name: 'Purchase Management',
+    layout: '/admin',
+    path: '/purchase-management',
+    icon: (
+      <Icon
+        as={MdOutlineDirectionsCar}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
+    component: <PurchaseOrderManagement />,
+  },
+  {
+    name: 'Order Management',
+    layout: '/admin',
+    path: '/order-management',
+    icon: (
+      <Icon
+        as={MdOutlineDirectionsCar}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
+    component: <OrderManagement />,
+  },
+  {
+    name: 'Service Management',
+    layout: '/admin',
+    path: '/service-management',
+    icon: (
+      <Icon
+        as={MdOutlineDirectionsCar}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
+    component: <ServiceOrderManagement />,
+  },
 
   //User Routes
   {
@@ -90,20 +134,24 @@ const routes = [
     name: 'Profile',
     layout: '/user',
     path: '/profile',
-    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
     component: <Profile />,
   },
   {
     name: 'List',
     layout: '/user',
-    path: '/list',
+    path: '/models',
     component: <List />,
   },
   {
     name: 'Detail',
     layout: '/user',
     path: '/detail',
-    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
+    component: <Detail />,
+  },
+  {
+    name: 'Detail',
+    layout: '/user',
+    path: '/detail/:slug',
     component: <Detail />,
   },
 

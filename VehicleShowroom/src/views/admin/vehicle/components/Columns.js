@@ -1,51 +1,83 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { Checkbox, Text, Flex, IconButton } from '@chakra-ui/react';
+import { Text, Flex, IconButton } from '@chakra-ui/react';
 import { MdEdit, MdDelete } from 'react-icons/md';
+import { formatUSD } from 'utils/FormatHelper';
+import ModelFilter from './ModelFilter';
+import StatusFilter from './StatusFilter';
 
 const columnHelper = createColumnHelper();
 
 export default function Columns({
+  models,
+  statusFilter,
+  setStatusFilter,
+  modelFilter,
+  setModelFilter,
   onEdit,
   onDelete,
-  selectedBulk,
-  setSelectedBulk,
 }) {
+  const statusMap = {
+    1: 'In Stock',
+    2: 'Sold',
+    3: 'Reserved',
+    4: 'In Service',
+  };
   return [
     columnHelper.display({
-      id: 'select',
-      header: '',
+      id: 'index',
+      header: () => <Text>#</Text>,
+      cell: (info) => <Text>{info.row.index + 1}</Text>,
+    }),
+
+    columnHelper.accessor('vehicleId', {
+      header: 'VEHICLE ID',
+      cell: (info) => <Text>{info.getValue()}</Text>,
+    }),
+
+    columnHelper.accessor('modelName', {
+      header: () => (
+        <ModelFilter
+          models={models}
+          modelFilter={modelFilter}
+          setModelFilter={setModelFilter}
+        />
+      ),
+      cell: (info) => <Text>{info.getValue()}</Text>,
+    }),
+
+    columnHelper.accessor('status', {
+      header: () => (
+        <StatusFilter
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+        />
+      ),
       cell: (info) => {
-        const row = info.row.original;
-        const checked = selectedBulk.includes(row.vehicleId);
+        const val = info.getValue();
         return (
-          <Checkbox
-            isChecked={checked}
-            onChange={(e) => {
-              setSelectedBulk((prev) =>
-                e.target.checked
-                  ? [...prev, row.vehicleId]
-                  : prev.filter((id) => id !== row.vehicleId),
-              );
-            }}
-          />
+          <Text
+            color={
+              val === 1
+                ? 'green.400'
+                : val === 2
+                ? 'red.400'
+                : val === 3
+                ? 'orange.400'
+                : 'blue.400'
+            }
+          >
+            {statusMap[val] || 'Unknown'}
+          </Text>
         );
       },
     }),
-    columnHelper.accessor('vin', {
-      header: 'VIN',
-      cell: (info) => <Text>{info.getValue()}</Text>,
-    }),
-    columnHelper.accessor('modelName', {
-      header: 'MODEL NAME',
-      cell: (info) => <Text>{info.getValue()}</Text>,
-    }),
     columnHelper.accessor('purchasePrice', {
       header: 'PRICE',
-      cell: (info) => <Text>${info.getValue()?.toLocaleString() || 0}</Text>,
+      cell: (info) => <Text>{formatUSD(info.getValue())}</Text>,
     }),
     columnHelper.display({
       id: 'actions',
-      header: 'ACTIONS',
+      header: <Text align="right">ACTIONS</Text>,
       cell: (info) => {
         const row = info.row.original;
         return (

@@ -29,7 +29,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const data = await ProfileService.getProfile();
+        const data = await ProfileService.get();
         setUser(data);
       } catch (err) {
         console.error('❌ Failed to load profile:', err);

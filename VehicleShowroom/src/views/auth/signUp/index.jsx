@@ -31,7 +31,7 @@ function SignUp() {
   const toast = useAppToast();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [fullName, setFullName] = useState('');
+  const [username, setusername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -41,7 +41,7 @@ function SignUp() {
 
   // ✅ Gọi API đăng ký qua AuthService
   const handleEmailPasswordSignUp = async () => {
-    if (!fullName || !email || !password || !confirmPassword) {
+    if (!username || !email || !password || !confirmPassword) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -54,7 +54,7 @@ function SignUp() {
     try {
       setIsLoading(true); // bật loading
       const payload = {
-        username: fullName, // ánh xạ sang username
+        username,
         email,
         password,
       };
@@ -123,7 +123,7 @@ function SignUp() {
               color={textColor}
               mb="8px"
             >
-              Full Name<Text color={brandStars}>*</Text>
+              Username<Text color={brandStars}>*</Text>
             </FormLabel>
             <Input
               isRequired
@@ -133,8 +133,8 @@ function SignUp() {
               placeholder="Your full name"
               mb="24px"
               size="lg"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              value={username}
+              onChange={(e) => setusername(e.target.value)}
             />
 
             <FormLabel

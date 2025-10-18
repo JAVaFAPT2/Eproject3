@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   DrawerBody,
@@ -11,12 +11,17 @@ import {
   FormControl,
   FormLabel,
   Button,
-  useToast,
   Box,
 } from '@chakra-ui/react';
+import { useUser } from 'contexts/UserContext';
+import OrderService from 'services/OrderService';
+import ProfileService from 'services/ProfileService';
+import { useAppToast } from 'utils/ToastHelper';
 
 export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
-  const toast = useToast();
+  const toast = useAppToast();
+  const { user, refreshUser } = useUser();
+
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -24,30 +29,56 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
     address: '',
   });
 
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || '',
+      });
+    }
+  }, [user]);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payload = {
-      vehicleId: vehicle?.vehicleId,
-      ...form,
-    };
+    if (!user) {
+      toast.warning('Please sign in before making a purchase inquiry.');
+      return;
+    }
 
-    console.log('🚗 Purchase form payload:', payload);
+    try {
+      await ProfileService.update({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        address: form.address,
+      });
 
-    toast({
-      title: 'Inquiry Sent',
-      description: 'Your contact details have been submitted successfully!',
-      status: 'success',
-      duration: 4000,
-      isClosable: true,
-    });
+      await refreshUser();
 
-    setForm({ name: '', email: '', phone: '', address: '' });
-    onClose();
+      const payload = {
+        customerId: user.id,
+        modelNumber: vehicle?.modelNumber,
+        salePrice: vehicle?.price || 0,
+      };
+
+      await OrderService.create(payload);
+
+      toast.success('Your order has been successfully submitted!');
+
+      onClose();
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message ||
+          'Something went wrong while processing your order please try again.',
+      );
+    }
   };
 
   return (
@@ -59,7 +90,6 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
           Contact for Purchase
         </DrawerHeader>
 
-        {/* 🔹 Nội dung form */}
         <DrawerBody flex="1" overflowY="auto" pb="100px">
           <form onSubmit={handleSubmit}>
             <VStack spacing={5} align="stretch">
@@ -94,7 +124,7 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
                 />
               </FormControl>
 
-              <FormControl>
+              <FormControl isRequired>
                 <FormLabel>Address</FormLabel>
                 <Input
                   name="address"
@@ -107,7 +137,6 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
           </form>
         </DrawerBody>
 
-        {/* 🔹 Nút Submit luôn ở dưới */}
         <Box
           p={4}
           borderTopWidth="1px"

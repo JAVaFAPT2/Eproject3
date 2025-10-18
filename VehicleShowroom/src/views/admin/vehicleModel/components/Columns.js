@@ -5,12 +5,14 @@ const columnHelper = createColumnHelper();
 
 export default function Columns({ toggleExpand, expandedRows }) {
   return [
+    columnHelper.display({
+      id: 'index',
+      header: () => <Text>#</Text>,
+      cell: (info) => <Text>{info.row.index + 1}</Text>,
+    }),
+    
     columnHelper.accessor('modelNumber', {
       header: 'MODEL NUMBER',
-      cell: (info) => <Text fontWeight="600">{info.getValue()}</Text>,
-    }),
-    columnHelper.accessor('name', {
-      header: 'NAME',
       cell: (info) => {
         const row = info.row.original;
         const isExpanded = expandedRows[row.modelNumber];
@@ -31,6 +33,10 @@ export default function Columns({ toggleExpand, expandedRows }) {
           </Flex>
         );
       },
+    }),
+    columnHelper.accessor('name', {
+      header: 'NAME',
+      cell: (info) => <Text fontWeight="600">{info.getValue()}</Text>,
     }),
     columnHelper.accessor('price', {
       header: 'PRICE',

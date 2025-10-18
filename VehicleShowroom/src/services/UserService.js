@@ -2,8 +2,13 @@ import ApiClient from 'api/ApiClient';
 import { ApiUrl } from 'constants/ApiUrl';
 
 const UserService = {
-  getAll: async (params = {}) => {
+  get: async (params = {}) => {
     const res = await ApiClient.get(ApiUrl.USERS.BASE, { params });
+    return res.data;
+  },
+
+  getById: async (id) => {
+    const res = await ApiClient.get(ApiUrl.USERS.BY_ID(id));
     return res.data;
   },
 

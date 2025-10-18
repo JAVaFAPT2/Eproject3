@@ -62,7 +62,7 @@ export const ApiUrl = {
   // 🧰 Service Orders
   SERVICE_ORDERS: {
     BASE: `${BASE_URL}/ServiceOrders`,
-    UPDATE_STATUS: (id) => `${BASE_URL}/ServiceOrders/${id}/status`,
+    STATUS: (id) => `${BASE_URL}/ServiceOrders/${id}/status`,
   },
 
   // 👥 Users
@@ -76,6 +76,7 @@ export const ApiUrl = {
   // 🚘 Vehicle Models
   VEHICLE_MODELS: {
     BASE: `${BASE_URL}/VehicleModels`,
+    BY_ID: (modelNumber) => `${BASE_URL}/VehicleModels/${modelNumber}`,
     BY_MODEL: (modelNumber) => `${BASE_URL}/VehicleModels/${modelNumber}`,
     BY_SLUG: (slug) => `${BASE_URL}/VehicleModels/slug/${slug}`,
     SEARCH: `${BASE_URL}/VehicleModels/search`,
@@ -88,8 +89,6 @@ export const ApiUrl = {
     UPLOAD: (modelNumber) =>
       `${BASE_URL}/vehicle-models/${modelNumber}/photos/upload`,
     BY_ID: (photoId) => `${BASE_URL}/photos/${photoId}`,
-    UPDATE: (photoId) => `${BASE_URL}/photos/${photoId}`,
-    DELETE: (photoId) => `${BASE_URL}/photos/${photoId}`,
   },
 
   // 🚗 Vehicles

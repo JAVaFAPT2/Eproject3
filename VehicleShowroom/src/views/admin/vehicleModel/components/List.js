@@ -13,26 +13,36 @@ export default function List({
   onPreview,
   onEdit,
   onDelete,
+  onEditSpec,
+  onDeleteSpec,
   textColor,
   bgColor,
   borderColor,
   headerBg,
 }) {
-  const renderRow = (m, depth = 0) => (
-    <Row
-      key={m.modelNumber}
-      model={m}
-      depth={depth}
-      expandedRows={expandedRows}
-      toggleExpand={toggleExpand}
-      onAdd={onAdd}
-      onAddSpec={onAddSpec}
-      onPreview={onPreview}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      renderChildren={renderRow}
-    />
-  );
+  const renderRow = (m, index, depth = 0, prefix = '') => {
+    const displayIndex = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+    return (
+      <Row
+        key={m.modelNumber}
+        index={displayIndex}
+        model={m}
+        depth={depth}
+        expandedRows={expandedRows}
+        toggleExpand={toggleExpand}
+        onAdd={onAdd}
+        onAddSpec={onAddSpec}
+        onPreview={onPreview}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onEditSpec={onEditSpec}
+        onDeleteSpec={onDeleteSpec}
+        renderChildren={(child, childIndex) =>
+          renderRow(child, childIndex, depth + 1, displayIndex)
+        }
+      />
+    );
+  };
 
   return (
     <Box minH="600px" overflowX="auto" p={3}>
@@ -56,7 +66,7 @@ export default function List({
             </Tr>
           ))}
         </Thead>
-        <Tbody>{treeData.map((m) => renderRow(m))}</Tbody>
+        <Tbody>{treeData.map((m, i) => renderRow(m, i, 0))}</Tbody>
       </Table>
     </Box>
   );

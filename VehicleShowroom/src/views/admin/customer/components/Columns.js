@@ -5,6 +5,12 @@ const columnHelper = createColumnHelper();
 
 export default function Columns() {
   return [
+    columnHelper.display({
+      id: 'index',
+      header: () => <Text>#</Text>,
+      cell: (info) => <Text>{info.row.index + 1}</Text>,
+    }),
+
     columnHelper.accessor('email', {
       header: 'EMAIL',
       cell: (info) => (
@@ -13,8 +19,16 @@ export default function Columns() {
         </Text>
       ),
     }),
+    columnHelper.accessor('username', {
+      header: 'USER NAME',
+      cell: (info) => <Text>{info.getValue() || '-'}</Text>,
+    }),
     columnHelper.accessor('name', {
       header: 'FULL NAME',
+      cell: (info) => <Text>{info.getValue() || '-'}</Text>,
+    }),
+    columnHelper.accessor('phone', {
+      header: 'PHONE NUMBER',
       cell: (info) => <Text>{info.getValue() || '-'}</Text>,
     }),
     columnHelper.accessor('createdAt', {

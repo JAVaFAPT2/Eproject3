@@ -3,13 +3,13 @@ import { ApiUrl } from 'constants/ApiUrl';
 
 const ProfileService = {
   // 🟢 Lấy thông tin hồ sơ người dùng hiện tại
-  getProfile: async () => {
+  get: async () => {
     const res = await ApiClient.get(ApiUrl.PROFILE.BASE);
     return res.data;
   },
 
   // 🟡 Cập nhật hồ sơ người dùng
-  updateProfile: async (data) => {
+  update: async (data) => {
     /**
      * data format:
      * {

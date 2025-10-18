@@ -8,63 +8,125 @@ import {
   Flex,
   HStack,
   useDisclosure,
-  useToast,
+  Spinner,
 } from '@chakra-ui/react';
 import { useParams, useNavigate } from 'react-router-dom';
-import VehicleService from 'services/VehicleService';
+import VehicleModelService from 'services/VehicleModelService';
+import VehiclePhotoService from 'services/VehiclePhotoService';
+import VehicleSpecService from 'services/VehicleSpecService';
 import VSpec from 'views/user/detail/components/VSpec';
 import TechnicalDrawer from 'views/user/detail/components/TechnicalDrawer';
 import PurchaseDrawer from 'views/user/detail/components/PurchaseDrawer';
+import { useAppToast } from 'utils/ToastHelper';
+import { useUser } from 'contexts/UserContext'; // ✅ import từ context
 
 export default function Detail() {
-  const { id } = useParams();
-  const [vehicle, setVehicle] = useState(null);
+  const { slug } = useParams();
+  const [model, setModel] = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [specs, setSpecs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [isTechOpen, setTechOpen] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure(); // cho form contact
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
-  const toast = useToast();
+  const toast = useAppToast();
+
+  // ✅ Lấy user context
+  const { isAuthenticated, loading: userLoading } = useUser();
 
   useEffect(() => {
-    async function loadVehicle() {
-      const all = await VehicleService.getAll();
-      const v = all.find((x) => x.vehicleId === id);
-      setVehicle(v);
+    async function loadModelData() {
+      setLoading(true);
+      try {
+        const data = await VehicleModelService.getBySlug(slug);
+        setModel(data);
+
+        const photosRes = await VehiclePhotoService.getByModelNumber(
+          data.modelNumber,
+        );
+        setPhotos(photosRes.items);
+
+        const specsRes = await VehicleSpecService.getByModelNumber(
+          data.modelNumber,
+        );
+        setSpecs(specsRes.items);
+      } catch (err) {
+        console.error('Failed to load vehicle model detail:', err);
+        toast.error('Failed to load vehicle model detail');
+      } finally {
+        setLoading(false);
+      }
     }
-    loadVehicle();
-  }, [id]);
 
-  if (!vehicle) return <Text p={10}>Loading...</Text>;
+    if (slug) loadModelData();
+  }, [slug]);
 
-  const mainPhoto = vehicle.photos?.[0]?.url || '/placeholder-car.png';
-  const sidePhotos = vehicle.photos?.slice(1) || [];
+  // ✅ Loading state
+  if (loading || userLoading)
+    return (
+      <Flex justify="center" align="center" h="80vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
 
-  const performanceSpecs =
-    vehicle.specs?.filter((s) => s.groupName === 'GeneralPerformance') || [];
+  if (!model)
+    return (
+      <Text textAlign="center" mt={10}>
+        Model not found.
+      </Text>
+    );
 
+  // 🔹 Ảnh chính và ảnh phụ
+  const mainPhoto =
+    photos.find((p) => p.displayOrder === 0)?.photoUrl ||
+    photos[0]?.photoUrl ||
+    '/placeholder-car.png';
+  const sidePhotos = photos.slice(1) || [];
+
+  // 🔹 Lấy 3 thông số chính
+  const accelSpec = specs.find(
+    (s) => s.specName === 'Acceleration 0 - 100 km/h',
+  );
+  const powerKW = specs.find((s) => s.specName === 'Power (kW)');
+  const powerPS = specs.find((s) => s.specName === 'Power (PS)');
+  const topSpeed = specs.find((s) => s.specName === 'Top speed');
+
+  const performanceSpecs = [
+    accelSpec && {
+      head: 'Acceleration 0 - 100 km/h',
+      sub: accelSpec.specValue,
+    },
+    (powerKW || powerPS) && {
+      head: 'Power (kW) / Power (PS)',
+      sub:
+        powerKW && powerPS
+          ? `${powerKW.specValue} kW / ${powerPS.specValue} PS`
+          : powerKW
+          ? `${powerKW.specValue} kW`
+          : powerPS
+          ? `${powerPS.specValue} PS`
+          : 'N/A',
+    },
+    topSpeed && { head: 'Top speed', sub: topSpeed.specValue },
+  ].filter(Boolean);
+
+  // 🔹 Group specs cho TechnicalDrawer
   const groupedSpecs =
-    vehicle.specs?.reduce((acc, spec) => {
+    specs.reduce((acc, spec) => {
       acc[spec.groupName] = acc[spec.groupName] || [];
       acc[spec.groupName].push(spec);
       return acc;
     }, {}) || {};
 
-  // ✅ Giả lập kiểm tra đăng nhập
-  const isAuthenticated = !!localStorage.getItem('access_token');
-
+  // ✅ Check đăng nhập qua context
   const handleContact = () => {
     if (!isAuthenticated) {
-      toast({
-        title: 'Please sign in first',
-        description:
-          'You must be logged in to purchase or contact about a vehicle.',
-        status: 'warning',
-        duration: 3000,
-        isClosable: true,
-      });
-      navigate('/signin');
+      toast.warning('Please sign in first');
+      navigate('/auth/sign-in');
       return;
     }
-    onOpen(); // mở form
+    onOpen();
   };
 
   return (
@@ -72,7 +134,7 @@ export default function Detail() {
       {/* Ảnh chính */}
       <Image
         src={mainPhoto}
-        alt={vehicle.name}
+        alt={model.name}
         w="100%"
         h="auto"
         borderRadius="xl"
@@ -82,10 +144,10 @@ export default function Detail() {
       {/* Thông tin xe */}
       <VStack align="center" spacing={1} mb={10}>
         <Text fontSize="6xl" fontWeight="700">
-          {vehicle.name}
+          {model.name}
         </Text>
 
-        {vehicle.specs && (
+        {specs && (
           <Box mt={1}>
             <Box
               bg="gray.200"
@@ -95,10 +157,8 @@ export default function Detail() {
               display="inline-block"
             >
               <Text color="black" fontSize="sm" fontWeight="500">
-                {
-                  vehicle.specs.find((s) => s.specName === 'Fuel Type')
-                    ?.specValue
-                }
+                {specs.find((s) => s.specName === 'Fuel Type')?.specValue ||
+                  'N/A'}
               </Text>
             </Box>
           </Box>
@@ -106,29 +166,26 @@ export default function Detail() {
 
         <Box>
           <Text fontWeight="500" fontSize="lg" mt={4}>
-            from ${vehicle.purchasePrice?.toLocaleString()}
+            from ${model.price?.toLocaleString()}
           </Text>
         </Box>
       </VStack>
 
       {/* Layout specs + ảnh phụ */}
-      <Flex gap={10} align="start" flexDir={{ base: 'column', md: 'row' }}>
+      <Flex
+        justify="space-between"
+        align="center"
+        flexDir={{ base: 'column', md: 'row' }}
+      >
         {/* Performance Specs */}
-        <Box flex="1">
-          <Text fontSize="2xl" fontWeight="600" mb={4}>
-            Key Performance Specs
-          </Text>
+        <Box flex="2">
           <VStack align="start" spacing={3} mb={6}>
-            {performanceSpecs.map((spec) => (
-              <VSpec
-                key={spec.specId}
-                head={spec.specName}
-                sub={spec.specValue}
-              />
+            {performanceSpecs.map((spec, idx) => (
+              <VSpec key={idx} head={spec.head} sub={spec.sub} />
             ))}
           </VStack>
 
-          {/* 🔹 Buttons */}
+          {/* Buttons */}
           <HStack spacing={4} mt={4}>
             <Button
               variant="outline"
@@ -161,12 +218,12 @@ export default function Detail() {
 
         {/* Ảnh phụ */}
         {sidePhotos.length > 0 && (
-          <Box flex="2" display="flex" flexDir="column" gap={6}>
+          <Box flex="3" display="flex" flexDir="column" gap={6}>
             {sidePhotos.map((photo, idx) => (
               <Image
                 key={idx}
-                src={photo.url}
-                alt={`${vehicle.name} view ${idx + 1}`}
+                src={photo.photoUrl}
+                alt={`${model.name} view ${idx + 1}`}
                 w="100%"
                 borderRadius="lg"
               />
@@ -183,7 +240,7 @@ export default function Detail() {
       />
 
       {/* Drawer form mua xe */}
-      <PurchaseDrawer isOpen={isOpen} onClose={onClose} vehicle={vehicle} />
+      <PurchaseDrawer isOpen={isOpen} onClose={onClose} vehicle={model} />
     </Box>
   );
 }

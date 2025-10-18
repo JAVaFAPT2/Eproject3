@@ -37,12 +37,14 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
     async function fetchGroups() {
       try {
         setLoading(true);
-        const data = await VehicleModelService.getAll();
-        const uniqueGroups = [
-          'All',
-          ...new Set(data.map((m) => m.name || m.modelNumber)),
-        ];
-        setGroups(uniqueGroups);
+        const res = await VehicleModelService.get({
+          pageNumber: 1,
+          pageSize: 100,
+        });
+        const data = res?.vehicleModels || [];
+        const level1 = data.filter((m) => m.level === 1);
+        // ✅ Lưu object: All là option đặc biệt, các model khác là object
+        setGroups([{ name: 'All', modelNumber: 'All' }, ...level1]);
       } catch (err) {
         console.error('Error loading model groups:', err);
       } finally {
@@ -65,7 +67,7 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
     onChangeFilters({ group: 'All', seat: [], fuelType: [] });
 
   return (
-    <Box p={4} minW="300px">
+    <Box minW="300px">
       {loading ? (
         <HStack justify="center" py={6}>
           <Spinner size="lg" />
@@ -74,7 +76,7 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
         <VStack align="stretch" spacing={8}>
           {/* Models */}
           <Box>
-            <Text fontWeight="bold" fontSize="2xl" mb={3}>
+            <Text fontWeight="500" fontSize="xl" mb={3}>
               Models
             </Text>
             <RadioGroup
@@ -82,15 +84,15 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
               onChange={handleGroupChange}
             >
               <VStack align="start" spacing={3}>
-                {groups.map((g) => (
+                {groups.map((m) => (
                   <Radio
-                    key={g}
-                    value={g}
+                    key={m.modelNumber}
+                    value={m.modelNumber} // ✅ gửi modelNumber
                     colorScheme="blackAlpha"
                     fontSize="lg"
                     sx={{ '.chakra-radio__label': { fontSize: 'lg' } }}
                   >
-                    {g}
+                    {m.name} {/* ✅ hiển thị name */}
                   </Radio>
                 ))}
               </VStack>
@@ -107,7 +109,7 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
               cursor="pointer"
               onClick={() => toggleSection('seats')}
             >
-              <Text fontWeight="bold" fontSize="2xl">
+              <Text fontWeight="500" fontSize="xl">
                 Seats
               </Text>
               <IconButton
@@ -129,7 +131,6 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
                       key={s}
                       value={s}
                       colorScheme="blackAlpha"
-                      fontSize="lg"
                       sx={{ '.chakra-checkbox__label': { fontSize: 'lg' } }}
                     >
                       {s} Seats
@@ -150,7 +151,7 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
               cursor="pointer"
               onClick={() => toggleSection('fuel')}
             >
-              <Text fontWeight="bold" fontSize="2xl">
+              <Text fontWeight="500" fontSize="xl">
                 Fuel Type
               </Text>
               <IconButton
@@ -172,7 +173,6 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
                       key={f}
                       value={f}
                       colorScheme="blackAlpha"
-                      fontSize="lg"
                       sx={{ '.chakra-checkbox__label': { fontSize: 'lg' } }}
                     >
                       {f}
@@ -185,12 +185,13 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
 
           <Divider />
 
-          {/* Reset button at bottom */}
+          {/* Reset */}
           <Button
             variant="outline"
             colorScheme="blackAlpha"
             onClick={handleReset}
             w="full"
+            borderRadius="md"
           >
             Reset Filters
           </Button>
