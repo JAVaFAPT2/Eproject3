@@ -1,4 +1,5 @@
 using Xunit;
+using FluentAssertions;
 using VehicleShowroomManagement.Infrastructure.Services;
 
 namespace VehicleShowroomManagement.Tests.Domain

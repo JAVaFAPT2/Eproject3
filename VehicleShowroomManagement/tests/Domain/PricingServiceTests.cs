@@ -1,4 +1,5 @@
 using Xunit;
+using FluentAssertions;
 using VehicleShowroomManagement.Domain.Services;
 
 namespace VehicleShowroomManagement.Tests.Domain
@@ -57,21 +58,21 @@ namespace VehicleShowroomManagement.Tests.Domain
         public void CalculateProfit_WithNegativeCost_ThrowsArgumentException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => _pricingService.CalculateProfit(-1000, 0.1));
+            Assert.Throws<ArgumentException>(() => _pricingService.CalculateProfit(-1000, 0.1m));
         }
 
         [Fact]
         public void CalculateProfit_WithNegativeMargin_ThrowsArgumentException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => _pricingService.CalculateProfit(1000, -0.1));
+            Assert.Throws<ArgumentException>(() => _pricingService.CalculateProfit(1000, -0.1m));
         }
 
         [Fact]
         public void CalculateSellingPrice_WithNegativeCost_ThrowsArgumentException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => _pricingService.CalculateSellingPrice(-1000, 0.1));
+            Assert.Throws<ArgumentException>(() => _pricingService.CalculateSellingPrice(-1000, 0.1m));
         }
 
         [Fact]

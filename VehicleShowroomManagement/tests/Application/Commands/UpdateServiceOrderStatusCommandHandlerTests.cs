@@ -1,6 +1,8 @@
 using Xunit;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using MediatR;
 using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.UpdateStatus;
 using VehicleShowroomManagement.Domain.Entities;
@@ -11,20 +13,23 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
     public class UpdateServiceOrderStatusCommandHandlerTests
     {
         private readonly Mock<IRepository<ServiceOrder>> _mockServiceOrderRepository;
-        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
-        private readonly Mock<ILogger<UpdateServiceOrderStatusCommandHandler>> _mockLogger;
+        private readonly Mock<IRepository<Order>> _mockOrderRepository;
+        private readonly Mock<IRepository<Vehicle>> _mockVehicleRepository;
+        private readonly Mock<IMediator> _mockMediator;
         private readonly UpdateServiceOrderStatusCommandHandler _handler;
 
         public UpdateServiceOrderStatusCommandHandlerTests()
         {
             _mockServiceOrderRepository = new Mock<IRepository<ServiceOrder>>();
-            _mockUnitOfWork = new Mock<IUnitOfWork>();
-            _mockLogger = new Mock<ILogger<UpdateServiceOrderStatusCommandHandler>>();
+            _mockOrderRepository = new Mock<IRepository<Order>>();
+            _mockVehicleRepository = new Mock<IRepository<Vehicle>>();
+            _mockMediator = new Mock<IMediator>();
 
             _handler = new UpdateServiceOrderStatusCommandHandler(
                 _mockServiceOrderRepository.Object,
-                _mockUnitOfWork.Object,
-                _mockLogger.Object);
+                _mockOrderRepository.Object,
+                _mockVehicleRepository.Object,
+                _mockMediator.Object);
         }
 
         [Fact]
@@ -33,22 +38,19 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             // Arrange
             var serviceOrderId = "service-order-1";
             var newStatus = ServiceOrderStatus.Completed;
-            var existingServiceOrder = new ServiceOrder
-            {
-                Id = serviceOrderId,
-                Status = ServiceOrderStatus.InProgress,
-                Cost = 500.00m,
-                Description = "Oil Change"
-            };
+            var existingServiceOrder = new ServiceOrder(
+                orderId: "order-1",
+                customerId: "customer-1", 
+                createdBy: "user-1",
+                type: ServiceType.Maintenance,
+                cost: 500.00m,
+                description: "Oil Change");
 
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync(serviceOrderId, It.IsAny<CancellationToken>()))
                                      .ReturnsAsync(existingServiceOrder);
 
             _mockServiceOrderRepository.Setup(r => r.UpdateAsync(It.IsAny<ServiceOrder>(), It.IsAny<CancellationToken>()))
                                      .Returns(Task.CompletedTask);
-
-            _mockUnitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                          .Returns(Task.CompletedTask);
 
             var command = new UpdateServiceOrderStatusCommand(serviceOrderId, newStatus);
 
@@ -58,7 +60,6 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             // Assert
             existingServiceOrder.Status.Should().Be(newStatus);
             _mockServiceOrderRepository.Verify(r => r.UpdateAsync(existingServiceOrder, It.IsAny<CancellationToken>()), Times.Once);
-            _mockUnitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -84,13 +85,13 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             // Arrange
             var serviceOrderId = "service-order-1";
             var currentStatus = ServiceOrderStatus.Completed;
-            var existingServiceOrder = new ServiceOrder
-            {
-                Id = serviceOrderId,
-                Status = currentStatus,
-                Cost = 500.00m,
-                Description = "Oil Change"
-            };
+            var existingServiceOrder = new ServiceOrder(
+                orderId: "order-1",
+                customerId: "customer-1", 
+                createdBy: "user-1",
+                type: ServiceType.Maintenance,
+                cost: 500.00m,
+                description: "Oil Change");
 
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync(serviceOrderId, It.IsAny<CancellationToken>()))
                                      .ReturnsAsync(existingServiceOrder);
@@ -102,17 +103,9 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
 
             // Assert
             _mockServiceOrderRepository.Verify(r => r.UpdateAsync(It.IsAny<ServiceOrder>(), It.IsAny<CancellationToken>()), Times.Never);
-            _mockUnitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
 
             // Verify warning log
-            _mockLogger.Verify(
-                x => x.Log(
-                    LogLevel.Warning,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Service order already has the requested status")),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
+            // Note: Logger verification removed as logger is not injected in the constructor
         }
 
         [Fact]
@@ -122,13 +115,13 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             var serviceOrderId = "service-order-1";
             var currentStatus = ServiceOrderStatus.Completed;
             var invalidNewStatus = ServiceOrderStatus.Scheduled; // Can't go back to scheduled from completed
-            var existingServiceOrder = new ServiceOrder
-            {
-                Id = serviceOrderId,
-                Status = currentStatus,
-                Cost = 500.00m,
-                Description = "Oil Change"
-            };
+            var existingServiceOrder = new ServiceOrder(
+                orderId: "order-1",
+                customerId: "customer-1", 
+                createdBy: "user-1",
+                type: ServiceType.Maintenance,
+                cost: 500.00m,
+                description: "Oil Change");
 
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync(serviceOrderId, It.IsAny<CancellationToken>()))
                                      .ReturnsAsync(existingServiceOrder);
@@ -148,22 +141,19 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         {
             // Arrange
             var serviceOrderId = "service-order-1";
-            var existingServiceOrder = new ServiceOrder
-            {
-                Id = serviceOrderId,
-                Status = currentStatus,
-                Cost = 500.00m,
-                Description = "Oil Change"
-            };
+            var existingServiceOrder = new ServiceOrder(
+                orderId: "order-1",
+                customerId: "customer-1", 
+                createdBy: "user-1",
+                type: ServiceType.Maintenance,
+                cost: 500.00m,
+                description: "Oil Change");
 
             _mockServiceOrderRepository.Setup(r => r.GetByIdAsync(serviceOrderId, It.IsAny<CancellationToken>()))
                                      .ReturnsAsync(existingServiceOrder);
 
             _mockServiceOrderRepository.Setup(r => r.UpdateAsync(It.IsAny<ServiceOrder>(), It.IsAny<CancellationToken>()))
                                      .Returns(Task.CompletedTask);
-
-            _mockUnitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                          .Returns(Task.CompletedTask);
 
             var command = new UpdateServiceOrderStatusCommand(serviceOrderId, newStatus);
 
@@ -173,7 +163,6 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             // Assert
             existingServiceOrder.Status.Should().Be(newStatus);
             _mockServiceOrderRepository.Verify(r => r.UpdateAsync(existingServiceOrder, It.IsAny<CancellationToken>()), Times.Once);
-            _mockUnitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
