@@ -14,7 +14,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.G
         public string? Description { get; set; }
         public decimal Cost { get; set; }
         public string Type { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
+        public int Status { get; set; }
     }
 
     /// <summary>

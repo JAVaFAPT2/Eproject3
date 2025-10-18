@@ -51,7 +51,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.G
                 Description = so.Description,
                 Cost = so.Cost,
                 Type = so.Type.ToString(),
-                Status = so.Status.ToString()
+                Status = (int)so.Status
             }).ToList();
 
             return new ServiceOrdersResponse

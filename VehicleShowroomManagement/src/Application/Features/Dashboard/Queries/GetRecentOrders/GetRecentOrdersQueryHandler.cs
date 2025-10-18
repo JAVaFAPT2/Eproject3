@@ -38,12 +38,12 @@ namespace VehicleShowroomManagement.Application.Features.Dashboard.Queries.GetRe
                     {
                         OrderId = order.Id,
                         OrderNumber = order.Id, // Using ID as order number
-                        CustomerName = customer?.Name ?? customer?.Username ?? $"Customer ID: {order.CustomerId}",
+                        CustomerName = customer?.Name ?? customer?.Email ?? $"Customer ID: {order.CustomerId}",
                         VehicleModel = model?.Name ?? order.ModelNumber,
                         TotalAmount = order.SalePrice,
                         Status = order.Status.ToString(),
                         OrderDate = order.OrderDate,
-                        SalesPersonName = dealer?.Name ?? dealer?.Username ?? "No Dealer Assigned"
+                        SalesPersonName = dealer?.Name ?? dealer?.Email ?? "No Dealer Assigned"
                     });
                 }
                 catch (Exception)
