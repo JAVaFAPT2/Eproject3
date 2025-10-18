@@ -21,24 +21,29 @@ export default function StartYourJourney() {
   const [models, setModels] = useState([]);
   const bg = useColorModeValue('white', 'navy.900');
 
-  // ✅ Fetch models and their photos
+  // ✅ Lấy model level 1 và ảnh đại diện
   useEffect(() => {
     async function fetchModels() {
       try {
         const data = await VehicleModelService.get();
-        const list = data.vehicleModels || [];
+        const allModels = data?.items || [];
+        const topLevelModels = allModels.filter((m) => m.level === 1);
 
-        // Fetch photos for each model in parallel
         const enriched = await Promise.all(
-          list.map(async (m) => {
+          topLevelModels.map(async (m) => {
             try {
               const photos = await VehiclePhotoService.getByModelNumber(
                 m.modelNumber,
               );
-              return { ...m, photos };
-            } catch (err) {
-              console.warn(`No photos for ${m.modelNumber}`);
-              return { ...m, photos: [] };
+              const displayPhoto =
+                photos.items?.find((p) => p.displayOrder === 1)?.photoUrl ||
+                photos.items?.[0]?.photoUrl ||
+                photos.items?.[0]?.url ||
+                '/placeholder-car.png';
+
+              return { ...m, photo: displayPhoto, photos };
+            } catch {
+              return { ...m, photo: '/placeholder-car.png', photos: [] };
             }
           }),
         );
@@ -66,13 +71,10 @@ export default function StartYourJourney() {
         </Heading>
       </Container>
 
-      {/* Vehicle Models */}
+      {/* ✅ Hiển thị danh sách model */}
       <Box px={{ base: 0, md: 10 }} pb={16}>
         <Grid
-          templateColumns={{
-            base: '1fr',
-            lg: 'repeat(2, 1fr)',
-          }}
+          templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }}
           gap={10}
           justifyItems="center"
         >
@@ -84,7 +86,7 @@ export default function StartYourJourney() {
               overflow="hidden"
               cursor="pointer"
               position="relative"
-              onClick={() => navigate(`/user/models/${m.modelNumber}`)}
+              onClick={() => navigate(`/user/models?parentModelNumber=${m.modelNumber}`)}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -94,31 +96,17 @@ export default function StartYourJourney() {
                 ease: 'easeOut',
               }}
             >
-              {/* ✅ Background image */}
-              <Box
-                position="relative"
-                h={{ base: '90vh', md: '60vh' }}
-                borderRadius="2xl"
-                overflow="hidden"
-              >
+              <Box position="relative" h={{ base: '90vh', md: '60vh' }}>
                 <motion.img
-                  src={
-                    m.photos?.[0]?.url ||
-                    m.photos?.[0]?.photoUrl ||
-                    '/placeholder-car.png'
-                  }
+                  src={m.photo}
                   alt={m.name}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   initial={{ scale: 1.05 }}
                   whileHover={{ scale: 1.1 }}
                   transition={{ duration: 0.6 }}
                 />
 
-                {/* 🔹 Top Overlay (Model Name) */}
+                {/* Overlay tên model */}
                 <Grid
                   position="absolute"
                   top={0}
@@ -134,13 +122,12 @@ export default function StartYourJourney() {
                     color="white"
                     fontFamily="'Kaushan Script', cursive"
                     fontWeight="600"
-                    textAlign="center"
                   >
                     {m.name}
                   </Text>
                 </Grid>
 
-                {/* 🔹 Bottom Overlay (Description + Explore) */}
+                {/* Overlay dưới */}
                 <Grid
                   position="absolute"
                   bottom={0}
@@ -154,12 +141,7 @@ export default function StartYourJourney() {
                   <Text fontSize={{ base: 'sm', md: 'md' }}>
                     {m.description}
                   </Text>
-                  <Grid
-                    templateColumns="auto auto"
-                    alignItems="center"
-                    justifyContent="start"
-                    gap={2}
-                  >
+                  <Grid templateColumns="auto auto" alignItems="center" gap={2}>
                     <Text fontWeight="600">Explore</Text>
                     <Icon as={ArrowForwardIcon} boxSize={5} />
                   </Grid>

@@ -1,15 +1,71 @@
-import React from 'react';
-import Table from './components/Table';
-import { Box }  from '@chakra-ui/react'; 
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { Card, useColorModeValue } from '@chakra-ui/react';
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import UserService from 'services/UserService';
+import List from './components/List';
+import Columns from './components/Columns';
+import { useAppToast } from 'utils/ToastHelper';
+import Header from './components/Header';
+import { LoadingState } from 'components/common/LoadingState';
 
-function CustomerPage() {
+function CustomerManagement() {
+  const textColor = useColorModeValue('secondaryGray.900', 'white');
+  const borderColor = useColorModeValue('gray.200', 'navy.700');
+  const bgColor = useColorModeValue('white', 'navy.800');
+  const headerBg = useColorModeValue('gray.100', 'navy.800');
+
+  const toast = useAppToast();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Load danh sách khách hàng
+  const loadUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await UserService.get({ roleName: 'Customer' });
+      setUsers(res.items || []);
+    } catch (err) {
+      console.error('❌ Failed to load customers:', err);
+      toast.error('Failed to load customers');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+  // ✅ Cấu hình cột hiển thị
+  const columns = useMemo(() => Columns({ textColor }), [textColor]);
+
+  const table = useReactTable({
+    data: users,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  // 🧩 Trạng thái hiển thị
+  if (loading) return <LoadingState />;
+
   return (
-    <>
-      <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
-        <Table />
-      </Box>
-    </>
+    <Card
+      flexDirection="column"
+      w="100%"
+      borderRadius="16px"
+      boxShadow="md"
+      bg={bgColor}
+    >
+      <Header textColor={textColor} />
+      <List
+        table={table}
+        textColor={textColor}
+        borderColor={borderColor}
+        bgColor={bgColor}
+        headerBg={headerBg}
+      />
+    </Card>
   );
 }
 
-export default CustomerPage;
+export default CustomerManagement;

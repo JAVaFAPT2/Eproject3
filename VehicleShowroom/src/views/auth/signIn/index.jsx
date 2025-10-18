@@ -20,7 +20,6 @@ import DefaultAuth from 'layouts/auth/Default';
 import illustration from 'assets/image/auth/banner.png';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
-import AuthService from 'services/AuthService';
 import { useUser } from 'contexts/UserContext';
 
 function SignIn() {
@@ -32,13 +31,13 @@ function SignIn() {
 
   const navigate = useNavigate();
   const toast = useAppToast();
-  const { setUser } = useUser();
+  const { login } = useUser();
 
   const [show, setShow] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // ✅ loading state
+  const [isLoading, setIsLoading] = useState(false); 
 
   const handleClick = () => setShow(!show);
 
@@ -52,14 +51,9 @@ function SignIn() {
     }
 
     try {
-      setIsLoading(true); // ✅ bật loading
-      const data = await AuthService.login(
-        { username, password },
-        keepLoggedIn,
-      );
-      const { user } = data;
-      setUser(user);
-      toast.success('Login success!');
+      setIsLoading(true);
+      const user = await login({ username, password }, keepLoggedIn);
+      toast.success(`Welcome back, ${user.name || user.username}!`);
       navigate('/');
     } catch (error) {
       console.error(error);
@@ -68,7 +62,7 @@ function SignIn() {
         'Invalid credentials. Please try again.';
       toast.error(msg);
     } finally {
-      setIsLoading(false); // ✅ tắt loading
+      setIsLoading(false);
     }
   };
 

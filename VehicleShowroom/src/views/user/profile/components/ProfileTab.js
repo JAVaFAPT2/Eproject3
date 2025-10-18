@@ -48,7 +48,7 @@ export default function ProfileTab({ user, colors }) {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await ProfileService.updateProfile({
+      await ProfileService.update({
         name: formData.name,
         phone: formData.phone,
         address: formData.address,

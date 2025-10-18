@@ -55,7 +55,6 @@ function NavbarUser({ toggleCategory, isCategoryOpen }) {
             variant="ghost"
             onClick={toggleCategory}
             aria-label="Toggle menu"
-            _hover={{ bg: hoverBg }}
           />
 
           {/* 🔹 Center title */}

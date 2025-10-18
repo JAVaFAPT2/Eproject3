@@ -8,9 +8,8 @@ const VehicleService = {
     return res.data;
   },
 
-  // 🔍 Search vehicles
-  search: async (params = {}) => {
-    const res = await ApiClient.get(ApiUrl.VEHICLES.SEARCH, { params });
+   get: async (params = {}) => {
+    const res = await ApiClient.get(ApiUrl.VEHICLES.BASE, { params });
     return res.data;
   },
 

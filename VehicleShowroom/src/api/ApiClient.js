@@ -94,9 +94,6 @@ const createResponseInterceptor = (client) =>
         // 🌟 Gọi refresh token
         const newToken = await AuthService.refreshToken();
 
-        // ✅ Lưu token mới lại
-        AuthService.setAccessToken(newToken);
-
         // ✅ Update default header
         ApiClient.defaults.headers.common[
           'Authorization'

@@ -3,121 +3,178 @@ import {
   Box,
   Flex,
   Text,
+  Spinner,
   useDisclosure,
   useBreakpointValue,
+  IconButton,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  DrawerCloseButton,
 } from '@chakra-ui/react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { FiFilter } from 'react-icons/fi';
+import { useSearchParams } from 'react-router-dom';
 import FilterMenu from 'views/user/list/components/FilterMenu';
-import VehicleService from 'services/VehicleService';
+import VehicleModelService from 'services/VehicleModelService';
+import VehiclePhotoService from 'services/VehiclePhotoService';
+import VehicleSpecService from 'services/VehicleSpecService';
 import Section from 'views/user/list/components/Section';
 
 export default function List() {
-  const { isOpen } = useDisclosure({ defaultIsOpen: true });
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const isMobile = useBreakpointValue({ base: true, md: false });
-
-  const { model: paramModel } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
+  // ✅ đọc từ URL ?parentModelNumber=...
   const [filters, setFilters] = useState({
-    group: paramModel || 'All',
+    group: searchParams.get('parentModelNumber') || 'All',
     seat: searchParams.get('seat')?.split(',') || [],
     fuelType: searchParams.get('fuelType')?.split(',') || [],
   });
 
-  const [vehicles, setVehicles] = useState([]);
+  const [models, setModels] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Khi chọn model trong filter → đổi URL path
-  useEffect(() => {
-    if (
-      filters.group &&
-      filters.group !== 'All' &&
-      filters.group.toLowerCase() !== paramModel?.toLowerCase()
-    ) {
-      navigate(`/user/models/${filters.group}`, { replace: false });
-    }
-  }, [filters.group]);
-
-  // ✅ Khi URL param đổi → sync lại state
-  useEffect(() => {
-    if (paramModel && paramModel !== filters.group) {
-      setFilters((prev) => ({ ...prev, group: paramModel }));
-    }
-  }, [paramModel]);
-
-  // ✅ Cập nhật query param khi filter đổi
+  // ✅ Khi filters thay đổi -> cập nhật URL (hiển thị parentModelNumber)
   useEffect(() => {
     const params = {};
+    if (filters.group && filters.group !== 'All')
+      params.parentModelNumber = filters.group;
     if (filters.seat.length > 0) params.seat = filters.seat.join(',');
     if (filters.fuelType.length > 0)
       params.fuelType = filters.fuelType.join(',');
-
     setSearchParams(params);
-  }, [filters.seat, filters.fuelType, setSearchParams]);
+  }, [filters, setSearchParams]);
 
-  // ✅ Lọc dữ liệu FE
+  // ✅ Gọi API theo parentModelNumber (hoặc null)
   useEffect(() => {
-    async function fetchVehicles() {
-      const all = await VehicleService.getAll();
-      let filtered = all;
+    const fetchModels = async () => {
+      setLoading(true);
+      try {
+        const params = {
+          parentModelNumber:
+            filters.group && filters.group !== 'All'
+              ? filters.group
+              : null,
+          seats:
+            filters.seat.length > 0 ? filters.seat.join(',') : null,
+          fuelType:
+            filters.fuelType.length > 0
+              ? filters.fuelType.join(',')
+              : null,
+          pageNumber: 1,
+          pageSize: 50,
+        };
 
-      if (filters.group && filters.group !== 'All') {
-        filtered = filtered.filter((v) =>
-          v.modelNumber.toLowerCase().includes(filters.group.toLowerCase()),
+        const res = await VehicleModelService.get(params);
+        const list = (res.vehicleModels || []).filter(
+          (item) => item.level === 2,
         );
-      }
 
-      if (filters.seat.length > 0) {
-        filtered = filtered.filter((v) =>
-          v.specs?.some(
-            (s) =>
-              s.specName.toLowerCase().includes('seat') &&
-              filters.seat.includes(s.specValue),
-          ),
+        const enriched = await Promise.all(
+          list.map(async (m) => {
+            let photoUrl = '/placeholder-car.png';
+            let specs = [];
+
+            try {
+              const photos =
+                await VehiclePhotoService.getByModelNumber(
+                  m.modelNumber,
+                );
+              const displayPhoto =
+                photos.items?.find((p) => p.displayOrder === 0)
+                  ?.photoUrl ||
+                photos.items?.[0]?.photoUrl ||
+                photos.items?.[0]?.url;
+              if (displayPhoto) photoUrl = displayPhoto;
+            } catch {}
+
+            try {
+              specs = await VehicleSpecService.getByModelNumber(
+                m.modelNumber,
+              );
+            } catch {}
+
+            return { ...m, photo: photoUrl, specs: specs.items };
+          }),
         );
+
+        setModels(enriched);
+      } catch (err) {
+        console.error('Error fetching models:', err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      if (filters.fuelType.length > 0) {
-        filtered = filtered.filter((v) =>
-          v.specs?.some(
-            (s) =>
-              s.specName.toLowerCase().includes('fuel') &&
-              filters.fuelType.includes(s.specValue),
-          ),
-        );
-      }
-
-      setVehicles(filtered);
-    }
-
-    fetchVehicles();
+    fetchModels();
   }, [filters]);
 
   return (
     <Box pt="100px" minH="100vh" px={{ base: 4, md: 10 }}>
-      <Text fontSize="4xl" fontWeight="600" mb={6}>
-        Model Overview
-      </Text>
+      <Flex justify="space-between" align="center" mb={10}>
+        <Text fontSize="4xl" fontWeight="500">
+          Model Overview
+        </Text>
+
+        {/* 🔹 Icon filter chỉ hiện ở mobile */}
+        {isMobile && (
+          <IconButton
+            icon={<FiFilter />}
+            aria-label="Open Filters"
+            onClick={onOpen}
+            variant="outline"
+            borderRadius="md"
+          />
+        )}
+      </Flex>
 
       <Flex gap={10} flexDir={{ base: 'column', md: 'row' }}>
-        {/* Sidebar Filter */}
-        <Box
-          flex={{ base: 'none', md: '0 0 300px' }}
-          position={{ md: 'sticky' }}
-          top="100px"
-          alignSelf="flex-start"
-          h="fit-content"
-        >
-          <FilterMenu
-            isOpen={!isMobile || isOpen}
-            selectedFilters={filters}
-            onChangeFilters={setFilters}
-          />
-        </Box>
+        {/* 🔹 Sidebar desktop */}
+        {!isMobile && (
+          <Box flex="0 0 300px" alignSelf="flex-start" h="fit-content">
+            <FilterMenu
+              selectedFilters={filters}
+              onChangeFilters={setFilters}
+            />
+          </Box>
+        )}
 
-        {/* Vehicle List */}
+        {/* 🔹 Drawer mobile */}
+        {isMobile && (
+          <Drawer
+            isOpen={isOpen}
+            placement="right"
+            onClose={onClose}
+            size="sm"
+          >
+            <DrawerOverlay bg="blackAlpha.500" backdropFilter="blur(3px)" />
+            <DrawerContent>
+              <DrawerCloseButton />
+              <DrawerHeader borderBottomWidth="1px">
+                Filters
+              </DrawerHeader>
+              <DrawerBody>
+                <FilterMenu
+                  selectedFilters={filters}
+                  onChangeFilters={setFilters}
+                />
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
+        )}
+
+        {/* 🔹 Danh sách models */}
         <Box flex="1">
-          <Section vehicles={vehicles} />
+          {loading ? (
+            <Flex justify="center" align="center" h="300px">
+              <Spinner size="xl" />
+            </Flex>
+          ) : (
+            <Section vehicles={models} />
+          )}
         </Box>
       </Flex>
     </Box>
