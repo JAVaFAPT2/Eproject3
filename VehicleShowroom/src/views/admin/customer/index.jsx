@@ -45,9 +45,6 @@ function CustomerManagement() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // 🧩 Trạng thái hiển thị
-  if (loading) return <LoadingState />;
-
   return (
     <Card
       flexDirection="column"
@@ -63,6 +60,7 @@ function CustomerManagement() {
         borderColor={borderColor}
         bgColor={bgColor}
         headerBg={headerBg}
+        loading={loading}
       />
     </Card>
   );

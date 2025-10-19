@@ -135,9 +135,6 @@ function PurchaseOrderManagement() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // ✅ Trạng thái hiển thị
-  if (loading) return <LoadingState />;
-
   return (
     <>
       <Form
@@ -151,7 +148,7 @@ function PurchaseOrderManagement() {
 
       <Card bg={bgColor} boxShadow="md" borderRadius="16px">
         <Header onAdd={onOpen} textColor={textColor} />
-        <List table={table} borderColor={borderColor} textColor={textColor} />
+        <List  loading={loading} table={table} borderColor={borderColor} textColor={textColor} />
       </Card>
 
       {totalPages > 1 && (

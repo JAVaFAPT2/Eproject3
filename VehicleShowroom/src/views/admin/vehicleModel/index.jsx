@@ -233,8 +233,6 @@ function VehicleModelManagement() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (loading) return <LoadingState />;
-
   return (
     <>
       {/* 🔹 Form Model */}
@@ -286,6 +284,7 @@ function VehicleModelManagement() {
           textColor={textColor}
         />
         <List
+          loading={loading}
           table={table}
           treeData={treeData}
           expandedRows={expandedRows}

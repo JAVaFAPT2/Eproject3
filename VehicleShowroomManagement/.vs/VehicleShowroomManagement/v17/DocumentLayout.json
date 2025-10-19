@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\enums\\orderstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|solutionrelative:src\\domain\\enums\\orderstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\enums\\vehiclestatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|solutionrelative:src\\domain\\enums\\vehiclestatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D4F9A3B5-6E8C-4A2D-9F1B-8C7E5D3F2A6B}|src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\webapi\\controllers\\documentoutputscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D4F9A3B5-6E8C-4A2D-9F1B-8C7E5D3F2A6B}|src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj|solutionrelative:src\\webapi\\controllers\\documentoutputscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\enums\\serviceorderstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -15,12 +19,40 @@
       "RelativeMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|solutionrelative:src\\domain\\enums\\servicetype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\enums\\orderstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|solutionrelative:src\\domain\\enums\\orderstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\enums\\entitytype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|solutionrelative:src\\domain\\enums\\entitytype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\enums\\billingstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|solutionrelative:src\\domain\\enums\\billingstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\enums\\filetype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|solutionrelative:src\\domain\\enums\\filetype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\enums\\purchaseorderstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|solutionrelative:src\\domain\\enums\\purchaseorderstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\enums\\vehiclestatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|solutionrelative:src\\domain\\enums\\vehiclestatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A1C8D4F5-3B6E-4D2A-9F8C-7E5B4A2F1C6D}|src\\Application\\VehicleShowroomManagement.Application.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\application\\features\\orders\\commands\\confirmorder\\confirmordercommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C8D4F5-3B6E-4D2A-9F8C-7E5B4A2F1C6D}|src\\Application\\VehicleShowroomManagement.Application.csproj|solutionrelative:src\\application\\features\\orders\\commands\\confirmorder\\confirmordercommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D4F9A3B5-6E8C-4A2D-9F1B-8C7E5D3F2A6B}|src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\webapi\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D4F9A3B5-6E8C-4A2D-9F1B-8C7E5D3F2A6B}|src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj|solutionrelative:src\\webapi\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D4F9A3B5-6E8C-4A2D-9F1B-8C7E5D3F2A6B}|src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\webapi\\controllers\\serviceorderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D4F9A3B5-6E8C-4A2D-9F1B-8C7E5D3F2A6B}|src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj|solutionrelative:src\\webapi\\controllers\\serviceorderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D4F9A3B5-6E8C-4A2D-9F1B-8C7E5D3F2A6B}|src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\webapi\\controllers\\vehiclescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D4F9A3B5-6E8C-4A2D-9F1B-8C7E5D3F2A6B}|src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj|solutionrelative:src\\webapi\\controllers\\vehiclescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B8F7A6E0-4E2A-4F1D-8B7A-5C8E6F4A3B2D}|src\\Domain\\VehicleShowroomManagement.Domain.csproj|c:\\users\\admin\\documents\\githubrepository\\eproject3\\vehicleshowroommanagement\\src\\domain\\entities\\vehiclemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -74,7 +106,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -82,7 +114,81 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
+              "Title": "DocumentOutputsController.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\Controllers\\DocumentOutputsController.cs",
+              "RelativeDocumentMoniker": "src\\WebAPI\\Controllers\\DocumentOutputsController.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\Controllers\\DocumentOutputsController.cs",
+              "RelativeToolTip": "src\\WebAPI\\Controllers\\DocumentOutputsController.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-18T15:47:20.862Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "EntityType.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\EntityType.cs",
+              "RelativeDocumentMoniker": "src\\Domain\\Enums\\EntityType.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\EntityType.cs",
+              "RelativeToolTip": "src\\Domain\\Enums\\EntityType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-18T15:17:18.88Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ConfirmOrderCommandHandler.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\Features\\Orders\\Commands\\ConfirmOrder\\ConfirmOrderCommandHandler.cs",
+              "RelativeDocumentMoniker": "src\\Application\\Features\\Orders\\Commands\\ConfirmOrder\\ConfirmOrderCommandHandler.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\Features\\Orders\\Commands\\ConfirmOrder\\ConfirmOrderCommandHandler.cs",
+              "RelativeToolTip": "src\\Application\\Features\\Orders\\Commands\\ConfirmOrder\\ConfirmOrderCommandHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-18T15:12:03.539Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "OrdersController.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\Controllers\\OrdersController.cs",
+              "RelativeDocumentMoniker": "src\\WebAPI\\Controllers\\OrdersController.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\Controllers\\OrdersController.cs",
+              "RelativeToolTip": "src\\WebAPI\\Controllers\\OrdersController.cs",
+              "ViewState": "AgIAADkAAAAAAAAAAAAowFIAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-18T15:11:16.144Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ServiceOrdersController.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\Controllers\\ServiceOrdersController.cs",
+              "RelativeDocumentMoniker": "src\\WebAPI\\Controllers\\ServiceOrdersController.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\Controllers\\ServiceOrdersController.cs",
+              "RelativeToolTip": "src\\WebAPI\\Controllers\\ServiceOrdersController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-18T15:11:12.814Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "VehiclesController.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\Controllers\\VehiclesController.cs",
+              "RelativeDocumentMoniker": "src\\WebAPI\\Controllers\\VehiclesController.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\Controllers\\VehiclesController.cs",
+              "RelativeToolTip": "src\\WebAPI\\Controllers\\VehiclesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-18T15:11:11.827Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "ServiceType.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\ServiceType.cs",
               "RelativeDocumentMoniker": "src\\Domain\\Enums\\ServiceType.cs",
@@ -95,13 +201,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "ServiceOrderStatus.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\ServiceOrderStatus.cs",
               "RelativeDocumentMoniker": "src\\Domain\\Enums\\ServiceOrderStatus.cs",
               "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\ServiceOrderStatus.cs",
               "RelativeToolTip": "src\\Domain\\Enums\\ServiceOrderStatus.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-17T13:24:39.215Z",
               "EditorCaption": ""
@@ -109,19 +215,56 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "VehicleStatus.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\VehicleStatus.cs",
+              "RelativeDocumentMoniker": "src\\Domain\\Enums\\VehicleStatus.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\VehicleStatus.cs",
+              "RelativeToolTip": "src\\Domain\\Enums\\VehicleStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-15T13:01:23.066Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "FileType.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\FileType.cs",
+              "RelativeDocumentMoniker": "src\\Domain\\Enums\\FileType.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\FileType.cs",
+              "RelativeToolTip": "src\\Domain\\Enums\\FileType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-18T15:17:17.485Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "OrderStatus.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\OrderStatus.cs",
               "RelativeDocumentMoniker": "src\\Domain\\Enums\\OrderStatus.cs",
               "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\OrderStatus.cs",
               "RelativeToolTip": "src\\Domain\\Enums\\OrderStatus.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAxwBQAAAAWAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-17T12:58:47.039Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
+              "Title": "BillingStatus.cs",
+              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\BillingStatus.cs",
+              "RelativeDocumentMoniker": "src\\Domain\\Enums\\BillingStatus.cs",
+              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\BillingStatus.cs",
+              "RelativeToolTip": "src\\Domain\\Enums\\BillingStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-18T15:17:20.116Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "PurchaseOrderStatus.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\PurchaseOrderStatus.cs",
               "RelativeDocumentMoniker": "src\\Domain\\Enums\\PurchaseOrderStatus.cs",
@@ -133,19 +276,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "VehicleStatus.cs",
-              "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\VehicleStatus.cs",
-              "RelativeDocumentMoniker": "src\\Domain\\Enums\\VehicleStatus.cs",
-              "ToolTip": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Enums\\VehicleStatus.cs",
-              "RelativeToolTip": "src\\Domain\\Enums\\VehicleStatus.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-15T13:01:23.066Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 13,
               "Title": "VehicleModel.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Entities\\VehicleModel.cs",
               "RelativeDocumentMoniker": "src\\Domain\\Entities\\VehicleModel.cs",
@@ -157,7 +288,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 16,
               "Title": "CreateVehicleCommand.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\Features\\Vehicles\\Commands\\CreateVehicle\\CreateVehicleCommand.cs",
               "RelativeDocumentMoniker": "src\\Application\\Features\\Vehicles\\Commands\\CreateVehicle\\CreateVehicleCommand.cs",
@@ -169,7 +300,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 14,
               "Title": "CreateVehicleModelCommand.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\Features\\VehicleModels\\Commands\\CreateVehicleModel\\CreateVehicleModelCommand.cs",
               "RelativeDocumentMoniker": "src\\Application\\Features\\VehicleModels\\Commands\\CreateVehicleModel\\CreateVehicleModelCommand.cs",
@@ -181,7 +312,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 15,
               "Title": "CreateVehicleModelCommandHandler.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\Features\\VehicleModels\\Commands\\CreateVehicleModel\\CreateVehicleModelCommandHandler.cs",
               "RelativeDocumentMoniker": "src\\Application\\Features\\VehicleModels\\Commands\\CreateVehicleModel\\CreateVehicleModelCommandHandler.cs",
@@ -193,7 +324,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 17,
               "Title": "CreateUserCommandHandler.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\Features\\Users\\Commands\\CreateUser\\CreateUserCommandHandler.cs",
               "RelativeDocumentMoniker": "src\\Application\\Features\\Users\\Commands\\CreateUser\\CreateUserCommandHandler.cs",
@@ -205,7 +336,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 18,
               "Title": "CreateUserCommand.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Application\\Features\\Users\\Commands\\CreateUser\\CreateUserCommand.cs",
               "RelativeDocumentMoniker": "src\\Application\\Features\\Users\\Commands\\CreateUser\\CreateUserCommand.cs",
@@ -217,7 +348,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 19,
               "Title": "VehiclePhoto.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Entities\\VehiclePhoto.cs",
               "RelativeDocumentMoniker": "src\\Domain\\Entities\\VehiclePhoto.cs",
@@ -229,7 +360,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 20,
               "Title": "Vehicle.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Entities\\Vehicle.cs",
               "RelativeDocumentMoniker": "src\\Domain\\Entities\\Vehicle.cs",
@@ -241,7 +372,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 21,
               "Title": "VehicleSpec.cs",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Domain\\Entities\\VehicleSpec.cs",
               "RelativeDocumentMoniker": "src\\Domain\\Entities\\VehicleSpec.cs",
@@ -253,7 +384,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 23,
               "Title": "VehicleShowroomManagement.Infrastructure.csproj",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj",
               "RelativeDocumentMoniker": "src\\Infrastructure\\VehicleShowroomManagement.Infrastructure.csproj",
@@ -265,7 +396,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 22,
               "Title": "VehicleShowroomManagement.WebAPI.csproj",
               "DocumentMoniker": "C:\\Users\\Admin\\Documents\\GitHubRepository\\Eproject3\\VehicleShowroomManagement\\src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj",
               "RelativeDocumentMoniker": "src\\WebAPI\\VehicleShowroomManagement.WebAPI.csproj",

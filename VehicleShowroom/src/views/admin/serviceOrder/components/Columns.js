@@ -1,38 +1,39 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import { Text, Button, Flex, Badge, HStack } from '@chakra-ui/react';
+import StatusFilter from './StatusFilter';
 
 const columnHelper = createColumnHelper();
 
-export default function Columns({ onViewDetail, onUpdateStatus }) {
-  // 🟩 Enum trạng thái hiển thị
+export default function Columns({
+  onViewDetail,
+  onUpdateStatus,
+  statusFilter,
+  setStatusFilter,
+}) {
   const statuses = {
-    Scheduled: { label: 'Scheduled', color: 'blue' },
-    InProgress: { label: 'In Progress', color: 'orange' },
-    Completed: { label: 'Completed', color: 'green' },
-    Cancelled: { label: 'Cancelled', color: 'red' },
+    1: { label: 'Scheduled', color: 'blue' },
+    2: { label: 'In Progress', color: 'orange' },
+    3: { label: 'Completed', color: 'green' },
+    4: { label: 'Cancelled', color: 'red' },
   };
 
   return [
-    // 🔹 STT
     columnHelper.display({
       id: 'index',
       header: '#',
       cell: (info) => info.row.index + 1,
     }),
 
-    // 🔹 Created By
     columnHelper.accessor('createdByName', {
       header: 'CREATED BY',
       cell: (info) => info.getValue() || 'Unknown',
     }),
 
-    // 🔹 Customer
     columnHelper.accessor('customerName', {
       header: 'CUSTOMER',
       cell: (info) => info.getValue() || 'Unknown',
     }),
 
-    // 🔹 Appointment
     columnHelper.accessor('appointmentDate', {
       header: 'APPOINTMENT DATE',
       cell: (info) => {
@@ -41,15 +42,17 @@ export default function Columns({ onViewDetail, onUpdateStatus }) {
       },
     }),
 
-    // 🔹 Status — chỉ hiển thị Badge
+    // ✅ Header có menu filter
     columnHelper.accessor('status', {
-      header: 'STATUS',
+      header: () => (
+        <StatusFilter
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+        />
+      ),
       cell: (info) => {
         const value = info.getValue();
-        const s = statuses[value] || {
-          label: value || 'Unknown',
-          color: 'gray',
-        };
+        const s = statuses[value] || { label: 'Unknown', color: 'gray' };
         return (
           <Badge
             colorScheme={s.color}
@@ -64,7 +67,6 @@ export default function Columns({ onViewDetail, onUpdateStatus }) {
       },
     }),
 
-    // 🔹 Actions — có cả View và Update
     columnHelper.display({
       id: 'actions',
       header: <Text align="right">ACTIONS</Text>,

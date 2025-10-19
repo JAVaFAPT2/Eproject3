@@ -24,6 +24,7 @@ function ServiceOrderManagement() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [statusFilter, setStatusFilter] = useState(null); // ✅ Bộ lọc status
 
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [updatingOrder, setUpdatingOrder] = useState(null);
@@ -40,52 +41,55 @@ function ServiceOrderManagement() {
     onClose: onStatusClose,
   } = useDisclosure();
 
-  // ✅ Load orders (mapping createdBy & customerName)
-  const loadOrders = useCallback(async (p = 1) => {
-    try {
-      setLoading(true);
-      const res = await ServiceOrderService.get({
-        pageNumber: p,
-        pageSize: 10,
-      });
-      const orders = res.items || [];
+  // ✅ Load orders (có lọc theo status)
+  const loadOrders = useCallback(
+    async (p = 1) => {
+      try {
+        setLoading(true);
+        const params = { pageNumber: p, pageSize: 10 };
+        if (statusFilter) params.status = statusFilter; // ✅ gửi ?status=
 
-      const ids = [
-        ...new Set(
-          orders.flatMap((o) => [o.createdBy, o.customerId]).filter(Boolean),
-        ),
-      ];
+        const res = await ServiceOrderService.get(params);
+        const orders = res.items || [];
 
-      const userMap = {};
-      await Promise.all(
-        ids.map(async (id) => {
-          try {
-            const userRes = await UserService.getById(id);
-            userMap[id] = userRes?.name || userRes?.username || 'Unknown';
-          } catch {
-            userMap[id] = 'Unknown';
-          }
-        }),
-      );
+        const ids = [
+          ...new Set(
+            orders.flatMap((o) => [o.createdBy, o.customerId]).filter(Boolean),
+          ),
+        ];
 
-      const mapped = orders.map((o) => ({
-        ...o,
-        createdByName: userMap[o.createdBy] || 'Unknown',
-        customerName: userMap[o.customerId] || 'Unknown',
-      }));
+        const userMap = {};
+        await Promise.all(
+          ids.map(async (id) => {
+            try {
+              const userRes = await UserService.getById(id);
+              userMap[id] = userRes?.name || userRes?.username || 'Unknown';
+            } catch {
+              userMap[id] = 'Unknown';
+            }
+          }),
+        );
 
-      setOrders(mapped);
-      setTotalPages(res.totalPages || 1);
-    } catch (err) {
-      toast.error('Failed to load service orders');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        const mapped = orders.map((o) => ({
+          ...o,
+          createdByName: userMap[o.createdBy] || 'Unknown',
+          customerName: userMap[o.customerId] || 'Unknown',
+        }));
+
+        setOrders(mapped);
+        setTotalPages(res.totalPages || 1);
+      } catch (err) {
+        toast.error('Failed to load service orders');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [statusFilter],
+  );
 
   useEffect(() => {
     loadOrders(page);
-  }, [page]);
+  }, [page, statusFilter]);
 
   const handleViewDetail = (order) => {
     setSelectedOrder(order);
@@ -102,8 +106,10 @@ function ServiceOrderManagement() {
       Columns({
         onViewDetail: handleViewDetail,
         onUpdateStatus: handleStatusChange,
+        statusFilter,
+        setStatusFilter,
       }),
-    [],
+    [statusFilter],
   );
 
   const table = useReactTable({
@@ -112,13 +118,16 @@ function ServiceOrderManagement() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (loading) return <LoadingState />;
-
   return (
     <>
       <Card bg={bgColor} boxShadow="md" borderRadius="16px">
         <Header textColor={textColor} />
-        <List table={table} borderColor={borderColor} textColor={textColor} />
+        <List
+          loading={loading}
+          table={table}
+          borderColor={borderColor}
+          textColor={textColor}
+        />
       </Card>
 
       {totalPages > 1 && (

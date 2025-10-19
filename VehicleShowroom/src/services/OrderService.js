@@ -16,9 +16,10 @@ const OrderService = {
   },
 
   // 🔹 Gán vehicle cho order
-  assignVehicle: async (orderId, vehicleId) => {
+  assignVehicle: async (orderId, vehicleId, dealerId) => {
     const res = await ApiClient.post(ApiUrl.ORDERS.ASSIGN_VEHICLE(orderId), {
       vehicleId,
+      dealerId,
     });
     return res.data;
   },

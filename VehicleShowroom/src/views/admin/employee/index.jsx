@@ -62,9 +62,6 @@ function EmployeeManagement() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // 🧩 Trạng thái hiển thị
-  if (loading) return <LoadingState />;
-
   return (
     <Card
       flexDirection="column"
@@ -75,6 +72,7 @@ function EmployeeManagement() {
     >
       <Header textColor={textColor} />
       <List
+        loading={loading}
         table={table}
         textColor={textColor}
         borderColor={borderColor}

@@ -8,25 +8,40 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  Select,
   Input,
   FormControl,
   FormLabel,
-  useToast,
   Stack,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Flex,
+  Text,
+  Box,
 } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import ServiceOrderService from 'services/ServiceOrderService';
+import { useAppToast } from 'utils/ToastHelper';
+import VehicleService from 'services/VehicleService';
+import OrderService from 'services/OrderService';
+
+const STATUS_OPTIONS = [
+  { label: 'Scheduled', value: 1 },
+  { label: 'In Progress', value: 2 },
+  { label: 'Completed', value: 3 },
+  { label: 'Cancelled', value: 4 },
+];
 
 export default function StatusForm({ isOpen, onClose, order, reload }) {
-  const toast = useToast();
-  const [status, setStatus] = useState('');
+  const toast = useAppToast();
+  const [status, setStatus] = useState(null);
   const [licensePlate, setLicensePlate] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ✅ Đồng bộ lại khi order thay đổi
   useEffect(() => {
     if (order) {
-      setStatus(order.status || '');
+      setStatus(order.status || null);
       setLicensePlate('');
     }
   }, [order]);
@@ -36,30 +51,31 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
       setLoading(true);
 
       const payload = { status };
-      if (status === 'Completed' && licensePlate.trim()) {
+      const selected = STATUS_OPTIONS.find((s) => s.value === status);
+
+      if (selected?.label === 'Completed' && licensePlate.trim()) {
         payload.licensePlate = licensePlate.trim();
       }
 
       await ServiceOrderService.updateStatus(order.id, payload);
-      toast({
-        title: 'Status updated successfully',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
+
+      if (selected?.label === 'Completed') {
+        await VehicleService.updateStatus(order.vehicleId, 3);
+        await OrderService.updateStatus(order.orderId, 3);
+      }
+      toast.success('Status updated successfully');
       onClose();
       reload();
     } catch (err) {
-      toast({
-        title: 'Failed to update status',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-      });
+      toast.error('Failed to update status');
     } finally {
       setLoading(false);
     }
   };
+
+  const currentLabel =
+    STATUS_OPTIONS.find((opt) => opt.value === status)?.label ||
+    'Select status';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -69,20 +85,54 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
         <ModalCloseButton />
         <ModalBody>
           <Stack spacing={4}>
+            {/* Menu thay cho Select */}
             <FormControl>
               <FormLabel>Status</FormLabel>
-              <Select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="Scheduled">Scheduled</option>
-                <option value="InProgress">In Progress</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-              </Select>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rightIcon={<ChevronDownIcon />}
+                  w="100%"
+                  variant="outline"
+                >
+                  {currentLabel}
+                </MenuButton>
+                <MenuList>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <MenuItem
+                      key={opt.value}
+                      onClick={() => setStatus(opt.value)}
+                    >
+                      <Flex
+                        align="center"
+                        justify="space-between"
+                        w="full"
+                        px={3}
+                        position="relative"
+                      >
+                        <Text>{opt.label}</Text>
+
+                        {status === opt.value && (
+                          <Box
+                            position="absolute"
+                            right="0"
+                            top="0"
+                            bottom="0"
+                            width="4px"
+                            bg="brand.500"
+                            borderTopRightRadius="md"
+                            borderBottomRightRadius="md"
+                          />
+                        )}
+                      </Flex>
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
             </FormControl>
 
-            {status === 'Completed' && (
+            {/* Chỉ hiển thị nếu Completed */}
+            {status === 3 && (
               <FormControl>
                 <FormLabel>License Plate</FormLabel>
                 <Input

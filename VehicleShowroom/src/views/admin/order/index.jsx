@@ -126,7 +126,7 @@ function OrderManagement() {
         user?.id,
       );
       await OrderService.updateStatus(assigningOrder.id, 2);
-      await VehicleService.updateStatus(vehicle.vehicleId, 3);
+      await VehicleService.updateStatus(vehicle.vehicleId, 2);
       toast.success('Vehicle assigned successfully!');
       loadOrders(page);
     } catch (err) {
@@ -149,13 +149,13 @@ function OrderManagement() {
       const payload = {
         ...formData,
         orderId: selectedOrder.id,
+        customerId: selectedOrder.customerId,
         createdBy: user?.id || '',
         cost: Number(formData.cost),
         appointmentDate: new Date(formData.appointmentDate).toISOString(),
       };
 
       await ServiceOrderService.create(payload);
-      await OrderService.updateStatus(selectedOrder.id, 3);
 
       toast.success(`Service order created successfully`);
       onServiceClose();
@@ -193,8 +193,6 @@ function OrderManagement() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (loading) return <LoadingState />;
-
   return (
     <>
       {/* Create Order */}
@@ -226,7 +224,12 @@ function OrderManagement() {
       {/* Main List */}
       <Card bg={bgColor} boxShadow="md" borderRadius="16px">
         <Header onAdd={onOpen} textColor={textColor} />
-        <List table={table} borderColor={borderColor} textColor={textColor} />
+        <List
+          loading={loading}
+          table={table}
+          borderColor={borderColor}
+          textColor={textColor}
+        />
       </Card>
 
       {totalPages > 1 && (

@@ -1,5 +1,16 @@
 import React from 'react';
-import { Table, Thead, Tbody, Tr, Th, Box } from '@chakra-ui/react';
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Box,
+  Spinner,
+  Flex,
+  Text,
+} from '@chakra-ui/react';
 import { flexRender } from '@tanstack/react-table';
 import Row from 'views/admin/vehicleModel/components/Row';
 
@@ -19,6 +30,7 @@ export default function List({
   bgColor,
   borderColor,
   headerBg,
+  loading,
 }) {
   const renderRow = (m, index, depth = 0, prefix = '') => {
     const displayIndex = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
@@ -44,9 +56,12 @@ export default function List({
     );
   };
 
+  const headers = table.getHeaderGroups()[0]?.headers || [];
+
   return (
     <Box minH="600px" overflowX="auto" p={3}>
       <Table variant="simple" bg={bgColor}>
+        {/* ✅ Header luôn hiển thị */}
         <Thead bg={headerBg}>
           {table.getHeaderGroups().map((headerGroup) => (
             <Tr key={headerGroup.id}>
@@ -66,7 +81,40 @@ export default function List({
             </Tr>
           ))}
         </Thead>
-        <Tbody>{treeData.map((m, i) => renderRow(m, i, 0))}</Tbody>
+
+        {/* ✅ Body hiển thị loading riêng */}
+        <Tbody>
+          {loading ? (
+            <Tr>
+              <Td colSpan={table.getAllColumns().length}>
+                <Flex
+                  py={10}
+                  align="center"
+                  justify="center"
+                  direction="column"
+                  gap={2}
+                >
+                  <Spinner size="lg" color="brand.500" />
+                  <Text color={textColor} fontSize="sm">
+                    Loading vehicle models...
+                  </Text>
+                </Flex>
+              </Td>
+            </Tr>
+          ) : treeData.length === 0 ? (
+            <Tr>
+              <Td colSpan={headers.length || 1} py={10}>
+                <Flex align="center" justify="center">
+                  <Text color="gray.500" fontStyle="italic">
+                    No vehicle models found
+                  </Text>
+                </Flex>
+              </Td>
+            </Tr>
+          ) : (
+            treeData.map((m, i) => renderRow(m, i, 0))
+          )}
+        </Tbody>
       </Table>
     </Box>
   );

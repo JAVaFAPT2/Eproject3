@@ -32,7 +32,6 @@ function VehicleManagement() {
 
   const [loading, setLoading] = useState(false);
   const [modelsLoading, setModelsLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false); // 👈 kiểm soát render đầu tiên
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -87,7 +86,6 @@ function VehicleManagement() {
         toast.error('Failed to load vehicles');
       } finally {
         setLoading(false);
-        setInitialized(true); // 👈 đánh dấu đã load lần đầu
       }
     },
     [searchInput, modelFilter, statusFilter, models],
@@ -147,8 +145,7 @@ function VehicleManagement() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // 🧩 Trạng thái hiển thị
-  if (!initialized || loading || modelsLoading) return <LoadingState />; // 👈 chỉ hiển thị loading khi chưa init
+  const isLoading = loading || modelsLoading;
 
   return (
     <>
@@ -181,16 +178,12 @@ function VehicleManagement() {
           }}
           textColor={textColor}
         />
-        {vehicles.length === 0 ? (
-          <List
-            table={table}
-            borderColor={borderColor}
-            textColor={textColor}
-            emptyMessage="No vehicles found"
-          />
-        ) : (
-          <List table={table} borderColor={borderColor} textColor={textColor} />
-        )}
+        <List
+          table={table}
+          borderColor={borderColor}
+          textColor={textColor}
+          loading={isLoading}
+        />
       </Card>
 
       {totalPages > 1 && (

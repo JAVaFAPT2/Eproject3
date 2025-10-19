@@ -42,13 +42,11 @@ export default function DashboardPage() {
   const [customer, setCustomer] = useState(null);
   const [topVehicles, setTopVehicles] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   // 🚀 Load dashboard
   useEffect(() => {
     const loadAll = async () => {
       try {
-        setLoading(true);
         const [ov, rev, cus, top, orders] = await Promise.all([
           DashboardService.getOverview(),
           DashboardService.getRevenue(),
@@ -65,7 +63,6 @@ export default function DashboardPage() {
       } catch (err) {
         console.error('❌ Failed to load dashboard:', err);
       } finally {
-        setLoading(false);
       }
     };
     loadAll();
@@ -81,7 +78,7 @@ export default function DashboardPage() {
       options: {
         chart: { type: 'line', toolbar: { show: false } },
         stroke: { curve: 'smooth', width: 3 },
-        colors: [brandColor],
+        colors: ['#7A7A7A'],
         xaxis: {
           categories: months,
           labels: { style: { colors: textColorSecondary } },
@@ -103,7 +100,7 @@ export default function DashboardPage() {
       options: {
         chart: { type: 'line', toolbar: { show: false } },
         stroke: { curve: 'smooth', width: 3 },
-        colors: ['#805AD5'],
+        colors: ['#7A7A7A'],
         xaxis: {
           categories: months,
           labels: { style: { colors: textColorSecondary } },
@@ -113,14 +110,6 @@ export default function DashboardPage() {
       },
     };
   }, [customer]);
-
-  if (loading)
-    return (
-      <Flex h="80vh" justify="center" align="center" direction="column" gap={4}>
-        <Spinner size="xl" />
-        <Text>Loading dashboard...</Text>
-      </Flex>
-    );
 
   return (
     <>
