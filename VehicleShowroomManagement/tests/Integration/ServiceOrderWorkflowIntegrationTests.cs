@@ -23,6 +23,7 @@ namespace VehicleShowroomManagement.Tests.Integration
         private readonly CreateOrderCommandHandler _createOrderHandler;
         private readonly CreateServiceOrderCommandHandler _createServiceOrderHandler;
         private readonly UpdateServiceOrderStatusCommandHandler _updateServiceOrderHandler;
+        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
         public ServiceOrderWorkflowIntegrationTests()
         {
@@ -31,6 +32,10 @@ namespace VehicleShowroomManagement.Tests.Integration
             _mockVehicleRepository = new Mock<IRepository<Vehicle>>();
             _mockModelRepository = new Mock<IRepository<VehicleModel>>();
             _mockMediator = new Mock<IMediator>();
+            _mockUnitOfWork = new Mock<IUnitOfWork>();
+            _mockUnitOfWork.Setup(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            _mockUnitOfWork.Setup(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            _mockUnitOfWork.Setup(u => u.RollbackTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
             _createOrderHandler = new CreateOrderCommandHandler(
                 _mockOrderRepository.Object,
@@ -44,7 +49,8 @@ namespace VehicleShowroomManagement.Tests.Integration
                 _mockServiceOrderRepository.Object,
                 _mockOrderRepository.Object,
                 _mockVehicleRepository.Object,
-                _mockMediator.Object);
+                _mockMediator.Object,
+                _mockUnitOfWork.Object);
         }
 
         [Fact]
@@ -280,7 +286,7 @@ namespace VehicleShowroomManagement.Tests.Integration
             var serviceOrderId = await _createServiceOrderHandler.Handle(createServiceOrderCommand, CancellationToken.None);
 
             // Act - Step 3: Complete Service Order with License Plate
-            var updateStatusCommand = new UpdateServiceOrderStatusCommand("service1", ServiceOrderStatus.Completed, "ABC-123");
+            var updateStatusCommand = new UpdateServiceOrderStatusCommand("service1", ServiceOrderStatus.Completed);
             var result = await _updateServiceOrderHandler.Handle(updateStatusCommand, CancellationToken.None);
 
             // Assert
@@ -289,8 +295,8 @@ namespace VehicleShowroomManagement.Tests.Integration
             result.Should().NotBeNull();
             result.Success.Should().BeTrue();
 
-            // Verify license plate was updated
-            _mockVehicleRepository.Verify(r => r.UpdateAsync(It.Is<Vehicle>(v => v.LicensePlate == "ABC-123"), It.IsAny<CancellationToken>()), Times.Once);
+            // License plate is updated via separate endpoint, not via status update
+            _mockVehicleRepository.Verify(r => r.UpdateAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }

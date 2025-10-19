@@ -25,6 +25,7 @@ namespace VehicleShowroomManagement.Tests.Integration
         private readonly CreateServiceOrderCommandHandler _createServiceOrderHandler;
         private readonly UpdateServiceOrderStatusCommandHandler _updateServiceOrderHandler;
         private readonly CreateVehicleCommandHandler _createVehicleHandler;
+        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
         public ComplexWorkflowIntegrationTests()
         {
@@ -34,6 +35,10 @@ namespace VehicleShowroomManagement.Tests.Integration
             _mockModelRepository = new Mock<IRepository<VehicleModel>>();
             _mockBillingDocumentRepository = new Mock<IRepository<BillingDocument>>();
             _mockMediator = new Mock<IMediator>();
+            _mockUnitOfWork = new Mock<IUnitOfWork>();
+            _mockUnitOfWork.Setup(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            _mockUnitOfWork.Setup(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            _mockUnitOfWork.Setup(u => u.RollbackTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
             _createOrderHandler = new CreateOrderCommandHandler(
                 _mockOrderRepository.Object,
@@ -47,7 +52,8 @@ namespace VehicleShowroomManagement.Tests.Integration
                 _mockServiceOrderRepository.Object,
                 _mockOrderRepository.Object,
                 _mockVehicleRepository.Object,
-                _mockMediator.Object);
+                _mockMediator.Object,
+                _mockUnitOfWork.Object);
 
             _createVehicleHandler = new CreateVehicleCommandHandler(
                 _mockVehicleRepository.Object);

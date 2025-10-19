@@ -14,33 +14,32 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.
         IRepository<ServiceOrder> serviceOrderRepository,
         IRepository<Order> orderRepository,
         IRepository<Vehicle> vehicleRepository,
-        IMediator mediator) : IRequestHandler<UpdateServiceOrderStatusCommand, UpdateServiceOrderStatusResult>
+        IMediator mediator,
+        IUnitOfWork unitOfWork) : IRequestHandler<UpdateServiceOrderStatusCommand, UpdateServiceOrderStatusResult>
     {
 
         public async Task<UpdateServiceOrderStatusResult> Handle(UpdateServiceOrderStatusCommand request, CancellationToken cancellationToken)
         {
-            // Fetch service order
-            var serviceOrder = await serviceOrderRepository.GetByIdAsync(request.ServiceOrderId, cancellationToken) ?? throw new ArgumentException("Service order not found");
-
-            // Update status using domain method
-            serviceOrder.UpdateStatus(request.Status);
-            await serviceOrderRepository.UpdateAsync(serviceOrder, cancellationToken);
-
-            // Update license plate if provided (for any status)
-            if (!string.IsNullOrWhiteSpace(request.LicensePlate))
+            await unitOfWork.BeginTransactionAsync(cancellationToken);
+            try
             {
-                var order = await orderRepository.GetByIdAsync(serviceOrder.OrderId, cancellationToken);
-                if (order != null && !string.IsNullOrEmpty(order.VehicleId))
+                // Fetch service order
+                var serviceOrder = await serviceOrderRepository.GetByIdAsync(request.ServiceOrderId, cancellationToken) ?? throw new ArgumentException("Service order not found");
+
+                // Enforce preconditions for certain transitions
+                if (request.Status == ServiceOrderStatus.Completed && serviceOrder.Type == ServiceType.PreDelivery)
                 {
-                    var vehicles = await vehicleRepository.FindAsync(v => v.VehicleId == order.VehicleId, cancellationToken);
-                    var vehicle = vehicles.FirstOrDefault();
-                    if (vehicle != null)
+                    // Ensure related order exists and is Confirmed before completing pre-delivery service
+                    var relatedOrder = await orderRepository.GetByIdAsync(serviceOrder.OrderId, cancellationToken) ?? throw new ArgumentException("Related order not found");
+                    if (relatedOrder.Status != OrderStatus.Confirmed)
                     {
-                        vehicle.SetLicensePlate(request.LicensePlate);
-                        await vehicleRepository.UpdateAsync(vehicle, cancellationToken);
+                        throw new InvalidOperationException("Order must be Confirmed before completing PreDelivery service order");
                     }
                 }
-            }
+
+                // Update status using domain method
+                serviceOrder.UpdateStatus(request.Status);
+                await serviceOrderRepository.UpdateAsync(serviceOrder, cancellationToken);
 
             var result = new UpdateServiceOrderStatusResult
             {
@@ -48,7 +47,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.
                 Message = "Service order status updated successfully"
             };
 
-            // Business Logic: Handle different status updates
+                // Business Logic: Handle different status updates
             if (request.Status == ServiceOrderStatus.Cancelled)
             {
                 // For cancelled service orders, no impact on Order/Vehicle status
@@ -104,7 +103,14 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.
                 result.BillingDocumentId = billingDocumentId;
             }
 
-            return result;
+                await unitOfWork.CommitTransactionAsync(cancellationToken);
+                return result;
+            }
+            catch
+            {
+                await unitOfWork.RollbackTransactionAsync(cancellationToken);
+                throw;
+            }
         }
     }
 }

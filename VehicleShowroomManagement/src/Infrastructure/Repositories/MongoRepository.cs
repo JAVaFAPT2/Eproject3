@@ -100,7 +100,14 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
 
         public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
         {
-            await _collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
+            if (_context.Session != null)
+            {
+                await _collection.InsertOneAsync(_context.Session, entity, cancellationToken: cancellationToken);
+            }
+            else
+            {
+                await _collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
+            }
             return entity;
         }
 
@@ -128,7 +135,15 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
             if (MongoDB.Bson.ObjectId.TryParse(id, out objectId))
             {
                 var filter = Builders<T>.Filter.Eq("_id", objectId);
-                var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+                ReplaceOneResult result;
+                if (_context.Session != null)
+                {
+                    result = await _collection.ReplaceOneAsync(_context.Session, filter, entity, cancellationToken: cancellationToken);
+                }
+                else
+                {
+                    result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+                }
                 
                 if (result.MatchedCount == 0)
                 {
@@ -139,7 +154,15 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
             {
                 // Fallback to string ID if it's not a valid ObjectId
                 var filter = Builders<T>.Filter.Eq("_id", id);
-                var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+                ReplaceOneResult result;
+                if (_context.Session != null)
+                {
+                    result = await _collection.ReplaceOneAsync(_context.Session, filter, entity, cancellationToken: cancellationToken);
+                }
+                else
+                {
+                    result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+                }
                 
                 if (result.MatchedCount == 0)
                 {
@@ -151,7 +174,14 @@ namespace VehicleShowroomManagement.Infrastructure.Repositories
         public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
             var filter = Builders<T>.Filter.Eq("_id", id);
-            await _collection.DeleteOneAsync(filter, cancellationToken);
+            if (_context.Session != null)
+            {
+                await _collection.DeleteOneAsync(_context.Session, filter, options: null, cancellationToken);
+            }
+            else
+            {
+                await _collection.DeleteOneAsync(filter, options: null, cancellationToken);
+            }
         }
 
         public async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)

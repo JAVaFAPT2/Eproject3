@@ -18,6 +18,7 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
         private readonly Mock<IRepository<Vehicle>> _mockVehicleRepository;
         private readonly Mock<IMediator> _mockMediator;
         private readonly UpdateServiceOrderStatusCommandHandler _handler;
+        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
 
         public UpdateServiceOrderStatusCommandHandlerTests()
         {
@@ -25,12 +26,17 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockOrderRepository = new Mock<IRepository<Order>>();
             _mockVehicleRepository = new Mock<IRepository<Vehicle>>();
             _mockMediator = new Mock<IMediator>();
+            _mockUnitOfWork = new Mock<IUnitOfWork>();
+            _mockUnitOfWork.Setup(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            _mockUnitOfWork.Setup(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            _mockUnitOfWork.Setup(u => u.RollbackTransactionAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
             _handler = new UpdateServiceOrderStatusCommandHandler(
                 _mockServiceOrderRepository.Object,
                 _mockOrderRepository.Object,
                 _mockVehicleRepository.Object,
-                _mockMediator.Object);
+                _mockMediator.Object,
+                _mockUnitOfWork.Object);
         }
 
         [Fact]
@@ -171,7 +177,8 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             _mockVehicleRepository.Setup(r => r.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Vehicle, bool>>>(), It.IsAny<CancellationToken>()))
                               .ReturnsAsync(new List<Vehicle> { vehicle });
 
-            var command = new UpdateServiceOrderStatusCommand("service1", ServiceOrderStatus.InProgress, "ABC-123");
+            // License plate is now decoupled; command has only id and status
+            var command = new UpdateServiceOrderStatusCommand("service1", ServiceOrderStatus.InProgress);
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -180,7 +187,8 @@ namespace VehicleShowroomManagement.Tests.Application.Commands
             result.Should().NotBeNull();
             result.Success.Should().BeTrue();
             
-            _mockVehicleRepository.Verify(r => r.UpdateAsync(It.Is<Vehicle>(v => v.LicensePlate == "ABC-123"), It.IsAny<CancellationToken>()), Times.Once);
+            // Vehicle license plate is updated via dedicated endpoint; no update expected here
+            _mockVehicleRepository.Verify(r => r.UpdateAsync(It.IsAny<Vehicle>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]

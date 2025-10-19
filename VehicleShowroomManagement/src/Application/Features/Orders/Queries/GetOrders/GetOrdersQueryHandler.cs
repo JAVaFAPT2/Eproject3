@@ -45,7 +45,9 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrder
                 SalePrice = order.SalePrice,
                 VehicleId = order.VehicleId,
                 AppointmentDate = order.AppointmentDate,
-                Status = order.Status.ToString(),
+                Status = ((int)order.Status).ToString(),
+                StatusCode = (int)order.Status,
+                StatusName = order.Status.ToString(),
                 CreatedAt = order.CreatedAt,
                 UpdatedAt = order.UpdatedAt
             }).ToList();

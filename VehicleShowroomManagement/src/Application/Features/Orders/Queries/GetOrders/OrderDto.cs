@@ -14,6 +14,8 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrder
         public DateTime? AppointmentDate { get; set; }
         public string? Note { get; set; }
         public string Status { get; set; } = string.Empty;
+        public int StatusCode { get; set; }
+        public string StatusName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

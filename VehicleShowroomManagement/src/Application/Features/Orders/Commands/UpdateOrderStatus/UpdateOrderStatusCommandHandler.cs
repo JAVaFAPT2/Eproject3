@@ -1,7 +1,3 @@
-using MediatR;
-using VehicleShowroomManagement.Application.Common.Interfaces;
-using VehicleShowroomManagement.Domain.Entities;
-
 namespace VehicleShowroomManagement.Application.Features.Orders.Commands.UpdateOrderStatus
 {
     /// <summary>
@@ -12,15 +8,23 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.UpdateO
     /// </summary>
     public class UpdateOrderStatusCommandHandler(
         IRepository<Order> orderRepository,
-        IRepository<Vehicle> vehicleRepository) : IRequestHandler<UpdateOrderStatusCommand, Unit>
+        IRepository<Vehicle> vehicleRepository,
+        IUnitOfWork unitOfWork) : IRequestHandler<UpdateOrderStatusCommand, Unit>
     {
         public async Task<Unit> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
         {
-            var order = await orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
-            if (order == null) return Unit.Value;
-            
-            order.UpdateStatus(request.Status);
-            await orderRepository.UpdateAsync(order, cancellationToken);
+            await unitOfWork.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                var order = await orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
+                if (order == null)
+                {
+                    await unitOfWork.RollbackTransactionAsync(cancellationToken);
+                    return Unit.Value;
+                }
+
+                order.UpdateStatus(request.Status);
+                await orderRepository.UpdateAsync(order, cancellationToken);
 
             // Business Logic: Update vehicle status based on order status
             if (!string.IsNullOrEmpty(order.VehicleId))
@@ -45,11 +49,22 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.UpdateO
                         // When order is cancelled, make vehicle available again
                         vehicle.UpdateStatus(VehicleStatus.Available);
                         await vehicleRepository.UpdateAsync(vehicle, cancellationToken);
+                        
+                        // Clear vehicle assignment from order
+                        order.ClearVehicle();
+                        await orderRepository.UpdateAsync(order, cancellationToken);
                     }
                 }
             }
 
-            return Unit.Value;
+                await unitOfWork.CommitTransactionAsync(cancellationToken);
+                return Unit.Value;
+            }
+            catch
+            {
+                await unitOfWork.RollbackTransactionAsync(cancellationToken);
+                throw;
+            }
         }
     }
 }

@@ -76,7 +76,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         [HttpPut("{id}/status")]
         public async Task<IActionResult> UpdateServiceOrderStatus(string id, [FromBody] UpdateServiceOrderStatusRequest request)
         {
-            var command = new UpdateServiceOrderStatusCommand(id, request.Status, request.LicensePlate);
+            var command = new UpdateServiceOrderStatusCommand(id, request.Status);
             var result = await _mediator.Send(command);
 
             // Include billing document ID if created
@@ -110,6 +110,5 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     public class UpdateServiceOrderStatusRequest
     {
         public ServiceOrderStatus Status { get; set; }
-        public string? LicensePlate { get; set; }
     }
 }

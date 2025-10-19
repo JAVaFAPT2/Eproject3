@@ -87,10 +87,6 @@
               "target": "Package",
               "version": "[13.0.0, )"
             },
-            "MediatR.Extensions.Autofac.DependencyInjection": {
-              "target": "Package",
-              "version": "[13.1.0, )"
-            },
             "Microsoft.AspNetCore.Http.Abstractions": {
               "target": "Package",
               "version": "[2.2.0, )"

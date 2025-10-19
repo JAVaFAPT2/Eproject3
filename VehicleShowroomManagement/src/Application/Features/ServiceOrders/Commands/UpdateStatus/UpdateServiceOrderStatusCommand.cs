@@ -9,8 +9,7 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Commands.
     /// </summary>
     public record UpdateServiceOrderStatusCommand(
         string ServiceOrderId,
-        ServiceOrderStatus Status,
-        string? LicensePlate = null)
+        ServiceOrderStatus Status)
         : IRequest<UpdateServiceOrderStatusResult>;
 }
 
