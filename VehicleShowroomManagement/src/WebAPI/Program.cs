@@ -51,7 +51,7 @@ try
     var envVars = Environment.GetEnvironmentVariables();
     foreach (DictionaryEntry envVar in envVars)
     {
-        var key = envVar.Key?.ToString();
+        var key = envVar.Key.ToString();
         if (!string.IsNullOrWhiteSpace(key) && (key.StartsWith("MONGODB_") || key.StartsWith("JWT_") || key.StartsWith("EMAIL_") || 
             key.StartsWith("CLOUDINARY_") || key.StartsWith("ConnectionStrings__") || 
             key.StartsWith("Jwt__") || key.StartsWith("EmailSettings__") || key.StartsWith("CloudinarySettings__")))
@@ -148,6 +148,24 @@ try
     {
         builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true);
     }
+    
+    // Validate configuration early (before building the app)
+    // Create a temporary configuration to validate settings
+    var tempConfig = new ConfigurationBuilder()
+        .AddConfiguration(builder.Configuration)
+        .Build();
+    
+    // Create a temporary logger for validation
+    using var loggerFactory = LoggerFactory.Create(builder => builder.AddSerilog());
+    var tempLogger = loggerFactory.CreateLogger<Program>();
+    
+    var isConfigValid = await ConfigurationValidator.ValidateConfigurationAsync(tempConfig, tempLogger);
+    if (!isConfigValid)
+    {
+        Log.Fatal("Configuration validation failed. Application cannot start.");
+        Environment.Exit(1);
+    }
+    Log.Information("Configuration validation completed successfully");
     
     // Use Serilog for logging
     builder.Host.UseSerilog();
@@ -398,18 +416,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Validate configuration before starting the application
-var configLogger = app.Services.GetRequiredService<ILogger<Program>>();
-var configuration = app.Services.GetRequiredService<IConfiguration>();
-
-var isConfigValid = await ConfigurationValidator.ValidateConfigurationAsync(configuration, configLogger);
-if (!isConfigValid)
-{
-    Log.Fatal("Configuration validation failed. Application cannot start.");
-    Environment.Exit(1);
-}
-
-Log.Information("Configuration validation completed successfully");
+// Configuration validation already completed earlier
 
 // Log startup information
 Log.Information("Application configuration:");
