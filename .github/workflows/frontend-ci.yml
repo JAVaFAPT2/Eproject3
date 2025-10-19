@@ -38,7 +38,7 @@ jobs:
       
     - name: Run tests
       working-directory: ./VehicleShowroom
-      run: npm test -- --coverage --watchAll=false
+      run: npm run test:ci
       
     - name: Run linting
       working-directory: ./VehicleShowroom

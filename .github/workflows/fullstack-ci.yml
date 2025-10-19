@@ -33,7 +33,7 @@ jobs:
       
     - name: Run frontend tests
       working-directory: ./VehicleShowroom
-      run: npm test -- --coverage --watchAll=false
+      run: npm run test:ci
       
     - name: Build frontend
       working-directory: ./VehicleShowroom
