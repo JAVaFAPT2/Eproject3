@@ -178,10 +178,27 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFE", policy =>
     {
-        policy.WithOrigins(builder.Configuration["Cors:Origins"]?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? ["http://localhost:3000"])
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        var origins = builder.Configuration["Cors:Origins"]?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? ["http://localhost:3000"];
+        
+        Log.Information("CORS Origins configured: {Origins}", string.Join(", ", origins));
+        
+        if (origins.Contains("*"))
+        {
+            // For wildcard origins, don't allow credentials
+            Log.Information("Using wildcard CORS policy (no credentials)");
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+        else
+        {
+            // For specific origins, allow credentials
+            Log.Information("Using specific origins CORS policy (with credentials)");
+            policy.WithOrigins(origins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
     });
 });
 
