@@ -29,7 +29,6 @@ export const ApiUrl = {
     BY_ID: (id) => `${BASE_URL}/Orders/${id}`,
     ASSIGN_VEHICLE: (id) => `${BASE_URL}/Orders/${id}/assign-vehicle`,
     CONFIRM: (id) => `${BASE_URL}/Orders/${id}/confirm`,
-    COMPLETE: (id) => `${BASE_URL}/Orders/${id}/complete`,
   },
 
   // 👤 Profile
@@ -80,7 +79,6 @@ export const ApiUrl = {
     BY_ID: (modelNumber) => `${BASE_URL}/VehicleModels/${modelNumber}`,
     BY_MODEL: (modelNumber) => `${BASE_URL}/VehicleModels/${modelNumber}`,
     BY_SLUG: (slug) => `${BASE_URL}/VehicleModels/slug/${slug}`,
-    SEARCH: `${BASE_URL}/VehicleModels/search`,
   },
 
   // 🖼 Vehicle Photos
@@ -95,12 +93,9 @@ export const ApiUrl = {
   // 🚗 Vehicles
   VEHICLES: {
     BASE: `${BASE_URL}/Vehicles`,
-    WITH_MEDIA: `${BASE_URL}/Vehicles/with-media`,
     BY_ID: (id) => `${BASE_URL}/Vehicles/${id}`,
-    BY_SLUG: (slug) => `${BASE_URL}/Vehicles/slug/${slug}`,
-    SEARCH: `${BASE_URL}/Vehicles/search`,
-    BULK_DELETE: `${BASE_URL}/Vehicles/bulk-delete`,
     STATUS: (id) => `${BASE_URL}/Vehicles/${id}/status`,
+    LICENSE_PLATE: (id) => `${BASE_URL}/Vehicles/${id}/license-plate`,
   },
 
   // ⚙ Vehicle Specs

@@ -25,19 +25,17 @@ const VehicleService = {
     return res.data;
   },
 
-  // 🧹 Bulk delete
-  bulkDelete: async (vehicleIds) => {
-    const res = await ApiClient.post(ApiUrl.VEHICLES.BULK_DELETE, {
-      vehicleIds,
-    });
+  // 🚘 Update status
+  updateStatus: async (id, status) => {
+    const res = await ApiClient.put(ApiUrl.VEHICLES.BASE.STATUS(id), status);
     return res.data;
   },
 
-  // 🚘 Update status
-  updateStatus: async (id, status) => {
-    const res = await ApiClient.put(`${ApiUrl.VEHICLES.BASE}/${id}/status`, {
-      status,
-    });
+  updateLicensePlate: async (id, licensePlate) => {
+    const res = await ApiClient.put(
+      ApiUrl.VEHICLES.BASE.LICENSE_PLATE(id),
+      licensePlate,
+    );
     return res.data;
   },
 };

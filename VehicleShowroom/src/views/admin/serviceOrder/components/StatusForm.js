@@ -50,17 +50,14 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
     try {
       setLoading(true);
 
-      const payload = { status, licensePlate: licensePlate.trim() || null  };
+      const payload = { status };
       const selected = STATUS_OPTIONS.find((s) => s.value === status);
 
-      // 🔹 Gọi API update status của ServiceOrder
       await ServiceOrderService.updateStatus(order.id, payload);
-
-      // 🔹 Nếu Completed → cần cập nhật cả Vehicle & Order
+      await new Promise((r) => setTimeout(r, 500));
       if (selected?.label === 'Completed') {
         let vehicleId = null;
 
-        // 👉 Gọi order theo orderId để lấy vehicleId
         if (order?.orderId) {
           const orderData = await OrderService.getById(order.orderId);
           vehicleId = orderData?.vehicleId;
@@ -68,6 +65,7 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
 
         if (vehicleId) {
           await VehicleService.updateStatus(vehicleId, 3);
+          await VehicleService.updateLicensePlate(vehicleId, licensePlate);
         }
 
         await OrderService.updateStatus(order.orderId, 3);
