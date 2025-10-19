@@ -44,104 +44,23 @@ try
     var builder = WebApplication.CreateBuilder(args);
     
     // Add environment variables to configuration
+    // This automatically converts double-underscore (__) to colon (:) for hierarchical keys
     builder.Configuration.AddEnvironmentVariables();
     
-    // Debug: Log all environment variables that start with our prefixes
-    Log.Information("Checking environment variables...");
-    var envVars = Environment.GetEnvironmentVariables();
-    foreach (DictionaryEntry envVar in envVars)
-    {
-        var key = envVar.Key.ToString();
-        if (!string.IsNullOrWhiteSpace(key) && (key.StartsWith("MONGODB_") || key.StartsWith("JWT_") || key.StartsWith("EMAIL_") || 
-            key.StartsWith("CLOUDINARY_") || key.StartsWith("ConnectionStrings__") || 
-            key.StartsWith("Jwt__") || key.StartsWith("EmailSettings__") || key.StartsWith("CloudinarySettings__")))
-        {
-            Log.Information("Found environment variable: {Key}", key);
-        }
-    }
+    // Debug: Log configuration values after environment variables are loaded
+    Log.Information("Checking configuration after environment variable loading...");
     
-    // Map environment variables to configuration keys (handle both formats)
-    var mongoConnectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING") 
-        ?? Environment.GetEnvironmentVariable("ConnectionStrings__MongoDB");
-    if (!string.IsNullOrWhiteSpace(mongoConnectionString))
-    {
-        builder.Configuration["ConnectionStrings:MongoDB"] = mongoConnectionString;
-        Log.Information("MongoDB connection string loaded from environment variable");
-    }
+    var mongoCheck = builder.Configuration.GetConnectionString("MongoDB");
+    Log.Information("MongoDB connection string: {Status}", string.IsNullOrWhiteSpace(mongoCheck) ? "MISSING" : "FOUND");
     
-    var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") 
-        ?? Environment.GetEnvironmentVariable("Jwt__Key");
-    if (!string.IsNullOrWhiteSpace(jwtKey))
-    {
-        builder.Configuration["Jwt:Key"] = jwtKey;
-        Log.Information("JWT Key loaded from environment variable");
-    }
+    var jwtKeyCheck = builder.Configuration["Jwt:Key"];
+    Log.Information("JWT Key: {Status}", string.IsNullOrWhiteSpace(jwtKeyCheck) ? "MISSING" : $"FOUND ({jwtKeyCheck.Length} chars)");
     
-    var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") 
-        ?? Environment.GetEnvironmentVariable("Jwt__Issuer");
-    if (!string.IsNullOrWhiteSpace(jwtIssuer))
-    {
-        builder.Configuration["Jwt:Issuer"] = jwtIssuer;
-        Log.Information("JWT Issuer loaded from environment variable");
-    }
+    var jwtIssuerCheck = builder.Configuration["Jwt:Issuer"];
+    Log.Information("JWT Issuer: {Status}", string.IsNullOrWhiteSpace(jwtIssuerCheck) ? "MISSING" : "FOUND");
     
-    var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") 
-        ?? Environment.GetEnvironmentVariable("Jwt__Audience");
-    if (!string.IsNullOrWhiteSpace(jwtAudience))
-    {
-        builder.Configuration["Jwt:Audience"] = jwtAudience;
-        Log.Information("JWT Audience loaded from environment variable");
-    }
-    
-    // Map other environment variables (handle both formats)
-    var emailHost = Environment.GetEnvironmentVariable("EMAIL_SMTP_HOST") 
-        ?? Environment.GetEnvironmentVariable("EmailSettings__SmtpHost");
-    if (!string.IsNullOrWhiteSpace(emailHost))
-    {
-        builder.Configuration["EmailSettings:SmtpHost"] = emailHost;
-    }
-    
-    var emailPort = Environment.GetEnvironmentVariable("EMAIL_SMTP_PORT") 
-        ?? Environment.GetEnvironmentVariable("EmailSettings__SmtpPort");
-    if (!string.IsNullOrWhiteSpace(emailPort))
-    {
-        builder.Configuration["EmailSettings:SmtpPort"] = emailPort;
-    }
-    
-    var emailUsername = Environment.GetEnvironmentVariable("EMAIL_SMTP_USERNAME") 
-        ?? Environment.GetEnvironmentVariable("EmailSettings__SmtpUsername");
-    if (!string.IsNullOrWhiteSpace(emailUsername))
-    {
-        builder.Configuration["EmailSettings:SmtpUsername"] = emailUsername;
-    }
-    
-    var emailPassword = Environment.GetEnvironmentVariable("EMAIL_SMTP_PASSWORD") 
-        ?? Environment.GetEnvironmentVariable("EmailSettings__SmtpPassword");
-    if (!string.IsNullOrWhiteSpace(emailPassword))
-    {
-        builder.Configuration["EmailSettings:SmtpPassword"] = emailPassword;
-    }
-    
-    var cloudinaryCloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME") 
-        ?? Environment.GetEnvironmentVariable("CloudinarySettings__CloudName");
-    if (!string.IsNullOrWhiteSpace(cloudinaryCloudName))
-    {
-        builder.Configuration["CloudinarySettings:CloudName"] = cloudinaryCloudName;
-    }
-    
-    var cloudinaryApiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") 
-        ?? Environment.GetEnvironmentVariable("CloudinarySettings__ApiKey");
-    if (!string.IsNullOrWhiteSpace(cloudinaryApiKey))
-    {
-        builder.Configuration["CloudinarySettings:ApiKey"] = cloudinaryApiKey;
-    }
-    
-    var cloudinaryApiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET") 
-        ?? Environment.GetEnvironmentVariable("CloudinarySettings__ApiSecret");
-    if (!string.IsNullOrWhiteSpace(cloudinaryApiSecret))
-    {
-        builder.Configuration["CloudinarySettings:ApiSecret"] = cloudinaryApiSecret;
-    }
+    var jwtAudienceCheck = builder.Configuration["Jwt:Audience"];
+    Log.Information("JWT Audience: {Status}", string.IsNullOrWhiteSpace(jwtAudienceCheck) ? "MISSING" : "FOUND");
     
     // Configure environment-specific settings
     if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
