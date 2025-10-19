@@ -18,8 +18,14 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: VehicleShowroom/package-lock.json
+        
+    - name: Cache npm dependencies
+      uses: actions/cache@v3
+      with:
+        path: VehicleShowroom/node_modules
+        key: ${{ runner.os }}-npm-${{ hashFiles('VehicleShowroom/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
         
     - name: Install frontend dependencies
       working-directory: ./VehicleShowroom
