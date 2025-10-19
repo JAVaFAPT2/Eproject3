@@ -358,9 +358,9 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
-    var configuration = services.GetRequiredService<IConfiguration>();
 
-    var isConfigValid = await ConfigurationValidator.ValidateConfigurationAsync(configuration, logger);
+    // Use the builder configuration which has all the mapped environment variables
+    var isConfigValid = await ConfigurationValidator.ValidateConfigurationAsync(builder.Configuration, logger);
     if (!isConfigValid)
     {
         Log.Fatal("Configuration validation failed. Application cannot start.");
