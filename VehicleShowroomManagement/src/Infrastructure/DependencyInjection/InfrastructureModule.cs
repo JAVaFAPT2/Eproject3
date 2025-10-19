@@ -23,8 +23,22 @@ namespace VehicleShowroomManagement.Infrastructure.DependencyInjection
             // Configure MongoDB class maps (must be done before any MongoDB operations)
             MongoDbClassMapConfiguration.Configure();
 
-            // MongoDB Configuration
+            // MongoDB Configuration with fallback
             var connectionString = configuration.GetConnectionString("MongoDB");
+            
+            // If connection string is empty, try to get from environment variables
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING") 
+                    ?? Environment.GetEnvironmentVariable("ConnectionStrings__MongoDB")
+                    ?? "mongodb://localhost:27017/VehicleShowroomManagement"; // Fallback for development
+            }
+            
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException("MongoDB connection string is not configured. Please set MONGODB_CONNECTION_STRING environment variable or ConnectionStrings:MongoDB in configuration.");
+            }
+            
             var mongoClient = new MongoClient(connectionString);
             var database = mongoClient.GetDatabase("VehicleShowroomDB");
 

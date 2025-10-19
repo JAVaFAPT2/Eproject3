@@ -25,7 +25,7 @@
 Create a `.env` file in the project root with the following variables:
 
 ```bash
-# MongoDB Connection
+# MongoDB Connection (REQUIRED)
 MONGODB_CONNECTION_STRING=mongodb://localhost:27017/VehicleShowroomManagement
 
 # JWT Configuration (REQUIRED)
@@ -52,6 +52,17 @@ ASPNETCORE_ENVIRONMENT=Development
 DOTNET_RUNNING_IN_CONTAINER=false
 PORT=10000
 ```
+
+### For Render.com Deployment
+
+Set these environment variables in your Render.com dashboard:
+
+1. **MongoDB**: `MONGODB_CONNECTION_STRING=mongodb+srv://username:password@cluster.mongodb.net/VehicleShowroomDB`
+2. **JWT**: `JWT_KEY=your-production-jwt-key-at-least-32-characters`
+3. **JWT Issuer**: `JWT_ISSUER=VehicleShowroomManagement`
+4. **JWT Audience**: `JWT_AUDIENCE=VehicleShowroomManagement-Users`
+5. **Email Settings**: Configure your SMTP settings
+6. **Cloudinary**: Set up your image hosting service
 
 ### Production Deployment
 

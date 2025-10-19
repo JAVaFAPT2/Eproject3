@@ -42,6 +42,81 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
     
+    // Add environment variables to configuration
+    builder.Configuration.AddEnvironmentVariables();
+    
+    // Map environment variables to configuration keys
+    var mongoConnectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
+    if (!string.IsNullOrWhiteSpace(mongoConnectionString))
+    {
+        builder.Configuration["ConnectionStrings:MongoDB"] = mongoConnectionString;
+        Log.Information("MongoDB connection string loaded from environment variable");
+    }
+    
+    var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+    if (!string.IsNullOrWhiteSpace(jwtKey))
+    {
+        builder.Configuration["Jwt:Key"] = jwtKey;
+        Log.Information("JWT Key loaded from environment variable");
+    }
+    
+    var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+    if (!string.IsNullOrWhiteSpace(jwtIssuer))
+    {
+        builder.Configuration["Jwt:Issuer"] = jwtIssuer;
+        Log.Information("JWT Issuer loaded from environment variable");
+    }
+    
+    var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+    if (!string.IsNullOrWhiteSpace(jwtAudience))
+    {
+        builder.Configuration["Jwt:Audience"] = jwtAudience;
+        Log.Information("JWT Audience loaded from environment variable");
+    }
+    
+    // Map other environment variables
+    var emailHost = Environment.GetEnvironmentVariable("EMAIL_SMTP_HOST");
+    if (!string.IsNullOrWhiteSpace(emailHost))
+    {
+        builder.Configuration["EmailSettings:SmtpHost"] = emailHost;
+    }
+    
+    var emailPort = Environment.GetEnvironmentVariable("EMAIL_SMTP_PORT");
+    if (!string.IsNullOrWhiteSpace(emailPort))
+    {
+        builder.Configuration["EmailSettings:SmtpPort"] = emailPort;
+    }
+    
+    var emailUsername = Environment.GetEnvironmentVariable("EMAIL_SMTP_USERNAME");
+    if (!string.IsNullOrWhiteSpace(emailUsername))
+    {
+        builder.Configuration["EmailSettings:SmtpUsername"] = emailUsername;
+    }
+    
+    var emailPassword = Environment.GetEnvironmentVariable("EMAIL_SMTP_PASSWORD");
+    if (!string.IsNullOrWhiteSpace(emailPassword))
+    {
+        builder.Configuration["EmailSettings:SmtpPassword"] = emailPassword;
+    }
+    
+    var cloudinaryCloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME");
+    if (!string.IsNullOrWhiteSpace(cloudinaryCloudName))
+    {
+        builder.Configuration["CloudinarySettings:CloudName"] = cloudinaryCloudName;
+    }
+    
+    var cloudinaryApiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
+    if (!string.IsNullOrWhiteSpace(cloudinaryApiKey))
+    {
+        builder.Configuration["CloudinarySettings:ApiKey"] = cloudinaryApiKey;
+    }
+    
+    var cloudinaryApiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
+    if (!string.IsNullOrWhiteSpace(cloudinaryApiSecret))
+    {
+        builder.Configuration["CloudinarySettings:ApiSecret"] = cloudinaryApiSecret;
+    }
+    
     // Configure environment-specific settings
     if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
     {
