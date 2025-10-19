@@ -20,7 +20,14 @@ import {
   Text,
 } from '@chakra-ui/react';
 import VehicleService from 'services/VehicleService';
-import ConfirmDialog from 'components/dialog/ConfirmDialog'; // ✅ import dialog
+import ConfirmDialog from 'components/dialog/ConfirmDialog';
+
+// ✅ Enum map
+const statusMap = {
+  1: 'In Stock',
+  2: 'Reserved',
+  3: 'Sold',
+};
 
 export default function AssignForm({
   isOpen,
@@ -33,7 +40,7 @@ export default function AssignForm({
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [assignedVehicle, setAssignedVehicle] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false); // ✅ state cho dialog
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const bg = useColorModeValue('white', 'navy.800');
 
@@ -51,6 +58,7 @@ export default function AssignForm({
           setAssignedVehicle(vehicle || null);
           setVehicles([]);
         } else {
+          // 🔹 Lấy danh sách xe In Stock
           const res = await VehicleService.get({
             pageNumber: 1,
             pageSize: 50,
@@ -76,8 +84,7 @@ export default function AssignForm({
     onClose();
   };
 
-  const handleCancelClick = () => setConfirmOpen(true); // mở dialog xác nhận
-
+  const handleCancelClick = () => setConfirmOpen(true);
   const confirmCancel = async () => {
     if (!order) return;
     await onCancelled(order);
@@ -87,7 +94,7 @@ export default function AssignForm({
 
   return (
     <>
-      {/* 🔹 Dialog xác nhận */}
+      {/* 🔹 Confirm dialog */}
       <ConfirmDialog
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
@@ -113,6 +120,7 @@ export default function AssignForm({
                 <Spinner />
               </Flex>
             ) : assignedVehicle ? (
+              // 🔹 Đã có xe được assign
               <Table variant="simple">
                 <Thead>
                   <Tr>
@@ -127,13 +135,14 @@ export default function AssignForm({
                     <Td>1</Td>
                     <Td>{assignedVehicle.vehicleId}</Td>
                     <Td>{assignedVehicle.modelNumber}</Td>
-                    <Td>Reserved</Td>
+                    <Td>{statusMap[assignedVehicle.status] || 'Unknown'}</Td>
                   </Tr>
                 </Tbody>
               </Table>
             ) : vehicles.length === 0 ? (
               <Text>No vehicles available in stock.</Text>
             ) : (
+              // 🔹 Danh sách xe khả dụng
               <Table variant="simple">
                 <Thead>
                   <Tr>
@@ -150,7 +159,7 @@ export default function AssignForm({
                       <Td>{i + 1}</Td>
                       <Td>{v.vehicleId}</Td>
                       <Td>{v.modelNumber}</Td>
-                      <Td>In Stock</Td>
+                      <Td>{statusMap[v.status] || 'Unknown'}</Td>
                       <Td textAlign="right">
                         <Button
                           size="sm"
@@ -183,13 +192,14 @@ export default function AssignForm({
               Close
             </Button>
 
-            {/* 🟢 Nút hủy đơn luôn hiển thị */}
+            {/* 🟥 Cancel Order */}
             {order && ![3, 4].includes(order.status) && (
               <Button colorScheme="red" mr={3} onClick={handleCancelClick}>
                 Cancel Order
               </Button>
             )}
 
+            {/* 🟢 Assign Vehicle */}
             {!assignedVehicle && (
               <Button
                 colorScheme="green"

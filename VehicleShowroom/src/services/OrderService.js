@@ -30,7 +30,7 @@ const OrderService = {
   },
 
   updateStatus: async (id, status) => {
-    const res = await ApiClient.put(`${ApiUrl.ORDERS.BASE}/${id}/status`, {
+    const res = await ApiClient.put(ApiUrl.ORDERS.STATUS(id), {
       status,
     });
     return res.data;

@@ -27,15 +27,14 @@ const VehicleService = {
 
   // 🚘 Update status
   updateStatus: async (id, status) => {
-    const res = await ApiClient.put(ApiUrl.VEHICLES.BASE.STATUS(id), status);
+    const res = await ApiClient.put(ApiUrl.VEHICLES.STATUS(id), { status });
     return res.data;
   },
 
   updateLicensePlate: async (id, licensePlate) => {
-    const res = await ApiClient.put(
-      ApiUrl.VEHICLES.BASE.LICENSE_PLATE(id),
+    const res = await ApiClient.put(ApiUrl.VEHICLES.LICENSE_PLATE(id), {
       licensePlate,
-    );
+    });
     return res.data;
   },
 };

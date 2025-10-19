@@ -1,5 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { Text, Flex, IconButton } from '@chakra-ui/react';
+import { Text, Flex, IconButton, Badge } from '@chakra-ui/react';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import { formatUSD } from 'utils/FormatHelper';
 import ModelFilter from './ModelFilter';
@@ -16,12 +16,12 @@ export default function Columns({
   onEdit,
   onDelete,
 }) {
-  const statusMap = {
-    1: 'In Stock',
-    2: 'Sold',
-    3: 'Reserved',
-    4: 'In Service',
+  const STATUS_MAP = {
+    1: { label: 'In Stock', color: 'green' },
+    2: { label: 'Reserved', color: 'orange' },
+    3: { label: 'Sold', color: 'red' },
   };
+
   return [
     columnHelper.display({
       id: 'index',
@@ -45,6 +45,7 @@ export default function Columns({
       cell: (info) => <Text>{info.getValue()}</Text>,
     }),
 
+    // ✅ STATUS column with badge
     columnHelper.accessor('status', {
       header: () => (
         <StatusFilter
@@ -53,28 +54,29 @@ export default function Columns({
         />
       ),
       cell: (info) => {
-        const val = info.getValue();
+        const val = Number(info.getValue());
+        const s = STATUS_MAP[val] || { label: 'Unknown', color: 'gray' };
+
         return (
-          <Text
-            color={
-              val === 1
-                ? 'green.400'
-                : val === 2
-                ? 'red.400'
-                : val === 3
-                ? 'orange.400'
-                : 'blue.400'
-            }
+          <Badge
+            colorScheme={s.color}
+            px={3}
+            py={1}
+            borderRadius="md"
+            variant="subtle"
           >
-            {statusMap[val] || 'Unknown'}
-          </Text>
+            {s.label}
+          </Badge>
         );
       },
     }),
+
     columnHelper.accessor('purchasePrice', {
       header: 'PRICE',
       cell: (info) => <Text>{formatUSD(info.getValue())}</Text>,
     }),
+
+    // ✅ ACTIONS
     columnHelper.display({
       id: 'actions',
       header: <Text align="right">ACTIONS</Text>,

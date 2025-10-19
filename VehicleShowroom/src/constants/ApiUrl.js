@@ -28,7 +28,7 @@ export const ApiUrl = {
     BASE: `${BASE_URL}/Orders`,
     BY_ID: (id) => `${BASE_URL}/Orders/${id}`,
     ASSIGN_VEHICLE: (id) => `${BASE_URL}/Orders/${id}/assign-vehicle`,
-    CONFIRM: (id) => `${BASE_URL}/Orders/${id}/confirm`,
+    STATUS: (id) => `${BASE_URL}/Orders/${id}/status`,
   },
 
   // 👤 Profile

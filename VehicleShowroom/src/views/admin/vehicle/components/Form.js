@@ -21,7 +21,6 @@ import {
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useAppToast } from 'utils/ToastHelper';
 import VehicleService from 'services/VehicleService';
-import { useUser } from 'contexts/UserContext';
 
 export default function Form({
   isOpen,
@@ -33,7 +32,6 @@ export default function Form({
   textColor,
 }) {
   const toast = useAppToast();
-  const { user } = useUser();
 
   const [formData, setFormData] = useState({
     vehicleId: '',
@@ -41,7 +39,7 @@ export default function Form({
     purchasePrice: '',
     externalNumber: '',
     vin: '',
-    createdBy: '',
+    licensePlate: '',
   });
 
   const [modelName, setModelName] = useState('');
@@ -54,10 +52,10 @@ export default function Form({
         purchasePrice: vehicle.purchasePrice || '',
         externalNumber: vehicle.externalNumber || '',
         vin: vehicle.vin || '',
-        createdBy: vehicle.createdBy || user?.username || user?.name || '',
+        licensePlate: vehicle.licensePlate || '',
       });
       setModelName(
-        models.find((m) => m.modelNumber === vehicle.modelNumber)?.name || '',
+        models.find((m) => m.modelNumber === vehicle.modelNumber)?.name || ''
       );
     } else {
       setFormData({
@@ -66,27 +64,35 @@ export default function Form({
         purchasePrice: '',
         externalNumber: '',
         vin: '',
-        createdBy: user?.username || user?.name || '',
+        licensePlate: '',
       });
       setModelName('');
     }
-  }, [vehicle, models, isOpen, user]);
+  }, [vehicle, models, isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Gửi dữ liệu có createdBy
   const handleSubmit = async () => {
     try {
-      const payload = { ...formData };
+      const payload = {
+        modelNumber: formData.modelNumber,
+        purchasePrice: Number(formData.purchasePrice),
+        externalNumber: formData.externalNumber,
+        vin: formData.vin,
+      };
 
       if (vehicle) {
-        await VehicleService.update(vehicle.vehicleId, payload);
+        // PUT /api/Vehicles/{id}
+        const updatePayload = { ...payload, licensePlate: formData.licensePlate };
+        await VehicleService.update(vehicle.vehicleId, updatePayload);
         toast.success('Vehicle updated successfully');
       } else {
-        await VehicleService.create(payload);
+        // POST /api/Vehicles
+        const createPayload = { ...payload, vehicleId: formData.vehicleId };
+        await VehicleService.create(createPayload);
         toast.success('Vehicle created successfully');
       }
 
@@ -105,6 +111,7 @@ export default function Form({
         <ModalHeader>{vehicle ? 'Edit Vehicle' : 'Add Vehicle'}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
+          {/* MODEL */}
           <FormControl isRequired mb={4}>
             <FormLabel>Model</FormLabel>
             <Menu isLazy matchWidth>
@@ -131,12 +138,12 @@ export default function Form({
                         color={isParent ? 'gray.900' : textColor}
                         _hover={
                           isParent
-                            ? { bg: 'transparent', cursor: 'default' } 
-                            : { bg: 'gray.100', cursor: 'pointer' } 
+                            ? { bg: 'transparent', cursor: 'default' }
+                            : { bg: 'gray.100', cursor: 'pointer' }
                         }
-                        isDisabled={!isChild} 
+                        isDisabled={!isChild}
                         onClick={() => {
-                          if (!isChild) return; 
+                          if (!isChild) return;
                           setFormData((prev) => ({
                             ...prev,
                             modelNumber: m.modelNumber,
@@ -144,7 +151,7 @@ export default function Form({
                           setModelName(m.name);
                         }}
                       >
-                        {isParent ? m.name : `${m.name}`}
+                        {m.name}
                       </MenuItem>
                     );
                   })
@@ -159,6 +166,7 @@ export default function Form({
             </Menu>
           </FormControl>
 
+          {/* VIN */}
           <FormControl isRequired mb={4}>
             <FormLabel>VIN</FormLabel>
             <Input
@@ -169,6 +177,7 @@ export default function Form({
             />
           </FormControl>
 
+          {/* External Number */}
           <FormControl mb={4}>
             <FormLabel>External Number</FormLabel>
             <Input
@@ -179,6 +188,7 @@ export default function Form({
             />
           </FormControl>
 
+          {/* Price */}
           <FormControl mb={4}>
             <FormLabel>Price</FormLabel>
             <Input
@@ -189,7 +199,21 @@ export default function Form({
               onChange={handleChange}
             />
           </FormControl>
+
+          {/* License Plate (only edit mode) */}
+          {vehicle && (
+            <FormControl mb={4}>
+              <FormLabel>License Plate</FormLabel>
+              <Input
+                color={textColor}
+                name="licensePlate"
+                value={formData.licensePlate}
+                onChange={handleChange}
+              />
+            </FormControl>
+          )}
         </ModalBody>
+
         <ModalFooter>
           <Button variant="ghost" mr={3} onClick={onClose}>
             Cancel

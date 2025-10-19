@@ -50,11 +50,9 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
     try {
       setLoading(true);
 
-      const payload = { status };
       const selected = STATUS_OPTIONS.find((s) => s.value === status);
 
-      await ServiceOrderService.updateStatus(order.id, payload);
-      await new Promise((r) => setTimeout(r, 500));
+      await ServiceOrderService.updateStatus(order.id, status);
       if (selected?.label === 'Completed') {
         let vehicleId = null;
 
@@ -64,11 +62,8 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
         }
 
         if (vehicleId) {
-          await VehicleService.updateStatus(vehicleId, 3);
           await VehicleService.updateLicensePlate(vehicleId, licensePlate);
         }
-
-        await OrderService.updateStatus(order.orderId, 3);
       }
 
       toast.success('Status updated successfully');

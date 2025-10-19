@@ -3,10 +3,14 @@ import React from 'react';
 import { Icon } from '@chakra-ui/react';
 
 import {
-  MdHome,
-  MdAccountCircle,
+  MdDashboard,
+  MdPeopleAlt,
+  MdBadge,
   MdCategory,
-  MdOutlineDirectionsCar,
+  MdDirectionsCarFilled,
+  MdShoppingCartCheckout,
+  MdAssignment,
+  MdBuildCircle,
 } from 'react-icons/md';
 
 // Admin Imports
@@ -38,25 +42,21 @@ const routes = [
     name: 'Main Dashboard',
     layout: '/admin',
     path: '/dashboard',
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={MdDashboard} width="20px" height="20px" color="inherit" />,
     component: <Dashboard />,
   },
   {
     name: 'Customer Management',
     layout: '/admin',
     path: '/customer-management',
-    icon: (
-      <Icon as={MdAccountCircle} width="20px" height="20px" color="inherit" />
-    ),
+    icon: <Icon as={MdPeopleAlt} width="20px" height="20px" color="inherit" />,
     component: <CustomerManagement />,
   },
   {
     name: 'Employee Management',
     layout: '/admin',
     path: '/employee-management',
-    icon: (
-      <Icon as={MdAccountCircle} width="20px" height="20px" color="inherit" />
-    ),
+    icon: <Icon as={MdBadge} width="20px" height="20px" color="inherit" />,
     component: <EmployeeManagement />,
   },
   {
@@ -72,7 +72,7 @@ const routes = [
     path: '/vehicle-management',
     icon: (
       <Icon
-        as={MdOutlineDirectionsCar}
+        as={MdDirectionsCarFilled}
         width="20px"
         height="20px"
         color="inherit"
@@ -86,7 +86,7 @@ const routes = [
     path: '/purchase-management',
     icon: (
       <Icon
-        as={MdOutlineDirectionsCar}
+        as={MdShoppingCartCheckout}
         width="20px"
         height="20px"
         color="inherit"
@@ -98,14 +98,7 @@ const routes = [
     name: 'Order Management',
     layout: '/admin',
     path: '/order-management',
-    icon: (
-      <Icon
-        as={MdOutlineDirectionsCar}
-        width="20px"
-        height="20px"
-        color="inherit"
-      />
-    ),
+    icon: <Icon as={MdAssignment} width="20px" height="20px" color="inherit" />,
     component: <OrderManagement />,
   },
   {
@@ -113,12 +106,7 @@ const routes = [
     layout: '/admin',
     path: '/service-management',
     icon: (
-      <Icon
-        as={MdOutlineDirectionsCar}
-        width="20px"
-        height="20px"
-        color="inherit"
-      />
+      <Icon as={MdBuildCircle} width="20px" height="20px" color="inherit" />
     ),
     component: <ServiceOrderManagement />,
   },

@@ -3,12 +3,10 @@ import { useColorModeValue, Card, useDisclosure } from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useAppToast } from 'utils/ToastHelper';
 import { useUser } from 'contexts/UserContext';
-import { LoadingState } from 'components/common/LoadingState';
 
 import OrderService from 'services/OrderService';
 import VehicleModelService from 'services/VehicleModelService';
 import UserService from 'services/UserService';
-import VehicleService from 'services/VehicleService';
 import ServiceOrderService from 'services/ServiceOrderService';
 
 import Header from './components/Header';
@@ -95,7 +93,8 @@ function OrderManagement() {
         setLoading(false);
       }
     },
-    [models],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [models, statusFilter],
   );
 
   // ✅ Load models
@@ -114,25 +113,23 @@ function OrderManagement() {
     }
   }, []);
 
-  const handleAssignVehicle = (order) => {
-    setAssigningOrder(order);
-    onAssignOpen();
-  };
+  const handleAssignVehicle = useCallback(
+    (order) => {
+      setAssigningOrder(order);
+      onAssignOpen();
+    },
+    [onAssignOpen], 
+  );
 
   const handleAssigned = async (vehicle) => {
     try {
       setLoading(true);
 
-      // ✅ Assign Vehicle cho Order
       await OrderService.assignVehicle(
         assigningOrder.id,
         vehicle.vehicleId,
         user?.id,
       );
-
-      // ✅ Cập nhật trạng thái
-      await OrderService.updateStatus(assigningOrder.id, 2); // Confirmed
-      await VehicleService.updateStatus(vehicle.vehicleId, 3); // Reserved
 
       toast.success('Vehicle assigned successfully!');
       loadOrders(page);
@@ -146,17 +143,9 @@ function OrderManagement() {
   const handleCancelled = async (order) => {
     try {
       setLoading(true);
-      // ✅ Nếu đã có xe → trả về InStock
-      if (order.vehicleId) {
-        await OrderService.assignVehicle(
-          assigningOrder.id,
-          "",
-          user?.id,
-        );
-        await VehicleService.updateStatus(order.vehicleId, 1);
-      }
 
-      await OrderService.updateStatus(order.id, 4); // Cancelled
+      await OrderService.updateStatus(order.id, 4);
+
       toast.success('Order cancelled successfully!');
       loadOrders(page);
     } catch (err) {
@@ -167,10 +156,13 @@ function OrderManagement() {
   };
 
   // 🟠 Mở form tạo Service Order
-  const handleCreateService = (order) => {
-    setSelectedOrder(order);
-    onServiceOpen();
-  };
+  const handleCreateService = useCallback(
+    (order) => {
+      setSelectedOrder(order);
+      onServiceOpen();
+    },
+    [onServiceOpen],
+  );
 
   // ✅ Xử lý submit Service Order (POST)
   const handleSubmitService = async (formData) => {
@@ -200,13 +192,13 @@ function OrderManagement() {
 
   useEffect(() => {
     loadModels();
-  }, []);
+  }, [loadModels]);
 
   useEffect(() => {
     if (models.length > 0) {
       loadOrders(page);
     }
-  }, [models, page, statusFilter]);
+  }, [models, page, statusFilter, loadOrders]);
 
   const columns = useMemo(
     () =>
@@ -216,7 +208,7 @@ function OrderManagement() {
         statusFilter,
         setStatusFilter,
       }),
-    [handleAssignVehicle, statusFilter],
+    [handleAssignVehicle, handleCreateService, statusFilter],
   );
 
   const table = useReactTable({

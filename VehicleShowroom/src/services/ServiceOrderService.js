@@ -16,10 +16,9 @@ const ServiceOrderService = {
   },
 
   updateStatus: async (id, status) => {
-    const response = await ApiClient.put(
-      ApiUrl.SERVICE_ORDERS.STATUS(id),
+    const response = await ApiClient.put(ApiUrl.SERVICE_ORDERS.STATUS(id), {
       status,
-    );
+    });
     return response.data;
   },
 };

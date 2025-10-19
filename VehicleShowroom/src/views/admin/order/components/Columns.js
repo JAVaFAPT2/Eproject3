@@ -66,9 +66,10 @@ export default function Columns({
       header: () => <Text textAlign="right">ACTIONS</Text>,
       cell: (info) => {
         const row = info.row.original;
+        const value = Number(row.status);
         const isAssigned = !!row.vehicleId;
-        const isCancelled = row.status === 4;
-        const isCompleted = row.status === 3;
+        const isCancelled = value === 4;
+        const isCompleted = value === 3;
 
         // 🟠 Nếu đơn đã cancel hoặc complete → ẩn hết action
         if (isCancelled || isCompleted) {
