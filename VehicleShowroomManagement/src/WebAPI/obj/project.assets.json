@@ -3523,7 +3523,7 @@
           "CloudinaryDotNet": "1.26.2",
           "FluentValidation": "11.9.2",
           "MailKit": "4.8.0",
-          "MediatR": "13.0.0",
+          "MediatR": "12.2.0",
           "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
           "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",

@@ -130,6 +130,9 @@ namespace VehicleShowroomManagement.Domain.Entities
         if (Status == OrderStatus.Cancelled)
             throw new InvalidOperationException("Cannot complete a cancelled order");
 
+        if (Status == OrderStatus.Pending)
+            throw new InvalidOperationException("Cannot complete a pending order - must be confirmed first");
+
         Status = OrderStatus.Completed;
         UpdatedAt = DateTime.UtcNow;
     }
