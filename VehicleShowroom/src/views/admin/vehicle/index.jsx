@@ -3,7 +3,6 @@ import { useColorModeValue, Card, useDisclosure } from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useAppToast } from 'utils/ToastHelper';
 
-import { LoadingState } from 'components/common/LoadingState';
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
 import Pagination from 'components/pagination/Pagination';
 import VehicleService from 'services/VehicleService';

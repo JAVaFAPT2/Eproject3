@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from 'react';
 import {
   Box,
   SimpleGrid,
-  Spinner,
   Flex,
   Text,
   useColorModeValue,
@@ -88,7 +87,7 @@ export default function DashboardPage() {
         tooltip: { y: { formatter: (val) => formatUSD(val) } },
       },
     };
-  }, [revenue]);
+  }, [revenue, textColorSecondary]);
 
   // 🧠 Customer chart data
   const customerChart = useMemo(() => {
@@ -109,7 +108,7 @@ export default function DashboardPage() {
         grid: { borderColor: '#E2E8F0', strokeDashArray: 4 },
       },
     };
-  }, [customer]);
+  }, [customer, textColorSecondary]);
 
   return (
     <>

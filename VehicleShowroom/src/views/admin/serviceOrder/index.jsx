@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useColorModeValue, Card, useDisclosure } from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useAppToast } from 'utils/ToastHelper';
-import { LoadingState } from 'components/common/LoadingState';
 
 import ServiceOrderService from 'services/ServiceOrderService';
 import UserService from 'services/UserService';

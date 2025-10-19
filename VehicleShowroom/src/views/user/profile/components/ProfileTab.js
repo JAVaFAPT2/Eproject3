@@ -38,7 +38,7 @@ export default function ProfileTab({ user, colors }) {
         role: user.role || '',
       });
     }
-  }, []);
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
