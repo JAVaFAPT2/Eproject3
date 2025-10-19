@@ -1,4 +1,5 @@
 using System.Text;
+using System.Collections;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -42,11 +43,45 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
     
-    // Configure environment-specific settings
-    if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+    // Rebuild configuration to ensure environment variables override JSON files
+    // Configuration loading order (later sources override earlier ones):
+    // 1. appsettings.json
+    // 2. appsettings.{Environment}.json
+    // 3. appsettings.Docker.json (if in Docker)
+    // 4. Environment variables (HIGHEST PRIORITY)
+    builder.Configuration.Sources.Clear();
+    
+    var configBuilder = builder.Configuration
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+    
+    // Add Docker-specific settings if running in container
+    var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    if (isDocker)
     {
-        builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true);
+        configBuilder.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true);
+        Log.Information("Docker environment detected - loaded appsettings.Docker.json");
     }
+    
+    // Environment variables MUST be last to have highest priority
+    // This converts Jwt__Key -> Jwt:Key, ConnectionStrings__MongoDB -> ConnectionStrings:MongoDB automatically
+    configBuilder.AddEnvironmentVariables();
+    
+    // Debug: Log configuration values after environment variables are loaded
+    Log.Information("Checking configuration after environment variable loading...");
+    Log.Information("Environment: {Environment}", builder.Environment.EnvironmentName);
+    
+    var mongoCheck = builder.Configuration.GetConnectionString("MongoDB");
+    Log.Information("MongoDB connection string: {Status}", string.IsNullOrWhiteSpace(mongoCheck) ? "MISSING" : "FOUND");
+    
+    var jwtKeyCheck = builder.Configuration["Jwt:Key"];
+    Log.Information("JWT Key: {Status}", string.IsNullOrWhiteSpace(jwtKeyCheck) ? "MISSING" : $"FOUND ({jwtKeyCheck.Length} chars)");
+    
+    var jwtIssuerCheck = builder.Configuration["Jwt:Issuer"];
+    Log.Information("JWT Issuer: {Status}", string.IsNullOrWhiteSpace(jwtIssuerCheck) ? "MISSING" : $"FOUND ({jwtIssuerCheck})");
+    
+    var jwtAudienceCheck = builder.Configuration["Jwt:Audience"];
+    Log.Information("JWT Audience: {Status}", string.IsNullOrWhiteSpace(jwtAudienceCheck) ? "MISSING" : $"FOUND ({jwtAudienceCheck})");
     
     // Use Serilog for logging
     builder.Host.UseSerilog();
@@ -54,7 +89,7 @@ try
 // Configure URLs based on environment
 var environmentName = builder.Environment.EnvironmentName;
 var isProduction = builder.Environment.IsProduction();
-var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+// isDocker was already defined earlier when loading configuration
 Log.Information("Environment: {Environment}, IsProduction: {IsProduction}, IsDocker: {IsDocker}", 
     environmentName, isProduction, isDocker);
 
@@ -152,15 +187,63 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        var jwtKeyValue = builder.Configuration["Jwt:Key"];
+        var jwtIssuerValue = builder.Configuration["Jwt:Issuer"];
+        var jwtAudienceValue = builder.Configuration["Jwt:Audience"];
+        
+        // Validate JWT configuration
+        if (string.IsNullOrWhiteSpace(jwtKeyValue))
+        {
+            Log.Warning("JWT Key is not configured. Authentication will fail.");
+        }
+        else if (jwtKeyValue.Length < 32)
+        {
+            Log.Warning("JWT Key is too short (less than 32 characters). This is insecure.");
+        }
+        
+        if (string.IsNullOrWhiteSpace(jwtIssuerValue))
+        {
+            Log.Warning("JWT Issuer is not configured.");
+        }
+        
+        if (string.IsNullOrWhiteSpace(jwtAudienceValue))
+        {
+            Log.Warning("JWT Audience is not configured.");
+        }
+        
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = !string.IsNullOrWhiteSpace(jwtIssuerValue),
+            ValidateAudience = !string.IsNullOrWhiteSpace(jwtAudienceValue),
             ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            ValidateIssuerSigningKey = !string.IsNullOrWhiteSpace(jwtKeyValue),
+            ValidIssuer = jwtIssuerValue,
+            ValidAudience = jwtAudienceValue,
+            IssuerSigningKey = !string.IsNullOrWhiteSpace(jwtKeyValue) 
+                ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKeyValue))
+                : null,
+            ClockSkew = TimeSpan.FromMinutes(5) // Allow 5 minutes clock skew
+        };
+        
+        // Add event handlers for better debugging
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Log.Warning("JWT Authentication failed: {Error}", context.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Log.Debug("JWT Token validated successfully for user: {User}", 
+                    context.Principal?.Identity?.Name ?? "Unknown");
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                Log.Warning("JWT Challenge: {Error}", context.ErrorDescription);
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -203,6 +286,22 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Validate configuration after all mappings are complete
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    // Use the builder configuration which has all the mapped environment variables
+    var isConfigValid = await ConfigurationValidator.ValidateConfigurationAsync(builder.Configuration, logger);
+    if (!isConfigValid)
+    {
+        Log.Fatal("Configuration validation failed. Application cannot start.");
+        Environment.Exit(1);
+    }
+    Log.Information("Configuration validation completed successfully");
+}
 
 // Configure the HTTP request pipeline
 app.UseSwagger();
@@ -249,18 +348,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Validate configuration before starting the application
-var configLogger = app.Services.GetRequiredService<ILogger<Program>>();
-var configuration = app.Services.GetRequiredService<IConfiguration>();
-
-var isConfigValid = await ConfigurationValidator.ValidateConfigurationAsync(configuration, configLogger);
-if (!isConfigValid)
-{
-    Log.Fatal("Configuration validation failed. Application cannot start.");
-    Environment.Exit(1);
-}
-
-Log.Information("Configuration validation completed successfully");
 
 // Log startup information
 Log.Information("Application configuration:");

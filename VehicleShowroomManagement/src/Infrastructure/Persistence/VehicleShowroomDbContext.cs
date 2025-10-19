@@ -12,6 +12,9 @@ namespace VehicleShowroomManagement.Infrastructure.Persistence
     {
         private IClientSessionHandle? _session;
 
+        // Expose current MongoDB session for repository operations to participate in transactions
+        public IClientSessionHandle? Session => _session;
+
         // MongoDB Collections with uppercase naming
         public IMongoCollection<Role> Roles => database.GetCollection<Role>("ROLE");
         public IMongoCollection<User> Users => database.GetCollection<User>("USER");

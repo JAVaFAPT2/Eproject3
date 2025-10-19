@@ -563,23 +563,6 @@
           }
         }
       },
-      "MediatR.Extensions.Autofac.DependencyInjection/13.1.0": {
-        "type": "package",
-        "dependencies": {
-          "Autofac": "8.4.0",
-          "MediatR": "13.0.0"
-        },
-        "compile": {
-          "lib/netstandard2.0/MediatR.Extensions.Autofac.DependencyInjection.dll": {
-            "related": ".pdb"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/MediatR.Extensions.Autofac.DependencyInjection.dll": {
-            "related": ".pdb"
-          }
-        }
-      },
       "Microsoft.AspNetCore.Authentication.JwtBearer/8.0.8": {
         "type": "package",
         "dependencies": {
@@ -4043,7 +4026,6 @@
           "FluentValidation": "11.9.2",
           "MailKit": "4.8.0",
           "MediatR": "13.0.0",
-          "MediatR.Extensions.Autofac.DependencyInjection": "13.1.0",
           "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
           "Microsoft.Extensions.Configuration.Abstractions": "8.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",
@@ -4915,20 +4897,6 @@
         "lib/netstandard2.0/MediatR.Contracts.xml",
         "mediatr.contracts.2.0.1.nupkg.sha512",
         "mediatr.contracts.nuspec"
-      ]
-    },
-    "MediatR.Extensions.Autofac.DependencyInjection/13.1.0": {
-      "sha512": "5qXLkLSFailx1fSRkwOAmPl3uEu21IR7KZrFirf6ODxl3Xlf+msOkvhLGyfjmeS0doIKLdx2Gsg4XBotLJUffg==",
-      "type": "package",
-      "path": "mediatr.extensions.autofac.dependencyinjection/13.1.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "icon.png",
-        "lib/netstandard2.0/MediatR.Extensions.Autofac.DependencyInjection.dll",
-        "lib/netstandard2.0/MediatR.Extensions.Autofac.DependencyInjection.pdb",
-        "mediatr.extensions.autofac.dependencyinjection.13.1.0.nupkg.sha512",
-        "mediatr.extensions.autofac.dependencyinjection.nuspec"
       ]
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/8.0.8": {

@@ -124,8 +124,11 @@ namespace VehicleShowroomManagement.Domain.Entities
 
     public void Complete()
     {
-        if (Status != OrderStatus.Confirmed)
-            throw new InvalidOperationException("Only confirmed orders can be completed");
+        if (Status == OrderStatus.Completed)
+            throw new InvalidOperationException("Order is already completed");
+        
+        if (Status == OrderStatus.Cancelled)
+            throw new InvalidOperationException("Cannot complete a cancelled order");
 
         Status = OrderStatus.Completed;
         UpdatedAt = DateTime.UtcNow;
@@ -140,6 +143,12 @@ namespace VehicleShowroomManagement.Domain.Entities
             throw new InvalidOperationException("Order is already cancelled");
 
         Status = OrderStatus.Cancelled;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void ClearVehicle()
+    {
+        VehicleId = null;
         UpdatedAt = DateTime.UtcNow;
     }
 
