@@ -3,6 +3,7 @@
 .env.*
 !.env.template
 !.env.production.template
+!.env.development.template
 
 # Build outputs
 bin/
@@ -33,10 +34,11 @@ logs/
 *.pid.lock
 
 # Node.js (for VehicleShowroom frontend)
-node_modules/
-package-lock.json
-yarn.lock
-build/
+VehicleShowroom/node_modules/
+VehicleShowroom/package-lock.json
+VehicleShowroom/yarn.lock
+VehicleShowroom/build/
+VehicleShowroom/.env.local
 
 # .NET specific
 [Dd]ebug/

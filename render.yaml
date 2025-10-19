@@ -1,4 +1,5 @@
 services:
+  # Backend API
   - type: web
     name: vehicleshowroom-api
     env: docker
@@ -36,6 +37,27 @@ services:
         sync: false
       - key: CloudinarySettings__ApiSecret
         sync: false
+
+  # Frontend Web App
+  - type: web
+    name: vehicleshowroom-web
+    env: docker
+    dockerfilePath: ./VehicleShowroom/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          type: web
+          name: vehicleshowroom-api
+          property: host
+          format: https://${host}/api
+      - key: REACT_APP_NAME
+        value: Vehicle Showroom Management
+      - key: REACT_APP_VERSION
+        value: 2.0.0
+      - key: REACT_APP_ENVIRONMENT
+        value: production
 
 databases:
   - name: vehicleshowroom-db

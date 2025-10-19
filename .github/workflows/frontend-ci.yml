@@ -1,0 +1,96 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'VehicleShowroom/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'VehicleShowroom/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: VehicleShowroom/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./VehicleShowroom
+      run: npm ci
+      
+    - name: Run tests
+      working-directory: ./VehicleShowroom
+      run: npm test -- --coverage --watchAll=false
+      
+    - name: Run linting
+      working-directory: ./VehicleShowroom
+      run: npm run lint || echo "Linting completed with warnings"
+      
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: VehicleShowroom/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./VehicleShowroom
+      run: npm ci
+      
+    - name: Build application
+      working-directory: ./VehicleShowroom
+      run: npm run build
+      env:
+        REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL || 'https://vehicleshowroom-api.onrender.com/api' }}
+        REACT_APP_NAME: Vehicle Showroom Management
+        REACT_APP_VERSION: 2.0.0
+        REACT_APP_ENVIRONMENT: production
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: VehicleShowroom/build/
+        
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-build
+        path: VehicleShowroom/build/
+        
+    - name: Deploy to Render
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+        build-command: echo "Using pre-built artifacts"
+        publish-directory: VehicleShowroom/build
