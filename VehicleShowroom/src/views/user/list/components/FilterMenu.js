@@ -41,7 +41,7 @@ export default function FilterMenu({ selectedFilters, onChangeFilters }) {
           pageNumber: 1,
           pageSize: 100,
         });
-        const data = res?.vehicleModels || [];
+        const data = res?.items || [];
         const level1 = data.filter((m) => m.level === 1);
         // ✅ Lưu object: All là option đặc biệt, các model khác là object
         setGroups([{ name: 'All', modelNumber: 'All' }, ...level1]);

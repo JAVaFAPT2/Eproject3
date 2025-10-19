@@ -43,14 +43,20 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
     const fetchLevel1Models = async () => {
       setLoading(true);
       try {
-        const res = await VehicleModelService.get({ pageNumber: 1, pageSize: 100 });
+        const res = await VehicleModelService.get({
+          pageNumber: 1,
+          pageSize: 100,
+        });
         const models = res?.items?.filter((m) => m.level === 1) || [];
 
         const enriched = await Promise.all(
           models.map(async (m) => {
-            let photoUrl = m.photo || 'https://placehold.co/600x400?text=No+Image';
+            let photoUrl =
+              m.photo || 'https://placehold.co/600x400?text=No+Image';
             try {
-              const photos = await VehiclePhotoService.getByModelNumber(m.modelNumber);
+              const photos = await VehiclePhotoService.getByModelNumber(
+                m.modelNumber,
+              );
               const displayPhoto =
                 photos.items?.find((p) => p.displayOrder === 0)?.photoUrl ||
                 photos.items?.[0]?.photoUrl ||
@@ -58,7 +64,7 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
               if (displayPhoto) photoUrl = displayPhoto;
             } catch {}
             return { ...m, photo: photoUrl };
-          })
+          }),
         );
 
         setAllModels(enriched);
@@ -87,11 +93,14 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
 
       const enrichedVariants = await Promise.all(
         variants.map(async (m) => {
-          let photoUrl = m.photo || 'https://placehold.co/600x400?text=No+Image';
+          let photoUrl =
+            m.photo || 'https://placehold.co/600x400?text=No+Image';
           let fuelType = 'N/A';
 
           try {
-            const photos = await VehiclePhotoService.getByModelNumber(m.modelNumber);
+            const photos = await VehiclePhotoService.getByModelNumber(
+              m.modelNumber,
+            );
             const displayPhoto =
               photos.items?.find((p) => p.displayOrder === 0)?.photoUrl ||
               photos.items?.[0]?.photoUrl ||
@@ -100,13 +109,17 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
           } catch {}
 
           try {
-            const specs = await VehicleSpecService.getByModelNumber(m.modelNumber);
-            const fuelSpec = specs.items.find((s) => s.specName === 'Fuel Type');
+            const specs = await VehicleSpecService.getByModelNumber(
+              m.modelNumber,
+            );
+            const fuelSpec = specs.items.find(
+              (s) => s.specName === 'Fuel Type',
+            );
             if (fuelSpec) fuelType = fuelSpec.specValue;
           } catch {}
 
           return { ...m, photo: photoUrl, fuelType };
-        })
+        }),
       );
 
       setDisplayedModels(enrichedVariants);
@@ -237,7 +250,7 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
             top="0"
             left="0"
             h="100dvh"
-            w={{ base: '100%', md: '30%' }}
+            w={{ base: '100%', md: '50%', '2xl': '30%' }}
             bg={bgColor}
             color={textColor}
             shadow="xl"
@@ -247,7 +260,12 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
             zIndex="1500"
           >
             {/* 🔹 Header */}
-            <Flex justify="space-between" align="center" p={6} borderColor={borderColor}>
+            <Flex
+              justify="space-between"
+              align="center"
+              p={6}
+              borderColor={borderColor}
+            >
               {parentModel ? (
                 <Flex align="center" gap={3}>
                   <IconButton

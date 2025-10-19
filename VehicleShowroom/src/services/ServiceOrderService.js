@@ -14,12 +14,11 @@ const ServiceOrderService = {
     const response = await ApiClient.post(ApiUrl.SERVICE_ORDERS.BASE, data);
     return response.data;
   },
-  
-  updateStatus: async (id, payload) => {
-    const response = await ApiClient.put(
-      ApiUrl.SERVICE_ORDERS.STATUS(id),
-      payload,
-    );
+
+  updateStatus: async (id, status) => {
+    const response = await ApiClient.put(ApiUrl.SERVICE_ORDERS.STATUS(id), {
+      status,
+    });
     return response.data;
   },
 };

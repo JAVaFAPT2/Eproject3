@@ -69,7 +69,7 @@ export default function List() {
         };
 
         const res = await VehicleModelService.get(params);
-        const list = (res.vehicleModels || []).filter(
+        const list = (res.items || []).filter(
           (item) => item.level === 2,
         );
 

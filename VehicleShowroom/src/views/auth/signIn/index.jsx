@@ -53,13 +53,13 @@ function SignIn() {
     try {
       setIsLoading(true);
       const user = await login({ username, password }, keepLoggedIn);
-      toast.success(`Welcome back, ${user.name || user.username}!`);
+      toast.success(`Welcome, ${user.name || user.username}!`);
       navigate('/');
     } catch (error) {
       console.error(error);
       const msg =
         error.response?.data?.message ||
-        'Invalid credentials. Please try again.';
+        'Wrong username or password.';
       toast.error(msg);
     } finally {
       setIsLoading(false);

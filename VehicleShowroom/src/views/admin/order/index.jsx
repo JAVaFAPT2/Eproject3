@@ -3,12 +3,10 @@ import { useColorModeValue, Card, useDisclosure } from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useAppToast } from 'utils/ToastHelper';
 import { useUser } from 'contexts/UserContext';
-import { LoadingState } from 'components/common/LoadingState';
 
 import OrderService from 'services/OrderService';
 import VehicleModelService from 'services/VehicleModelService';
 import UserService from 'services/UserService';
-import VehicleService from 'services/VehicleService';
 import ServiceOrderService from 'services/ServiceOrderService';
 
 import Header from './components/Header';
@@ -17,7 +15,7 @@ import Columns from './components/Columns';
 import Form from './components/Form';
 import Pagination from 'components/pagination/Pagination';
 import AssignForm from './components/AssignForm';
-import ServiceForm from './components/ServiceForm'; // 🟢 form UI (UI only)
+import ServiceForm from './components/ServiceForm';
 
 function OrderManagement() {
   const toast = useAppToast();
@@ -31,6 +29,7 @@ function OrderManagement() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [assigningOrder, setAssigningOrder] = useState(null);
@@ -55,6 +54,7 @@ function OrderManagement() {
         const res = await OrderService.get({
           pageNumber: p,
           pageSize: 10,
+          status: statusFilter || null,
         });
 
         const orders = res.items || [];
@@ -93,7 +93,8 @@ function OrderManagement() {
         setLoading(false);
       }
     },
-    [models],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [models, statusFilter],
   );
 
   // ✅ Load models
@@ -112,21 +113,24 @@ function OrderManagement() {
     }
   }, []);
 
-  const handleAssignVehicle = (order) => {
-    setAssigningOrder(order);
-    onAssignOpen();
-  };
+  const handleAssignVehicle = useCallback(
+    (order) => {
+      setAssigningOrder(order);
+      onAssignOpen();
+    },
+    [onAssignOpen], 
+  );
 
   const handleAssigned = async (vehicle) => {
     try {
       setLoading(true);
+
       await OrderService.assignVehicle(
         assigningOrder.id,
         vehicle.vehicleId,
         user?.id,
       );
-      await OrderService.updateStatus(assigningOrder.id, 2);
-      await VehicleService.updateStatus(vehicle.vehicleId, 2);
+
       toast.success('Vehicle assigned successfully!');
       loadOrders(page);
     } catch (err) {
@@ -136,11 +140,29 @@ function OrderManagement() {
     }
   };
 
-  // 🟠 Mở form tạo Service Order
-  const handleCreateService = (order) => {
-    setSelectedOrder(order);
-    onServiceOpen();
+  const handleCancelled = async (order) => {
+    try {
+      setLoading(true);
+
+      await OrderService.updateStatus(order.id, 4);
+
+      toast.success('Order cancelled successfully!');
+      loadOrders(page);
+    } catch (err) {
+      toast.error('Failed to cancel order');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // 🟠 Mở form tạo Service Order
+  const handleCreateService = useCallback(
+    (order) => {
+      setSelectedOrder(order);
+      onServiceOpen();
+    },
+    [onServiceOpen],
+  );
 
   // ✅ Xử lý submit Service Order (POST)
   const handleSubmitService = async (formData) => {
@@ -170,21 +192,23 @@ function OrderManagement() {
 
   useEffect(() => {
     loadModels();
-  }, []);
+  }, [loadModels]);
 
   useEffect(() => {
     if (models.length > 0) {
       loadOrders(page);
     }
-  }, [models, page]);
+  }, [models, page, statusFilter, loadOrders]);
 
   const columns = useMemo(
     () =>
       Columns({
         onAssign: handleAssignVehicle,
         onCreateService: handleCreateService,
+        statusFilter,
+        setStatusFilter,
       }),
-    [handleAssignVehicle],
+    [handleAssignVehicle, handleCreateService, statusFilter],
   );
 
   const table = useReactTable({
@@ -211,6 +235,7 @@ function OrderManagement() {
         onClose={onAssignClose}
         order={assigningOrder}
         onAssigned={handleAssigned}
+        onCancelled={handleCancelled}
       />
 
       {/* Create Service Order */}
