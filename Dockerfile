@@ -41,4 +41,7 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+# Create keys directory for data protection
+RUN mkdir -p /app/keys && chmod 755 /app/keys
+
 ENTRYPOINT ["dotnet", "VehicleShowroomManagement.WebAPI.dll"]

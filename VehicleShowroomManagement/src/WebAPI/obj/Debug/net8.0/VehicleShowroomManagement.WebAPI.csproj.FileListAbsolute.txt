@@ -336,3 +336,5 @@ C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\o
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\Polly.dll
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\Polly.Core.dll
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\Polly.Extensions.Http.dll
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\appsettings.Docker.json
+C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\appsettings.Production.json

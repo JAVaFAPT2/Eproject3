@@ -691,6 +691,30 @@ Content-Type: application/json
 # - Sold = 3
 ```
 
+### **21.1 PUT /api/vehicles/{id}/license-plate**
+**Update Vehicle License Plate** *(Dealer/Admin only)*
+
+```bash
+# Request
+PUT /api/vehicles/507f1f77bcf86cd799439011/license-plate
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "licensePlate": "XYZ-789"
+}
+
+# Response (200 OK)
+{
+  "message": "Vehicle license plate updated successfully"
+}
+
+# Notes:
+# - Updates the license plate for the specified vehicle
+# - Can be used independently or combined with service order status updates
+# - License plate is automatically updated when completing service orders with licensePlate parameter
+```
+
 ### **22. DELETE /api/vehicles/{id}**
 **Delete Vehicle** *(Admin only)*
 
@@ -974,13 +998,17 @@ Content-Type: application/json
 }
 
 # Service Order Status Values (numeric):
-# - InProgress = 1
-# - Completed = 2
-# - Cancelled = 3
+# - Scheduled = 1
+# - InProgress = 2  
+# - Completed = 3
+# - Cancelled = 4
 
 # On Completed:
 # - Service order marked complete
-# - If licensePlate provided, vehicle updated
+# - Billing document automatically created
+# - If licensePlate provided, vehicle updated (for any status)
+# - For PreDelivery: Order completed + Vehicle sold + Billing = Service Cost + Order Amount
+# - For Maintenance/Repair: Billing = Service Cost Only
 ```
 
 ---

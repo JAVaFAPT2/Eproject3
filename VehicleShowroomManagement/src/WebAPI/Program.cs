@@ -42,6 +42,12 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
     
+    // Configure environment-specific settings
+    if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+    {
+        builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true);
+    }
+    
     // Use Serilog for logging
     builder.Host.UseSerilog();
 
@@ -82,9 +88,17 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
 // Configure Data Protection for containerized environments
 if (builder.Environment.IsProduction() || isDocker)
 {
+    // Create keys directory if it doesn't exist
+    var keysDirectory = Path.Combine("/app", "keys");
+    if (!Directory.Exists(keysDirectory))
+    {
+        Directory.CreateDirectory(keysDirectory);
+    }
+    
     builder.Services.AddDataProtection()
         .SetApplicationName("VehicleShowroomManagement")
-        .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+        .SetDefaultKeyLifetime(TimeSpan.FromDays(90))
+        .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory));
 }
 
 // Configure IOptions with validation
@@ -94,6 +108,9 @@ builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(
 
 // Add services to the container
 builder.Services.AddControllers();
+
+// Add health checks
+builder.Services.AddHealthChecks();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -174,7 +191,11 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+// Only use HTTPS redirection in development (when HTTPS is available)
+if (!isProduction && !isDocker)
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowFE");
 
@@ -182,6 +203,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Add health check endpoint
+app.MapHealthChecks("/health");
 
 // Database Initialization and Seeding
 using (var scope = app.Services.CreateScope())
@@ -220,6 +244,14 @@ if (!isConfigValid)
 }
 
 Log.Information("Configuration validation completed successfully");
+
+// Log startup information
+Log.Information("Application configuration:");
+Log.Information("- Environment: {Environment}", builder.Environment.EnvironmentName);
+Log.Information("- IsProduction: {IsProduction}", isProduction);
+Log.Information("- IsDocker: {IsDocker}", isDocker);
+Log.Information("- Data Protection Keys Directory: {KeysDirectory}", isDocker ? "/app/keys" : "Default");
+Log.Information("- HTTPS Redirection: {HttpsRedirect}", !isProduction && !isDocker ? "Enabled" : "Disabled");
 
 app.Run();
 }
