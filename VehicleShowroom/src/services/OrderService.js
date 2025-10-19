@@ -9,6 +9,11 @@ const OrderService = {
     return res.data;
   },
 
+  getById: async (id) => {
+    const res = await ApiClient.get(ApiUrl.ORDERS.BY_ID(id));
+    return res.data;
+  },
+
   // 🟣 Tạo Order mới
   create: async (data) => {
     const res = await ApiClient.post(ApiUrl.ORDERS.BASE, data);

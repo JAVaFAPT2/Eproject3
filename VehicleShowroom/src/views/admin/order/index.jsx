@@ -17,7 +17,7 @@ import Columns from './components/Columns';
 import Form from './components/Form';
 import Pagination from 'components/pagination/Pagination';
 import AssignForm from './components/AssignForm';
-import ServiceForm from './components/ServiceForm'; // 🟢 form UI (UI only)
+import ServiceForm from './components/ServiceForm';
 
 function OrderManagement() {
   const toast = useAppToast();
@@ -31,6 +31,7 @@ function OrderManagement() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [assigningOrder, setAssigningOrder] = useState(null);
@@ -55,6 +56,7 @@ function OrderManagement() {
         const res = await OrderService.get({
           pageNumber: p,
           pageSize: 10,
+          status: statusFilter || null,
         });
 
         const orders = res.items || [];
@@ -120,17 +122,45 @@ function OrderManagement() {
   const handleAssigned = async (vehicle) => {
     try {
       setLoading(true);
+
+      // ✅ Assign Vehicle cho Order
       await OrderService.assignVehicle(
         assigningOrder.id,
         vehicle.vehicleId,
         user?.id,
       );
-      await OrderService.updateStatus(assigningOrder.id, 2);
-      await VehicleService.updateStatus(vehicle.vehicleId, 2);
+
+      // ✅ Cập nhật trạng thái
+      await OrderService.updateStatus(assigningOrder.id, 2); // Confirmed
+      await VehicleService.updateStatus(vehicle.vehicleId, 3); // Reserved
+
       toast.success('Vehicle assigned successfully!');
       loadOrders(page);
     } catch (err) {
       toast.error('Failed to assign vehicle');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelled = async (order) => {
+    try {
+      setLoading(true);
+      // ✅ Nếu đã có xe → trả về InStock
+      if (order.vehicleId) {
+        await OrderService.assignVehicle(
+          assigningOrder.id,
+          "",
+          user?.id,
+        );
+        await VehicleService.updateStatus(order.vehicleId, 1);
+      }
+
+      await OrderService.updateStatus(order.id, 4); // Cancelled
+      toast.success('Order cancelled successfully!');
+      loadOrders(page);
+    } catch (err) {
+      toast.error('Failed to cancel order');
     } finally {
       setLoading(false);
     }
@@ -176,15 +206,17 @@ function OrderManagement() {
     if (models.length > 0) {
       loadOrders(page);
     }
-  }, [models, page]);
+  }, [models, page, statusFilter]);
 
   const columns = useMemo(
     () =>
       Columns({
         onAssign: handleAssignVehicle,
         onCreateService: handleCreateService,
+        statusFilter,
+        setStatusFilter,
       }),
-    [handleAssignVehicle],
+    [handleAssignVehicle, statusFilter],
   );
 
   const table = useReactTable({
@@ -211,6 +243,7 @@ function OrderManagement() {
         onClose={onAssignClose}
         order={assigningOrder}
         onAssigned={handleAssigned}
+        onCancelled={handleCancelled}
       />
 
       {/* Create Service Order */}

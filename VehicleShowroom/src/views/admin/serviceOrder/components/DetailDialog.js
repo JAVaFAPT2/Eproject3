@@ -10,10 +10,24 @@ import {
   Button,
   Text,
   Stack,
+  Badge,
 } from '@chakra-ui/react';
+
+// ✅ Map enum sang label + màu hiển thị
+const STATUS_MAP = {
+  1: { label: 'Scheduled', color: 'orange' },
+  2: { label: 'In Progress', color: 'blue' },
+  3: { label: 'Completed', color: 'green' },
+  4: { label: 'Cancelled', color: 'red' },
+};
 
 export default function DetailDialog({ isOpen, onClose, order }) {
   if (!order) return null;
+
+  const statusInfo = STATUS_MAP[order.status] || {
+    label: 'Unknown',
+    color: 'gray',
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
@@ -69,7 +83,7 @@ export default function DetailDialog({ isOpen, onClose, order }) {
               <Text as="span" fontWeight="bold">
                 Status:
               </Text>{' '}
-              {order.status}
+              <Badge colorScheme={statusInfo.color}>{statusInfo.label}</Badge>
             </Text>
           </Stack>
         </ModalBody>

@@ -8,7 +8,7 @@ const VehicleService = {
     return res.data;
   },
 
-   get: async (params = {}) => {
+  get: async (params = {}) => {
     const res = await ApiClient.get(ApiUrl.VEHICLES.BASE, { params });
     return res.data;
   },
