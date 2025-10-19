@@ -149,24 +149,6 @@ try
         builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true);
     }
     
-    // Validate configuration early (before building the app)
-    // Create a temporary configuration to validate settings
-    var tempConfig = new ConfigurationBuilder()
-        .AddConfiguration(builder.Configuration)
-        .Build();
-    
-    // Create a temporary logger for validation
-    using var loggerFactory = LoggerFactory.Create(builder => builder.AddSerilog());
-    var tempLogger = loggerFactory.CreateLogger<Program>();
-    
-    var isConfigValid = await ConfigurationValidator.ValidateConfigurationAsync(tempConfig, tempLogger);
-    if (!isConfigValid)
-    {
-        Log.Fatal("Configuration validation failed. Application cannot start.");
-        Environment.Exit(1);
-    }
-    Log.Information("Configuration validation completed successfully");
-    
     // Use Serilog for logging
     builder.Host.UseSerilog();
 
@@ -371,6 +353,22 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Validate configuration after all mappings are complete
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    var configuration = services.GetRequiredService<IConfiguration>();
+
+    var isConfigValid = await ConfigurationValidator.ValidateConfigurationAsync(configuration, logger);
+    if (!isConfigValid)
+    {
+        Log.Fatal("Configuration validation failed. Application cannot start.");
+        Environment.Exit(1);
+    }
+    Log.Information("Configuration validation completed successfully");
+}
+
 // Configure the HTTP request pipeline
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -416,7 +414,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configuration validation already completed earlier
 
 // Log startup information
 Log.Information("Application configuration:");
