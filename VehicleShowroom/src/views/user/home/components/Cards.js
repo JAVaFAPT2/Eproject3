@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Box,
   Container,
@@ -7,6 +7,7 @@ import {
   Text,
   Flex,
   Icon,
+  Skeleton,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
@@ -16,19 +17,25 @@ const MotionBox = motion(Box);
 
 export default function Cards() {
   const [cards, setCards] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch('/JSON/cards.json');
+      const data = await res.json();
+      setCards(data);
+    } catch (error) {
+      console.warn('Error loading cards:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch('/JSON/cards.json');
-        const data = await res.json();
-        setCards(data);
-      } catch (error) {
-        console.warn('Error loading cards:', error);
-      }
-    }
-    fetchData();
-  }, []);
+    // Defer loading to improve initial LCP
+    const timer = setTimeout(fetchData, 500);
+    return () => clearTimeout(timer);
+  }, [fetchData]);
 
   return (
     <Box
@@ -48,7 +55,13 @@ export default function Cards() {
           }}
           gap={{ base: 6, md: 8 }}
         >
-          {cards.map((el, idx) => (
+          {isLoading ? (
+            // Loading skeletons
+            Array.from({ length: 6 }).map((_, idx) => (
+              <Skeleton key={idx} height="300px" borderRadius="lg" />
+            ))
+          ) : (
+            cards.map((el, idx) => (
             <MotionBox
               key={el.id || idx}
               position="relative"
@@ -66,7 +79,7 @@ export default function Cards() {
               whileHover={{ scale: 1.03 }}
             >
               <NavLink to={el.a || '#'}>
-                {/* Ảnh */}
+                {/* Ảnh with lazy loading */}
                 <Image
                   src={el.src}
                   srcSet={el.srcSet}
@@ -78,6 +91,8 @@ export default function Cards() {
                   borderRadius="lg"
                   transition="transform 0.5s ease"
                   _hover={{ transform: 'scale(1.05)' }}
+                  loading="lazy"
+                  decoding="async"
                 />
 
                 {/* Gradient overlay */}
@@ -117,7 +132,8 @@ export default function Cards() {
                 </Flex>
               </NavLink>
             </MotionBox>
-          ))}
+            ))
+          )}
         </Grid>
       </Container>
     </Box>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import {
   Box,
@@ -8,6 +8,7 @@ import {
   Flex,
   Button,
   useBreakpointValue,
+  Spinner,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
@@ -17,33 +18,57 @@ const MotionBox = motion(Box);
 function Hero({ isCategoryOpen }) {
   const videoRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
   const isDesktop = useBreakpointValue({ base: false, md: true });
 
+  // Defer video loading to improve LCP
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setShouldLoadVideo(true);
+    }, 1000); // Load video after 1 second
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const loadVideo = useCallback(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !shouldLoadVideo) return;
 
     if (Hls.isSupported()) {
-      const hls = new Hls();
+      const hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: true,
+        backBufferLength: 90
+      });
+      
       const src = isDesktop
         ? 'https://videos.porsche.com/id/taycanbepc/hls.m3u8'
         : 'https://videos.porsche.com/id/taycanbemob/hls.m3u8';
+      
       hls.loadSource(src);
       hls.attachMedia(video);
 
       const handlePause = () => setIsPaused(true);
       const handlePlay = () => setIsPaused(false);
+      const handleLoadedData = () => setIsVideoLoaded(true);
 
       video.addEventListener('pause', handlePause);
       video.addEventListener('play', handlePlay);
+      video.addEventListener('loadeddata', handleLoadedData);
 
       return () => {
         video.removeEventListener('pause', handlePause);
         video.removeEventListener('play', handlePlay);
+        video.removeEventListener('loadeddata', handleLoadedData);
         hls.destroy();
       };
     }
-  }, [isDesktop]);
+  }, [isDesktop, shouldLoadVideo]);
+
+  useEffect(() => {
+    loadVideo();
+  }, [loadVideo]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -75,8 +100,19 @@ function Hero({ isCategoryOpen }) {
           : {}
       }
     >
-      {/* 🎥 Background video */}
+      {/* 🎥 Background video with fallback */}
       <Box position="absolute" inset="0" zIndex={0}>
+        {/* Fallback image for faster LCP */}
+        <Image
+          src="https://images.unsplash.com/photo-1555215695-3004980ad54e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+          alt="Luxury car background"
+          width="100%"
+          height="100%"
+          objectFit="cover"
+          display={isVideoLoaded ? 'none' : 'block'}
+        />
+        
+        {/* Video element */}
         <video
           ref={videoRef}
           autoPlay
@@ -88,8 +124,22 @@ function Hero({ isCategoryOpen }) {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
+            display: isVideoLoaded ? 'block' : 'none',
           }}
         />
+        
+        {/* Loading spinner */}
+        {shouldLoadVideo && !isVideoLoaded && (
+          <Flex
+            position="absolute"
+            inset="0"
+            align="center"
+            justify="center"
+            bg="blackAlpha.500"
+          >
+            <Spinner size="xl" color="white" />
+          </Flex>
+        )}
       </Box>
 
       {/* 🌑 Gradient overlay */}
