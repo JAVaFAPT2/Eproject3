@@ -43,12 +43,33 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
     
-    // Add environment variables to configuration
-    // This automatically converts double-underscore (__) to colon (:) for hierarchical keys
-    builder.Configuration.AddEnvironmentVariables();
+    // Rebuild configuration to ensure environment variables override JSON files
+    // Configuration loading order (later sources override earlier ones):
+    // 1. appsettings.json
+    // 2. appsettings.{Environment}.json
+    // 3. appsettings.Docker.json (if in Docker)
+    // 4. Environment variables (HIGHEST PRIORITY)
+    builder.Configuration.Sources.Clear();
+    
+    var configBuilder = builder.Configuration
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+    
+    // Add Docker-specific settings if running in container
+    var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    if (isDocker)
+    {
+        configBuilder.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true);
+        Log.Information("Docker environment detected - loaded appsettings.Docker.json");
+    }
+    
+    // Environment variables MUST be last to have highest priority
+    // This converts Jwt__Key -> Jwt:Key, ConnectionStrings__MongoDB -> ConnectionStrings:MongoDB automatically
+    configBuilder.AddEnvironmentVariables();
     
     // Debug: Log configuration values after environment variables are loaded
     Log.Information("Checking configuration after environment variable loading...");
+    Log.Information("Environment: {Environment}", builder.Environment.EnvironmentName);
     
     var mongoCheck = builder.Configuration.GetConnectionString("MongoDB");
     Log.Information("MongoDB connection string: {Status}", string.IsNullOrWhiteSpace(mongoCheck) ? "MISSING" : "FOUND");
@@ -57,16 +78,10 @@ try
     Log.Information("JWT Key: {Status}", string.IsNullOrWhiteSpace(jwtKeyCheck) ? "MISSING" : $"FOUND ({jwtKeyCheck.Length} chars)");
     
     var jwtIssuerCheck = builder.Configuration["Jwt:Issuer"];
-    Log.Information("JWT Issuer: {Status}", string.IsNullOrWhiteSpace(jwtIssuerCheck) ? "MISSING" : "FOUND");
+    Log.Information("JWT Issuer: {Status}", string.IsNullOrWhiteSpace(jwtIssuerCheck) ? "MISSING" : $"FOUND ({jwtIssuerCheck})");
     
     var jwtAudienceCheck = builder.Configuration["Jwt:Audience"];
-    Log.Information("JWT Audience: {Status}", string.IsNullOrWhiteSpace(jwtAudienceCheck) ? "MISSING" : "FOUND");
-    
-    // Configure environment-specific settings
-    if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
-    {
-        builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true);
-    }
+    Log.Information("JWT Audience: {Status}", string.IsNullOrWhiteSpace(jwtAudienceCheck) ? "MISSING" : $"FOUND ({jwtAudienceCheck})");
     
     // Use Serilog for logging
     builder.Host.UseSerilog();
@@ -74,7 +89,7 @@ try
 // Configure URLs based on environment
 var environmentName = builder.Environment.EnvironmentName;
 var isProduction = builder.Environment.IsProduction();
-var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+// isDocker was already defined earlier when loading configuration
 Log.Information("Environment: {Environment}, IsProduction: {IsProduction}, IsDocker: {IsDocker}", 
     environmentName, isProduction, isDocker);
 
