@@ -12,6 +12,8 @@ import {
   FormLabel,
   Button,
   Box,
+  Spinner,
+  Flex,
 } from '@chakra-ui/react';
 import { useUser } from 'contexts/UserContext';
 import OrderService from 'services/OrderService';
@@ -28,6 +30,7 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
     phone: '',
     address: '',
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -53,6 +56,9 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
     }
 
     try {
+      setLoading(true);
+
+      // 🔹 Cập nhật thông tin người dùng trước
       await ProfileService.update({
         name: form.name,
         email: form.email,
@@ -62,6 +68,7 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
 
       await refreshUser();
 
+      // 🔹 Tạo đơn hàng mới
       const payload = {
         customerId: user.id,
         modelNumber: vehicle?.modelNumber,
@@ -71,13 +78,14 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
       await OrderService.create(payload);
 
       toast.success('Your order has been successfully submitted!');
-
       onClose();
     } catch (err) {
       toast.error(
         err.response?.data?.message ||
-          'Something went wrong while processing your order please try again.',
+          'Something went wrong while processing your order. Please try again.',
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -90,6 +98,23 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
           Contact for Purchase
         </DrawerHeader>
 
+        {/* 🔹 Hiển thị loading overlay khi đang xử lý */}
+        {loading && (
+          <Flex
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            bg="whiteAlpha.700"
+            zIndex="10"
+            align="center"
+            justify="center"
+          >
+            <Spinner size="xl" thickness="4px" color="black" />
+          </Flex>
+        )}
+
         <DrawerBody flex="1" overflowY="auto" pb="100px">
           <form onSubmit={handleSubmit}>
             <VStack spacing={5} align="stretch">
@@ -100,6 +125,7 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
                   value={form.name}
                   onChange={handleChange}
                   placeholder="Your full name"
+                  isDisabled={loading}
                 />
               </FormControl>
 
@@ -111,6 +137,7 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
                   value={form.email}
                   onChange={handleChange}
                   placeholder="example@email.com"
+                  isDisabled={loading}
                 />
               </FormControl>
 
@@ -121,6 +148,7 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
                   value={form.phone}
                   onChange={handleChange}
                   placeholder="Your phone number"
+                  isDisabled={loading}
                 />
               </FormControl>
 
@@ -131,6 +159,7 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
                   value={form.address}
                   onChange={handleChange}
                   placeholder="Your address"
+                  isDisabled={loading}
                 />
               </FormControl>
             </VStack>
@@ -153,6 +182,8 @@ export default function PurchaseDrawer({ isOpen, onClose, vehicle }) {
             w="full"
             _hover={{ bg: 'gray.700' }}
             onClick={handleSubmit}
+            isLoading={loading} 
+            loadingText="Submitting"
           >
             Submit
           </Button>

@@ -22,9 +22,9 @@ import {
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import ServiceOrderService from 'services/ServiceOrderService';
-import { useAppToast } from 'utils/ToastHelper';
 import VehicleService from 'services/VehicleService';
 import OrderService from 'services/OrderService';
+import { useAppToast } from 'utils/ToastHelper';
 
 const STATUS_OPTIONS = [
   { label: 'Scheduled', value: 1 },
@@ -50,23 +50,27 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
     try {
       setLoading(true);
 
-      const payload = { status };
       const selected = STATUS_OPTIONS.find((s) => s.value === status);
 
-      if (selected?.label === 'Completed' && licensePlate.trim()) {
-        payload.licensePlate = licensePlate.trim();
-      }
-
-      await ServiceOrderService.updateStatus(order.id, payload);
-
+      await ServiceOrderService.updateStatus(order.id, status);
       if (selected?.label === 'Completed') {
-        await VehicleService.updateStatus(order.vehicleId, 3);
-        await OrderService.updateStatus(order.orderId, 3);
+        let vehicleId = null;
+
+        if (order?.orderId) {
+          const orderData = await OrderService.getById(order.orderId);
+          vehicleId = orderData?.vehicleId;
+        }
+
+        if (vehicleId) {
+          await VehicleService.updateLicensePlate(vehicleId, licensePlate);
+        }
       }
+
       toast.success('Status updated successfully');
       onClose();
       reload();
     } catch (err) {
+      console.error(err);
       toast.error('Failed to update status');
     } finally {
       setLoading(false);
@@ -85,7 +89,7 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
         <ModalCloseButton />
         <ModalBody>
           <Stack spacing={4}>
-            {/* Menu thay cho Select */}
+            {/* 🔹 Menu thay cho Select */}
             <FormControl>
               <FormLabel>Status</FormLabel>
               <Menu>
@@ -111,7 +115,6 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
                         position="relative"
                       >
                         <Text>{opt.label}</Text>
-
                         {status === opt.value && (
                           <Box
                             position="absolute"
@@ -131,7 +134,7 @@ export default function StatusForm({ isOpen, onClose, order, reload }) {
               </Menu>
             </FormControl>
 
-            {/* Chỉ hiển thị nếu Completed */}
+            {/* 🔹 Chỉ hiển thị nếu Completed */}
             {status === 3 && (
               <FormControl>
                 <FormLabel>License Plate</FormLabel>

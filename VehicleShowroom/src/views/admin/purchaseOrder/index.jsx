@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useColorModeValue, Card, useDisclosure } from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useAppToast } from 'utils/ToastHelper';
-import { LoadingState } from 'components/common/LoadingState';
 
 import PurchaseOrderService from 'services/PurchaseOrderService';
 import VehicleModelService from 'services/VehicleModelService';
@@ -24,7 +23,9 @@ function PurchaseOrderManagement() {
   const [models, setModels] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false); // ✅ Loading state
+  const [statusFilter, setStatusFilter] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // ✅ Load purchase orders + createdBy name + modelName
@@ -35,6 +36,7 @@ function PurchaseOrderManagement() {
         const res = await PurchaseOrderService.get({
           pageNumber: p,
           pageSize: 10,
+          status: statusFilter || null,
         });
 
         let orders = res.items || [];
@@ -78,7 +80,8 @@ function PurchaseOrderManagement() {
         setLoading(false);
       }
     },
-    [models],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [models, statusFilter], // ✅ thêm toast
   );
 
   // ✅ Load models
@@ -97,36 +100,65 @@ function PurchaseOrderManagement() {
     }
   }, []);
 
-  // ✅ Đánh dấu đơn hàng là Complete
-  const handleCompleteOrder = async (orderId) => {
-    try {
-      setLoading(true);
-      await PurchaseOrderService.complete(orderId);
-      toast.success('Purchase order marked as Complete');
-      loadOrders(page);
-    } catch (err) {
-      console.error('❌ Failed to complete purchase order:', err);
-      toast.error('Failed to update order status');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ✅ Đánh dấu Completed (bọc useCallback để không re-create mỗi render)
+  const handleCompleteOrder = useCallback(
+    async (orderId) => {
+      try {
+        setLoading(true);
+        await PurchaseOrderService.updateStatus(orderId, 2); // 2 = Completed
+        toast.success('Purchase order marked as Completed');
+        loadOrders(page);
+      } catch (err) {
+        console.error('❌ Failed to complete purchase order:', err);
+        toast.error('Failed to update order status');
+      } finally {
+        setLoading(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [loadOrders, page],
+  );
+
+  // ✅ Đánh dấu Cancelled (bọc useCallback)
+  const handleCancelOrder = useCallback(
+    async (orderId) => {
+      try {
+        setLoading(true);
+        await PurchaseOrderService.updateStatus(orderId, 3); // 3 = Cancelled
+        toast.success('Purchase order marked as Cancelled');
+        loadOrders(page);
+      } catch (err) {
+        console.error('❌ Failed to cancel purchase order:', err);
+        toast.error('Failed to update order status');
+      } finally {
+        setLoading(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [loadOrders, page],
+  );
 
   // ✅ Load models trước rồi mới load orders
   useEffect(() => {
     loadModels();
-  }, []);
+  }, [loadModels]); // ✅ thêm loadModels
 
   useEffect(() => {
     if (models.length > 0) {
       loadOrders(page);
     }
-  }, [models, page]);
+  }, [models, page, statusFilter, loadOrders]); // ✅ thêm loadOrders
 
-  // ✅ Cột dữ liệu
+  // ✅ Columns không bị recreate mỗi render
   const columns = useMemo(
-    () => Columns({ onComplete: handleCompleteOrder }),
-    [handleCompleteOrder],
+    () =>
+      Columns({
+        onComplete: handleCompleteOrder,
+        onCancel: handleCancelOrder,
+        statusFilter,
+        setStatusFilter,
+      }),
+    [handleCompleteOrder, handleCancelOrder, statusFilter],
   );
 
   const table = useReactTable({
@@ -148,7 +180,12 @@ function PurchaseOrderManagement() {
 
       <Card bg={bgColor} boxShadow="md" borderRadius="16px">
         <Header onAdd={onOpen} textColor={textColor} />
-        <List  loading={loading} table={table} borderColor={borderColor} textColor={textColor} />
+        <List
+          loading={loading}
+          table={table}
+          borderColor={borderColor}
+          textColor={textColor}
+        />
       </Card>
 
       {totalPages > 1 && (

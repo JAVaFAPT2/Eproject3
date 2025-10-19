@@ -3,7 +3,6 @@ import { useColorModeValue, Card, useDisclosure } from '@chakra-ui/react';
 import { useAppToast } from 'utils/ToastHelper';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
-import { LoadingState } from 'components/common/LoadingState';
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
 import ImagePreview from 'components/images/ImagePreview';
 import Pagination from 'components/pagination/Pagination';
@@ -39,13 +38,20 @@ function VehicleModelManagement() {
   const [editingSpec, setEditingSpec] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // ✅ Confirm Dialog cho model
   const {
     isOpen: isConfirmOpen,
     onOpen: onConfirmOpen,
     onClose: onConfirmClose,
   } = useDisclosure();
 
+  // ✅ Confirm Dialog cho spec
+  const [isConfirmSpecOpen, setIsConfirmSpecOpen] = useState(false);
+  const [specToDelete, setSpecToDelete] = useState(null);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // ✅ Expand/collapse + auto-load specs cho model cấp 2
   const toggleExpand = useCallback(
     async (modelNumber) => {
       setExpandedRows((prev) => ({
@@ -62,7 +68,6 @@ function VehicleModelManagement() {
       ) {
         try {
           const specs = await VehicleSpecService.getByModelNumber(modelNumber);
-
           setModels((prev) =>
             prev.map((m) =>
               m.modelNumber === modelNumber ? { ...m, specs: specs.items } : m,
@@ -74,6 +79,7 @@ function VehicleModelManagement() {
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [models],
   );
 
@@ -117,16 +123,26 @@ function VehicleModelManagement() {
     setIsSpecFormOpen(true);
   };
 
-  // ❌ Delete spec
-  const handleDeleteSpec = async (spec) => {
-    if (!window.confirm(`Delete spec "${spec.specName}"?`)) return;
+  // ❌ Delete spec (mở ConfirmDialog)
+  const handleDeleteSpecClick = (spec) => {
+    setSpecToDelete(spec);
+    setIsConfirmSpecOpen(true);
+  };
+
+  // ✅ Xác nhận xóa spec
+  const confirmDeleteSpec = async () => {
+    if (!specToDelete) return;
     try {
-      await VehicleSpecService.delete(spec.specId);
-      toast.success('Specification deleted successfully');
-      loadModels(page);
+      console.log(specToDelete);
+      await VehicleSpecService.delete(specToDelete.id);
+      toast.success(`Specification "${specToDelete.specName}" deleted`);
+      loadModels(page, true);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to delete spec');
+      toast.error('Failed to delete specification');
+    } finally {
+      setSpecToDelete(null);
+      setIsConfirmSpecOpen(false);
     }
   };
 
@@ -150,6 +166,7 @@ function VehicleModelManagement() {
         }
         return res.items;
       });
+
       setTotalPages(res.totalPages || 1);
     } catch (err) {
       console.error(err);
@@ -157,13 +174,14 @@ function VehicleModelManagement() {
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     loadModels(page);
   }, [page, loadModels]);
 
-  // 🧱 Build tree by parentModel
+  // 🧱 Build tree
   const buildTree = (flat) => {
     const map = {};
     flat.forEach((m) => (map[m.modelNumber] = { ...m, children: [] }));
@@ -178,10 +196,7 @@ function VehicleModelManagement() {
     return roots;
   };
 
-  const treeData = useMemo(() => {
-    let data = models;
-    return buildTree(data);
-  }, [models]);
+  const treeData = useMemo(() => buildTree(models), [models]);
 
   // ❌ Delete model
   const confirmDelete = async () => {
@@ -199,6 +214,7 @@ function VehicleModelManagement() {
     }
   };
 
+  // ✅ Columns
   const columns = useMemo(
     () =>
       Columns({
@@ -235,7 +251,7 @@ function VehicleModelManagement() {
 
   return (
     <>
-      {/* 🔹 Form Model */}
+      {/* 🔹 Model Form */}
       <ModelForm
         isOpen={isOpen}
         onClose={() => {
@@ -243,23 +259,23 @@ function VehicleModelManagement() {
           setParentModel(null);
           onClose();
         }}
-        reloadModels={() => loadModels(page)}
+        reloadModels={() => loadModels(page, true)}
         model={editingModel}
         parentModel={parentModel}
         textColor={textColor}
         bgColor={bgColor}
       />
 
-      {/* 🔹 Form Spec */}
+      {/* 🔹 Spec Form */}
       <SpecForm
         isOpen={isSpecFormOpen}
         onClose={() => setIsSpecFormOpen(false)}
         model={selectedSpecModel}
-        reloadModels={() => loadModels(page)}
+        reloadModels={() => loadModels(page, true)}
         editingSpec={editingSpec}
       />
 
-      {/* 🔹 Preview Image */}
+      {/* 🔹 Image Preview */}
       <ImagePreview
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
@@ -267,7 +283,7 @@ function VehicleModelManagement() {
         initialIndex={previewIndex}
       />
 
-      {/* 🔹 Main Table */}
+      {/* 🔹 Table */}
       <Card
         flexDirection="column"
         w="100%"
@@ -306,7 +322,7 @@ function VehicleModelManagement() {
             onConfirmOpen();
           }}
           onEditSpec={handleEditSpec}
-          onDeleteSpec={handleDeleteSpec}
+          onDeleteSpec={handleDeleteSpecClick}
           textColor={textColor}
           bgColor={bgColor}
           borderColor={borderColor}
@@ -322,7 +338,7 @@ function VehicleModelManagement() {
         />
       )}
 
-      {/* 🔹 Confirm Delete */}
+      {/* 🔹 Confirm Delete Model */}
       <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={onConfirmClose}
@@ -332,6 +348,19 @@ function VehicleModelManagement() {
           selectedToDelete
             ? `Are you sure you want to delete model "${selectedToDelete.name}"?`
             : 'Are you sure you want to delete this model?'
+        }
+      />
+
+      {/* 🔹 Confirm Delete Spec */}
+      <ConfirmDialog
+        isOpen={isConfirmSpecOpen}
+        onClose={() => setIsConfirmSpecOpen(false)}
+        onConfirm={confirmDeleteSpec}
+        title="Delete Specification"
+        message={
+          specToDelete
+            ? `Are you sure you want to delete specification "${specToDelete.specName}"?`
+            : 'Are you sure you want to delete this specification?'
         }
       />
     </>

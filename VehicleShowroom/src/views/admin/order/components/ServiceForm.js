@@ -36,10 +36,14 @@ export default function ServiceForm({ isOpen, onClose, order, onSubmit }) {
 
   useEffect(() => {
     if (isOpen) {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
       setFormData({
         type: 1,
         cost: 0,
-        appointmentDate: new Date().toISOString().split('T')[0], // yyyy-MM-dd
+        appointmentDate: `${y}-${m}-${d}`, 
         description: '',
       });
     }
@@ -51,6 +55,7 @@ export default function ServiceForm({ isOpen, onClose, order, onSubmit }) {
 
   const handleSubmit = () => {
     if (!formData.appointmentDate) return;
+    console.log(formData);
     onSubmit?.(formData);
   };
 
