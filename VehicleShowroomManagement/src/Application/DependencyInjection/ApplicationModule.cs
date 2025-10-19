@@ -1,6 +1,5 @@
 using Autofac;
-using MediatR.Extensions.Autofac.DependencyInjection;
-using MediatR.Extensions.Autofac.DependencyInjection.Builder;
+using MediatR;
 using System.Reflection;
 using AutofacModule = Autofac.Module;
 
@@ -16,12 +15,28 @@ namespace VehicleShowroomManagement.Application.DependencyInjection
             // Register MediatR and all command/query handlers from this assembly
             var applicationAssembly = Assembly.GetExecutingAssembly();
             
-            var configuration = MediatRConfigurationBuilder
-                .Create("VehicleShowroomManagement.Application", applicationAssembly)
-                .WithAllOpenGenericHandlerTypesRegistered()
-                .Build();
+            // Register MediatR
+            builder.RegisterType<Mediator>()
+                .As<IMediator>()
+                .InstancePerLifetimeScope();
 
-            builder.RegisterMediatR(configuration);
+            // Register all handlers
+            builder.RegisterAssemblyTypes(applicationAssembly)
+                .AsClosedTypesOf(typeof(IRequestHandler<,>))
+                .AsImplementedInterfaces();
+
+            builder.RegisterAssemblyTypes(applicationAssembly)
+                .AsClosedTypesOf(typeof(IRequestHandler<>))
+                .AsImplementedInterfaces();
+
+            builder.RegisterAssemblyTypes(applicationAssembly)
+                .AsClosedTypesOf(typeof(INotificationHandler<>))
+                .AsImplementedInterfaces();
+
+            // Register pipeline behaviors
+            builder.RegisterAssemblyTypes(applicationAssembly)
+                .AsClosedTypesOf(typeof(IPipelineBehavior<,>))
+                .AsImplementedInterfaces();
 
             // Domain services registration (if any in Application layer)
             // Add any additional application-specific services here

@@ -152,15 +152,63 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        var jwtKey = builder.Configuration["Jwt:Key"];
+        var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+        var jwtAudience = builder.Configuration["Jwt:Audience"];
+        
+        // Validate JWT configuration
+        if (string.IsNullOrWhiteSpace(jwtKey))
+        {
+            Log.Warning("JWT Key is not configured. Authentication will fail.");
+        }
+        else if (jwtKey.Length < 32)
+        {
+            Log.Warning("JWT Key is too short (less than 32 characters). This is insecure.");
+        }
+        
+        if (string.IsNullOrWhiteSpace(jwtIssuer))
+        {
+            Log.Warning("JWT Issuer is not configured.");
+        }
+        
+        if (string.IsNullOrWhiteSpace(jwtAudience))
+        {
+            Log.Warning("JWT Audience is not configured.");
+        }
+        
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = !string.IsNullOrWhiteSpace(jwtIssuer),
+            ValidateAudience = !string.IsNullOrWhiteSpace(jwtAudience),
             ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            ValidateIssuerSigningKey = !string.IsNullOrWhiteSpace(jwtKey),
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = !string.IsNullOrWhiteSpace(jwtKey) 
+                ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                : null,
+            ClockSkew = TimeSpan.FromMinutes(5) // Allow 5 minutes clock skew
+        };
+        
+        // Add event handlers for better debugging
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Log.Warning("JWT Authentication failed: {Error}", context.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Log.Debug("JWT Token validated successfully for user: {User}", 
+                    context.Principal?.Identity?.Name ?? "Unknown");
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                Log.Warning("JWT Challenge: {Error}", context.ErrorDescription);
+                return Task.CompletedTask;
+            }
         };
     });
 
