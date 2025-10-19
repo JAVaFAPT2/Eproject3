@@ -29,14 +29,14 @@ function EmployeeManagement() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     loadEmployees();
   }, [loadEmployees]);
 
   // ✅ Toggle active/inactive
-  const handleToggleActive = async (id, current) => {
+  const handleToggleActive = useCallback(async (id, current) => {
     try {
       setLoading(true);
       await UserService.toggleActive(id, !current);
@@ -47,7 +47,7 @@ function EmployeeManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast, loadEmployees]);
 
   // ✅ Cấu hình cột
   const columns = useMemo(
