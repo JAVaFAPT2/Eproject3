@@ -1,7 +1,7 @@
 services:
   # Backend API
   - type: web
-    name: vehicleshowroom-api
+    name: eproject3-api
     env: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
@@ -11,7 +11,7 @@ services:
         value: Production
       - key: ConnectionStrings__MongoDB
         fromDatabase:
-          name: vehicleshowroom-db
+          name: eproject3-db
           property: connectionString
       - key: Jwt__Key
         generateValue: true
@@ -40,7 +40,7 @@ services:
 
   # Frontend Web App
   - type: web
-    name: vehicleshowroom-web
+    name: eproject3-web
     env: docker
     dockerfilePath: ./VehicleShowroom/Dockerfile
     dockerContext: .
@@ -49,9 +49,15 @@ services:
       - key: REACT_APP_API_URL
         fromService:
           type: web
-          name: vehicleshowroom-api
+          name: eproject3-api
           property: host
           format: https://${host}/api
+      - key: REACT_APP_BACKEND_URL
+        fromService:
+          type: web
+          name: eproject3-api
+          property: host
+          format: https://${host}
       - key: REACT_APP_NAME
         value: Vehicle Showroom Management
       - key: REACT_APP_VERSION
@@ -60,7 +66,7 @@ services:
         value: production
 
 databases:
-  - name: vehicleshowroom-db
+  - name: eproject3-db
     plan: free
     databaseName: vehicleshowroom
     user: vehicleshowroom_user

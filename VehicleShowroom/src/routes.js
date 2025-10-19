@@ -1,5 +1,4 @@
-import React from 'react';
-
+import React, { lazy } from 'react';
 import { Icon } from '@chakra-ui/react';
 
 import {
@@ -13,28 +12,28 @@ import {
   MdBuildCircle,
 } from 'react-icons/md';
 
-// Admin Imports
-import Dashboard from 'views/admin/dashboard';
-import CustomerManagement from 'views/admin/customer';
-import EmployeeManagement from 'views/admin/employee';
-import VehicleModelManagement from 'views/admin/vehicleModel';
-import VehicleManagement from 'views/admin/vehicle';
+// Admin Imports - Lazy loaded for better performance
+const Dashboard = lazy(() => import('views/admin/dashboard'));
+const CustomerManagement = lazy(() => import('views/admin/customer'));
+const EmployeeManagement = lazy(() => import('views/admin/employee'));
+const VehicleModelManagement = lazy(() => import('views/admin/vehicleModel'));
+const VehicleManagement = lazy(() => import('views/admin/vehicle'));
+const PurchaseOrderManagement = lazy(() => import('views/admin/purchaseOrder'));
+const OrderManagement = lazy(() => import('views/admin/order'));
+const ServiceOrderManagement = lazy(() => import('views/admin/serviceOrder'));
 
-// User Imports
-import Home from 'views/user/home';
-import Profile from 'views/user/profile';
-import List from 'views/user/list';
-import Detail from 'views/user/detail';
+// User Imports - Lazy loaded for better performance
+const Home = lazy(() => import('views/user/home'));
+const Profile = lazy(() => import('views/user/profile'));
+const List = lazy(() => import('views/user/list'));
+const Detail = lazy(() => import('views/user/detail'));
 
-// Auth Imports
-import SignIn from 'views/auth/signIn';
-import SignUp from 'views/auth/signUp';
-import CheckEmailNotice from 'views/auth/checkEmailNotice';
-import ResetPassword from 'views/auth/resetPassword';
-import ForgotPassword from 'views/auth/forgotPassword';
-import PurchaseOrderManagement from 'views/admin/purchaseOrder';
-import OrderManagement from 'views/admin/order';
-import ServiceOrderManagement from 'views/admin/serviceOrder';
+// Auth Imports - Lazy loaded for better performance
+const SignIn = lazy(() => import('views/auth/signIn'));
+const SignUp = lazy(() => import('views/auth/signUp'));
+const CheckEmailNotice = lazy(() => import('views/auth/checkEmailNotice'));
+const ResetPassword = lazy(() => import('views/auth/resetPassword'));
+const ForgotPassword = lazy(() => import('views/auth/forgotPassword'));
 
 const routes = [
   // Admin Routes

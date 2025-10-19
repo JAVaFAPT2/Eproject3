@@ -6,9 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <title itemprop="name">Car Showroom</title>
+    
+    <!-- Performance optimizations -->
+    <meta name="description" content="Premium car showroom with luxury vehicles" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="preconnect" href="https://videos.porsche.com" />
+    
+    <!-- Critical CSS preload -->
+    <link rel="preload" href="%PUBLIC_URL%/static/css/main.css" as="style" />
+    
     <!-- Manifest and apple icon -->
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//images.unsplash.com" />
+    <link rel="dns-prefetch" href="//videos.porsche.com" />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

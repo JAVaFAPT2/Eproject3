@@ -2,7 +2,7 @@ import axios from 'axios';
 import qs from 'qs';
 import AuthService from 'services/AuthService';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://eproject3.onrender.com/api';
 
 // ✅ Serialize query param (color=red&color=blue)
 const paramsSerializer = (params) =>
