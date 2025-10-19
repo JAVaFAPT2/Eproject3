@@ -8,6 +8,7 @@ using VehicleShowroomManagement.Application.Features.Vehicles.Commands.UpdateVeh
 using VehicleShowroomManagement.Application.Features.Vehicles.Commands.DeleteVehicle;
 using VehicleShowroomManagement.Application.Features.Vehicles.Commands.BulkDeleteVehicles;
 using VehicleShowroomManagement.Application.Features.Vehicles.Commands.UpdateVehicleStatus;
+using VehicleShowroomManagement.Application.Features.Vehicles.Commands.UpdateLicensePlate;
 using VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVehicleById;
 using VehicleShowroomManagement.Application.Features.Vehicles.Queries.GetVehicles;
 using VehicleShowroomManagement.Application.Features.Vehicles.Queries.SearchVehicles;
@@ -279,6 +280,19 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             await mediator.Send(command);
             
             return Ok(new { message = "Vehicle status updated successfully" });
+        }
+
+        /// <summary>
+        /// Updates vehicle license plate
+        /// </summary>
+        [HttpPut("{id}/license-plate")]
+        [Authorize(Roles = "Dealer,Admin")]
+        public async Task<IActionResult> UpdateVehicleLicensePlate(string id, [FromBody] UpdateLicensePlateRequest request)
+        {
+            var command = new UpdateVehicleLicensePlateCommand(id, request.LicensePlate);
+            await mediator.Send(command);
+            
+            return Ok(new { message = "Vehicle license plate updated successfully" });
         }
     }
 }

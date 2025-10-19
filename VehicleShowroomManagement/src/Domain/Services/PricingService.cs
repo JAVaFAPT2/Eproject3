@@ -69,5 +69,38 @@ namespace VehicleShowroomManagement.Domain.Services
 
             return price.ApplyDiscount(discountPercentage);
         }
+
+        public decimal CalculateProfit(decimal cost, decimal margin)
+        {
+            if (cost < 0)
+                throw new ArgumentException("Cost cannot be negative", nameof(cost));
+            
+            if (margin < 0)
+                throw new ArgumentException("Margin cannot be negative", nameof(margin));
+            
+            return cost * margin;
+        }
+
+        public decimal CalculateSellingPrice(decimal cost, decimal margin)
+        {
+            if (cost < 0)
+                throw new ArgumentException("Cost cannot be negative", nameof(cost));
+            
+            if (margin < 0)
+                throw new ArgumentException("Margin cannot be negative", nameof(margin));
+            
+            return cost + CalculateProfit(cost, margin);
+        }
+
+        public decimal CalculateMargin(decimal cost, decimal sellingPrice)
+        {
+            if (cost <= 0)
+                throw new ArgumentException("Cost must be greater than zero", nameof(cost));
+            
+            if (sellingPrice < 0)
+                throw new ArgumentException("Selling price cannot be negative", nameof(sellingPrice));
+            
+            return (sellingPrice - cost) / cost;
+        }
     }
 }

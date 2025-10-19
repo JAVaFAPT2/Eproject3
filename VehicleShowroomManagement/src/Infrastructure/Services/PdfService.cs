@@ -3,37 +3,74 @@ using iText.Kernel.Pdf;
 using System.Text;
 using VehicleShowroomManagement.Application.Common.Interfaces;
 using VehicleShowroomManagement.Domain.Entities;
+using VehicleShowroomManagement.Application.Common.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace VehicleShowroomManagement.Infrastructure.Services
 {
     /// <summary>
     /// Implementation of PDF generation service using iText7
     /// </summary>
-    public class PdfService : IPdfService
+    public class PdfService : BaseService, IPdfService
     {
+        public PdfService(ILogger<PdfService> logger) : base(logger)
+        {
+        }
         public async Task<byte[]> GenerateOrderPdfAsync(Order order, User? customer, Vehicle? vehicle, User? dealer)
         {
-            var html = GenerateOrderHtml(order, customer, vehicle, dealer);
-            return await Task.Run(() => ConvertHtmlToPdf(html));
+            LogOperationStart(nameof(GenerateOrderPdfAsync), new { orderId = order.Id });
+
+            try
+            {
+                var html = GenerateOrderHtml(order, customer, vehicle, dealer);
+                var result = await Task.Run(() => ConvertHtmlToPdf(html));
+                
+                LogOperationComplete(nameof(GenerateOrderPdfAsync), new { orderId = order.Id, fileSize = result.Length });
+                return result;
+            }
+            catch (Exception ex)
+            {
+                LogOperationError(nameof(GenerateOrderPdfAsync), ex, new { orderId = order.Id });
+                throw new PdfGenerationException($"Failed to generate order PDF: {ex.Message}", ex);
+            }
         }
 
         public async Task<byte[]> GenerateInvoicePdfAsync(BillingDocument billingDocument, User? customer, Order? order)
         {
-            var html = GenerateInvoiceHtml(billingDocument, customer, order);
-            return await Task.Run(() => ConvertHtmlToPdf(html));
+            LogOperationStart(nameof(GenerateInvoicePdfAsync), new { billingDocumentId = billingDocument.Id });
+
+            try
+            {
+                var html = GenerateInvoiceHtml(billingDocument, customer, order);
+                var result = await Task.Run(() => ConvertHtmlToPdf(html));
+                
+                LogOperationComplete(nameof(GenerateInvoicePdfAsync), new { billingDocumentId = billingDocument.Id, fileSize = result.Length });
+                return result;
+            }
+            catch (Exception ex)
+            {
+                LogOperationError(nameof(GenerateInvoicePdfAsync), ex, new { billingDocumentId = billingDocument.Id });
+                throw new PdfGenerationException($"Failed to generate invoice PDF: {ex.Message}", ex);
+            }
         }
 
         public async Task<byte[]> GeneratePurchaseOrderPdfAsync(PurchaseOrder purchaseOrder)
         {
-            var html = GeneratePurchaseOrderHtml(purchaseOrder);
-            return await Task.Run(() => ConvertHtmlToPdf(html));
-        }
+            LogOperationStart(nameof(GeneratePurchaseOrderPdfAsync), new { purchaseOrderId = purchaseOrder.Id });
 
-        public async Task<byte[]> GenerateExcelReportAsync<T>(List<T> data, string worksheetName)
-        {
-            // This would be implemented with EPPlus or similar library
-            // For now, returning empty byte array
-            return await Task.FromResult(Array.Empty<byte>());
+            try
+            {
+                var html = GeneratePurchaseOrderHtml(purchaseOrder);
+                var result = await Task.Run(() => ConvertHtmlToPdf(html));
+                
+                LogOperationComplete(nameof(GeneratePurchaseOrderPdfAsync), new { purchaseOrderId = purchaseOrder.Id, fileSize = result.Length });
+                return result;
+            }
+            catch (Exception ex)
+            {
+                LogOperationError(nameof(GeneratePurchaseOrderPdfAsync), ex, new { purchaseOrderId = purchaseOrder.Id });
+                throw new PdfGenerationException($"Failed to generate purchase order PDF: {ex.Message}", ex);
+            }
         }
 
         private string GenerateOrderHtml(Order order, User? customer, Vehicle? vehicle, User? dealer)

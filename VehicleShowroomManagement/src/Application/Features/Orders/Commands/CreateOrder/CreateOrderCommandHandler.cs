@@ -6,6 +6,16 @@ namespace VehicleShowroomManagement.Application.Features.Orders.Commands.CreateO
     {
         public async Task<string> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
+            // Validate input parameters first
+            if (string.IsNullOrWhiteSpace(request.CustomerId))
+                throw new ArgumentException("Customer ID cannot be null or empty", nameof(request.CustomerId));
+            
+            if (string.IsNullOrWhiteSpace(request.ModelNumber))
+                throw new ArgumentException("Model number cannot be null or empty", nameof(request.ModelNumber));
+            
+            if (request.SalePrice < 0)
+                throw new ArgumentException("Sale price cannot be negative", nameof(request.SalePrice));
+
             // Verify model exists
             var models = await modelRepository.FindAsync(vm => vm.ModelNumber == request.ModelNumber, cancellationToken);
             if (!models.Any())

@@ -4,17 +4,9 @@ using VehicleShowroomManagement.Domain.Enums;
 namespace VehicleShowroomManagement.Application.Features.Vehicles.Commands.UpdateVehicleStatus
 {
     /// <summary>
-    /// Command to update vehicle status - critical for inventory management
+    /// Command to update vehicle status
     /// </summary>
-    public record UpdateVehicleStatusCommand : IRequest
-    {
-        public string VehicleId { get; init; }
-        public VehicleStatus Status { get; init; }
-
-        public UpdateVehicleStatusCommand(string vehicleId, VehicleStatus status)
-        {
-            VehicleId = vehicleId;
-            Status = status;
-        }
-    }
+    public record UpdateVehicleStatusCommand(
+        string VehicleId,
+        VehicleStatus Status) : IRequest<bool>;
 }

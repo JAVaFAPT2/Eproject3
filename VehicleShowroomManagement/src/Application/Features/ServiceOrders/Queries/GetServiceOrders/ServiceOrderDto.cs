@@ -13,8 +13,8 @@ namespace VehicleShowroomManagement.Application.Features.ServiceOrders.Queries.G
         public DateTime? AppointmentDate { get; set; }
         public string? Description { get; set; }
         public decimal Cost { get; set; }
-        public string Type { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
+        public int Type { get; set; }
+        public int Status { get; set; }
     }
 
     /// <summary>

@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  vehicleshowroom-api:
+    build: .
+    ports:
+      - "10000:10000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - PORT=10000
+    volumes:
+      - ./data/keys:/app/keys
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

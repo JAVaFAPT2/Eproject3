@@ -21,10 +21,5 @@ namespace VehicleShowroomManagement.Application.Common.Interfaces
         /// Generates PDF for purchase order
         /// </summary>
         Task<byte[]> GeneratePurchaseOrderPdfAsync(PurchaseOrder purchaseOrder);
-
-        /// <summary>
-        /// Generates Excel report
-        /// </summary>
-        Task<byte[]> GenerateExcelReportAsync<T>(List<T> data, string worksheetName);
     }
 }
