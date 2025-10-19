@@ -3,8 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.CreatePurchaseOrder;
 using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.UpdatePurchaseOrderStatus;
+using VehicleShowroomManagement.Application.Features.PurchaseOrders.Commands.DeletePurchaseOrder;
 using VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.GetPurchaseOrders;
+using VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.GetPurchaseOrderById;
 using VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Commands.AddPurchaseOrderLine;
+using VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Commands.DeletePurchaseOrderLine;
+using VehicleShowroomManagement.Application.Features.PurchaseOrderLines.Commands.UpdatePurchaseOrderLine;
 using VehicleShowroomManagement.Domain.Enums;
 
 namespace VehicleShowroomManagement.WebAPI.Controllers
@@ -51,6 +55,18 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     }
 
         /// <summary>
+        /// Gets a single purchase order by ID with lines included
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPurchaseOrderById(string id)
+        {
+            var query = new GetPurchaseOrderByIdQuery(id);
+            var result = await _mediator.Send(query);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Creates a new purchase order
         /// </summary>
         [HttpPost]
@@ -84,6 +100,36 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         await _mediator.Send(new UpdatePurchaseOrderStatusCommand(id, request.Status));
         return Ok(new { message = "Purchase order status updated" });
     }
+
+        /// <summary>
+        /// Deletes a purchase order and all its lines
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePurchaseOrder(string id)
+        {
+            await _mediator.Send(new DeletePurchaseOrderCommand(id));
+            return Ok(new { message = "Purchase order deleted successfully" });
+        }
+
+        /// <summary>
+        /// Deletes a single purchase order line
+        /// </summary>
+        [HttpDelete("{poId}/lines/{lineId}")]
+        public async Task<IActionResult> DeletePurchaseOrderLine(string poId, string lineId)
+        {
+            await _mediator.Send(new DeletePurchaseOrderLineCommand(lineId));
+            return Ok(new { message = "Purchase order line deleted successfully" });
+        }
+
+        /// <summary>
+        /// Updates a purchase order line
+        /// </summary>
+        [HttpPut("{poId}/lines/{lineId}")]
+        public async Task<IActionResult> UpdatePurchaseOrderLine(string poId, string lineId, [FromBody] UpdatePurchaseOrderLineRequest request)
+        {
+            await _mediator.Send(new UpdatePurchaseOrderLineCommand(lineId, request.Quantity, request.PricePerUnit));
+            return Ok(new { message = "Purchase order line updated successfully" });
+        }
     }
 
         public class CreatePurchaseOrderRequest
@@ -102,5 +148,11 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
     public class UpdatePurchaseOrderStatusRequest
     {
         public PurchaseOrderStatus Status { get; set; }
+    }
+
+    public class UpdatePurchaseOrderLineRequest
+    {
+        public int? Quantity { get; set; }
+        public decimal? PricePerUnit { get; set; }
     }
 }

@@ -26,7 +26,7 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.
                     CreatedBy = po.CreatedBy,
                     OrderDate = po.OrderDate,
                     TotalAmount = po.TotalAmount,
-                    Status = po.Status.ToString()
+                    Status = (int)po.Status
                 })
                 .ToList();
 

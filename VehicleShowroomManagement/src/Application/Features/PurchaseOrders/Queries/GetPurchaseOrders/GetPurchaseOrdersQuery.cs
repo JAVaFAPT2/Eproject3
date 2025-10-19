@@ -35,6 +35,6 @@ namespace VehicleShowroomManagement.Application.Features.PurchaseOrders.Queries.
         public DateTime OrderDate { get; set; }
         public DateTime? ExpectedDeliveryDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public int Status { get; set; }
     }
 }
