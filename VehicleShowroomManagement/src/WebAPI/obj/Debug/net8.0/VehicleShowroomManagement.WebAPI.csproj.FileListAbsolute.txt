@@ -207,7 +207,6 @@ C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\b
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\MailKit.dll
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\MediatR.dll
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\MediatR.Contracts.dll
-C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\MediatR.Extensions.Autofac.DependencyInjection.dll
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Razor.Language.dll
 C:\Users\Admin\Documents\GitHub\Eproject3\VehicleShowroomManagement\src\WebAPI\bin\Debug\net8.0\Microsoft.Bcl.TimeProvider.dll

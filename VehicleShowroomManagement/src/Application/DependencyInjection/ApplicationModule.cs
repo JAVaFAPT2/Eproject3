@@ -23,20 +23,24 @@ namespace VehicleShowroomManagement.Application.DependencyInjection
             // Register all handlers
             builder.RegisterAssemblyTypes(applicationAssembly)
                 .AsClosedTypesOf(typeof(IRequestHandler<,>))
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
 
             builder.RegisterAssemblyTypes(applicationAssembly)
                 .AsClosedTypesOf(typeof(IRequestHandler<>))
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
 
             builder.RegisterAssemblyTypes(applicationAssembly)
                 .AsClosedTypesOf(typeof(INotificationHandler<>))
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
 
             // Register pipeline behaviors
             builder.RegisterAssemblyTypes(applicationAssembly)
                 .AsClosedTypesOf(typeof(IPipelineBehavior<,>))
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
 
             // Domain services registration (if any in Application layer)
             // Add any additional application-specific services here
