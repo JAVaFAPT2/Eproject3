@@ -1,4 +1,5 @@
 using System.Text;
+using System.Collections;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -50,10 +51,10 @@ try
     var envVars = Environment.GetEnvironmentVariables();
     foreach (DictionaryEntry envVar in envVars)
     {
-        var key = envVar.Key.ToString();
-        if (key.StartsWith("MONGODB_") || key.StartsWith("JWT_") || key.StartsWith("EMAIL_") || 
+        var key = envVar.Key?.ToString();
+        if (!string.IsNullOrWhiteSpace(key) && (key.StartsWith("MONGODB_") || key.StartsWith("JWT_") || key.StartsWith("EMAIL_") || 
             key.StartsWith("CLOUDINARY_") || key.StartsWith("ConnectionStrings__") || 
-            key.StartsWith("Jwt__") || key.StartsWith("EmailSettings__") || key.StartsWith("CloudinarySettings__"))
+            key.StartsWith("Jwt__") || key.StartsWith("EmailSettings__") || key.StartsWith("CloudinarySettings__")))
         {
             Log.Information("Found environment variable: {Key}", key);
         }
@@ -252,40 +253,40 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var jwtKey = builder.Configuration["Jwt:Key"];
-        var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-        var jwtAudience = builder.Configuration["Jwt:Audience"];
+        var jwtKeyValue = builder.Configuration["Jwt:Key"];
+        var jwtIssuerValue = builder.Configuration["Jwt:Issuer"];
+        var jwtAudienceValue = builder.Configuration["Jwt:Audience"];
         
         // Validate JWT configuration
-        if (string.IsNullOrWhiteSpace(jwtKey))
+        if (string.IsNullOrWhiteSpace(jwtKeyValue))
         {
             Log.Warning("JWT Key is not configured. Authentication will fail.");
         }
-        else if (jwtKey.Length < 32)
+        else if (jwtKeyValue.Length < 32)
         {
             Log.Warning("JWT Key is too short (less than 32 characters). This is insecure.");
         }
         
-        if (string.IsNullOrWhiteSpace(jwtIssuer))
+        if (string.IsNullOrWhiteSpace(jwtIssuerValue))
         {
             Log.Warning("JWT Issuer is not configured.");
         }
         
-        if (string.IsNullOrWhiteSpace(jwtAudience))
+        if (string.IsNullOrWhiteSpace(jwtAudienceValue))
         {
             Log.Warning("JWT Audience is not configured.");
         }
         
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = !string.IsNullOrWhiteSpace(jwtIssuer),
-            ValidateAudience = !string.IsNullOrWhiteSpace(jwtAudience),
+            ValidateIssuer = !string.IsNullOrWhiteSpace(jwtIssuerValue),
+            ValidateAudience = !string.IsNullOrWhiteSpace(jwtAudienceValue),
             ValidateLifetime = true,
-            ValidateIssuerSigningKey = !string.IsNullOrWhiteSpace(jwtKey),
-            ValidIssuer = jwtIssuer,
-            ValidAudience = jwtAudience,
-            IssuerSigningKey = !string.IsNullOrWhiteSpace(jwtKey) 
-                ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+            ValidateIssuerSigningKey = !string.IsNullOrWhiteSpace(jwtKeyValue),
+            ValidIssuer = jwtIssuerValue,
+            ValidAudience = jwtAudienceValue,
+            IssuerSigningKey = !string.IsNullOrWhiteSpace(jwtKeyValue) 
+                ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKeyValue))
                 : null,
             ClockSkew = TimeSpan.FromMinutes(5) // Allow 5 minutes clock skew
         };
