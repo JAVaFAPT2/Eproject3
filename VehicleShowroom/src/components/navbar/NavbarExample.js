@@ -10,7 +10,6 @@ import {
   Menu,
   MenuItem,
   MenuList,
-  MenuButton,
   Stack,
   Text,
   useColorModeValue,
@@ -58,14 +57,14 @@ export default function AuthNavbar(props) {
 
   // Menus
   let authObject = {};
-  routes.map((route) => {
+  routes.forEach((route) => {
     if (route.items) {
       authObject = route.items.find((link) => link.name === "Authentication");
     }
   });
 
   let applicationsObject = {};
-  routes.map((route) => {
+  routes.forEach((route) => {
     if (route.items) {
       applicationsObject = route.items.find(
         (link) => link.name === "Applications"
@@ -74,15 +73,15 @@ export default function AuthNavbar(props) {
   });
 
   let ecommerceObject = {};
-  routes.map((route) => {
+  routes.forEach((route) => {
     if (route.items) {
       ecommerceObject = route.items.find((link) => link.name === "Ecommerce");
     }
   });
 
   let extraArr = [];
-  routes.map((route) => {
-    route.items.map((item) => {
+  routes.forEach((route) => {
+    (route.items || []).forEach((item) => {
       if (item.items && item.name === "Pages") {
         extraArr = item.items.filter((link) => !link.collapse);
       }
@@ -160,7 +159,7 @@ export default function AuthNavbar(props) {
         link.name === "Charts" ||
         link.name === "Alerts"
       ) {
-        return;
+        return null;
       }
       if (link.name === "Pricing Page") {
         return (

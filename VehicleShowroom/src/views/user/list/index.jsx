@@ -75,7 +75,7 @@ export default function List() {
 
         const enriched = await Promise.all(
           list.map(async (m) => {
-            let photoUrl = '/placeholder-car.png';
+            let photoUrl = null;
             let specs = [];
 
             try {

@@ -8,7 +8,8 @@ const VehiclePhotoService = {
     const res = await ApiClient.get(
       ApiUrl.VEHICLE_PHOTOS.BY_MODEL(modelNumber),
     );
-    return res.data;
+    // Handle both paginated response { items: [], totalCount: n } and direct array
+    return res.data?.items || res.data || [];
   },
 
   // 🟣 Upload multiple photos (multipart/form-data)

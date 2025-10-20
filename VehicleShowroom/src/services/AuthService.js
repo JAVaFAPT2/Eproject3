@@ -77,12 +77,13 @@ const AuthService = {
   // ---------------------------------
   login: async (data, keepLoggedIn = false) => {
     const res = await ApiClient.post(ApiUrl.AUTH.LOGIN, data);
-    const { token, refreshToken } = res.data;
+    // BE returns both `accessToken` and legacy alias `token`
+    const accessToken = res.data?.accessToken || res.data?.token;
+    const refreshToken = res.data?.refreshToken;
 
     AuthService.setKeepLoggedIn(keepLoggedIn);
 
-    // ✅ Save tokens correctly
-    if (token) AuthService.setAccessToken(token, keepLoggedIn);
+    if (accessToken) AuthService.setAccessToken(accessToken, keepLoggedIn);
     if (refreshToken) AuthService.setRefreshToken(refreshToken, keepLoggedIn);
 
     return res.data;
@@ -92,21 +93,21 @@ const AuthService = {
   // 🔁 Refresh token (used by ApiClient interceptor)
   // ---------------------------------
   refreshToken: async () => {
-    const refreshToken = AuthService.getRefreshToken();
-    if (!refreshToken) throw new Error('No refresh token found');
+    const rt = AuthService.getRefreshToken();
+    if (!rt) throw new Error('No refresh token found');
 
     const res = await ApiClient.post(ApiUrl.AUTH.REFRESH_TOKEN, {
-      refreshToken,
+      refreshToken: rt,
     });
 
     const keepLoggedIn = AuthService.isKeepLoggedIn();
+    const newAccessToken = res.data?.accessToken || res.data?.token;
+    const newRefreshToken = res.data?.refreshToken;
 
-    if (res.data?.accessToken)
-      AuthService.setAccessToken(res.data.accessToken, keepLoggedIn);
-    if (res.data?.refreshToken)
-      AuthService.setRefreshToken(res.data.refreshToken, keepLoggedIn);
+    if (newAccessToken) AuthService.setAccessToken(newAccessToken, keepLoggedIn);
+    if (newRefreshToken) AuthService.setRefreshToken(newRefreshToken, keepLoggedIn);
 
-    return res.data?.accessToken;
+    return newAccessToken;
   },
 
   // ---------------------------------

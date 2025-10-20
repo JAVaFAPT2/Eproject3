@@ -99,7 +99,7 @@ function VehicleModelManagement() {
         toast.error('Failed to load images');
       }
     },
-    [toast],
+    [], // Remove toast dependency to prevent infinite loop
   );
 
   // ➕ Add spec

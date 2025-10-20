@@ -83,7 +83,7 @@ function ServiceOrderManagement() {
         setLoading(false);
       }
     },
-    [statusFilter, toast],
+    [statusFilter], // Remove toast dependency to prevent infinite loop
   );
 
   useEffect(() => {

@@ -40,11 +40,11 @@ export default function StartYourJourney() {
               photos.items?.find((p) => p.displayOrder === 1)?.photoUrl ||
               photos.items?.[0]?.photoUrl ||
               photos.items?.[0]?.url ||
-              '/placeholder-car.png';
+              null;
 
             return { ...m, photo: displayPhoto, photos };
           } catch {
-            return { ...m, photo: '/placeholder-car.png', photos: [] };
+            return { ...m, photo: null, photos: [] };
           }
         }),
       );

@@ -28,7 +28,7 @@ const UserService = {
   },
 
   toggleActive: async (id, isActive) => {
-    const res = await ApiClient.patch(`${ApiUrl.USERS.BASE}/${id}`, {
+    const res = await ApiClient.patch(ApiUrl.USERS.PATCH(id), {
       isActive,
     });
     return res.data;

@@ -45,12 +45,16 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:ci": "react-scripts test --coverage --watchAll=false --passWithNoTests",
+    "test:api": "node ./scripts/test-api-connection.mjs",
+    "dev": "npm run test:api && react-scripts start",
     "lint": "eslint src --ext .js,.jsx --max-warnings 0",
     "lint:fix": "eslint src --ext .js,.jsx --fix",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "preinstall": "npx npm-force-resolutions"
+    "preinstall": "npx npm-force-resolutions",
+    "smoke": "node ./scripts/smoke.mjs",
+    "predeploy:render": "npm run lint && npm run build && npm run smoke"
   },
   "resolutions": {
     "react-error-overlay": "6.0.9"
@@ -79,6 +83,7 @@
     "anymatch": "^3.1.3",
     "chokidar": "^3.6.0",
     "gh-pages": "^6.1.1",
-    "micromatch": "^4.0.7"
+    "micromatch": "^4.0.7",
+    "node-fetch": "^3.3.2"
   }
 }

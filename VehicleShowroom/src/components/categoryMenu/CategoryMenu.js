@@ -37,8 +37,47 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
   const [allModels, setAllModels] = useState([]); // cấp 1
   const [displayedModels, setDisplayedModels] = useState([]);
   const [parentModel, setParentModel] = useState(null);
+  
+  // 🗄️ Cache for photos and specs to avoid repeated API calls
+  const [photosCache, setPhotosCache] = useState(new Map());
+  const [specsCache, setSpecsCache] = useState(new Map());
 
-  // 🟢 Fetch cấp 1
+  // 🔧 Helper functions for cached data fetching
+  const getCachedPhotos = async (modelNumber) => {
+    if (photosCache.has(modelNumber)) {
+      return photosCache.get(modelNumber);
+    }
+    
+    try {
+      const photos = await VehiclePhotoService.getByModelNumber(modelNumber);
+      const newCache = new Map(photosCache);
+      newCache.set(modelNumber, photos);
+      setPhotosCache(newCache);
+      return photos;
+    } catch (error) {
+      console.warn(`Failed to fetch photos for ${modelNumber}:`, error);
+      return [];
+    }
+  };
+
+  const getCachedSpecs = async (modelNumber) => {
+    if (specsCache.has(modelNumber)) {
+      return specsCache.get(modelNumber);
+    }
+    
+    try {
+      const specs = await VehicleSpecService.getByModelNumber(modelNumber);
+      const newCache = new Map(specsCache);
+      newCache.set(modelNumber, specs);
+      setSpecsCache(newCache);
+      return specs;
+    } catch (error) {
+      console.warn(`Failed to fetch specs for ${modelNumber}:`, error);
+      return [];
+    }
+  };
+
+  // 🟢 Fetch cấp 1 with immediate photo/spec loading
   useEffect(() => {
     const fetchLevel1Models = async () => {
       setLoading(true);
@@ -47,30 +86,55 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
           pageNumber: 1,
           pageSize: 100,
         });
-        const models = res?.items?.filter((m) => m.level === 1) || [];
+        // Handle both { items: [], totalCount: n } and direct array responses
+        const allFetched = res?.items || res || [];
+        const models = Array.isArray(allFetched)
+          ? allFetched.filter((m) => m.level === 1)
+          : [];
 
-        const enriched = await Promise.all(
+        // Load photos and specs for all models immediately
+        const enrichedModels = await Promise.all(
           models.map(async (m) => {
-            let photoUrl =
-              m.photo || 'https://placehold.co/600x400?text=No+Image';
             try {
-              const photos = await VehiclePhotoService.getByModelNumber(
-                m.modelNumber,
-              );
-              const displayPhoto =
-                photos.items?.find((p) => p.displayOrder === 0)?.photoUrl ||
-                photos.items?.[0]?.photoUrl ||
-                photos.items?.[0]?.url;
-              if (displayPhoto) photoUrl = displayPhoto;
-            } catch {}
-            return { ...m, photo: photoUrl };
-          }),
+              // Load photos and specs in parallel for each model
+              const [photos, specs] = await Promise.all([
+                getCachedPhotos(m.modelNumber),
+                getCachedSpecs(m.modelNumber),
+              ]);
+
+              // Get the best photo (displayOrder 0 or first available)
+              const displayPhoto = photos.find((p) => p.displayOrder === 0)?.photoUrl ||
+                                  photos[0]?.photoUrl ||
+                                  photos[0]?.url ||
+                                  m.photo;
+
+              // Get fuel type
+              const fuelSpec = specs.find((s) => s.specName === 'Fuel Type');
+
+              return {
+                ...m,
+                photo: displayPhoto || null,
+                fuelType: fuelSpec?.specValue || 'N/A',
+              };
+            } catch (error) {
+              console.warn(`Failed to load details for ${m.modelNumber}:`, error);
+              return {
+                ...m,
+                photo: m.photo || null,
+                fuelType: 'N/A',
+              };
+            }
+          })
         );
 
-        setAllModels(enriched);
-        setDisplayedModels(enriched);
+        setAllModels(enrichedModels);
+        setDisplayedModels(enrichedModels);
       } catch (err) {
         console.error('❌ Error fetching level 1 models:', err);
+        console.error('Response data:', err.response?.data);
+        console.error('Response status:', err.response?.status);
+        console.error('Request URL:', err.config?.url);
+        console.error('Request method:', err.config?.method);
       } finally {
         setLoading(false);
       }
@@ -79,7 +143,7 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
     fetchLevel1Models();
   }, []);
 
-  // 🟣 Fetch cấp 2 (variants)
+  // 🟣 Fetch cấp 2 (variants) with immediate photo/spec loading
   const handleOpenLevel2 = async (parentModelNumber, name) => {
     console.log('➡ Fetching level 2 for', parentModelNumber);
     setLoading(true);
@@ -91,41 +155,50 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
         console.warn('⚠️ No variants found for', parentModelNumber);
       }
 
+      // Load photos and specs for all variants immediately
       const enrichedVariants = await Promise.all(
         variants.map(async (m) => {
-          let photoUrl =
-            m.photo || 'https://placehold.co/600x400?text=No+Image';
-          let fuelType = 'N/A';
-
           try {
-            const photos = await VehiclePhotoService.getByModelNumber(
-              m.modelNumber,
-            );
-            const displayPhoto =
-              photos.items?.find((p) => p.displayOrder === 0)?.photoUrl ||
-              photos.items?.[0]?.photoUrl ||
-              photos.items?.[0]?.url;
-            if (displayPhoto) photoUrl = displayPhoto;
-          } catch {}
+            // Load photos and specs in parallel for each variant
+            const [photos, specs] = await Promise.all([
+              getCachedPhotos(m.modelNumber),
+              getCachedSpecs(m.modelNumber),
+            ]);
 
-          try {
-            const specs = await VehicleSpecService.getByModelNumber(
-              m.modelNumber,
-            );
-            const fuelSpec = specs.items.find(
-              (s) => s.specName === 'Fuel Type',
-            );
-            if (fuelSpec) fuelType = fuelSpec.specValue;
-          } catch {}
+            // Get the best photo (displayOrder 0 or first available)
+            const displayPhoto = photos.find((p) => p.displayOrder === 0)?.photoUrl ||
+                                photos[0]?.photoUrl ||
+                                photos[0]?.url ||
+                                m.photo;
 
-          return { ...m, photo: photoUrl, fuelType };
-        }),
+            // Get fuel type
+            const fuelSpec = specs.find((s) => s.specName === 'Fuel Type');
+
+            return {
+              ...m,
+              photo: displayPhoto || null,
+              fuelType: fuelSpec?.specValue || 'N/A',
+            };
+          } catch (error) {
+            console.warn(`Failed to load details for variant ${m.modelNumber}:`, error);
+            return {
+              ...m,
+              photo: m.photo || null,
+              fuelType: 'N/A',
+            };
+          }
+        })
       );
 
       setDisplayedModels(enrichedVariants);
       setParentModel({ modelNumber: parentModelNumber, name });
     } catch (err) {
       console.error('❌ Error fetching submodels:', err);
+      console.error('Response data:', err.response?.data);
+      console.error('Response status:', err.response?.status);
+      console.error('Request URL:', err.config?.url);
+      console.error('Request method:', err.config?.method);
+      console.error('Parent model number:', parentModelNumber);
     } finally {
       setLoading(false);
     }
@@ -135,6 +208,8 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
     setDisplayedModels(allModels);
     setParentModel(null);
   };
+
+  // Note: Removed hover-based loading since we now load all data immediately
 
   const handleSignOut = async () => {
     await logout();
@@ -164,7 +239,7 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
 
     return (
       <Grid templateColumns="1fr" gap={6} placeItems="center" pb={8}>
-        {displayedModels.map((el) => (
+        {displayedModels.map((el, index) => (
           <GridItem
             key={el.modelNumber}
             w="full"
@@ -201,6 +276,7 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                 overflow="hidden"
                 borderRadius="md"
                 role="button"
+                position="relative"
                 onClick={() => {
                   if (el.level === 1) {
                     handleOpenLevel2(el.modelNumber, el.name);
@@ -210,16 +286,48 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                   }
                 }}
               >
-                <Image
-                  src={el.photo || 'https://placehold.co/600x400?text=No+Image'}
-                  alt={el.name}
-                  w="full"
-                  h="auto"
-                  objectFit="cover"
-                  borderRadius="md"
-                  transition="transform 0.3s ease"
-                  _groupHover={{ transform: 'translateX(10px)' }}
-                />
+                {el.photo ? (
+                  <Image
+                    src={el.photo}
+                    alt={el.name}
+                    w="full"
+                    h="auto"
+                    objectFit="cover"
+                    borderRadius="md"
+                    transition="transform 0.3s ease"
+                    _groupHover={{ transform: 'translateX(10px)' }}
+                    onLoad={() => console.log('✅ CategoryMenu image loaded:', el.photo)}
+                    onError={(e) => {
+                      console.error('❌ CategoryMenu image failed to load:', el.photo);
+                      e.target.style.display = 'none';
+                    }}
+                    fallback={
+                      <Box
+                        w="full"
+                        h="200px"
+                        bg="gray.100"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        borderRadius="md"
+                      >
+                        <Text color="gray.500" fontSize="sm">Loading...</Text>
+                      </Box>
+                    }
+                  />
+                ) : (
+                  <Box
+                    w="full"
+                    h="200px"
+                    bg="gray.100"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="md"
+                  >
+                    <Text color="gray.500" fontSize="sm">No Image</Text>
+                  </Box>
+                )}
               </Box>
 
               {/* 🔹 Fuel type */}

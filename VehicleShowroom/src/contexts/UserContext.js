@@ -31,6 +31,7 @@ export const UserProvider = ({ children }) => {
       if (!token) {
         setUser(null);
         setIsAuthenticated(false);
+        setLoading(false);
         return;
       }
 
@@ -48,7 +49,7 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     fetchUserProfile();
-  }, []); // Remove fetchUserProfile from dependencies
+  }, [fetchUserProfile]);
 
   // 🟢 Login (thay vì gọi trực tiếp AuthService.login trong component)
   const login = async (credentials, keepLoggedIn = false) => {

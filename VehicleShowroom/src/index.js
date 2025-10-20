@@ -16,7 +16,8 @@ root.render(
 // Register service worker for caching (disabled in development)
 if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+    const version = process.env.REACT_APP_SW_VERSION || Date.now().toString();
+    navigator.serviceWorker.register(`/sw.js?v=${version}`)
       .then((registration) => {
         console.log('SW registered: ', registration);
       })

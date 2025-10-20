@@ -38,7 +38,7 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-  }, [toast]);
+  }, []); // Remove toast dependency to prevent infinite loop
 
   return (
     <Box py="100px" w="80%" mx="auto">

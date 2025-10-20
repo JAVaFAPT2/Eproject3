@@ -5,7 +5,8 @@ const VehicleSpecService = {
   // 🔹 Get all specs by model number
   getByModelNumber: async (modelNumber) => {
     const res = await ApiClient.get(ApiUrl.VEHICLE_SPECS.BY_MODEL(modelNumber));
-    return res.data;
+    // Handle both paginated response { items: [], totalCount: n } and direct array
+    return res.data?.items || res.data || [];
   },
 
   // 🔍 Get spec detail by ID

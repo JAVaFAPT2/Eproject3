@@ -53,7 +53,7 @@ function VehicleManagement() {
     } finally {
       setModelsLoading(false);
     }
-  }, [toast]);
+  }, []); // Remove toast dependency to prevent infinite loop
 
   // 🚗 Load danh sách vehicle (có filter)
   const loadVehicles = useCallback(
@@ -86,7 +86,7 @@ function VehicleManagement() {
         setLoading(false);
       }
     },
-    [searchInput, modelFilter, statusFilter, models, toast],
+    [searchInput, modelFilter, statusFilter, models], // Remove toast dependency to prevent infinite loop
   );
 
   // 🕐 Debounce search + filter

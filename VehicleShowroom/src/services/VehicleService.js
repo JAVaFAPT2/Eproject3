@@ -15,13 +15,13 @@ const VehicleService = {
 
   // ✏️ Update vehicle
   update: async (id, data) => {
-    const res = await ApiClient.put(`${ApiUrl.VEHICLES.BASE}/${id}`, data);
+    const res = await ApiClient.put(ApiUrl.VEHICLES.BY_ID(id), data);
     return res.data;
   },
 
   // 🗑️ Delete single
   delete: async (id) => {
-    const res = await ApiClient.delete(`${ApiUrl.VEHICLES.BASE}/${id}`);
+    const res = await ApiClient.delete(ApiUrl.VEHICLES.BY_ID(id));
     return res.data;
   },
 

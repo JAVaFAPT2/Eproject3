@@ -38,7 +38,7 @@ export default function Dashboard(props) {
       );
       navigate('/user', { replace: true });
     }
-  }, [user, loading, navigate, toast]);
+  }, [user, loading, navigate]); // Remove toast dependency to prevent infinite loop
 
   // ✅ Lọc route cho sidebar
   const filteredRoutes = routes.filter((route) => {

@@ -29,7 +29,7 @@ function EmployeeManagement() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []); // Remove toast dependency to prevent infinite loop
 
   useEffect(() => {
     loadEmployees();
@@ -47,7 +47,7 @@ function EmployeeManagement() {
     } finally {
       setLoading(false);
     }
-  }, [toast, loadEmployees]);
+  }, [loadEmployees]); // Remove toast dependency to prevent infinite loop
 
   // ✅ Cấu hình cột
   const columns = useMemo(

@@ -53,6 +53,16 @@ module.exports = {
       return webpackConfig;
     },
   },
+  devServer: (devServerConfig) => {
+    devServerConfig.proxy = {
+      '/api': {
+        target: 'http://localhost:5010',
+        changeOrigin: true,
+        secure: false,
+      },
+    };
+    return devServerConfig;
+  },
   babel: {
     plugins: [
       // Add lazy loading plugin

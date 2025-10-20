@@ -1,8 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import AuthService from 'services/AuthService';
-
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8090/api';
+import { BASE_URL } from 'constants/ApiBaseUrl';
 
 // ✅ Serialize query param (color=red&color=blue)
 const paramsSerializer = (params) =>

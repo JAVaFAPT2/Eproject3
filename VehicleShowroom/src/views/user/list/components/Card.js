@@ -20,7 +20,7 @@ export default function Card({ item }) {
   const fuelType = item.specs?.find(
     (s) => s.specName === 'Fuel Type',
   )?.specValue;
-  const photo = item.photo || '/placeholder-car.png';
+  const photo = item.photo || null;
 
   // 🔹 Lấy 3 thông số chính
   const accelSpec = item.specs?.find(
@@ -66,13 +66,43 @@ export default function Card({ item }) {
       <VStack spacing={4} align="stretch" flex="1">
         {/* 🔹 Ảnh */}
         <Box position="relative" overflow="hidden" borderRadius="lg">
-          <Image
-            src={photo}
-            alt={item.name}
-            w="full"
-            h="200px"
-            objectFit="contain"
-          />
+          {photo ? (
+            <Image
+              src={photo}
+              alt={item.name}
+              w="full"
+              h="200px"
+              objectFit="contain"
+              onLoad={() => console.log('✅ Card image loaded:', photo)}
+              onError={(e) => {
+                console.error('❌ Card image failed to load:', photo);
+                e.target.style.display = 'none';
+              }}
+              fallback={
+                <Box
+                  w="full"
+                  h="200px"
+                  bg="gray.100"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Text color="gray.500" fontSize="sm">Loading...</Text>
+                </Box>
+              }
+            />
+          ) : (
+            <Box
+              w="full"
+              h="200px"
+              bg="gray.100"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Text color="gray.500" fontSize="sm">No Image</Text>
+            </Box>
+          )}
           {fuelType && (
             <Text
               position="absolute"

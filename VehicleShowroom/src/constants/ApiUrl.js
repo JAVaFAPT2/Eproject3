@@ -1,5 +1,4 @@
-const BASE_URL =
-  process.env.REACT_APP_API_URL || 'http://localhost:8090/api';
+import { BASE_URL } from 'constants/ApiBaseUrl';
 
 export const ApiUrl = {
   // 🔐 Auth

@@ -29,7 +29,7 @@ function CustomerManagement() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []); // Remove toast dependency to prevent infinite loop
 
   useEffect(() => {
     loadUsers();
