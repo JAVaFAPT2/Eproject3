@@ -90,15 +90,15 @@ function ServiceOrderManagement() {
     loadOrders(page);
   }, [page, statusFilter, loadOrders]);
 
-  const handleViewDetail = useCallback((order) => {
+  const handleViewDetail = (order) => {
     setSelectedOrder(order);
     onDetailOpen();
-  }, [onDetailOpen]);
+  };
 
-  const handleStatusChange = useCallback((order) => {
+  const handleStatusChange = (order) => {
     setUpdatingOrder(order);
     onStatusOpen();
-  }, [onStatusOpen]);
+  };
 
   const columns = useMemo(
     () =>
