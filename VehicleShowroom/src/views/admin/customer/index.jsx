@@ -6,6 +6,7 @@ import List from './components/List';
 import Columns from './components/Columns';
 import { useAppToast } from 'utils/ToastHelper';
 import Header from './components/Header';
+import { LoadingState } from 'components/common/LoadingState';
 
 function CustomerManagement() {
   const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -29,7 +30,7 @@ function CustomerManagement() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     loadUsers();

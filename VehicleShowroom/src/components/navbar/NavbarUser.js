@@ -23,6 +23,7 @@ function NavbarUser({ toggleCategory, isCategoryOpen }) {
   // 🎨 Màu chữ và icon phụ thuộc location
   const textColor = isHome ? 'white' : 'black';
   const iconColor = isHome ? 'white' : 'black';
+  const hoverBg = isHome ? 'whiteAlpha.300' : 'black';
 
   return (
     <>

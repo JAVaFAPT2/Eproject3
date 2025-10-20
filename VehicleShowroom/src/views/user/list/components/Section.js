@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, SimpleGrid } from '@chakra-ui/react';
+import { Box, SimpleGrid, Text } from '@chakra-ui/react';
 import Card from './Card';
 
 export default function Section({ vehicles }) {

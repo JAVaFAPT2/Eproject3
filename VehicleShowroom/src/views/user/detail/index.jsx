@@ -60,7 +60,7 @@ export default function Detail() {
     }
 
     if (slug) loadModelData();
-  }, [slug, toast]);
+  }, [slug]);
 
   // ✅ Loading state
   if (loading || userLoading)
