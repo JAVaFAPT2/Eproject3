@@ -48,7 +48,7 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     fetchUserProfile();
-  }, [fetchUserProfile]);
+  }, []); // Remove fetchUserProfile from dependencies
 
   // 🟢 Login (thay vì gọi trực tiếp AuthService.login trong component)
   const login = async (credentials, keepLoggedIn = false) => {

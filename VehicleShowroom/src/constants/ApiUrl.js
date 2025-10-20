@@ -1,5 +1,5 @@
 const BASE_URL =
-  process.env.REACT_APP_API_URL || 'https://eproject3.onrender.com/api';
+  process.env.REACT_APP_API_URL || 'http://localhost:8090/api';
 
 export const ApiUrl = {
   // 🔐 Auth
