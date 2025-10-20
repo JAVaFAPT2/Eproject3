@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Box,
   Image,
@@ -10,13 +10,6 @@ import {
   useDisclosure,
   Spinner,
   Skeleton,
-  SkeletonText,
-  SkeletonCircle,
-  Overlay,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
 } from '@chakra-ui/react';
 import { useParams, useNavigate } from 'react-router-dom';
 import VehicleModelService from 'services/VehicleModelService';
@@ -47,6 +40,7 @@ export default function Detail() {
 
   useEffect(() => {
     let isMounted = true;
+    let timeoutId;
     
     async function loadModelData() {
       if (!slug) return;
@@ -55,6 +49,16 @@ export default function Detail() {
       setLoading(true);
       setLoadingPhotos(true);
       setLoadingSpecs(true);
+      
+      // Set a timeout to prevent infinite loading
+      timeoutId = setTimeout(() => {
+        if (isMounted) {
+          console.warn('Loading timeout reached, forcing completion');
+          setLoading(false);
+          setLoadingPhotos(false);
+          setLoadingSpecs(false);
+        }
+      }, 15000); // 15 second timeout
       
       // Small delay to ensure loading state is visible
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -145,6 +149,11 @@ export default function Detail() {
             setLoadingSpecs(false);
           }
         }
+        
+        // Clear the main timeout since we completed successfully
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
 
       } catch (err) {
         console.error('Failed to load vehicle model detail:', err);
@@ -164,6 +173,11 @@ export default function Detail() {
           setLoadingPhotos(false);
           setLoadingSpecs(false);
         }
+        
+        // Clear timeout on error
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
       }
     }
 
@@ -172,8 +186,12 @@ export default function Detail() {
     // Cleanup function
     return () => {
       isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
-  }, [slug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]); // Remove toast dependency to prevent infinite loop
 
   // 🔹 Ảnh chính và ảnh phụ - Move photo processing before useEffect
   
@@ -233,7 +251,10 @@ export default function Detail() {
   };
   
   // Filter photos to only include real images
-  const realPhotos = photos?.filter(p => isValidPhotoUrl(p.photoUrl)) || [];
+  const realPhotos = useMemo(() => 
+    photos?.filter(p => isValidPhotoUrl(p.photoUrl)) || [], 
+    [photos]
+  );
   
   // Only use actual photos, no placeholder fallback
   const mainPhoto = realPhotos.find((p) => p.displayOrder === 0)?.photoUrl || realPhotos[0]?.photoUrl;

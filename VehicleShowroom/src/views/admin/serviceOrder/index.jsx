@@ -83,6 +83,7 @@ function ServiceOrderManagement() {
         setLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [statusFilter], // Remove toast dependency to prevent infinite loop
   );
 

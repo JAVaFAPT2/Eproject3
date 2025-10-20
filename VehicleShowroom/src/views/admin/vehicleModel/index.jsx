@@ -99,6 +99,7 @@ function VehicleModelManagement() {
         toast.error('Failed to load images');
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [], // Remove toast dependency to prevent infinite loop
   );
 

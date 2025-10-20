@@ -29,6 +29,7 @@ function CustomerManagement() {
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Remove toast dependency to prevent infinite loop
 
   useEffect(() => {

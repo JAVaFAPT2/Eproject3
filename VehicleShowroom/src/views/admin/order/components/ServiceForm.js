@@ -40,14 +40,19 @@ export default function ServiceForm({ isOpen, onClose, order, onSubmit }) {
       const y = today.getFullYear();
       const m = String(today.getMonth() + 1).padStart(2, '0');
       const d = String(today.getDate()).padStart(2, '0');
+      
+      // Determine default type based on order completion status
+      const isOrderCompleted = order?.status === 3;
+      const defaultType = isOrderCompleted ? 2 : 1; // Maintenance for completed, PreDelivery for others
+      
       setFormData({
-        type: 1,
+        type: defaultType,
         cost: 0,
         appointmentDate: `${y}-${m}-${d}`, 
         description: '',
       });
     }
-  }, [isOpen]);
+  }, [isOpen, order]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -99,15 +104,23 @@ export default function ServiceForm({ isOpen, onClose, order, onSubmit }) {
                     : 'Repair'}
                 </MenuButton>
                 <MenuList>
-                  <MenuItem onClick={() => handleChange('type', 1)}>
-                    PreDelivery
-                  </MenuItem>
-                  <MenuItem onClick={() => handleChange('type', 2)}>
-                    Maintenance
-                  </MenuItem>
-                  <MenuItem onClick={() => handleChange('type', 3)}>
-                    Repair
-                  </MenuItem>
+                  {/* Show PreDelivery only for non-completed orders */}
+                  {order?.status !== 3 && (
+                    <MenuItem onClick={() => handleChange('type', 1)}>
+                      PreDelivery
+                    </MenuItem>
+                  )}
+                  {/* Show Maintenance and Repair only for completed orders */}
+                  {order?.status === 3 && (
+                    <>
+                      <MenuItem onClick={() => handleChange('type', 2)}>
+                        Maintenance
+                      </MenuItem>
+                      <MenuItem onClick={() => handleChange('type', 3)}>
+                        Repair
+                      </MenuItem>
+                    </>
+                  )}
                 </MenuList>
               </Menu>
             </FormControl>

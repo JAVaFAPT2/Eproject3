@@ -53,6 +53,7 @@ function VehicleManagement() {
     } finally {
       setModelsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Remove toast dependency to prevent infinite loop
 
   // 🚗 Load danh sách vehicle (có filter)
@@ -86,6 +87,7 @@ function VehicleManagement() {
         setLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchInput, modelFilter, statusFilter, models], // Remove toast dependency to prevent infinite loop
   );
 

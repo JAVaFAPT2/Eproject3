@@ -29,6 +29,7 @@ function EmployeeManagement() {
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Remove toast dependency to prevent infinite loop
 
   useEffect(() => {
@@ -47,6 +48,7 @@ function EmployeeManagement() {
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadEmployees]); // Remove toast dependency to prevent infinite loop
 
   // ✅ Cấu hình cột

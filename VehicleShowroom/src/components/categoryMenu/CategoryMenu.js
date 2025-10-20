@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Box,
   Flex,
@@ -43,7 +43,7 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
   const [specsCache, setSpecsCache] = useState(new Map());
 
   // 🔧 Helper functions for cached data fetching
-  const getCachedPhotos = async (modelNumber) => {
+  const getCachedPhotos = useCallback(async (modelNumber) => {
     if (photosCache.has(modelNumber)) {
       return photosCache.get(modelNumber);
     }
@@ -58,9 +58,9 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
       console.warn(`Failed to fetch photos for ${modelNumber}:`, error);
       return [];
     }
-  };
+  }, [photosCache]);
 
-  const getCachedSpecs = async (modelNumber) => {
+  const getCachedSpecs = useCallback(async (modelNumber) => {
     if (specsCache.has(modelNumber)) {
       return specsCache.get(modelNumber);
     }
@@ -75,7 +75,7 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
       console.warn(`Failed to fetch specs for ${modelNumber}:`, error);
       return [];
     }
-  };
+  }, [specsCache]);
 
   // 🟢 Fetch cấp 1 with immediate photo/spec loading
   useEffect(() => {
@@ -141,7 +141,7 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
     };
 
     fetchLevel1Models();
-  }, []);
+  }, [getCachedPhotos, getCachedSpecs]);
 
   // 🟣 Fetch cấp 2 (variants) with immediate photo/spec loading
   const handleOpenLevel2 = async (parentModelNumber, name) => {
