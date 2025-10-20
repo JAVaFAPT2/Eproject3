@@ -83,12 +83,12 @@ function ServiceOrderManagement() {
         setLoading(false);
       }
     },
-    [statusFilter, toast],
+    [statusFilter],
   );
 
   useEffect(() => {
     loadOrders(page);
-  }, [page, statusFilter, loadOrders]);
+  }, [page, statusFilter]);
 
   const handleViewDetail = (order) => {
     setSelectedOrder(order);
@@ -108,7 +108,7 @@ function ServiceOrderManagement() {
         statusFilter,
         setStatusFilter,
       }),
-    [handleViewDetail, handleStatusChange, statusFilter, setStatusFilter],
+    [statusFilter],
   );
 
   const table = useReactTable({

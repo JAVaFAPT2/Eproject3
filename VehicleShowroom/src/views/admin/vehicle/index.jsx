@@ -54,7 +54,7 @@ function VehicleManagement() {
     } finally {
       setModelsLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   // 🚗 Load danh sách vehicle (có filter)
   const loadVehicles = useCallback(
@@ -87,7 +87,7 @@ function VehicleManagement() {
         setLoading(false);
       }
     },
-    [searchInput, modelFilter, statusFilter, models, toast],
+    [searchInput, modelFilter, statusFilter, models],
   );
 
   // 🕐 Debounce search + filter
