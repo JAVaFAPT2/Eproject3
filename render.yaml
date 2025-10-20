@@ -9,6 +9,8 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: Cors__Origins
+        value: https://eproject3-1.onrender.com
       - key: ConnectionStrings__MongoDB
         fromDatabase:
           name: eproject3-db
