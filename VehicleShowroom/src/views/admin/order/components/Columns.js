@@ -69,14 +69,12 @@ export default function Columns({
         const value = Number(row.status);
         const isAssigned = !!row.vehicleId;
         const isCancelled = value === 4;
-        const isCompleted = value === 3;
 
-        // 🟠 Nếu đơn đã cancel hoặc complete → ẩn hết action
-        if (isCancelled || isCompleted) {
+        if (isCancelled) {
           return (
             <Flex justify="flex-end">
               <Text color="gray.400" fontStyle="italic">
-                {isCancelled ? 'Cancelled' : 'Completed'}
+                Cancelled
               </Text>
             </Flex>
           );
