@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useColorModeValue, Card, useDisclosure } from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useAppToast } from 'utils/ToastHelper';
-import { LoadingState } from 'components/common/LoadingState';
 
 import ServiceOrderService from 'services/ServiceOrderService';
 import UserService from 'services/UserService';
@@ -84,22 +83,22 @@ function ServiceOrderManagement() {
         setLoading(false);
       }
     },
-    [statusFilter],
+    [statusFilter, toast],
   );
 
   useEffect(() => {
     loadOrders(page);
-  }, [page, statusFilter]);
+  }, [loadOrders, page]);
 
-  const handleViewDetail = (order) => {
+  const handleViewDetail = useCallback((order) => {
     setSelectedOrder(order);
     onDetailOpen();
-  };
+  }, [onDetailOpen]);
 
-  const handleStatusChange = (order) => {
+  const handleStatusChange = useCallback((order) => {
     setUpdatingOrder(order);
     onStatusOpen();
-  };
+  }, [onStatusOpen]);
 
   const columns = useMemo(
     () =>
@@ -109,7 +108,7 @@ function ServiceOrderManagement() {
         statusFilter,
         setStatusFilter,
       }),
-    [statusFilter],
+    [handleViewDetail, handleStatusChange, statusFilter],
   );
 
   const table = useReactTable({

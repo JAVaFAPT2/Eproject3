@@ -10,7 +10,7 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: Cors__Origins
-        value: https://eproject3-1.onrender.com
+        value: https://eproject3-1.onrender.com;http://localhost:3000;https://localhost:3000
       - key: ConnectionStrings__MongoDB
         fromDatabase:
           name: eproject3-db

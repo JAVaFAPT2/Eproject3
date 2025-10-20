@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+import { onCLS, onINP, onFCP, onLCP, onTTFB } from 'web-vitals';
 
 function reportWebVitals(metric) {
   console.log(metric);
@@ -18,11 +18,11 @@ function reportWebVitals(metric) {
 
 export function useWebVitals() {
   useEffect(() => {
-    getCLS(reportWebVitals);
-    getFID(reportWebVitals);
-    getFCP(reportWebVitals);
-    getLCP(reportWebVitals);
-    getTTFB(reportWebVitals);
+    onCLS(reportWebVitals);
+    onINP(reportWebVitals);
+    onFCP(reportWebVitals);
+    onLCP(reportWebVitals);
+    onTTFB(reportWebVitals);
   }, []);
 }
 

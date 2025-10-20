@@ -6,7 +6,6 @@ import List from './components/List';
 import Columns from './components/Columns';
 import { useAppToast } from 'utils/ToastHelper';
 import Header from './components/Header';
-import { LoadingState } from 'components/common/LoadingState';
 
 function EmployeeManagement() {
   const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -30,14 +29,14 @@ function EmployeeManagement() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     loadEmployees();
   }, [loadEmployees]);
 
   // ✅ Toggle active/inactive
-  const handleToggleActive = async (id, current) => {
+  const handleToggleActive = useCallback(async (id, current) => {
     try {
       setLoading(true);
       await UserService.toggleActive(id, !current);
@@ -48,7 +47,7 @@ function EmployeeManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast, loadEmployees]);
 
   // ✅ Cấu hình cột
   const columns = useMemo(

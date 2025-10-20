@@ -77,7 +77,7 @@ const AuthService = {
   // ---------------------------------
   login: async (data, keepLoggedIn = false) => {
     const res = await ApiClient.post(ApiUrl.AUTH.LOGIN, data);
-    const { token, refreshToken, user } = res.data;
+    const { token, refreshToken } = res.data;
 
     AuthService.setKeepLoggedIn(keepLoggedIn);
 

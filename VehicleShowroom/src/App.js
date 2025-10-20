@@ -5,14 +5,12 @@ import { useState, Suspense, lazy } from 'react';
 
 import initialTheme from './theme/theme';
 import useWebVitals from './hooks/useWebVitals';
+import { UserProvider } from 'contexts/UserContext';
 
 // 🧩 Layouts - Lazy loaded for better performance
 const AuthLayout = lazy(() => import('./layouts/auth'));
 const AdminLayout = lazy(() => import('./layouts/admin'));
 const UserLayout = lazy(() => import('layouts/user'));
-
-// 🧩 Providers
-import { UserProvider } from 'contexts/UserContext';
 
 // Loading component
 const LoadingSpinner = () => (

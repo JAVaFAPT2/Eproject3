@@ -2,8 +2,6 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useColorModeValue, Card, useDisclosure } from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useAppToast } from 'utils/ToastHelper';
-
-import { LoadingState } from 'components/common/LoadingState';
 import ConfirmDialog from 'components/dialog/ConfirmDialog';
 import Pagination from 'components/pagination/Pagination';
 import VehicleService from 'services/VehicleService';
@@ -55,7 +53,7 @@ function VehicleManagement() {
     } finally {
       setModelsLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   // 🚗 Load danh sách vehicle (có filter)
   const loadVehicles = useCallback(
@@ -88,7 +86,7 @@ function VehicleManagement() {
         setLoading(false);
       }
     },
-    [searchInput, modelFilter, statusFilter, models],
+    [searchInput, modelFilter, statusFilter, models, toast],
   );
 
   // 🕐 Debounce search + filter
@@ -103,7 +101,7 @@ function VehicleManagement() {
     loadModels();
   }, [loadModels]);
 
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     if (!selectedToDelete) return;
     try {
       setLoading(true);
@@ -117,7 +115,7 @@ function VehicleManagement() {
       onConfirmClose();
       setLoading(false);
     }
-  };
+  }, [selectedToDelete, loadVehicles, page, toast, onConfirmClose]);
 
   const columns = useMemo(
     () =>

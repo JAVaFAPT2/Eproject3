@@ -3,7 +3,6 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalCloseButton,
   ModalBody,
   Image,
   IconButton,
@@ -11,7 +10,6 @@ import {
   Box,
   HStack,
   useColorModeValue,
-  Divider,
 } from '@chakra-ui/react';
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
 
