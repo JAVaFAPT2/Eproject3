@@ -60,7 +60,7 @@ export default function Detail() {
     }
 
     if (slug) loadModelData();
-  }, [slug, toast]);
+  }, [slug]); // Remove toast from dependencies
 
   // ✅ Loading state
   if (loading || userLoading)
