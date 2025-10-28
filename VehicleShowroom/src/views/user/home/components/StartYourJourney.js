@@ -37,9 +37,9 @@ export default function StartYourJourney() {
               m.modelNumber,
             );
             const displayPhoto =
-              photos.items?.find((p) => p.displayOrder === 1)?.photoUrl ||
-              photos.items?.[0]?.photoUrl ||
-              photos.items?.[0]?.url ||
+              photos?.find((p) => p.displayOrder === 1)?.photoUrl ||
+              photos?.[0]?.photoUrl ||
+              photos?.[0]?.url ||
               null;
 
             return { ...m, photo: displayPhoto, photos };
@@ -84,86 +84,94 @@ export default function StartYourJourney() {
           gap={10}
           justifyItems="center"
         >
-          {isLoading ? (
-            // Loading skeletons
-            Array.from({ length: 2 }).map((_, idx) => (
-              <Skeleton key={idx} height="60vh" borderRadius="2xl" />
-            ))
-          ) : (
-            models.map((m, idx) => (
-            <MotionBox
-              key={m.modelNumber}
-              w="100%"
-              borderRadius="2xl"
-              overflow="hidden"
-              cursor="pointer"
-              position="relative"
-              onClick={() => navigate(`/user/models?parentModelNumber=${m.modelNumber}`)}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                duration: 0.6,
-                delay: idx * 0.1,
-                ease: 'easeOut',
-              }}
-            >
-              <Box position="relative" h={{ base: '90vh', md: '60vh' }}>
-                <motion.img
-                  src={m.photo}
-                  alt={m.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  initial={{ scale: 1.05 }}
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.6 }}
-                  loading="lazy"
-                  decoding="async"
-                />
-
-                {/* Overlay tên model */}
-                <Grid
-                  position="absolute"
-                  top={0}
-                  left={0}
+          {isLoading
+            ? // Loading skeletons
+              Array.from({ length: 2 }).map((_, idx) => (
+                <Skeleton key={idx} height="60vh" borderRadius="2xl" />
+              ))
+            : models.map((m, idx) => (
+                <MotionBox
+                  key={m.modelNumber}
                   w="100%"
-                  h="25%"
-                  bgGradient="linear(to-b, rgba(0,0,0,0.7), transparent)"
-                  placeItems="center"
-                  pt={4}
+                  borderRadius="2xl"
+                  overflow="hidden"
+                  cursor="pointer"
+                  position="relative"
+                  onClick={() =>
+                    navigate(`/user/models?parentModelNumber=${m.modelNumber}`)
+                  }
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    duration: 0.6,
+                    delay: idx * 0.1,
+                    ease: 'easeOut',
+                  }}
                 >
-                  <Text
-                    fontSize={{ base: '2xl', md: '4xl' }}
-                    color="white"
-                    fontFamily="'Kaushan Script', cursive"
-                    fontWeight="600"
-                  >
-                    {m.name}
-                  </Text>
-                </Grid>
+                  <Box position="relative" h={{ base: '90vh', md: '60vh' }}>
+                    <motion.img
+                      src={m.photo}
+                      alt={m.name}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                      initial={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.6 }}
+                      loading="lazy"
+                      decoding="async"
+                    />
 
-                {/* Overlay dưới */}
-                <Grid
-                  position="absolute"
-                  bottom={0}
-                  left={0}
-                  w="100%"
-                  bgGradient="linear(to-t, rgba(0,0,0,0.85), transparent)"
-                  color="white"
-                  p={{ base: 5, md: 6 }}
-                  gap={2}
-                >
-                  <Text fontSize={{ base: 'sm', md: 'md' }}>
-                    {m.description}
-                  </Text>
-                  <Grid templateColumns="auto auto" alignItems="center" gap={2}>
-                    <Text fontWeight="600">Explore</Text>
-                    <Icon as={ArrowForwardIcon} boxSize={5} />
-                  </Grid>
-                </Grid>
-              </Box>
-            </MotionBox>
-            ))
-          )}
+                    {/* Overlay tên model */}
+                    <Grid
+                      position="absolute"
+                      top={0}
+                      left={0}
+                      w="100%"
+                      h="25%"
+                      bgGradient="linear(to-b, rgba(0,0,0,0.7), transparent)"
+                      placeItems="center"
+                      pt={4}
+                    >
+                      <Text
+                        fontSize={{ base: '2xl', md: '4xl' }}
+                        color="white"
+                        fontFamily="'Kaushan Script', cursive"
+                        fontWeight="600"
+                      >
+                        {m.name}
+                      </Text>
+                    </Grid>
+
+                    {/* Overlay dưới */}
+                    <Grid
+                      position="absolute"
+                      bottom={0}
+                      left={0}
+                      w="100%"
+                      bgGradient="linear(to-t, rgba(0,0,0,0.85), transparent)"
+                      color="white"
+                      p={{ base: 5, md: 6 }}
+                      gap={2}
+                    >
+                      <Text fontSize={{ base: 'sm', md: 'md' }}>
+                        {m.description}
+                      </Text>
+                      <Grid
+                        templateColumns="auto auto"
+                        alignItems="center"
+                        gap={2}
+                      >
+                        <Text fontWeight="600">Explore</Text>
+                        <Icon as={ArrowForwardIcon} boxSize={5} />
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </MotionBox>
+              ))}
         </Grid>
       </Box>
     </Box>

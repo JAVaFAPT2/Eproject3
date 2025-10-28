@@ -29,7 +29,6 @@ function VehicleManagement() {
   const [modelFilter, setModelFilter] = useState(null);
 
   const [loading, setLoading] = useState(false);
-  const [modelsLoading, setModelsLoading] = useState(true);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -38,77 +37,79 @@ function VehicleManagement() {
     onClose: onConfirmClose,
   } = useDisclosure();
 
-  // 🚀 Load danh sách model
-  const loadModels = useCallback(async () => {
-    try {
-      setModelsLoading(true);
-      const res = await VehicleModelService.get({
-        pageNumber: 1,
-        pageSize: 100,
-      });
-      setModels(res.items || []);
-    } catch (err) {
-      console.error('Failed to load models:', err);
-      toast.error('Failed to load vehicle models');
-    } finally {
-      setModelsLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Remove toast dependency to prevent infinite loop
+  // 🧠 Load models 1 lần, và vehicles mỗi khi filter/search/page thay đổi
+  useEffect(() => {
+    let abort = false;
 
-  // 🚗 Load danh sách vehicle (có filter)
-  const loadVehicles = useCallback(
-    async (p = 1) => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const params = { pageNumber: p, pageSize: 10 };
+
+        // 🔹 chỉ load models 1 lần (khi mảng models rỗng)
+        let modelsData = models;
+        if (modelsData.length === 0) {
+          const resModels = await VehicleModelService.get({
+            pageNumber: 1,
+            pageSize: 100,
+          });
+          modelsData = resModels.items || [];
+          if (!abort) setModels(modelsData);
+        }
+
+        // 🔹 luôn load vehicles theo filters/search
+        const params = { pageNumber: page, pageSize: 10 };
         if (searchInput?.trim()) params.searchTerm = searchInput.trim();
         if (modelFilter) params.modelNumber = modelFilter;
         if (statusFilter) params.status = statusFilter;
 
-        const res = await VehicleService.get(params);
-        const list = res.items || [];
+        const resVehicles = await VehicleService.get(params);
+        const vehiclesData = resVehicles.items || [];
 
         const modelMap = {};
-        models.forEach((m) => {
+        modelsData.forEach((m) => {
           modelMap[m.modelNumber] = m.name;
         });
 
-        const withModelNames = list.map((v) => ({
+        const withModelNames = vehiclesData.map((v) => ({
           ...v,
           modelName: modelMap[v.modelNumber] || v.modelNumber || 'Unknown',
         }));
 
-        setVehicles(withModelNames);
-        setTotalPages(res.totalPages || 1);
+        if (!abort) {
+          setVehicles(withModelNames);
+          setTotalPages(resVehicles.totalPages || 1);
+        }
       } catch (err) {
-        toast.error('Failed to load vehicles');
+        if (!abort) {
+          console.error('Failed to load data:', err);
+          toast.error('Failed to load vehicle data');
+        }
       } finally {
-        setLoading(false);
+        if (!abort) setLoading(false);
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [searchInput, modelFilter, statusFilter, models], // Remove toast dependency to prevent infinite loop
-  );
+    };
 
-  // 🕐 Debounce search + filter
-  useEffect(() => {
     const delay = setTimeout(() => {
-      if (models.length > 0) loadVehicles(page);
-    }, 500);
-    return () => clearTimeout(delay);
-  }, [page, searchInput, modelFilter, statusFilter, loadVehicles, models]);
+      loadData();
+    }, 400);
 
-  useEffect(() => {
-    loadModels();
-  }, [loadModels]);
+    return () => {
+      abort = true;
+      clearTimeout(delay);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, searchInput, modelFilter, statusFilter]); // ✅ chỉ reload khi filter thay đổi
 
+  // 🗑️ Confirm delete
   const confirmDelete = useCallback(async () => {
     if (!selectedToDelete) return;
     try {
       setLoading(true);
       await VehicleService.delete(selectedToDelete.vehicleId);
-      await loadVehicles(page);
+      // reload lại vehicle list sau khi xóa
+      const params = { pageNumber: page, pageSize: 10 };
+      const res = await VehicleService.get(params);
+      setVehicles(res.items || []);
       toast.success('Vehicle deleted successfully');
     } catch {
       toast.error('Error deleting vehicle');
@@ -117,8 +118,10 @@ function VehicleManagement() {
       onConfirmClose();
       setLoading(false);
     }
-  }, [selectedToDelete, loadVehicles, page, toast, onConfirmClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedToDelete, page, onConfirmClose]);
 
+  // 🧩 Columns config
   const columns = useMemo(
     () =>
       Columns({
@@ -145,8 +148,6 @@ function VehicleManagement() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const isLoading = loading || modelsLoading;
-
   return (
     <>
       <Form
@@ -155,7 +156,13 @@ function VehicleManagement() {
           setEditingVehicle(null);
           onClose();
         }}
-        reloadVehicles={() => loadVehicles(page)}
+        reloadVehicles={() => {
+          // reload vehicles thủ công sau khi add/edit
+          const params = { pageNumber: page, pageSize: 10 };
+          VehicleService.get(params).then((res) =>
+            setVehicles(res.items || []),
+          );
+        }}
         vehicle={editingVehicle}
         models={models}
         bgColor={bgColor}
@@ -182,7 +189,7 @@ function VehicleManagement() {
           table={table}
           borderColor={borderColor}
           textColor={textColor}
-          loading={isLoading}
+          loading={loading}
         />
       </Card>
 

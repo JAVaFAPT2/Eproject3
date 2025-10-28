@@ -59,28 +59,59 @@ function VehicleModelManagement() {
         [modelNumber]: !prev[modelNumber],
       }));
 
-      const targetModel = models.find((m) => m.modelNumber === modelNumber);
+      // chỉ fetch khi đang mở (true) lần đầu
+      setModels((prevModels) => {
+        const targetModel = prevModels.find(
+          (m) => m.modelNumber === modelNumber,
+        );
+        const isExpanding = !expandedRows[modelNumber]; // kiểm tra đang mở hay đóng
 
-      if (
-        targetModel &&
-        targetModel.level === 2 &&
-        (!targetModel.specs || targetModel.specs.length === 0)
-      ) {
-        try {
-          const specs = await VehicleSpecService.getByModelNumber(modelNumber);
+        if (
+          isExpanding &&
+          targetModel &&
+          targetModel.level === 2 &&
+          (!targetModel.specs || targetModel.specs.length === 0)
+        ) {
+          // ⚡ Đặt trạng thái loading
           setModels((prev) =>
             prev.map((m) =>
-              m.modelNumber === modelNumber ? { ...m, specs: specs.items } : m,
+              m.modelNumber === modelNumber
+                ? { ...m, isLoadingSpecs: true }
+                : m,
             ),
           );
-        } catch (err) {
-          console.error('Failed to load specs:', err);
-          toast.error('Failed to load specifications');
+
+          (async () => {
+            try {
+              const specs = await VehicleSpecService.getByModelNumber(
+                modelNumber,
+              );
+              setModels((innerPrev) =>
+                innerPrev.map((m) =>
+                  m.modelNumber === modelNumber
+                    ? { ...m, specs: specs, isLoadingSpecs: false }
+                    : m,
+                ),
+              );
+            } catch (err) {
+              console.error('Failed to load specs:', err);
+              toast.error('Failed to load specifications');
+              setModels((innerPrev) =>
+                innerPrev.map((m) =>
+                  m.modelNumber === modelNumber
+                    ? { ...m, isLoadingSpecs: false }
+                    : m,
+                ),
+              );
+            }
+          })();
         }
-      }
+
+        return prevModels;
+      });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [models],
+    [expandedRows],
   );
 
   // 🖼 Preview images
