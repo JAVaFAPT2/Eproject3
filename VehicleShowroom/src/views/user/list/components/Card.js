@@ -12,10 +12,14 @@ import {
 import { useNavigate } from 'react-router-dom';
 import Spec from './Spec';
 import { formatUSD } from 'utils/FormatHelper';
+import { generateSlug } from 'utils/SlugHelper'; // ✅ import slug helper
 
 export default function Card({ item }) {
   const navigate = useNavigate();
   const cardBg = useColorModeValue('white', 'gray.800');
+
+  // ✅ Tự động generate slug nếu BE chưa có
+  const slug = item.slug || generateSlug(item.name);
 
   const fuelType = item.specs?.find(
     (s) => s.specName === 'Fuel Type',
@@ -61,7 +65,10 @@ export default function Card({ item }) {
       _hover={{ transform: 'translateY(-5px)', shadow: '2xl' }}
       cursor="pointer"
       h="100%"
-      onClick={() => navigate(`/user/detail/${item.slug}`)}
+      onClick={(e) => {
+        e.stopPropagation();
+        navigate(`/user/detail/${slug}`); // ✅ dùng slug generate
+      }}
     >
       <VStack spacing={4} align="stretch" flex="1">
         {/* 🔹 Ảnh */}
@@ -87,7 +94,9 @@ export default function Card({ item }) {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Text color="gray.500" fontSize="sm">Loading...</Text>
+                  <Text color="gray.500" fontSize="sm">
+                    Loading...
+                  </Text>
                 </Box>
               }
             />
@@ -100,7 +109,9 @@ export default function Card({ item }) {
               alignItems="center"
               justifyContent="center"
             >
-              <Text color="gray.500" fontSize="sm">No Image</Text>
+              <Text color="gray.500" fontSize="sm">
+                No Image
+              </Text>
             </Box>
           )}
           {fuelType && (
@@ -146,7 +157,7 @@ export default function Card({ item }) {
         <Spacer />
       </VStack>
 
-      {/* 🔹 Nút xem chi tiết ở dưới cùng */}
+      {/* 🔹 Nút xem chi tiết */}
       <Button
         mt={4}
         bg="black"
@@ -156,7 +167,7 @@ export default function Card({ item }) {
         _hover={{ bg: 'gray.700' }}
         onClick={(e) => {
           e.stopPropagation();
-          navigate(`/user/detail/${item.slug}`);
+          navigate(`/user/detail/${slug}`); // ✅ dùng slug generate
         }}
       >
         View Details

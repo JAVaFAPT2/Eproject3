@@ -201,6 +201,9 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
   const handleSignOut = async () => {
     await logout();
     closeHandler();
+    setTimeout(() => {
+      navigate('/');
+    }, 100);
   };
 
   const handleNavigate = (path) => {

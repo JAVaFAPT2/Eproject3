@@ -193,7 +193,7 @@ export default function AssignForm({
             </Button>
 
             {/* 🟥 Cancel Order */}
-            {order && ![3, 4].includes(order.status) && (
+            {order && ![3, 4].includes(Number(order.status)) && (
               <Button colorScheme="red" mr={3} onClick={handleCancelClick}>
                 Cancel Order
               </Button>

@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { Card, useColorModeValue } from '@chakra-ui/react';
+import { Card, useColorModeValue, useDisclosure } from '@chakra-ui/react';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import UserService from 'services/UserService';
 import List from './components/List';
 import Columns from './components/Columns';
 import { useAppToast } from 'utils/ToastHelper';
 import Header from './components/Header';
+import Form from './components/Form';
 
 function EmployeeManagement() {
   const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -17,11 +18,14 @@ function EmployeeManagement() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // 🟢 Disclosure cho modal thêm nhân viên
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   // ✅ Load danh sách nhân viên (Dealer)
   const loadEmployees = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await UserService.get({ roleName: 'Dealer' });
+      const res = await UserService.get({ roleName: 'Employee' });
       setEmployees(res.items || []);
     } catch (err) {
       console.error('❌ Failed to load employees:', err);
@@ -30,26 +34,29 @@ function EmployeeManagement() {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Remove toast dependency to prevent infinite loop
+  }, []); // tránh dependency gây re-render
 
   useEffect(() => {
     loadEmployees();
   }, [loadEmployees]);
 
   // ✅ Toggle active/inactive
-  const handleToggleActive = useCallback(async (id, current) => {
-    try {
-      setLoading(true);
-      await UserService.toggleActive(id, !current);
-      toast.success('Status updated');
-      loadEmployees();
-    } catch (err) {
-      toast.error('Failed to update status');
-    } finally {
-      setLoading(false);
-    }
+  const handleToggleActive = useCallback(
+    async (id, current) => {
+      try {
+        setLoading(true);
+        await UserService.toggleActive(id, !current);
+        toast.success('Status updated');
+        loadEmployees();
+      } catch (err) {
+        toast.error('Failed to update status');
+      } finally {
+        setLoading(false);
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadEmployees]); // Remove toast dependency to prevent infinite loop
+    [loadEmployees],
+  );
 
   // ✅ Cấu hình cột
   const columns = useMemo(
@@ -64,23 +71,35 @@ function EmployeeManagement() {
   });
 
   return (
-    <Card
-      flexDirection="column"
-      w="100%"
-      borderRadius="16px"
-      boxShadow="md"
-      bg={bgColor}
-    >
-      <Header textColor={textColor} />
-      <List
-        loading={loading}
-        table={table}
-        textColor={textColor}
-        borderColor={borderColor}
+    <>
+      {/* 🟢 Modal thêm mới */}
+      <Form
+        isOpen={isOpen}
+        onClose={onClose}
+        reloadUsers={loadEmployees}
         bgColor={bgColor}
-        headerBg={headerBg}
+        textColor={textColor}
       />
-    </Card>
+
+      {/* 🧩 Danh sách */}
+      <Card
+        flexDirection="column"
+        w="100%"
+        borderRadius="16px"
+        boxShadow="md"
+        bg={bgColor}
+      >
+        <Header textColor={textColor} onAdd={onOpen} />
+        <List
+          loading={loading}
+          table={table}
+          textColor={textColor}
+          borderColor={borderColor}
+          bgColor={bgColor}
+          headerBg={headerBg}
+        />
+      </Card>
+    </>
   );
 }
 

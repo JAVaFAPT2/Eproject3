@@ -55,49 +55,48 @@ export default function List() {
       try {
         const params = {
           parentModelNumber:
-            filters.group && filters.group !== 'All'
-              ? filters.group
-              : null,
-          seats:
-            filters.seat.length > 0 ? filters.seat.join(',') : null,
+            filters.group && filters.group !== 'All' ? filters.group : null,
+          seats: filters.seat.length > 0 ? filters.seat.join(',') : null,
           fuelType:
-            filters.fuelType.length > 0
-              ? filters.fuelType.join(',')
-              : null,
+            filters.fuelType.length > 0 ? filters.fuelType.join(',') : null,
           pageNumber: 1,
           pageSize: 50,
         };
 
         const res = await VehicleModelService.get(params);
-        const list = (res.items || []).filter(
-          (item) => item.level === 2,
-        );
+        const list = (res.items || []).filter((item) => item.level === 2);
 
         const enriched = await Promise.all(
           list.map(async (m) => {
             let photoUrl = null;
             let specs = [];
 
+            // ✅ Gọi API ảnh
             try {
-              const photos =
-                await VehiclePhotoService.getByModelNumber(
-                  m.modelNumber,
-                );
-              const displayPhoto =
-                photos.items?.find((p) => p.displayOrder === 0)
-                  ?.photoUrl ||
-                photos.items?.[0]?.photoUrl ||
-                photos.items?.[0]?.url;
-              if (displayPhoto) photoUrl = displayPhoto;
-            } catch {}
-
-            try {
-              specs = await VehicleSpecService.getByModelNumber(
+              const photos = await VehiclePhotoService.getByModelNumber(
                 m.modelNumber,
               );
-            } catch {}
+              const items = photos || [];
+              const displayPhoto =
+                items.find((p) => p.displayOrder === 0)?.photoUrl ||
+                items[0]?.photoUrl ||
+                items[0]?.url;
+              if (displayPhoto) photoUrl = displayPhoto;
+            } catch (err) {
+              console.warn('Error fetching photos for', m.modelNumber, err);
+            }
 
-            return { ...m, photo: photoUrl, specs: specs.items };
+            // ✅ Gọi API specs
+            try {
+              const resSpecs = await VehicleSpecService.getByModelNumber(
+                m.modelNumber,
+              );
+              specs = resSpecs || [];
+            } catch (err) {
+              console.warn('Error fetching specs for', m.modelNumber, err);
+            }
+
+            return { ...m, photo: photoUrl, specs };
           }),
         );
 
@@ -144,18 +143,11 @@ export default function List() {
 
         {/* 🔹 Drawer mobile */}
         {isMobile && (
-          <Drawer
-            isOpen={isOpen}
-            placement="right"
-            onClose={onClose}
-            size="sm"
-          >
+          <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="sm">
             <DrawerOverlay bg="blackAlpha.500" backdropFilter="blur(3px)" />
             <DrawerContent>
               <DrawerCloseButton />
-              <DrawerHeader borderBottomWidth="1px">
-                Filters
-              </DrawerHeader>
+              <DrawerHeader borderBottomWidth="1px">Filters</DrawerHeader>
               <DrawerBody>
                 <FilterMenu
                   selectedFilters={filters}

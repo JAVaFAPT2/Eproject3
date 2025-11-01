@@ -37,9 +37,16 @@ function SignIn() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = () => setShow(!show);
+
+  const validatePassword = (pwd) => {
+    if (pwd.length < 8) return 'Password must be at least 8 characters';
+    if (!/[A-Z]/.test(pwd))
+      return 'Password must include at least one uppercase letter';
+    return null;
+  };
 
   // ==============================
   // 🔐 Handle Login
@@ -47,6 +54,12 @@ function SignIn() {
   const handleLogin = async () => {
     if (!username || !password) {
       toast.error('Please enter username and password');
+      return;
+    }
+
+    const validationMsg = validatePassword(password);
+    if (validationMsg) {
+      toast.error(validationMsg);
       return;
     }
 
@@ -58,8 +71,7 @@ function SignIn() {
     } catch (error) {
       console.error(error);
       const msg =
-        error.response?.data?.message ||
-        'Wrong username or password.';
+        error.response?.data?.message || 'Wrong username or password.';
       toast.error(msg);
     } finally {
       setIsLoading(false);

@@ -39,13 +39,13 @@ function Hero({ isCategoryOpen }) {
       const hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
-        backBufferLength: 90
+        backBufferLength: 90,
       });
-      
+
       const src = isDesktop
         ? 'https://videos.porsche.com/id/taycanbepc/hls.m3u8'
         : 'https://videos.porsche.com/id/taycanbemob/hls.m3u8';
-      
+
       hls.loadSource(src);
       hls.attachMedia(video);
 
@@ -111,7 +111,7 @@ function Hero({ isCategoryOpen }) {
           objectFit="cover"
           display={isVideoLoaded ? 'none' : 'block'}
         />
-        
+
         {/* Video element */}
         <video
           ref={videoRef}
@@ -127,7 +127,7 @@ function Hero({ isCategoryOpen }) {
             display: isVideoLoaded ? 'block' : 'none',
           }}
         />
-        
+
         {/* Loading spinner */}
         {shouldLoadVideo && !isVideoLoaded && (
           <Flex
@@ -185,7 +185,7 @@ function Hero({ isCategoryOpen }) {
         >
           <Button
             as={NavLink}
-            to="/model/taycan-4-black-edition"
+            to="/user/models"
             variant="outline"
             borderColor="white"
             color="white"

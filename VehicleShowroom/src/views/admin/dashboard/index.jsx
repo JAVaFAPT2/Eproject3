@@ -61,7 +61,6 @@ export default function DashboardPage() {
         setRecentOrders(orders);
       } catch (err) {
         console.error('❌ Failed to load dashboard:', err);
-      } finally {
       }
     };
     loadAll();
@@ -77,7 +76,7 @@ export default function DashboardPage() {
       options: {
         chart: { type: 'line', toolbar: { show: false } },
         stroke: { curve: 'smooth', width: 3 },
-        colors: ['#7A7A7A'],
+        colors: ['#3182CE'],
         xaxis: {
           categories: months,
           labels: { style: { colors: textColorSecondary } },
@@ -99,7 +98,7 @@ export default function DashboardPage() {
       options: {
         chart: { type: 'line', toolbar: { show: false } },
         stroke: { curve: 'smooth', width: 3 },
-        colors: ['#7A7A7A'],
+        colors: ['#805AD5'],
         xaxis: {
           categories: months,
           labels: { style: { colors: textColorSecondary } },
@@ -207,6 +206,7 @@ export default function DashboardPage() {
 
       {/* 2️⃣ Revenue & Customers */}
       <SimpleGrid columns={{ base: 1, md: 2 }} gap="20px" mb="20px">
+        {/* 🟢 Revenue */}
         <Card p="20px">
           <Flex justify="space-between" align="center" mb="4">
             <Text fontSize="xl" fontWeight="700" color={textColor}>
@@ -218,12 +218,24 @@ export default function DashboardPage() {
               {revenue?.growthPercentage?.toFixed(1) || 0}%
             </Badge>
           </Flex>
+
           <Text fontSize="3xl" fontWeight="700">
             {formatUSD(revenue?.totalRevenue || 0)}
           </Text>
-          <Text fontSize="sm" color={textColorSecondary}>
-            This month • Avg Order: {formatUSD(revenue?.averageOrderValue || 0)}
-          </Text>
+
+          {/* ⬇️ Subtitle hiển thị tổng đơn hàng và tăng trưởng */}
+          <Flex
+            justify="space-between"
+            align="center"
+            color={textColorSecondary}
+          >
+            <Text fontSize="sm">
+              This month • Avg Order:{' '}
+              {formatUSD(revenue?.averageOrderValue || 0)}
+            </Text>
+            <Text fontSize="sm">Total Orders: {revenue?.totalOrders || 0}</Text>
+          </Flex>
+
           <Box mt="4" minH="220px">
             <LineChart
               series={revenueChart.series}
@@ -232,6 +244,7 @@ export default function DashboardPage() {
           </Box>
         </Card>
 
+        {/* 🟣 Customers */}
         <Card p="20px">
           <Flex justify="space-between" align="center" mb="4">
             <Text fontSize="xl" fontWeight="700" color={textColor}>
@@ -245,12 +258,25 @@ export default function DashboardPage() {
               {customer?.customerGrowthPercentage?.toFixed(1) || 0}%
             </Badge>
           </Flex>
+
           <Text fontSize="3xl" fontWeight="700">
             {customer?.newCustomers || 0}
           </Text>
-          <Text fontSize="sm" color={textColorSecondary}>
-            New this month • Active: {customer?.activeCustomers || 0}
-          </Text>
+
+          {/* ⬇️ Subtitle hiển thị tổng customer và active */}
+          <Flex
+            justify="space-between"
+            align="center"
+            color={textColorSecondary}
+          >
+            <Text fontSize="sm">
+              New this month • Active: {customer?.activeCustomers || 0}
+            </Text>
+            <Text fontSize="sm">
+              Total Customers: {customer?.totalCustomers || 0}
+            </Text>
+          </Flex>
+
           <Box mt="4" minH="220px">
             <LineChart
               series={customerChart.series}
@@ -286,7 +312,7 @@ export default function DashboardPage() {
           </Table>
         </Card>
 
-        {/* ✅ Recent Orders - hiển thị Customer Name */}
+        {/* ✅ Recent Orders */}
         <Card p="20px">
           <Text fontSize="xl" fontWeight="700" mb="4">
             Recent Orders

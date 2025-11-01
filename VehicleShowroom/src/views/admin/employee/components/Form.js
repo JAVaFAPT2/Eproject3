@@ -11,8 +11,11 @@ import {
   FormLabel,
   Input,
   Button,
+  SimpleGrid,
   VStack,
+  useBreakpointValue,
 } from '@chakra-ui/react';
+import { DatePicker } from 'components/fields/DatePicker';
 import { useAppToast } from 'utils/ToastHelper';
 import UserService from 'services/UserService';
 
@@ -34,47 +37,43 @@ export default function Form({
     name: '',
     phone: '',
     address: '',
+    hireDate: '', 
   });
 
-  // Reset khi mở modal
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        username: user.username || '',
-        email: user.email || '',
-        password: '',
-        name: user.name || '',
-        phone: user.phone || '',
-        address: user.address || '',
-      });
-    } else {
-      setFormData({
-        username: '',
-        email: '',
-        password: '',
-        name: '',
-        phone: '',
-        address: '',
-      });
-    }
-  }, [user, isOpen]);
+  const columns = useBreakpointValue({ base: 1, md: 2 });
 
-  // Xử lý input change
+  useEffect(() => {
+    if (isOpen) {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
+
+      setFormData((prev) => ({
+        ...prev,
+        hireDate: `${y}-${m}-${d}`,
+      }));
+    }
+  }, [isOpen]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // BE sẽ tự thêm hireDate & roleName theo người đăng nhập
       const payload = {
-        ...formData,
-        hireDate: new Date().toISOString(),
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+        hireDate: new Date(formData.hireDate).toISOString(),
       };
 
       await UserService.create(payload);
@@ -90,85 +89,99 @@ export default function Form({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
       <ModalOverlay />
       <ModalContent borderRadius="20px" bg={bgColor} color={textColor}>
-        <ModalHeader borderTopRadius="20px">Create New Employee</ModalHeader>
+        <ModalHeader>Create New Employee</ModalHeader>
         <ModalCloseButton />
 
         <ModalBody>
           <VStack spacing={4} align="flex-start">
-            <FormControl isRequired>
-              <FormLabel>Username</FormLabel>
-              <Input
-                name="username"
-                color={textColor}
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Enter username"
-              />
-            </FormControl>
+            {/* 🟩 Grid 2 cột */}
+            <SimpleGrid columns={columns} spacing={4} w="100%">
+              <FormControl isRequired>
+                <FormLabel>Username</FormLabel>
+                <Input
+                  name="username"
+                  color={textColor}
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Enter username"
+                />
+              </FormControl>
 
-            <FormControl isRequired>
-              <FormLabel>Email</FormLabel>
-              <Input
-                name="email"
-                type="email"
-                color={textColor}
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="user@example.com"
-              />
-            </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  name="email"
+                  type="email"
+                  color={textColor}
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="user@example.com"
+                />
+              </FormControl>
 
-            <FormControl isRequired>
-              <FormLabel>Password</FormLabel>
-              <Input
-                name="password"
-                type="password"
-                color={textColor}
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter password"
-              />
-            </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Password</FormLabel>
+                <Input
+                  name="password"
+                  type="password"
+                  color={textColor}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter password"
+                />
+              </FormControl>
 
-            <FormControl isRequired>
-              <FormLabel>Full Name</FormLabel>
-              <Input
-                name="name"
-                color={textColor}
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Full name"
-              />
-            </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Full Name</FormLabel>
+                <Input
+                  name="name"
+                  color={textColor}
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Full name"
+                />
+              </FormControl>
 
-            <FormControl>
-              <FormLabel>Phone</FormLabel>
-              <Input
-                name="phone"
-                color={textColor}
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="e.g. 0912345678"
-              />
-            </FormControl>
+              <FormControl>
+                <FormLabel>Phone</FormLabel>
+                <Input
+                  name="phone"
+                  color={textColor}
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="e.g. 0912345678"
+                />
+              </FormControl>
 
-            <FormControl>
-              <FormLabel>Address</FormLabel>
-              <Input
-                name="address"
-                color={textColor}
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="Address"
-              />
-            </FormControl>
+              <FormControl>
+                <FormLabel>Address</FormLabel>
+                <Input
+                  name="address"
+                  color={textColor}
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Address"
+                />
+              </FormControl>
+
+              {/* 🗓️ Hire Date Picker */}
+              <FormControl>
+                <DatePicker
+                  label="Hire Date"
+                  value={formData.hireDate}
+                  onChange={(val) =>
+                    setFormData((prev) => ({ ...prev, hireDate: val }))
+                  }
+                />
+              </FormControl>
+            </SimpleGrid>
           </VStack>
         </ModalBody>
 
-        <ModalFooter borderBottomRadius="20px">
+        <ModalFooter>
           <Button variant="ghost" mr={3} onClick={onClose}>
             Cancel
           </Button>

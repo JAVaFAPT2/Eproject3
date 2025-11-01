@@ -22,6 +22,14 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useAppToast } from 'utils/ToastHelper';
 import VehicleService from 'services/VehicleService';
 
+// 🔹 Hàm sinh mã VehicleId tương tự backend
+function generateVehicleId() {
+  const now = new Date();
+  const yyyyMMdd = now.toISOString().slice(0, 10).replace(/-/g, '');
+  const guid = crypto.randomUUID().split('-')[0].toUpperCase(); // lấy 8 ký tự đầu
+  return `VEH-${yyyyMMdd}-${guid}`;
+}
+
 export default function Form({
   isOpen,
   onClose,
@@ -44,6 +52,7 @@ export default function Form({
 
   const [modelName, setModelName] = useState('');
 
+  // ✅ Tự sinh vehicleId khi mở form Add
   useEffect(() => {
     if (vehicle) {
       setFormData({
@@ -57,9 +66,9 @@ export default function Form({
       setModelName(
         models.find((m) => m.modelNumber === vehicle.modelNumber)?.name || ''
       );
-    } else {
+    } else if (isOpen) {
       setFormData({
-        vehicleId: '',
+        vehicleId: generateVehicleId(), // ✅ sinh ID duy nhất
         modelNumber: '',
         purchasePrice: '',
         externalNumber: '',
@@ -78,6 +87,7 @@ export default function Form({
   const handleSubmit = async () => {
     try {
       const payload = {
+        vehicleId: formData.vehicleId, // ✅ đảm bảo luôn có giá trị
         modelNumber: formData.modelNumber,
         purchasePrice: Number(formData.purchasePrice),
         externalNumber: formData.externalNumber,
@@ -85,15 +95,12 @@ export default function Form({
       };
 
       if (vehicle) {
-        // PUT /api/Vehicles/{id}
         const updatePayload = { ...payload, licensePlate: formData.licensePlate };
         await VehicleService.update(vehicle.vehicleId, updatePayload);
         toast.success('Vehicle updated successfully');
       } else {
-        // POST /api/Vehicles
-        const createPayload = { ...payload, vehicleId: formData.vehicleId };
-        await VehicleService.create(createPayload);
-        toast.success('Vehicle created successfully');
+        await VehicleService.create(payload);
+        toast.success(`Vehicle created: ${formData.vehicleId}`);
       }
 
       reloadVehicles();
@@ -111,7 +118,20 @@ export default function Form({
         <ModalHeader>{vehicle ? 'Edit Vehicle' : 'Add Vehicle'}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {/* MODEL */}
+          {/* Vehicle ID (read-only for info) */}
+          {!vehicle && (
+            <FormControl mb={4}>
+              <FormLabel>Vehicle ID (Auto-generated)</FormLabel>
+              <Input
+                color={textColor}
+                name="vehicleId"
+                value={formData.vehicleId}
+                readOnlyc
+              />
+            </FormControl>
+          )}
+
+          {/* Model */}
           <FormControl isRequired mb={4}>
             <FormLabel>Model</FormLabel>
             <Menu isLazy matchWidth>
@@ -123,13 +143,11 @@ export default function Form({
               >
                 {modelName || 'Select model'}
               </MenuButton>
-
               <MenuList maxH="250px" overflowY="auto" bg={bgColor}>
                 {models.length > 0 ? (
                   models.map((m) => {
                     const isParent = m.level === 1;
                     const isChild = m.level === 2;
-
                     return (
                       <MenuItem
                         key={m.modelNumber}

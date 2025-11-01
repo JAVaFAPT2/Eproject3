@@ -27,6 +27,7 @@ export default function Columns({
   onCancel,
   statusFilter,
   setStatusFilter,
+  onViewDetail, // 🆕 callback để xem chi tiết
 }) {
   return [
     columnHelper.display({
@@ -37,11 +38,6 @@ export default function Columns({
 
     columnHelper.accessor('createdByName', {
       header: 'CREATED BY',
-      cell: (info) => info.getValue() || 'Unknown',
-    }),
-
-    columnHelper.accessor('modelName', {
-      header: 'MODEL NAME',
       cell: (info) => info.getValue() || 'Unknown',
     }),
 
@@ -81,7 +77,6 @@ export default function Columns({
         const isCompleted = status === 2;
         const isCancelled = status === 3;
 
-        // 🔴 Nếu Completed hoặc Cancelled → chỉ hiển thị badge
         if (isCompleted || isCancelled) {
           return (
             <Flex justify="flex-end">
@@ -92,7 +87,6 @@ export default function Columns({
           );
         }
 
-        // 🟡 Pending → hiển thị menu chọn Complete hoặc Cancel
         return (
           <Flex justify="flex-end">
             <Menu isLazy>
@@ -124,6 +118,25 @@ export default function Columns({
           </Flex>
         );
       },
+    }),
+
+    // 🆕 COLUMN: View Detail
+    columnHelper.display({
+      id: 'actions',
+      header: () => <Text textAlign="center">DETAIL</Text>,
+      cell: (info) => (
+        <Flex justify="center">
+          <Button
+            colorScheme="blue"
+            size="sm"
+            variant="outline"
+            aria-label="View Detail"
+            onClick={() => onViewDetail?.(info.row.original.id)}
+          >
+            View Detail
+          </Button>
+        </Flex>
+      ),
     }),
   ];
 }

@@ -39,6 +39,13 @@ function SignUp() {
 
   const handleShowPassword = () => setShowPassword(!showPassword);
 
+  const validatePassword = (pwd) => {
+    if (pwd.length < 8) return 'Password must be at least 8 characters';
+    if (!/[A-Z]/.test(pwd))
+      return 'Password must include at least one uppercase letter';
+    return null;
+  };
+
   // ✅ Gọi API đăng ký qua AuthService
   const handleEmailPasswordSignUp = async () => {
     if (!username || !email || !password || !confirmPassword) {
@@ -48,6 +55,12 @@ function SignUp() {
 
     if (password !== confirmPassword) {
       toast.error('Passwords do not match');
+      return;
+    }
+
+    const validationMsg = validatePassword(password);
+    if (validationMsg) {
+      toast.error(validationMsg);
       return;
     }
 

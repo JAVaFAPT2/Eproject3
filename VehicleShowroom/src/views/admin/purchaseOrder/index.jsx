@@ -12,6 +12,7 @@ import List from './components/List';
 import Columns from './components/Columns';
 import Form from './components/Form';
 import Pagination from 'components/pagination/Pagination';
+import Detail from './components/Detail';
 
 function PurchaseOrderManagement() {
   const toast = useAppToast();
@@ -26,63 +27,14 @@ function PurchaseOrderManagement() {
   const [statusFilter, setStatusFilter] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const {
+    isOpen: isDetailOpen,
+    onOpen: openDetail,
+    onClose: closeDetail,
+  } = useDisclosure();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  // ✅ Load purchase orders + createdBy name + modelName
-  const loadOrders = useCallback(
-    async (p = 1) => {
-      try {
-        setLoading(true);
-        const res = await PurchaseOrderService.get({
-          pageNumber: p,
-          pageSize: 10,
-          status: statusFilter || null,
-        });
-
-        let orders = res.items || [];
-        const userIds = [
-          ...new Set(orders.map((o) => o.createdBy).filter(Boolean)),
-        ];
-
-        // 🔹 Lấy thông tin người tạo đơn
-        const userMap = {};
-        await Promise.all(
-          userIds.map(async (id) => {
-            try {
-              const userRes = await UserService.getById(id);
-              userMap[id] = userRes?.name || userRes?.username || 'Unknown';
-            } catch {
-              userMap[id] = 'Unknown';
-            }
-          }),
-        );
-
-        // 🔹 Ánh xạ tên model
-        const modelMap = {};
-        models.forEach((m) => {
-          modelMap[m.modelNumber] = m.name;
-        });
-
-        // 🔹 Gộp dữ liệu
-        const withNames = orders.map((order) => ({
-          ...order,
-          createdByName: userMap[order.createdBy] || 'Unknown',
-          modelName:
-            modelMap[order.modelNumber] || order.modelNumber || 'Unknown',
-        }));
-
-        setOrders(withNames);
-        setTotalPages(res.totalPages || 1);
-      } catch (err) {
-        toast.error('Failed to load purchase orders');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [models, statusFilter], // ✅ thêm toast
-  );
 
   // ✅ Load models
   const loadModels = useCallback(async () => {
@@ -100,16 +52,65 @@ function PurchaseOrderManagement() {
     }
   }, []);
 
-  // ✅ Đánh dấu Completed (bọc useCallback để không re-create mỗi render)
+  // ✅ Load orders
+  const loadOrders = useCallback(
+    async (p = 1) => {
+      try {
+        setLoading(true);
+        const res = await PurchaseOrderService.get({
+          pageNumber: p,
+          pageSize: 10,
+          status: statusFilter || null,
+        });
+
+        let orders = res.items || [];
+        const userIds = [
+          ...new Set(orders.map((o) => o.createdBy).filter(Boolean)),
+        ];
+
+        const userMap = {};
+        await Promise.all(
+          userIds.map(async (id) => {
+            try {
+              const userRes = await UserService.getById(id);
+              userMap[id] = userRes?.name || userRes?.username || 'Unknown';
+            } catch {
+              userMap[id] = 'Unknown';
+            }
+          }),
+        );
+
+        const modelMap = {};
+        models.forEach((m) => (modelMap[m.modelNumber] = m.name));
+
+        const withNames = orders.map((order) => ({
+          ...order,
+          createdByName: userMap[order.createdBy] || 'Unknown',
+          modelName:
+            modelMap[order.modelNumber] || order.modelNumber || 'Unknown',
+        }));
+
+        setOrders(withNames);
+        setTotalPages(res.totalPages || 1);
+      } catch (err) {
+        toast.error('Failed to load purchase orders');
+      } finally {
+        setLoading(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [models, statusFilter],
+  );
+
+  // ✅ Complete
   const handleCompleteOrder = useCallback(
     async (orderId) => {
       try {
         setLoading(true);
-        await PurchaseOrderService.updateStatus(orderId, 2); // 2 = Completed
+        await PurchaseOrderService.updateStatus(orderId, 2);
         toast.success('Purchase order marked as Completed');
         loadOrders(page);
-      } catch (err) {
-        console.error('❌ Failed to complete purchase order:', err);
+      } catch {
         toast.error('Failed to update order status');
       } finally {
         setLoading(false);
@@ -119,16 +120,15 @@ function PurchaseOrderManagement() {
     [loadOrders, page],
   );
 
-  // ✅ Đánh dấu Cancelled (bọc useCallback)
+  // ✅ Cancel
   const handleCancelOrder = useCallback(
     async (orderId) => {
       try {
         setLoading(true);
-        await PurchaseOrderService.updateStatus(orderId, 3); // 3 = Cancelled
+        await PurchaseOrderService.updateStatus(orderId, 3);
         toast.success('Purchase order marked as Cancelled');
         loadOrders(page);
-      } catch (err) {
-        console.error('❌ Failed to cancel purchase order:', err);
+      } catch {
         toast.error('Failed to update order status');
       } finally {
         setLoading(false);
@@ -138,18 +138,28 @@ function PurchaseOrderManagement() {
     [loadOrders, page],
   );
 
-  // ✅ Load models trước rồi mới load orders
+  // ✅ Khởi tạo
   useEffect(() => {
-    loadModels();
-  }, [loadModels]); // ✅ thêm loadModels
+    const init = async () => {
+      setLoading(true);
+      await loadModels();
+      await loadOrders(page);
+      setLoading(false);
+    };
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, statusFilter]);
 
-  useEffect(() => {
-    if (models.length > 0) {
-      loadOrders(page);
-    }
-  }, [models, page, statusFilter, loadOrders]); // ✅ thêm loadOrders
+  // ✅ Mở modal chi tiết
+  const handleViewDetail = useCallback(
+    (id) => {
+      setSelectedOrderId(id);
+      openDetail();
+    },
+    [openDetail],
+  );
 
-  // ✅ Columns không bị recreate mỗi render
+  // ✅ Columns
   const columns = useMemo(
     () =>
       Columns({
@@ -157,8 +167,9 @@ function PurchaseOrderManagement() {
         onCancel: handleCancelOrder,
         statusFilter,
         setStatusFilter,
+        onViewDetail: handleViewDetail,
       }),
-    [handleCompleteOrder, handleCancelOrder, statusFilter],
+    [handleCompleteOrder, handleCancelOrder, handleViewDetail, statusFilter],
   );
 
   const table = useReactTable({
@@ -169,6 +180,12 @@ function PurchaseOrderManagement() {
 
   return (
     <>
+      <Detail
+        isOpen={isDetailOpen}
+        onClose={closeDetail}
+        orderId={selectedOrderId}
+      />
+
       <Form
         isOpen={isOpen}
         onClose={onClose}

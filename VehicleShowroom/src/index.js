@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import './assets/css/App.css';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 import App from './App';
 
@@ -17,7 +19,8 @@ root.render(
 if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   window.addEventListener('load', () => {
     const version = process.env.REACT_APP_SW_VERSION || Date.now().toString();
-    navigator.serviceWorker.register(`/sw.js?v=${version}`)
+    navigator.serviceWorker
+      .register(`/sw.js?v=${version}`)
       .then((registration) => {
         console.log('SW registered: ', registration);
       })

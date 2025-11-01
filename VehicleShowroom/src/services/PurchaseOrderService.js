@@ -9,6 +9,11 @@ const PurchaseOrderService = {
     return res.data;
   },
 
+  getById: async (id) => {
+    const res = await ApiClient.get(ApiUrl.PURCHASE_ORDERS.BY_ID(id));
+    return res.data;
+  },
+
   // 🟢 Tạo đơn hàng (POST /api/PurchaseOrders)
   create: async (data) => {
     const res = await ApiClient.post(ApiUrl.PURCHASE_ORDERS.BASE, data);
