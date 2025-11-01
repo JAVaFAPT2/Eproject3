@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Box,
   Flex,
@@ -37,45 +37,47 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
   const [allModels, setAllModels] = useState([]); // cấp 1
   const [displayedModels, setDisplayedModels] = useState([]);
   const [parentModel, setParentModel] = useState(null);
-  
-  // 🗄️ Cache for photos and specs to avoid repeated API calls
-  const [photosCache, setPhotosCache] = useState(new Map());
-  const [specsCache, setSpecsCache] = useState(new Map());
+
+  // 🗄️ Cache for photos and specs to avoid repeated API calls (now using refs)
+  const photosCache = useRef(new Map());
+  const specsCache = useRef(new Map());
 
   // 🔧 Helper functions for cached data fetching
-  const getCachedPhotos = useCallback(async (modelNumber) => {
-    if (photosCache.has(modelNumber)) {
-      return photosCache.get(modelNumber);
-    }
-    
-    try {
-      const photos = await VehiclePhotoService.getByModelNumber(modelNumber);
-      const newCache = new Map(photosCache);
-      newCache.set(modelNumber, photos);
-      setPhotosCache(newCache);
-      return photos;
-    } catch (error) {
-      console.warn(`Failed to fetch photos for ${modelNumber}:`, error);
-      return [];
-    }
-  }, [photosCache]);
+  const getCachedPhotos = useCallback(
+    async (modelNumber) => {
+      if (photosCache.current.has(modelNumber)) {
+        return photosCache.current.get(modelNumber);
+      }
 
-  const getCachedSpecs = useCallback(async (modelNumber) => {
-    if (specsCache.has(modelNumber)) {
-      return specsCache.get(modelNumber);
-    }
-    
-    try {
-      const specs = await VehicleSpecService.getByModelNumber(modelNumber);
-      const newCache = new Map(specsCache);
-      newCache.set(modelNumber, specs);
-      setSpecsCache(newCache);
-      return specs;
-    } catch (error) {
-      console.warn(`Failed to fetch specs for ${modelNumber}:`, error);
-      return [];
-    }
-  }, [specsCache]);
+      try {
+        const photos = await VehiclePhotoService.getByModelNumber(modelNumber);
+        photosCache.current.set(modelNumber, photos);
+        return photos;
+      } catch (error) {
+        console.warn(`Failed to fetch photos for ${modelNumber}:`, error);
+        return [];
+      }
+    },
+    [], // No deps needed—ref is stable
+  );
+
+  const getCachedSpecs = useCallback(
+    async (modelNumber) => {
+      if (specsCache.current.has(modelNumber)) {
+        return specsCache.current.get(modelNumber);
+      }
+
+      try {
+        const specs = await VehicleSpecService.getByModelNumber(modelNumber);
+        specsCache.current.set(modelNumber, specs);
+        return specs;
+      } catch (error) {
+        console.warn(`Failed to fetch specs for ${modelNumber}:`, error);
+        return [];
+      }
+    },
+    [], // No deps needed—ref is stable
+  );
 
   // 🟢 Fetch cấp 1 with immediate photo/spec loading
   useEffect(() => {
@@ -103,10 +105,11 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
               ]);
 
               // Get the best photo (displayOrder 0 or first available)
-              const displayPhoto = photos.find((p) => p.displayOrder === 0)?.photoUrl ||
-                                  photos[0]?.photoUrl ||
-                                  photos[0]?.url ||
-                                  m.photo;
+              const displayPhoto =
+                photos.find((p) => p.displayOrder === 0)?.photoUrl ||
+                photos[0]?.photoUrl ||
+                photos[0]?.url ||
+                m.photo;
 
               // Get fuel type
               const fuelSpec = specs.find((s) => s.specName === 'Fuel Type');
@@ -117,14 +120,17 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                 fuelType: fuelSpec?.specValue || 'N/A',
               };
             } catch (error) {
-              console.warn(`Failed to load details for ${m.modelNumber}:`, error);
+              console.warn(
+                `Failed to load details for ${m.modelNumber}:`,
+                error,
+              );
               return {
                 ...m,
                 photo: m.photo || null,
                 fuelType: 'N/A',
               };
             }
-          })
+          }),
         );
 
         setAllModels(enrichedModels);
@@ -141,64 +147,45 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
     };
 
     fetchLevel1Models();
-  }, [getCachedPhotos, getCachedSpecs]);
+  }, [getCachedPhotos, getCachedSpecs]); // These are now stable, so effect runs only once
 
   // 🟣 Fetch cấp 2 (variants) with immediate photo/spec loading
   const handleOpenLevel2 = async (parentModelNumber, name) => {
-    console.log('➡ Fetching level 2 for', parentModelNumber);
     setLoading(true);
+    setDisplayedModels([]); // Clear immediately to avoid showing stale level 1
+    setParentModel({ modelNumber: parentModelNumber, name });
+
     try {
       const res = await VehicleModelService.get({ parentModelNumber });
-      const variants = res?.items || res; // fallback nếu API trả mảng thẳng
+      const variants = res?.items || res || [];
 
-      if (!variants.length) {
-        console.warn('⚠️ No variants found for', parentModelNumber);
-      }
-
-      // Load photos and specs for all variants immediately
       const enrichedVariants = await Promise.all(
         variants.map(async (m) => {
-          try {
-            // Load photos and specs in parallel for each variant
-            const [photos, specs] = await Promise.all([
-              getCachedPhotos(m.modelNumber),
-              getCachedSpecs(m.modelNumber),
-            ]);
+          const [photos, specs] = await Promise.all([
+            getCachedPhotos(m.modelNumber),
+            getCachedSpecs(m.modelNumber),
+          ]);
 
-            // Get the best photo (displayOrder 0 or first available)
-            const displayPhoto = photos.find((p) => p.displayOrder === 0)?.photoUrl ||
-                                photos[0]?.photoUrl ||
-                                photos[0]?.url ||
-                                m.photo;
+          const displayPhoto =
+            photos.find((p) => p.displayOrder === 0)?.photoUrl ||
+            photos[0]?.photoUrl ||
+            photos[0]?.url ||
+            m.photo;
 
-            // Get fuel type
-            const fuelSpec = specs.find((s) => s.specName === 'Fuel Type');
+          const fuelSpec = specs.find((s) => s.specName === 'Fuel Type');
 
-            return {
-              ...m,
-              photo: displayPhoto || null,
-              fuelType: fuelSpec?.specValue || 'N/A',
-            };
-          } catch (error) {
-            console.warn(`Failed to load details for variant ${m.modelNumber}:`, error);
-            return {
-              ...m,
-              photo: m.photo || null,
-              fuelType: 'N/A',
-            };
-          }
-        })
+          return {
+            ...m,
+            photo: displayPhoto || null,
+            fuelType: fuelSpec?.specValue || 'N/A',
+          };
+        }),
       );
 
       setDisplayedModels(enrichedVariants);
-      setParentModel({ modelNumber: parentModelNumber, name });
     } catch (err) {
       console.error('❌ Error fetching submodels:', err);
-      console.error('Response data:', err.response?.data);
-      console.error('Response status:', err.response?.status);
-      console.error('Request URL:', err.config?.url);
-      console.error('Request method:', err.config?.method);
-      console.error('Parent model number:', parentModelNumber);
+      // Optional: Set an error state here for user-facing feedback
     } finally {
       setLoading(false);
     }
@@ -218,7 +205,9 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
 
   const handleNavigate = (path) => {
     closeHandler();
-    navigate(path);
+    setTimeout(() => {
+      navigate(path);
+    }, 100);
   };
 
   // 🌀 Render nội dung
@@ -250,6 +239,13 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
             p={4}
             role="group"
             _hover={{ bg: '#eeeff2' }}
+            onClick={() => {
+              if (el.level === 1) {
+                handleOpenLevel2(el.modelNumber, el.name);
+              } else if (el.level === 2 && el.slug) {
+                handleNavigate(`/user/detail/${el.slug}`);
+              }
+            }}
           >
             <VStack align="start" spacing={3}>
               {/* 🔹 Tên model */}
@@ -257,14 +253,6 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                 size="md"
                 fontWeight="semibold"
                 role="button"
-                onClick={() => {
-                  if (el.level === 1) {
-                    handleOpenLevel2(el.modelNumber, el.name);
-                  } else if (el.level === 2 && el.slug) {
-                    closeHandler();
-                    navigate(`/user/detail/${el.slug}`);
-                  }
-                }}
                 _hover={{ color: 'brand.500' }}
               >
                 {el.name}
@@ -277,14 +265,6 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                 borderRadius="md"
                 role="button"
                 position="relative"
-                onClick={() => {
-                  if (el.level === 1) {
-                    handleOpenLevel2(el.modelNumber, el.name);
-                  } else if (el.level === 2 && el.slug) {
-                    closeHandler();
-                    navigate(`/user/detail/${el.slug}`);
-                  }
-                }}
               >
                 {el.photo ? (
                   <Image
@@ -296,9 +276,14 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                     borderRadius="md"
                     transition="transform 0.3s ease"
                     _groupHover={{ transform: 'translateX(10px)' }}
-                    onLoad={() => console.log('✅ CategoryMenu image loaded:', el.photo)}
+                    onLoad={() =>
+                      console.log('✅ CategoryMenu image loaded:', el.photo)
+                    }
                     onError={(e) => {
-                      console.error('❌ CategoryMenu image failed to load:', el.photo);
+                      console.error(
+                        '❌ CategoryMenu image failed to load:',
+                        el.photo,
+                      );
                       e.target.style.display = 'none';
                     }}
                     fallback={
@@ -311,7 +296,9 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                         justifyContent="center"
                         borderRadius="md"
                       >
-                        <Text color="gray.500" fontSize="sm">Loading...</Text>
+                        <Text color="gray.500" fontSize="sm">
+                          Loading...
+                        </Text>
                       </Box>
                     }
                   />
@@ -325,7 +312,9 @@ export default function CategoryMenu({ isVisible, closeHandler }) {
                     justifyContent="center"
                     borderRadius="md"
                   >
-                    <Text color="gray.500" fontSize="sm">No Image</Text>
+                    <Text color="gray.500" fontSize="sm">
+                      No Image
+                    </Text>
                   </Box>
                 )}
               </Box>

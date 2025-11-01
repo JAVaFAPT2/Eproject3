@@ -1,32 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Flex,
   IconButton,
-  Text,
+  Image,
   useBreakpointValue,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import CategoryMenu from 'components/categoryMenu/CategoryMenu';
 
+import logo from 'assets/image/logo.png';
+
 function NavbarUser({ toggleCategory, isCategoryOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🧭 Kiểm tra có đang ở trang home không
-  const isHome =
-    location.pathname === '/' ||
-    location.pathname === '/user' ||
-    location.pathname === '/user/home';
+  const [isHome, setIsHome] = useState(false);
 
-  // 🎨 Màu chữ và icon phụ thuộc location
-  const textColor = isHome ? 'white' : 'black';
-  const iconColor = isHome ? 'white' : 'black';
+  // 🧭 Recompute when route changes
+  useEffect(() => {
+    setIsHome(
+      location.pathname === '/' ||
+        location.pathname === '/user' ||
+        location.pathname === '/user/home'
+    );
+  }, [location.pathname]);
+
+  // 🎨 Auto switch color based on current route
+  const textColor = useColorModeValue(isHome ? 'white' : 'black', isHome ? 'white' : 'gray.100');
+  const iconColor = textColor;
 
   return (
     <>
-      {/* Drawer menu */}
       <CategoryMenu isVisible={isCategoryOpen} closeHandler={toggleCategory} />
 
       <Flex
@@ -40,6 +47,7 @@ function NavbarUser({ toggleCategory, isCategoryOpen }) {
         bg="transparent"
         color={textColor}
         zIndex={200}
+        transition="color 0.3s ease"
       >
         <Flex
           w="100%"
@@ -54,21 +62,27 @@ function NavbarUser({ toggleCategory, isCategoryOpen }) {
             variant="ghost"
             onClick={toggleCategory}
             aria-label="Toggle menu"
+            _hover={{ bg: 'transparent' }}
           />
 
-          {/* 🔹 Center title */}
-          <Text
-            fontSize={useBreakpointValue({ base: 'lg', md: '2xl' })}
-            fontWeight="bold"
+          {/* 🔹 Center logo */}
+          <Box
             cursor="pointer"
-            onClick={() => navigate('/')}
-            color={textColor}
-            transition="color 0.2s ease"
+            onClick={() => navigate('/user/')}
+            transition="transform 0.2s ease"
+            _hover={{ transform: 'scale(1.05)' }}
           >
-            Car Showroom
-          </Text>
+            <Image
+              src={logo}
+              alt="Car Showroom Logo"
+              height={useBreakpointValue({ base: '48px', md: '60px' })}
+              objectFit="contain"
+              filter={isHome ? 'invert(1)' : 'invert(0)'} // 👈 auto đổi màu theo nền
+              transition="filter 0.3s ease"
+            />
+          </Box>
 
-          {/* 🔹 Placeholder for right side (balance layout) */}
+          {/* 🔹 Placeholder for symmetry */}
           <Box w="40px" />
         </Flex>
       </Flex>
