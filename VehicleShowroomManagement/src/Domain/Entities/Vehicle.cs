@@ -12,7 +12,12 @@ namespace VehicleShowroomManagement.Domain.Entities
     public class Vehicle
     {
         [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
+
+        [BsonElement("vehicleId")]
         public string VehicleId { get; private set; } = string.Empty;
+
 
         [BsonElement("modelNumber")]
         [BsonRequired]

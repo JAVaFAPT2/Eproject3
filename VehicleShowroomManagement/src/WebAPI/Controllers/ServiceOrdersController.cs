@@ -10,7 +10,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Dealer,Admin")]
+    [Authorize(Roles = "Dealer,Admin,Customer")]
     public class ServiceOrdersController : ControllerBase
     {
         private readonly IMediator _mediator;

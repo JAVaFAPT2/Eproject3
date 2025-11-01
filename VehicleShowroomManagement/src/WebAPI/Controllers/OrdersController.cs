@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VehicleShowroomManagement.Application.Features.Orders.Commands.CreateOrder;
 using VehicleShowroomManagement.Application.Features.Orders.Commands.AssignVehicle;
-using VehicleShowroomManagement.Application.Features.Orders.Commands.ConfirmOrder;
 using VehicleShowroomManagement.Application.Features.Orders.Commands.UpdateOrderStatus;
 using VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrders;
 using VehicleShowroomManagement.Application.Features.Orders.Queries.GetOrderById;
@@ -27,6 +26,7 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
         /// Gets all orders with pagination
         /// </summary>
         [HttpGet]
+        [Authorize(Roles = "Dealer,Admin,Customer")]
         public async Task<IActionResult> GetOrders(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -91,15 +91,6 @@ namespace VehicleShowroomManagement.WebAPI.Controllers
             var command = new AssignVehicleCommand(id, request.VehicleId, request.DealerId);
             await _mediator.Send(command);
             return Ok(new { message = "Vehicle assigned successfully" });
-        }
-
-        [HttpPost("{id}/confirm")]
-        [Authorize(Roles = "Dealer,Admin,Customer")]
-        public async Task<IActionResult> ConfirmOrder(string id)
-        {
-            var command = new ConfirmOrderCommand(id);
-            await _mediator.Send(command);
-            return Ok(new { message = "Order confirmed successfully" });
         }
 
         [HttpPut("{id}/status")]

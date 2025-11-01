@@ -22,14 +22,6 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useAppToast } from 'utils/ToastHelper';
 import VehicleService from 'services/VehicleService';
 
-// 🔹 Hàm sinh mã VehicleId tương tự backend
-function generateVehicleId() {
-  const now = new Date();
-  const yyyyMMdd = now.toISOString().slice(0, 10).replace(/-/g, '');
-  const guid = crypto.randomUUID().split('-')[0].toUpperCase(); // lấy 8 ký tự đầu
-  return `VEH-${yyyyMMdd}-${guid}`;
-}
-
 export default function Form({
   isOpen,
   onClose,
@@ -52,9 +44,10 @@ export default function Form({
 
   const [modelName, setModelName] = useState('');
 
-  // ✅ Tự sinh vehicleId khi mở form Add
+  // ✅ Setup form
   useEffect(() => {
     if (vehicle) {
+      // Edit mode
       setFormData({
         vehicleId: vehicle.vehicleId || '',
         modelNumber: vehicle.modelNumber || '',
@@ -67,8 +60,9 @@ export default function Form({
         models.find((m) => m.modelNumber === vehicle.modelNumber)?.name || ''
       );
     } else if (isOpen) {
+      // Add mode
       setFormData({
-        vehicleId: generateVehicleId(), // ✅ sinh ID duy nhất
+        vehicleId: '', // 🚫 Không tự sinh nữa
         modelNumber: '',
         purchasePrice: '',
         externalNumber: '',
@@ -87,7 +81,8 @@ export default function Form({
   const handleSubmit = async () => {
     try {
       const payload = {
-        vehicleId: formData.vehicleId, // ✅ đảm bảo luôn có giá trị
+        // 🚫 Bỏ vehicleId nếu rỗng để BE tự xử lý
+        ...(formData.vehicleId ? { vehicleId: formData.vehicleId } : {}),
         modelNumber: formData.modelNumber,
         purchasePrice: Number(formData.purchasePrice),
         externalNumber: formData.externalNumber,
@@ -100,14 +95,16 @@ export default function Form({
         toast.success('Vehicle updated successfully');
       } else {
         await VehicleService.create(payload);
-        toast.success(`Vehicle created: ${formData.vehicleId}`);
+        toast.success('Vehicle created successfully');
       }
 
       reloadVehicles();
       onClose();
     } catch (err) {
       console.error('❌ Error saving vehicle:', err);
-      toast.error('Error saving vehicle');
+      const msg =
+        err.response?.data?.message || 'Error saving vehicle';
+      toast.error(msg);
     }
   };
 
@@ -118,15 +115,15 @@ export default function Form({
         <ModalHeader>{vehicle ? 'Edit Vehicle' : 'Add Vehicle'}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {/* Vehicle ID (read-only for info) */}
-          {!vehicle && (
+          {/* Vehicle ID (readonly when editing) */}
+          {vehicle && (
             <FormControl mb={4}>
-              <FormLabel>Vehicle ID (Auto-generated)</FormLabel>
+              <FormLabel>Vehicle ID</FormLabel>
               <Input
                 color={textColor}
                 name="vehicleId"
                 value={formData.vehicleId}
-                readOnlyc
+                readOnly
               />
             </FormControl>
           )}

@@ -41,8 +41,7 @@ function ResetPassword() {
 
     setLoading(true);
     try {
-      // ✅ Đúng format body API: { token, newPassword }
-      await AuthService.resetPassword({ token, newPassword: password });
+      await AuthService.resetPassword(token, password);
       toast.success('Password reset successfully!');
       navigate('/auth/sign-in');
     } catch (error) {

@@ -34,7 +34,7 @@ function ForgotPassword() {
     setLoading(true);
     try {
       // ✅ Gọi API từ AuthService
-      await AuthService.forgotPassword({ email });
+      await AuthService.forgotPassword(email);
 
       toast.success('Password reset email sent!');
       navigate('/auth/check-email'); // điều hướng sang trang thông báo gửi thành công

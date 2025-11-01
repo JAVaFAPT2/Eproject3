@@ -4,9 +4,11 @@ import { ApiUrl } from 'constants/ApiUrl';
 
 const OrderService = {
   // 🟢 Lấy danh sách Orders
-  get: async () => {
-    const res = await ApiClient.get(ApiUrl.ORDERS.BASE);
-    return res.data;
+  get: async (params = {}) => {
+    const response = await ApiClient.get(ApiUrl.ORDERS.BASE, {
+      params,
+    });
+    return response.data;
   },
 
   getById: async (id) => {

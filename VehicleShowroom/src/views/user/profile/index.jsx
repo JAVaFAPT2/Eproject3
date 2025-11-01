@@ -10,36 +10,49 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import ProfileService from 'services/ProfileService';
+import OrderService from 'services/OrderService';
+import ServiceOrderService from 'services/ServiceOrderService';
 import ProfileTab from './components/ProfileTab';
 import PasswordTab from './components/PasswordTab';
+import OrderHistoryTab from './components/OrderHistoryTab';
+import ServiceHistoryTab from './components/ServiceHistoryTab';
 import { useAppToast } from 'utils/ToastHelper';
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [services, setServices] = useState([]);
   const toast = useAppToast();
 
-  // 🎨 Define shared colors once
   const bgColor = useColorModeValue('white', 'navy.800');
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   const sectionBg = useColorModeValue('gray.50', 'navy.700');
   const brandColor = useColorModeValue('brand.500', 'brand.400');
   const borderColor = useColorModeValue('rgba(11,20,55,0.1)', 'navy.600');
 
-  // 🧠 Fetch user profile on mount
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
         const data = await ProfileService.get();
         setUser(data);
+
+        // ⚡ gọi API có truyền param customerId
+        const [orderRes, serviceRes] = await Promise.all([
+          OrderService.get({ customerId: data.id }),
+          ServiceOrderService.get({ customerId: data.id }),
+        ]);
+
+        setOrders(orderRes.items || []);
+        setServices(serviceRes.items || []);
       } catch (err) {
-        console.error('❌ Failed to load profile:', err);
-        toast.error('Failed to load profile');
+        console.error('❌ Failed to load profile or history:', err);
+        toast.error('Failed to load profile or history');
       }
     };
 
-    fetchProfile();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Remove toast dependency to prevent infinite loop
+  }, []);
 
   return (
     <Box py="100px" w="80%" mx="auto">
@@ -55,7 +68,7 @@ export default function ProfilePage() {
         minH="600px"
       >
         <Flex w="100%" display={{ sm: 'block', md: 'flex' }}>
-          {/* Sidebar tab list */}
+          {/* 🟢 TabList: Đưa Order & Service lên trước */}
           <TabList
             flexDirection="column"
             w="220px"
@@ -63,7 +76,12 @@ export default function ProfilePage() {
             borderColor={borderColor}
             bg={bgColor}
           >
-            {['Profile', 'Change Password'].map((label) => (
+            {[
+              'Order History',
+              'Service History',
+              'Profile',
+              'Change Password',
+            ].map((label) => (
               <Tab
                 key={label}
                 justifyContent="flex-start"
@@ -91,8 +109,14 @@ export default function ProfilePage() {
             ))}
           </TabList>
 
-          {/* Main content */}
+          {/* 🟢 TabPanels tương ứng thứ tự mới */}
           <TabPanels w="100%" p={6} bg={bgColor}>
+            <TabPanel>
+              <OrderHistoryTab orders={orders} />
+            </TabPanel>
+            <TabPanel>
+              <ServiceHistoryTab services={services} />
+            </TabPanel>
             <TabPanel>
               {user && (
                 <ProfileTab
