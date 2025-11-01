@@ -65,12 +65,7 @@ export default function List({
             ))
           ) : (
             <Tr>
-              <Td
-                colSpan={headers.length || 1}
-                textAlign="center"
-                borderColor={borderColor}
-                py={10}
-              >
+              <Td colSpan={headers.length || 1} textAlign="center" py={10}>
                 <Text color="gray.500" fontStyle="italic">
                   No vehicles found
                 </Text>

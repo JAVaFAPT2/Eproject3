@@ -27,7 +27,6 @@ function VehicleManagement() {
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [statusFilter, setStatusFilter] = useState(null);
   const [modelFilter, setModelFilter] = useState(null);
-
   const [loading, setLoading] = useState(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -45,7 +44,7 @@ function VehicleManagement() {
       try {
         setLoading(true);
 
-        // 🔹 chỉ load models 1 lần (khi mảng models rỗng)
+        // 🔹 Load models 1 lần duy nhất
         let modelsData = models;
         if (modelsData.length === 0) {
           const resModels = await VehicleModelService.get({
@@ -56,7 +55,7 @@ function VehicleManagement() {
           if (!abort) setModels(modelsData);
         }
 
-        // 🔹 luôn load vehicles theo filters/search
+        // 🔹 Luôn load vehicles theo filter/search
         const params = { pageNumber: page, pageSize: 10 };
         if (searchInput?.trim()) params.searchTerm = searchInput.trim();
         if (modelFilter) params.modelNumber = modelFilter;
@@ -81,7 +80,7 @@ function VehicleManagement() {
         }
       } catch (err) {
         if (!abort) {
-          console.error('Failed to load data:', err);
+          console.error('Failed to load vehicles:', err);
           toast.error('Failed to load vehicle data');
         }
       } finally {
@@ -89,16 +88,13 @@ function VehicleManagement() {
       }
     };
 
-    const delay = setTimeout(() => {
-      loadData();
-    }, 400);
+    loadData();
 
     return () => {
       abort = true;
-      clearTimeout(delay);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, searchInput, modelFilter, statusFilter]); // ✅ chỉ reload khi filter thay đổi
+  }, [page, searchInput, modelFilter, statusFilter]);
 
   // 🗑️ Confirm delete
   const confirmDelete = useCallback(async () => {
@@ -106,7 +102,7 @@ function VehicleManagement() {
     try {
       setLoading(true);
       await VehicleService.delete(selectedToDelete.vehicleId);
-      // reload lại vehicle list sau khi xóa
+
       const params = { pageNumber: page, pageSize: 10 };
       const res = await VehicleService.get(params);
       setVehicles(res.items || []);
@@ -157,7 +153,6 @@ function VehicleManagement() {
           onClose();
         }}
         reloadVehicles={() => {
-          // reload vehicles thủ công sau khi add/edit
           const params = { pageNumber: page, pageSize: 10 };
           VehicleService.get(params).then((res) =>
             setVehicles(res.items || []),
@@ -185,6 +180,7 @@ function VehicleManagement() {
           }}
           textColor={textColor}
         />
+
         <List
           table={table}
           borderColor={borderColor}

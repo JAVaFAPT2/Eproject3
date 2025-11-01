@@ -40,7 +40,7 @@ export const ApiUrl = {
   PURCHASE_ORDERS: {
     BASE: `${BASE_URL}/PurchaseOrders`,
     LINES: (id) => `${BASE_URL}/PurchaseOrders/${id}/lines`,
-    COMPLETE: (id) => `${BASE_URL}/PurchaseOrders/${id}/complete`,
+    STATUS: (id) => `${BASE_URL}/PurchaseOrders/${id}/status`,
   },
 
   // 📈 Reports

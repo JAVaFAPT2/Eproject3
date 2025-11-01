@@ -24,9 +24,11 @@ const PurchaseOrderService = {
     return res.data;
   },
 
-  // 🟢 Hoàn tất đơn hàng (POST /api/PurchaseOrders/{id}/complete)
-  complete: async (orderId) => {
-    const res = await ApiClient.post(ApiUrl.PURCHASE_ORDERS.COMPLETE(orderId));
+  // 🟢 Cập nhật trạng thái đơn hàng (PUT /api/PurchaseOrders/{id}/status)
+  updateStatus: async (orderId, status) => {
+    const res = await ApiClient.put(ApiUrl.PURCHASE_ORDERS.STATUS(orderId), {
+      status,
+    });
     return res.data;
   },
 };

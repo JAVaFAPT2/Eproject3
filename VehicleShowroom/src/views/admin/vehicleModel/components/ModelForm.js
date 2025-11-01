@@ -18,7 +18,7 @@ import { useAppToast } from 'utils/ToastHelper';
 import VehicleModelService from 'services/VehicleModelService';
 import VehiclePhotoService from 'services/VehiclePhotoService';
 import ImageUploader from 'components/images/ImageUploader';
-import { generateSlug } from 'utils/SlugHelper'; // ✅ import helper
+import { generateSlug } from 'utils/SlugHelper'; 
 
 export default function ModelForm({
   isOpen,
